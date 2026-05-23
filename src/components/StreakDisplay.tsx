@@ -24,12 +24,12 @@ export function StreakDisplay({ streak }: Props) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -4 }}
         transition={{ duration: 0.15 }}
-        className={`flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-xs ${
+        className={`flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-xs shadow-sm transition-colors ${
           streak >= 5
-            ? "border-rose-400 bg-rose-50 text-rose-700 dark:border-rose-500/40 dark:bg-rose-500/15 dark:text-rose-200"
+            ? "border-rose-400 bg-rose-50 text-rose-700 dark:border-rose-400/60 dark:bg-rose-900/60 dark:text-rose-200 dark:shadow-rose-500/20"
             : streak >= 3
-              ? "border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-200"
-              : "border-zinc-200 bg-white text-zinc-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-400"
+              ? "border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-400/60 dark:bg-amber-900/50 dark:text-amber-100 dark:shadow-amber-500/20"
+              : "border-zinc-200 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
         }`}
       >
         {heat && <span className="text-sm leading-none">{heat}</span>}

@@ -4,9 +4,9 @@ export type TemplateId =
   | "kpt"
   | "star"
   | "5w1h"
-  | "yww" // やったこと/わかったこと/わからなかったこと
-  | "prep" // PREP法 (Point/Reason/Example/Point)
-  | "daily-report"; // 日報
+  | "yww"
+  | "prep"
+  | "daily-report";
 
 export type TemplateField = {
   key: string;
@@ -16,142 +16,473 @@ export type TemplateField = {
   multiline?: boolean;
 };
 
+export type TemplateExample = {
+  title: string;
+  context?: string;
+  content: Record<string, string>;
+};
+
+export type TemplateTip = string;
+
 export type Template = {
   id: TemplateId;
   name: string;
   emoji: string;
   description: string;
-  rationale: string; // この型式を使うと何が鍛えられるか
+  // 何を鍛えるか (背景の解説)
+  rationale: string;
+  // どんな場面で使うか
+  useCase: string;
+  // 鍛えられる具体的なスキル (短いリスト)
+  skills: string[];
+  // 続けるコツ・うまく書くコツ
+  tips: TemplateTip[];
   fields: TemplateField[];
+  // 記入例 (実際に書かれたサンプル)
+  examples: TemplateExample[];
 };
 
 export const templates: Template[] = [
+  // -------------------------------------------------------------------------
   {
     id: "kpt",
     name: "KPT 振り返り",
     emoji: "📋",
-    description: "Keep (続ける) / Problem (課題) / Try (試す) の 3 観点で 1 日を振り返る",
+    description: "Keep (続ける) / Problem (課題) / Try (試す) の 3 観点で振り返り",
     rationale:
-      "事実 → 課題 → アクションの順で書くことで、感想で終わらず次の行動に繋げる訓練になります。アジャイル開発で広く使われる定番。",
+      "アジャイル開発で広く使われる定番フレームワーク。事実 (Keep/Problem) → アクション (Try) の流れを毎回踏むことで、振り返りが『感想』で終わらず確実に次の行動に繋がります。日次・週次・スプリント終了時に使うのが王道。",
+    useCase:
+      "1 日の業務終わり / 週末の振り返り / スプリントレトロ / プロジェクト終了時。チームでホワイトボードに貼って共有する使い方も定番。",
+    skills: [
+      "事実と評価を分けて捉える観察力",
+      "課題から具体的な行動を導く問題解決力",
+      "良い習慣を意識化して継続する力",
+    ],
+    tips: [
+      "Keep には『習慣・姿勢・ツール選択』も書く。タスクの成果だけだと『たまたまうまく行った』で終わる",
+      "Problem は『他人のせい』ではなく『自分がコントロールできること』に絞る (例: 「設計レビューが少なすぎる」→「次回は早めに設計レビューを依頼する」)",
+      "Try は『明日からやる、5 分で始められる』レベルに落とす。粒度が大きいと実行されない",
+      "1 週間後に過去 Try を見返して、実行できたか○×を付ける『Try レビュー』を習慣化",
+    ],
     fields: [
       {
         key: "keep",
         label: "Keep — 続けたい良かったこと",
         hint: "うまく行ったやり方、習慣、ツール、姿勢など。",
-        placeholder: "例: 詰まったらまず公式ドキュメントを開く習慣がついた",
+        placeholder:
+          "例: 詰まったらまず公式ドキュメントを開く習慣がついた / PR 出す前にセルフレビューを 5 分やる",
         multiline: true,
       },
       {
         key: "problem",
         label: "Problem — 課題に感じたこと",
         hint: "つまずいた点、時間を浪費した原因、理解が浅い領域。",
-        placeholder: "例: ActiveRecord の N+1 を毎回 includes で慌てて直している",
+        placeholder:
+          "例: ActiveRecord の N+1 を毎回 includes で慌てて直している / RSpec の let の挙動を雰囲気で使ってる",
         multiline: true,
       },
       {
         key: "try",
         label: "Try — 次に試すこと",
         hint: "Problem への具体的な対応策。明日から実行可能なレベルに落とす。",
-        placeholder: "例: PR 出す前に bullet gem のログを確認する手順をチェックリスト化する",
+        placeholder:
+          "例: PR 出す前に bullet gem のログを確認する手順をチェックリスト化する",
         multiline: true,
       },
     ],
+    examples: [
+      {
+        title: "RailsアプリのN+1対応の日",
+        context: "実務で初めて bullet を導入した日",
+        content: {
+          keep: "・ログを tail -f で常時監視しながら開発する姿勢\n・bullet gem を development.rb に追加するときに『alert/log/console』を全部有効にした",
+          problem: "・既存コードでもN+1が3箇所見つかった。レビュー時に拾えていない\n・includes と eager_load の使い分けがあやふやで毎回ググっている",
+          try: "・PRテンプレに『bulletログの確認』チェック欄を追加\n・週末に includes/preload/eager_load の違いを15分でブログにまとめる",
+        },
+      },
+      {
+        title: "週次のチーム振り返り",
+        content: {
+          keep: "デイリーで「困っていること」を最初に共有する流れができた。早期に手助けが入る",
+          problem: "PR レビューがフリーズしがち。レビュアー固定で属人化",
+          try: "PR テンプレに『推奨レビュアー』欄を追加し、ローテーションで2名指名する",
+        },
+      },
+    ],
   },
+
+  // -------------------------------------------------------------------------
   {
     id: "star",
     name: "STAR 法",
     emoji: "🌟",
-    description: "Situation / Task / Action / Result で 1 つの経験を整理する",
+    description: "Situation / Task / Action / Result で 1 つの経験を整理",
     rationale:
-      "面接でも実務報告でも役立つ『再現性のある説明』の型。状況→課題→自分の行動→結果と数字で説明する力が付きます。",
+      "もとは行動面接で使われる構造化技法。状況→課題→自分の行動→結果と数字、の流れで話すことで、聞き手が『何が起きてあなたは何をしたか』を一発で理解できます。職務経歴書、面接、ポストモーテム、上司への報告で再利用可能。",
+    useCase:
+      "障害対応の振り返り / 大きなタスク完了時 / 転職用の経験棚卸し / 期末評価の自己評価書作成。1 経験につき 1 STAR が原則。",
+    skills: [
+      "経験を『再現可能な物語』として説明する力",
+      "自分の貢献と結果を数字で語る力",
+      "判断の根拠を後から言語化する力 (経験を資産化)",
+    ],
+    tips: [
+      "Action は『チームでやったこと』ではなく『自分が判断・実行したこと』を書く。『I』が主語",
+      "Result は必ず数字を 1 つ以上入れる (改善率・削減時間・処理件数など)。数字がないと再現性のない感想に見える",
+      "Task は『要件』ではなく『自分が掲げたゴール』。任された仕事 + どこを優先したかの判断を含む",
+      "失敗経験でも書ける。Result は『何を学んだか / 次にどう活かすか』で締めれば資産になる",
+    ],
     fields: [
       {
         key: "situation",
         label: "Situation — 状況",
         hint: "5W1H を意識して、誰が何の前提で、いつ、どこで起きたか。",
-        placeholder: "例: 本番リリース直前、決済 API のレスポンス劣化が報告された",
+        placeholder:
+          "例: 本番リリース直前、決済 API のレスポンスが平均 800ms から 3.5s に劣化していると CS チームから報告",
         multiline: true,
       },
       {
         key: "task",
         label: "Task — 自分が取り組むべき課題",
-        hint: "自分の役割と達成すべきゴール。",
-        placeholder: "例: 30 分以内に原因仮説を立て、暫定対応の判断材料を提示する",
+        hint: "自分の役割と達成すべきゴール。優先順位の判断も含めて。",
+        placeholder:
+          "例: 当日中に原因を特定し、暫定対応の判断材料を CTO に渡す。本格修正は翌日対応で良い",
         multiline: true,
       },
       {
         key: "action",
         label: "Action — 自分の行動",
-        hint: "具体的に何をどう実行したか。判断の根拠も含める。",
-        placeholder: "例: APM の遅延クエリを確認 → 該当エンドポイントの N+1 を特定 → ステージングで再現",
+        hint: "具体的に何をどう実行したか。判断の根拠も含める。「I」を主語に。",
+        placeholder:
+          "例: 1) New Relic で該当エンドポイントのトレースを確認 → 決済 API 呼び出し前に N+1 が発生していた\n2) ステージングで再現確認、includes で 1 クエリにまとめる修正を作成\n3) hotfix ブランチで PR、レビュー 2 名でマージ後、本番デプロイ",
         multiline: true,
       },
       {
         key: "result",
         label: "Result — 結果と学び",
         hint: "定量・定性両方で。次に活かせる教訓も書く。",
-        placeholder: "例: P95 800ms→120ms。次回からは負荷試験を CI に含める",
+        placeholder:
+          "例: P95 3.5s → 180ms (-95%)。CS への問い合わせも翌日 0 件。\n学び: APM での『普段のベースライン』を眺める習慣がなかった。週次でダッシュボードを見る時間をブロック",
         multiline: true,
       },
     ],
+    examples: [
+      {
+        title: "本番障害ハンドリング (1.5h で復旧)",
+        context: "AWS RDS の CPU 100% アラート",
+        content: {
+          situation:
+            "土曜 22 時、CloudWatch アラート発火。本番 RDS の CPU が 30 分間 95% 以上で推移。ユーザーからは『画面が遅い』との SNS 投稿が散見されていた。",
+          task:
+            "オンコール担当として 30 分以内に原因仮説、1 時間以内にユーザー影響を解消する。本格対応は翌週で OK。",
+          action:
+            "1) RDS Performance Insights で Top SQL を確認 → posts テーブルのフルスキャンが上位に\n2) 該当クエリを発行しているコードを特定 → 検索画面の order(:created_at) に index 無し\n3) ALTER TABLE で created_at にインデックス追加 (CONCURRENTLY)\n4) 5 分で適用完了、APM の応答時間が即座に改善",
+          result:
+            "RDS CPU 95% → 18%、検索画面の P95 4.2s → 320ms。SNS 投稿も収束。\n学び: index 漏れは PR レビューで気づくべきだった。Strong Migrations で検出ルール追加 + EXPLAIN を PR description に書く運用に変更",
+        },
+      },
+    ],
   },
+
+  // -------------------------------------------------------------------------
   {
     id: "5w1h",
     name: "5W1H 整理",
     emoji: "🔍",
     description: "Who / When / Where / What / Why / How で事象を多角的に分解",
     rationale:
-      "1 つの出来事を 6 軸で分解する練習。要素抜けに気付く癖がつき、報告書・タスク依頼の質が上がります。",
+      "1 つの出来事を 6 軸で分解する練習。要素抜けに気付く癖がつき、報告書・タスク依頼・障害連絡の精度が劇的に上がります。『状況をフレームで切る』練習として最適。",
+    useCase:
+      "障害発生時の初動共有 (Slack に書く前に下書き) / 新しいタスクを依頼する前の整理 / ニュース記事の要約練習 / 学んだ概念の整理。",
+    skills: [
+      "情報を多軸で構造化する分解力",
+      "報告・連絡で何が抜けているかに気付く力",
+      "曖昧な依頼や報告を『答えやすい質問』に変換する力",
+    ],
+    tips: [
+      "わからない軸も『不明』『未確認』と明示して残す。空欄より抜けが見えやすい",
+      "Why は 2 つに分けると深まる: 『なぜ起きた (技術的原因)』『なぜ重要 (ビジネス影響)』",
+      "How は『今後どうする』ではなく『どう対応した・する』。Action 寄りに書く",
+      "障害報告の場合: When は『発生時刻・検知時刻・収束時刻』の 3 つを書くと完璧",
+    ],
     fields: [
-      { key: "what", label: "What — 何が起きた / 何を学んだ", hint: "中心となる事実 (動詞で書く)", placeholder: "Sidekiq Job がリトライループに入った" },
-      { key: "when", label: "When — いつ", hint: "日時、フェーズ、発生頻度", placeholder: "本番デプロイ後 23:00 ごろ" },
-      { key: "where", label: "Where — どこで", hint: "システム名、画面、コードパス", placeholder: "config/sidekiq.yml の retry 設定" },
-      { key: "who", label: "Who — 誰が関与", hint: "ユーザー / 自分 / チーム / 外部", placeholder: "自分とインフラ担当 1 名" },
-      { key: "why", label: "Why — なぜ起きた / なぜ学ぶ価値あり", hint: "原因 or 学習の動機", placeholder: "discard_on を入れ忘れた + ジョブ引数が壊れていた" },
-      { key: "how", label: "How — どう対応 / どう適用する", hint: "対応手順 or 今後の使い道", placeholder: "ApplicationJob に discard_on の標準を追加 + PR テンプレに項目追加" },
+      {
+        key: "what",
+        label: "What — 何が起きた / 何を学んだ",
+        hint: "中心となる事実。動詞で短く。",
+        placeholder: "例: Sidekiq Job がリトライループに入り続けた",
+      },
+      {
+        key: "when",
+        label: "When — いつ",
+        hint: "日時・フェーズ・頻度。障害なら検知/発生/収束を分けて",
+        placeholder: "例: 月曜 14:30 検知、リリース直後の 14:15 から発生、14:50 に対応完了",
+      },
+      {
+        key: "where",
+        label: "Where — どこで",
+        hint: "システム名・画面・コードパス・環境",
+        placeholder:
+          "例: 本番環境 (Heroku eu)、Sidekiq worker の WelcomeJob、app/jobs/welcome_job.rb",
+      },
+      {
+        key: "who",
+        label: "Who — 誰が関与・影響",
+        hint: "ユーザー / 自分 / チーム / 外部サービス",
+        placeholder: "例: 影響: 新規登録ユーザー約 200 名 (重複メール)。対応: 自分とインフラ担当 1 名",
+      },
+      {
+        key: "why",
+        label: "Why — なぜ起きた / なぜ重要",
+        hint: "原因 (技術 + ビジネス両軸で)",
+        placeholder:
+          "例: 技術的: discard_on の指定漏れで RecordNotFound 例外でも無限リトライ。ビジネス的: ユーザー体験悪化 + メール送信コスト増",
+        multiline: true,
+      },
+      {
+        key: "how",
+        label: "How — どう対応 / どう活かす",
+        hint: "対応手順 / 今後の再発防止",
+        placeholder:
+          "例: ApplicationJob に discard_on の標準を追加 + PR テンプレに項目追加。Sidekiq Dead Set も監視へ",
+        multiline: true,
+      },
+    ],
+    examples: [
+      {
+        title: "Sidekiq リトライループの分析",
+        content: {
+          what: "WelcomeJob が同一ジョブで 25 回リトライ、メールも 25 通送信",
+          when: "金曜 18:10 検知 / 17:45 デプロイ後から発生 / 18:30 hotfix デプロイで停止",
+          where: "本番 (Heroku) / Sidekiq worker / app/jobs/welcome_job.rb",
+          who: "影響: 同日登録 12 名 (各 25 通メール)。対応: 自分 1 名、レビュー 1 名",
+          why: "原因: User が createされる前にJobがperform_laterされていた → User.find が失敗 → 25回リトライ。なぜ重要: 顧客に重複メールで信頼低下、SendGrid 課金 +12,000 通",
+          how: "after_commit に変更 + retry_on の RecordNotFound を discard_on に変更。再発防止としてrubocop-rspec のカスタムルールで perform_later の位置を検査",
+        },
+      },
     ],
   },
+
+  // -------------------------------------------------------------------------
   {
     id: "yww",
-    name: "YWT (やった/わかった/次やる)",
+    name: "YWT (やった / わかった / 次やる)",
     emoji: "✍️",
-    description: "やったこと / わかったこと / 次やること を簡潔に。短時間で書ける日次振り返り型",
+    description: "やったこと / わかったこと / 次やること で簡潔な日次振り返り",
     rationale:
-      "毎日続けやすいシンプル型。継続的な学習ログとして使うと『わかった』の積み重ねが見えるので自己効力感が上がります。",
+      "産能大学発祥の振り返り型。KPT より軽くて短時間で書けるため、毎日続けやすい。3 ヶ月続けると『わかったこと』の蓄積が圧倒的な資産になります。",
+    useCase:
+      "毎日 5 分のクイック振り返り / 学習時間の終わりに / オンライン学習・書籍学習のログとして。",
+    skills: [
+      "毎日続ける習慣力 (一番小さく書ける型式なので継続率が高い)",
+      "『なんとなくの学び』を言語化する力",
+      "学習の連続性を作る (前日の T → 今日の Y へ繋ぐ)",
+    ],
+    tips: [
+      "Y (やった) は箇条書きでよい。完了タスク・読んだもの・触ったコード",
+      "W (わかった) はメインディッシュ。『なぜそうなるか』『前の理解とどう違うか』を書くと深まる",
+      "T (次やる) は翌日の Y にちゃんと書けるか?を意識して具体的に",
+      "毎日同じ場所 (例: 寝る前 5 分) で書くと続く。Notion / Obsidian / このアプリ等、開きやすい場所で",
+    ],
     fields: [
-      { key: "done", label: "Y — 今日やったこと", hint: "事実ベース。タスク・読んだもの・書いたコード", placeholder: "Rails の Active Job 章を読んで Welcome メール送信を Job 化した", multiline: true },
-      { key: "learned", label: "W — わかったこと", hint: "理解できた概念や仕組み。『なぜそうなるか』を含めると深まる", placeholder: "deliver_later は ActionMailer が ActiveJob でラップしている。perform_later との実装的な違いは…", multiline: true },
-      { key: "next", label: "T — 次にやること", hint: "明日 / 次回の具体的なアクション", placeholder: "リトライ戦略 (retry_on/discard_on) と Sidekiq の DLQ について学ぶ", multiline: true },
+      {
+        key: "done",
+        label: "Y — 今日やったこと",
+        hint: "事実ベースで箇条書き。タスク・読んだもの・書いたコード",
+        placeholder:
+          "・チェリー本 7 章を読了\n・User モデルの validation テストを 5 ケース追加\n・PR #142 のレビュー対応",
+        multiline: true,
+      },
+      {
+        key: "learned",
+        label: "W — わかったこと",
+        hint: "理解できた概念・仕組み。『なぜ』を入れる",
+        placeholder:
+          "・deliver_later は ActionMailer が自動で ActiveJob でラップしているだけで、本質は perform_later と同じ\n・has_secure_password は bcrypt gem のラッパーで、cost=12 がデフォ。テストでは cost を下げて高速化できる",
+        multiline: true,
+      },
+      {
+        key: "next",
+        label: "T — 次やること",
+        hint: "明日 / 次回の具体的なアクション",
+        placeholder:
+          "・retry_on / discard_on のドキュメントを読んで、リトライ戦略を実プロジェクトで設定\n・チェリー本 8 章 (例外処理) を読む",
+        multiline: true,
+      },
+    ],
+    examples: [
+      {
+        title: "RSpec を初めて触った日",
+        content: {
+          done:
+            "・factory_bot で User factory を作成\n・User モデルの validation spec を 8 ケース書いた\n・request spec で /users#create のテスト追加",
+          learned:
+            "・let は遅延評価される。使われないテストでは生成されないので、副作用ありなら let! を使う\n・build_stubbed は DB INSERT 無しで id まで持つ偽オブジェクト。バリデーションだけのテストなら create より圧倒的に速い (DB を叩かない)\n・request spec は HTTP リクエストを送るので、ルーティング + コントローラ + ビューを一気通貫でテストできる",
+          next:
+            "・factory に trait を追加してロール別ユーザーを生成できるようにする\n・shoulda-matchers を導入してバリデーションテストを 1 行で書けるようにする",
+        },
+      },
     ],
   },
+
+  // -------------------------------------------------------------------------
   {
     id: "prep",
     name: "PREP 法 (説明訓練)",
     emoji: "🗣️",
-    description: "Point (結論) / Reason (理由) / Example (具体例) / Point (再結論)",
+    description: "Point (結論) → Reason (理由) → Example (例) → Point (再結論)",
     rationale:
-      "技術的な質問に答える時の標準型。最初と最後に結論を 2 度言うことで聞き手の理解が定着し、説明力・プレゼン力が伸びます。",
+      "ビジネスコミュニケーションの基本型。『最初と最後に結論を 2 度言う』ことで聞き手の理解が定着し、口頭でも文章でも『伝わる』表現に変わります。技術的な説明・面接・社内 LT の準備に最適。",
+    useCase:
+      "ペアプロでの設計説明 / コードレビューで自分の判断を説明 / 面接の技術的質問への回答練習 / Slack で長い説明を書く前の下書き。",
+    skills: [
+      "結論ファーストで話す力 (聞き手の負担を減らす)",
+      "理由と具体例で論を補強する力",
+      "曖昧な疑問を 1 つの主張に絞り込む力",
+    ],
+    tips: [
+      "Point は『〜である』『〜すべき』と言い切る。曖昧語 (思う・かもしれない) を排除",
+      "Reason は 1〜3 個。それ以上書くと結論がぼやける",
+      "Example はコード例 / 数字 / 経験談で具体的に。これが説得力の源泉",
+      "再 Point は別の言い回しで補強。最初と全く同じ文だとくどい",
+      "1 テーマ 5 分で書く練習を続けると、Slack 投稿の質が劇的に上がる",
+    ],
     fields: [
-      { key: "topic", label: "テーマ / 質問", hint: "誰かに説明する想定のお題を 1 文で", placeholder: "Ruby の Symbol と String の使い分けはどうする？" },
-      { key: "point", label: "P — 結論 (一言で)", hint: "最初に言い切る。曖昧語を避け『〜である』で締める", placeholder: "識別子としての用途は Symbol、データとしての値は String を使う", multiline: true },
-      { key: "reason", label: "R — 理由", hint: "なぜそう言えるのかを 1-3 個", placeholder: "Symbol は immutable で同名なら同一オブジェクト。比較・メモリ効率が良いから", multiline: true },
-      { key: "example", label: "E — 具体例", hint: "コード例 / シナリオで補強", placeholder: "Hash のキー / 状態フラグは :pending :done のように Symbol、ユーザー入力やDB保存値は String", multiline: true },
-      { key: "point2", label: "P — 再結論", hint: "最初の Point を別の言い回しで補強", placeholder: "つまり『役割が固定された名前』なら Symbol、『可変なテキスト』なら String", multiline: true },
+      {
+        key: "topic",
+        label: "テーマ / 質問",
+        hint: "誰かに説明する想定のお題を 1 文で",
+        placeholder: "例: Ruby の Symbol と String、いつどっちを使う？",
+      },
+      {
+        key: "point",
+        label: "P — 結論 (一言で)",
+        hint: "最初に言い切る。『〜である』で締める",
+        placeholder:
+          "識別子としての用途は Symbol、ユーザーから受け取る可変なテキスト値は String を使う",
+        multiline: true,
+      },
+      {
+        key: "reason",
+        label: "R — 理由",
+        hint: "1〜3 個の理由。比較で書くと明確になる",
+        placeholder:
+          "1. Symbol は immutable で同名なら同一オブジェクト → 比較速度・メモリ効率が良い\n2. String は mutable で都度生成 → 動的に組み立てる用途に向く\n3. ユーザー入力を to_sym すると無制限にシンボル生成されメモリリーク懸念",
+        multiline: true,
+      },
+      {
+        key: "example",
+        label: "E — 具体例",
+        hint: "コード例・シナリオで補強",
+        placeholder:
+          "Hash のキー: { name: 'Alice', role: :admin } のように key と状態フラグは Symbol\n値: user.name = 'Alice' のような可変テキストは String\nアンチパターン: params[:role].to_sym (ユーザー入力をSymbol化) → 攻撃者が好きなだけメモリ消費可能",
+        multiline: true,
+      },
+      {
+        key: "point2",
+        label: "P — 再結論",
+        hint: "最初の Point を別の言い回しで補強",
+        placeholder:
+          "つまり『役割が固定された名前・識別子』なら Symbol、『その場で生成される / 外部から来るデータ』なら String と覚えると判断に迷わない",
+        multiline: true,
+      },
+    ],
+    examples: [
+      {
+        title: "テストにモックを使う基準",
+        content: {
+          topic: "RSpec で stub / mock を使うべき基準は？",
+          point:
+            "外部依存 (ネットワーク / 課金 / メール送信) は必ずモック、自プロジェクト内のクラス連携はなるべく実物を使う",
+          reason:
+            "1. 外部依存をモックしないとテストが遅く・脆くなる\n2. 自プロジェクト内を全部モックするとリファクタで一斉に壊れて意味がない\n3. モックは『契約』を表す。Stripe API の挙動を再現するのは Stripe gem の責任で、私達はその契約を信じる",
+          example:
+            "OK: allow(Stripe::Charge).to receive(:create).and_return(double(id: 'ch_xxx'))\nNG: 自プロジェクトの PostService をモックして、PostsController から呼ぶ部分をテスト\n→ 結合バグが見つからない。実物を使う + 契約テスト的に書く",
+          point2:
+            "ルール: 『プロセス境界を超えるもの』はモック、『同じプロセス内のクラス連携』は実物。コストとリアリティのバランスを取る",
+        },
+      },
     ],
   },
+
+  // -------------------------------------------------------------------------
   {
     id: "daily-report",
     name: "日報フォーマット",
     emoji: "📝",
-    description: "上司・チームに共有する形式 (タスク進捗 / 学び / 相談 / 明日)",
+    description: "上司・チームに共有する形式 (サマリー / 進捗 / 学び / 相談 / 明日)",
     rationale:
-      "報連相に必要な情報を漏れなく構造化。AI レビューと組み合わせれば『曖昧な進捗報告』が減り、信頼を得やすくなります。",
+      "上司との信頼関係は日々の報告で築かれる。曖昧な『順調に進めています』ではなく、構造化された日報を出すことで『仕事が見える』 → 安心される → 任される範囲が広がる、の好循環を作れます。",
+    useCase:
+      "毎日終業前の 10 分 / Slack の DM や日報チャンネルに投稿 / 新人〜2 年目で特に効果大 (信頼貯金が貯まる)。",
+    skills: [
+      "報連相を構造化する力",
+      "事実と相談を分けて書く力",
+      "明日の計画を具体的に書く力 (= 自分の予定が見える)",
+    ],
+    tips: [
+      "サマリーは『今日を一言で』。Slack のプレビューに出るので最重要",
+      "進捗は『タスク → 結果 (% or ✓)』の形式。何を / どこまでが明確に",
+      "相談は『判断してほしいこと』を明示。読み手が即答できる質問にする",
+      "明日の予定は優先順 + 想定時間。実態とのずれを翌日に検証すると見積もり精度が上がる",
+      "毎日続けると評価面談時に『振り返り資料』として使える。年末年始に大きな価値を発揮",
+    ],
     fields: [
-      { key: "summary", label: "1 行サマリー", hint: "今日を一言で。スレッドの最初に貼れるレベル", placeholder: "Welcome Mailer の Job 化 PR をレビュー依頼まで完了" },
-      { key: "progress", label: "今日の進捗", hint: "タスク → 結果 (% or ✓)。番号付きでもOK", placeholder: "1. メール Job 化 ✓\n2. テスト追加 80%\n3. ドキュメント更新 未着手", multiline: true },
-      { key: "learnings", label: "今日の学び", hint: "技術 / プロセスで気付いたこと", placeholder: "Active Job の retry_on は exponentially_longer がデフォではない (Rails 7.1+)", multiline: true },
-      { key: "blockers", label: "詰まり / 相談したいこと", hint: "誰の判断が必要か明示すると即返事もらえる", placeholder: "Sidekiq の DLQ 運用ルールについて @チーム の合意が欲しい", multiline: true },
-      { key: "tomorrow", label: "明日の予定", hint: "優先順 + 想定時間", placeholder: "1. テスト残り (1h) / 2. PR レビュー対応 (1h) / 3. 新規 API 設計 (2h)", multiline: true },
+      {
+        key: "summary",
+        label: "1 行サマリー",
+        hint: "今日を一言で。Slack スレッドの最初に貼れるレベル",
+        placeholder: "例: Welcome Mailer の Job 化 PR をレビュー依頼まで完了 (テストは 80%)",
+      },
+      {
+        key: "progress",
+        label: "今日の進捗",
+        hint: "番号付きで『タスク → 結果』。何が完了 / 進行中 / 未着手か明示",
+        placeholder:
+          "1. Welcome Mailer の Job 化実装 ✓\n2. Job のテスト (request spec) 80% (perform_later 検証が残)\n3. ステージングデプロイ + 動作確認 ✓\n4. ドキュメント更新 未着手",
+        multiline: true,
+      },
+      {
+        key: "learnings",
+        label: "今日の学び",
+        hint: "技術 / プロセスで気付いたこと。短くても OK",
+        placeholder:
+          "・ActiveJob::TestHelper の have_enqueued_job matcher は perform_later の検証に便利\n・retry_on は wait: :polynomially_longer が Rails 7.1+ のデフォルト推奨",
+        multiline: true,
+      },
+      {
+        key: "blockers",
+        label: "詰まり / 相談したいこと",
+        hint: "誰の判断が必要かを明示。判断材料も添える",
+        placeholder:
+          "・Sidekiq の Dead Set 監視: 何件溜まったら通知すべきか? 過去 30 日の平均 3 件 / 日。10 件超えで通知の運用案 (要 @チームリード判断)",
+        multiline: true,
+      },
+      {
+        key: "tomorrow",
+        label: "明日の予定",
+        hint: "優先順 + 想定時間。実績との差分が見積もり精度の材料に",
+        placeholder:
+          "1. テスト残り (1h)\n2. PR レビュー対応 + マージ (1h)\n3. ドキュメント更新 (0.5h)\n4. 次タスク (検索 API 設計) のキックオフ (2h)",
+        multiline: true,
+      },
+    ],
+    examples: [
+      {
+        title: "実例: ある木曜日の日報",
+        content: {
+          summary:
+            "Welcome Mailer の Job 化 PR をレビュー依頼まで完了 (#312, 残りテスト 1 ケース)",
+          progress:
+            "1. Welcome Mailer の Job 化実装 ✓ (PR #312)\n2. request spec で perform_later 検証 80% (assert_enqueued_with の引数指定で詰まり中)\n3. ステージングで動作確認 ✓ (3 件で perform_later → メール送信を確認)\n4. README の Sidekiq 起動手順を最新化 ✓",
+          learnings:
+            "・assert_enqueued_with は args/queue/at で絞り込み可\n・ActionMailer は内部で ActionMailer::DeliveryJob を perform_later している。なので Mailer も Job として扱える\n・本番では Sidekiq の dead queue を週次でチェックする運用が必要そう",
+          blockers:
+            "・Sidekiq Dead Set の閾値: 10 件 / 日で Slack 通知する運用にして良いか? (過去 30 日平均は 3 件)。承認もらえれば明日 alerting を実装します → @tanaka さん",
+          tomorrow:
+            "1. テスト残り 1 ケース完了 + マージ依頼 (1h)\n2. Sidekiq alerting 実装 (条件付き、2h)\n3. 次タスク: ユーザー検索 API の設計レビュー資料作成 (2.5h)\n4. ペアプロ: 山田さんと N+1 調査ワークショップ 16:00- (1.5h)",
+        },
+      },
     ],
   },
 ];
@@ -161,12 +492,12 @@ export const findTemplate = (id: string) =>
 
 // LocalStorage に保存される journal entry
 export type JournalEntry = {
-  id: string; // ulid-like
+  id: string;
   templateId: TemplateId;
-  createdAt: string; // ISO
-  updatedAt: string; // ISO
-  title: string; // 自動 or 手動の見出し
-  content: Record<string, string>; // field key -> 内容
+  createdAt: string;
+  updatedAt: string;
+  title: string;
+  content: Record<string, string>;
 };
 
 const STORAGE_KEY = "rrq_journal_v1";
@@ -247,7 +578,6 @@ function defaultTitle(
   templateId: TemplateId,
   content: Record<string, string>,
 ): string {
-  // 主要フィールドの先頭 30 文字を仮タイトルに
   const candidates: Record<TemplateId, string[]> = {
     kpt: ["keep", "problem", "try"],
     star: ["task", "situation"],
@@ -265,7 +595,6 @@ function defaultTitle(
   return `${today} の振り返り`;
 }
 
-// 日報用テキストエクスポート (Slack/Notion 等にコピペ可)
 export function entryToText(entry: JournalEntry): string {
   const template = findTemplate(entry.templateId);
   if (!template) return JSON.stringify(entry.content, null, 2);

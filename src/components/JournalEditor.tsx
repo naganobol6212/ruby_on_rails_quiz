@@ -219,7 +219,7 @@ export function JournalEditor({ template, existingId }: Props) {
       </div>
 
       {/* テンプレートヘッダー */}
-      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
+      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/40">
         <div className="flex items-start gap-3">
           <span className="text-2xl">{template.emoji}</span>
           <div className="flex-1">
@@ -235,12 +235,60 @@ export function JournalEditor({ template, existingId }: Props) {
               className="mt-2 inline-flex items-center gap-1 text-[11px] text-rose-600 hover:underline dark:text-rose-300"
             >
               <span>{showRationale ? "▼" : "▶"}</span>
-              <span>この型式で何が鍛えられる？</span>
+              <span>使い方・コツ・記入例を見る</span>
             </button>
             {showRationale && (
-              <p className="mt-2 rounded-lg bg-rose-50/60 px-3 py-2 text-xs leading-relaxed text-rose-900 dark:bg-rose-500/10 dark:text-rose-100">
-                {template.rationale}
-              </p>
+              <div className="mt-3 space-y-3 rounded-lg bg-rose-50/60 p-3 text-xs dark:bg-rose-950/30">
+                <div>
+                  <p className="mb-1 font-semibold text-rose-700 dark:text-rose-300">
+                    🧠 この型式で鍛えられること
+                  </p>
+                  <p className="leading-relaxed text-rose-900/90 dark:text-rose-100/90">
+                    {template.rationale}
+                  </p>
+                </div>
+                <div>
+                  <p className="mb-1 font-semibold text-rose-700 dark:text-rose-300">
+                    🎯 こんな場面で使う
+                  </p>
+                  <p className="leading-relaxed text-rose-900/90 dark:text-rose-100/90">
+                    {template.useCase}
+                  </p>
+                </div>
+                <div>
+                  <p className="mb-1 font-semibold text-rose-700 dark:text-rose-300">
+                    💡 うまく書くコツ
+                  </p>
+                  <ul className="ml-4 list-disc space-y-0.5 leading-relaxed text-rose-900/90 dark:text-rose-100/90">
+                    {template.tips.map((tip, i) => (
+                      <li key={i}>{tip}</li>
+                    ))}
+                  </ul>
+                </div>
+                {template.examples[0] && (
+                  <div>
+                    <p className="mb-1 font-semibold text-rose-700 dark:text-rose-300">
+                      📖 記入例: {template.examples[0].title}
+                    </p>
+                    <div className="space-y-1.5 rounded border border-rose-200 bg-white/60 p-2 dark:border-rose-500/20 dark:bg-rose-950/20">
+                      {template.fields.map((f) => {
+                        const v = template.examples[0].content[f.key];
+                        if (!v) return null;
+                        return (
+                          <div key={f.key}>
+                            <p className="text-[10px] font-semibold text-rose-600 dark:text-rose-300">
+                              {f.label}
+                            </p>
+                            <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-zinc-700 dark:text-zinc-300">
+                              {v}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>

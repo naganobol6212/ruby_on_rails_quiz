@@ -168,7 +168,7 @@ export function QuizRunner({
         </Link>
         <div className="flex items-center gap-2.5">
           {current.type !== "practical" && <StreakDisplay streak={streak} />}
-          <div className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1 font-mono text-xs text-zinc-700 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
+          <div className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1 font-mono text-xs text-zinc-700 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
             <span>正解</span>
             <span className="tabular-nums text-emerald-600 dark:text-emerald-300">
               {sessionSolved}

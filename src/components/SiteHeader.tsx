@@ -1,58 +1,115 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThemeToggle } from "./ThemeToggle";
 
-type NavLink = { href: string; label: string };
+type NavLink = { href: string; label: string; icon: string };
 
 const links: NavLink[] = [
-  { href: "/", label: "ホーム" },
-  { href: "/#categories", label: "カテゴリ" },
-  { href: "/journal", label: "ジャーナル" },
+  { href: "/", label: "ホーム", icon: "🏠" },
+  { href: "/#categories", label: "カテゴリ", icon: "📚" },
+  { href: "/journal", label: "ジャーナル", icon: "📝" },
 ];
+
+function isActive(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  if (href.startsWith("/#")) return false; // ハッシュ系はアクティブ判定対象外
+  return pathname === href || pathname.startsWith(href + "/");
+}
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+
+  // スクロールでヘッダーの装飾を強める
+  useEffect(() => {
+    const handler = () => {
+      setScrolled(window.scrollY > 8);
+    };
+    handler();
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+
+  // ルート遷移でメニュー閉じる
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setOpen(false);
+  }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-zinc-200/70 bg-zinc-50/80 backdrop-blur-md dark:border-white/5 dark:bg-zinc-950/70">
+    <header
+      className={`sticky top-0 z-40 transition-all duration-300 ${
+        scrolled
+          ? "border-b border-zinc-200/80 bg-zinc-50/90 backdrop-blur-xl shadow-sm shadow-black/[0.02] dark:border-white/10 dark:bg-zinc-950/85 dark:shadow-black/40"
+          : "border-b border-transparent bg-zinc-50/50 backdrop-blur-md dark:bg-zinc-950/40"
+      }`}
+    >
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
+        {/* ロゴ */}
         <Link
           href="/"
           className="group inline-flex items-center gap-2 font-bold tracking-tight"
         >
-          <span className="text-lg">💎</span>
-          <span className="bg-gradient-to-br from-rose-500 via-fuchsia-500 to-violet-500 bg-clip-text text-transparent dark:from-rose-300 dark:via-fuchsia-300 dark:to-violet-300">
+          <span className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 via-fuchsia-500 to-violet-500 text-sm shadow-lg shadow-rose-500/30 transition-transform group-hover:scale-105 dark:shadow-rose-500/20">
+            <span className="text-white">💎</span>
+          </span>
+          <span className="bg-gradient-to-br from-rose-500 via-fuchsia-500 to-violet-500 bg-clip-text text-base text-transparent dark:from-rose-300 dark:via-fuchsia-300 dark:to-violet-300">
             RubyDojo
           </span>
         </Link>
 
         {/* デスクトップナビ */}
         <nav className="hidden items-center gap-1 sm:flex">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="rounded-md px-3 py-1.5 text-sm text-zinc-600 transition hover:bg-rose-50 hover:text-rose-600 dark:text-zinc-300 dark:hover:bg-white/5 dark:hover:text-rose-300"
-            >
-              {l.label}
-            </Link>
-          ))}
+          {links.map((l) => {
+            const active = isActive(pathname, l.href);
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`group relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-all ${
+                  active
+                    ? "bg-gradient-to-r from-rose-500/15 to-fuchsia-500/15 text-rose-700 dark:from-rose-500/20 dark:to-fuchsia-500/20 dark:text-rose-200"
+                    : "text-zinc-600 hover:bg-white/80 hover:text-rose-600 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-rose-300"
+                }`}
+              >
+                <span className="text-xs opacity-80">{l.icon}</span>
+                <span>{l.label}</span>
+                {active && (
+                  <motion.span
+                    layoutId="nav-active"
+                    className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-gradient-to-r from-rose-500 to-fuchsia-500"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+              </Link>
+            );
+          })}
+          <div className="mx-1 h-5 w-px bg-zinc-200 dark:bg-white/10" />
           <ThemeToggle />
         </nav>
 
-        {/* モバイルナビ (ハンバーガー) */}
+        {/* モバイルナビ */}
         <div className="flex items-center gap-2 sm:hidden">
           <ThemeToggle />
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
             aria-label="メニュー"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-300 bg-white text-zinc-700 transition hover:border-rose-400 hover:text-rose-500 dark:border-white/15 dark:bg-white/5 dark:text-zinc-300 dark:hover:border-rose-400/60 dark:hover:text-rose-300"
+            aria-expanded={open}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-300 bg-white text-zinc-700 transition hover:border-rose-400 hover:text-rose-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-rose-400/60 dark:hover:text-rose-300"
           >
-            <span className="text-base">{open ? "✕" : "☰"}</span>
+            <motion.span
+              animate={{ rotate: open ? 90 : 0 }}
+              transition={{ duration: 0.15 }}
+              className="text-base"
+            >
+              {open ? "✕" : "☰"}
+            </motion.span>
           </button>
         </div>
       </div>
@@ -63,20 +120,34 @@ export function SiteHeader() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.18 }}
-            className="overflow-hidden border-t border-zinc-200/70 bg-white/95 backdrop-blur dark:border-white/5 dark:bg-zinc-950/95 sm:hidden"
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden border-t border-zinc-200/70 bg-white/95 backdrop-blur dark:border-white/10 dark:bg-zinc-950/95 sm:hidden"
           >
-            <nav className="mx-auto flex max-w-5xl flex-col px-4 py-3">
-              {links.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="rounded-md px-3 py-2.5 text-sm text-zinc-700 transition hover:bg-rose-50 hover:text-rose-600 dark:text-zinc-200 dark:hover:bg-white/5 dark:hover:text-rose-300"
-                >
-                  {l.label}
-                </Link>
-              ))}
+            <nav className="mx-auto flex max-w-5xl flex-col px-2 py-2">
+              {links.map((l, i) => {
+                const active = isActive(pathname, l.href);
+                return (
+                  <motion.div
+                    key={l.href}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                  >
+                    <Link
+                      href={l.href}
+                      onClick={() => setOpen(false)}
+                      className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+                        active
+                          ? "bg-gradient-to-r from-rose-500/15 to-fuchsia-500/15 text-rose-700 dark:from-rose-500/20 dark:to-fuchsia-500/20 dark:text-rose-200"
+                          : "text-zinc-700 hover:bg-rose-50 hover:text-rose-600 dark:text-zinc-200 dark:hover:bg-white/5 dark:hover:text-rose-300"
+                      }`}
+                    >
+                      <span>{l.icon}</span>
+                      <span>{l.label}</span>
+                    </Link>
+                  </motion.div>
+                );
+              })}
             </nav>
           </motion.div>
         )}
