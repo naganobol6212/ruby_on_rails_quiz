@@ -10,6 +10,7 @@ type NavLink = { href: string; label: string; icon: string };
 
 const links: NavLink[] = [
   { href: "/", label: "ホーム", icon: "🏠" },
+  { href: "/guide", label: "参考書", icon: "📚" },
   { href: "/journal", label: "ジャーナル", icon: "📝" },
 ];
 

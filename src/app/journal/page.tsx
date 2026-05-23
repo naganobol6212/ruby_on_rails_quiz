@@ -1,7 +1,7 @@
 import { JournalList } from "@/components/JournalList";
 
 export const metadata = {
-  title: "学習ジャーナル — RubyDojo",
+  title: "学習ジャーナル — CodeDojo",
 };
 
 export default function JournalPage() {
