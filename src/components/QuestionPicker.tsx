@@ -162,9 +162,46 @@ export function QuestionPicker({
   const masteredCount = questions.filter(
     (q) => attempts[q.id]?.mark === "mastered",
   ).length;
-  const progressPct = Math.round((solvedCount / questions.length) * 100);
-  const masterPct = Math.round((masteredCount / questions.length) * 100);
-  const isFullyMastered = masteredCount === questions.length;
+  const progressPct =
+    questions.length === 0
+      ? 0
+      : Math.round((solvedCount / questions.length) * 100);
+  const masterPct =
+    questions.length === 0
+      ? 0
+      : Math.round((masteredCount / questions.length) * 100);
+  const isFullyMastered =
+    questions.length > 0 && masteredCount === questions.length;
+
+  // 問題がまだ無いカテゴリ
+  if (questions.length === 0) {
+    return (
+      <div className="space-y-6">
+        <Link
+          href="/"
+          className="group inline-flex items-center gap-1.5 text-sm text-zinc-500 transition hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-300"
+        >
+          <span className="transition-transform group-hover:-translate-x-0.5">
+            ←
+          </span>
+          <span>カテゴリ選択</span>
+        </Link>
+        <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="flex items-start gap-3">
+            <span className="text-3xl">{categoryEmoji}</span>
+            <div className="flex-1">
+              <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                {categoryName}
+              </h1>
+              <p className="mt-3 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
+                🚧 このカテゴリの問題は準備中です。近日公開予定。
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   const handleMark = (questionId: string, mark: ReviewMark) => {
     setReviewMark(questionId, mark);

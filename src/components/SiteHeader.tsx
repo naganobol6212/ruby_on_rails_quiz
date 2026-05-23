@@ -10,6 +10,7 @@ type NavLink = { href: string; label: string };
 const links: NavLink[] = [
   { href: "/", label: "ホーム" },
   { href: "/#categories", label: "カテゴリ" },
+  { href: "/journal", label: "ジャーナル" },
 ];
 
 export function SiteHeader() {

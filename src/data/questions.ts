@@ -16,7 +16,7 @@ export const questions: Question[] = [
     hints: [
       "文字列とは違い、同じ値であれば常にメモリ上で同じオブジェクトになります。",
       "頭にコロンが付くリテラルです。Hash のキーなどでよく使われます。",
-      "答えは `:hello` (Symbol) です。",
+      "選択肢の中で、文字列リテラルとは構文が違う「短く軽量な識別子」を選んでください。クラス名は Symbol。",
     ],
     explanation: {
       summary: "Symbol は immutable で一意なオブジェクト。",
@@ -47,7 +47,7 @@ export const questions: Question[] = [
     hints: [
       "`nil` には `to_s` メソッドがあり、エラーにはなりません。",
       "`nil.to_s` は空文字列 `\"\"` を返します。",
-      "空文字列の `length` は 0 です。",
+      "空文字列の長さがいくつになるかを思い出せば、選択肢の数値が 1 つに絞れます。",
     ],
     explanation: {
       summary: "`nil.to_s` は空文字列 `\"\"`、その length は 0。",
@@ -73,7 +73,7 @@ export const questions: Question[] = [
     hints: [
       "JavaScript や Python とは異なるので注意。",
       '`if 0 then puts "truthy" end` は何を出力するか考えてみましょう。',
-      "Ruby では `false` と `nil` 以外はすべて truthy です。",
+      "他の動的言語と違い、Ruby では「値が無い」と「真偽の偽」だけを偽と扱う最小設計になっています。",
     ],
     explanation: {
       summary: "Ruby で falsy なのは `false` と `nil` だけ。",
@@ -98,7 +98,7 @@ export const questions: Question[] = [
     hints: [
       "`a = b` は参照のコピー (同じオブジェクトを指す) です。",
       "`<<` は破壊的メソッドで、文字列自身を変更します。",
-      "結果として `a` も書き換わって見えます。",
+      "a と b は同じオブジェクトを指しており、片方を破壊的に変更すると参照元から見ても変化が反映されます。",
     ],
     explanation: {
       summary:
@@ -129,7 +129,7 @@ export const questions: Question[] = [
     hints: [
       "`String#upcase!` のような破壊版のメソッドがあります。",
       "`Array#empty?`、`Integer#even?` のような述語メソッドがあります。",
-      "プライベートメソッドの命名規則は特にありません。",
+      "破壊版・述語の慣習は両方とも実在しますが、可視性 (public/private) を末尾記号で区別する慣習はありません。",
     ],
     explanation: {
       summary:
@@ -155,7 +155,7 @@ export const questions: Question[] = [
     hints: [
       "String クラスのインスタンスメソッドです。",
       "反対のメソッドは `downcase` です。",
-      '答えは `upcase`。`"hello".upcase #=> "HELLO"`',
+      "`downcase` の対になる動詞 1 つで、6 文字のメソッド名です。`!` を付けた破壊版もペアで存在します。",
     ],
     explanation: {
       summary: "`String#upcase` は文字列をすべて大文字に変換する。",
@@ -207,7 +207,7 @@ export const questions: Question[] = [
     hints: [
       "`respond_to?` は、そのオブジェクトがメソッドを持っているかを返します。",
       "`Integer#even?` は標準メソッドです。",
-      "10 は偶数なので `even?` は true を返します。",
+      "Integer は標準で `even?` を持つので、三項演算子の左辺 (条件) は真。`even?` 自体の戻り値で 10 の偶奇を判断してください。",
     ],
     explanation: {
       summary:
@@ -232,7 +232,7 @@ export const questions: Question[] = [
     hints: [
       "to_xxx 系の変換メソッドの 1 つ。",
       "to_string ではありません。",
-      "答えは `to_s`。逆は `to_i`。",
+      "Ruby の変換メソッドは `to_` + クラスを表す 1 文字の組み合わせが多く、String 用は s 1 文字。",
     ],
     explanation: {
       summary: "`to_s` は to string の略。",
@@ -262,7 +262,7 @@ export const questions: Question[] = [
     hints: [
       "デフォルト引数が定義されています。",
       "引数なしで呼ぶと、デフォルト値が使われます。",
-      '`greet` は "hello, world" を、`greet("Ruby")` は "hello, Ruby" を返します。',
+      "引数指定があれば渡した値、無ければ仮引数の右辺が `name` に入る、と整理して 2 つの出力を順に組み立ててください。",
     ],
     explanation: {
       summary: "デフォルト引数は呼び出し時に引数省略するとその値が使われる。",
@@ -292,7 +292,7 @@ export const questions: Question[] = [
     hints: [
       "`unless` は「〜でない限り」という意味の英語。",
       "`if !condition` と等価です。",
-      "false または nil の時に実行されます。",
+      "「条件を反転した if」であり、Ruby で falsy として扱われる値はちょうど 2 種類だけだったことを思い出してください。",
     ],
     explanation: {
       summary: "`unless` は条件が false / nil の時に実行 (if の逆)。",
@@ -317,7 +317,7 @@ export const questions: Question[] = [
     hints: [
       "「ぼっち演算子」と呼ばれます。",
       "Ruby 2.3 で導入されました。",
-      "答えは `&.`。`x&.foo` は `x.nil? ? nil : x.foo` と同義。",
+      "JavaScript の `?.` に相当する 2 文字の記号で、通常のメソッド呼び出しのドットを少し変えた形です。",
     ],
     explanation: {
       summary: "`&.` (ぼっち演算子) はレシーバが nil なら nil を返す。",
@@ -342,7 +342,7 @@ export const questions: Question[] = [
     hints: [
       "`+` は文字列同士、数値同士で挙動が違います。",
       "文字列 + 文字列 は結合、数値 + 数値 は加算。",
-      '"10" + "20" = "1020"、10 + 20 = 30',
+      "1 行目は文字列同士の結合、2 行目は整数同士の加算として動くので、結果の見た目がまったく異なります。",
     ],
     explanation: {
       summary: "型変換しないと文字列結合と加算が混在する。",
@@ -372,7 +372,7 @@ export const questions: Question[] = [
     hints: [
       "Ruby は変数か定数かを識別子の最初の文字で判定します。",
       "頭文字が大文字 = 定数、それ以外 = 変数。",
-      "クラス名 `User` も定数の一種。`MAX_SIZE` も定数。",
+      "Ruby の構文では「先頭の文字が大文字かどうか」だけが定数判定の条件で、それ以降の大小は問われません。",
     ],
     explanation: {
       summary:
@@ -403,7 +403,7 @@ export const questions: Question[] = [
     hints: [
       "`a + [4]` は新しい配列を返します (非破壊)。",
       "`a = ...` で a の参照先が新しい配列に変わります。",
-      "b は元の `[1,2,3]` を指したままです。",
+      "a の再代入で a の指す先だけが新オブジェクトに切り替わり、b は元のオブジェクトを指したまま変化しません。",
     ],
     explanation: {
       summary:
@@ -434,7 +434,7 @@ export const questions: Question[] = [
     hints: [
       "`equal?` は object_id 比較。",
       "`==` はオブジェクトの定義に従う (Object 標準は equal? と同じだが多くのクラスで override)。",
-      "1 == 1 → true、'a'.equal?('a') → false (別オブジェクト)",
+      "2 文字記号の方が「値としての等しさ」、メソッド呼び出しの方が「同一オブジェクトか」、と役割が逆にならないよう注意。",
     ],
     explanation: {
       summary:
@@ -459,7 +459,7 @@ export const questions: Question[] = [
     hints: [
       "Ruby 1.9 で追加されました。",
       "ブロックを実行するが、戻り値はレシーバ自身。",
-      "答えは `tap`。デバッグや初期化処理で頻出。",
+      "3 文字の短いメソッド名で、英語で「軽く叩く・覗く」というニュアンス。`then` と対の関係です。",
     ],
     explanation: {
       summary: "`tap` はレシーバを返すブロック付きメソッド。デバッグに便利。",
@@ -481,7 +481,7 @@ export const questions: Question[] = [
     hints: [
       "`dup` と `clone` はどちらもオブジェクトの複製を作ります。",
       "`equal?` は object_id 比較。",
-      "複製なので a とは別オブジェクト = どちらも false。",
+      "dup も clone もどちらも『新しいオブジェクトを返す』点では共通なので、object_id 比較の結果はそろいます。",
     ],
     explanation: {
       summary:
@@ -511,7 +511,7 @@ export const questions: Question[] = [
     hints: [
       "`map` は配列の各要素を変換した新しい配列を返します。",
       "ブロック `{ |n| n * 2 }` は各要素を 2 倍にします。",
-      "1→2, 2→4, 3→6 で `[2, 4, 6]` になります。",
+      "元と同じ要素数の配列が返り、各要素はブロック適用後の値に置き換わります。",
     ],
     explanation: {
       summary: "`map` は要素変換用。新しい配列を返す。",
@@ -537,7 +537,7 @@ export const questions: Question[] = [
     hints: [
       "`h[:b]` だと nil が返ります。",
       "第2引数にデフォルト値を取れるメソッドです。",
-      "答えは `fetch`。",
+      "選択肢のうち、デフォルト値・ブロック・例外発生の 3 通りを呼び分けられる多機能な 1 つを選んでください。",
     ],
     explanation: {
       summary: "`Hash#fetch(key, default)` はキーが無いとき default を返す。",
@@ -567,7 +567,7 @@ export const questions: Question[] = [
     hints: [
       "`select` は条件に合う要素だけを残します。",
       "`reject` は逆に条件に合う要素を除外します。",
-      "Ruby 2.6 から `filter` は `select` の別名です。",
+      "他言語で「絞り込み」によく使われる名前のメソッドが、Ruby 2.6 で `select` のエイリアスとして追加されました。",
     ],
     explanation: {
       summary: "Ruby 2.6+ で `filter` は `select` のエイリアス。",
@@ -588,7 +588,7 @@ export const questions: Question[] = [
     hints: [
       "Ruby 2.4 以降に追加された Enumerable のメソッド。",
       "古くは `inject(:+)` でも同じことができました。",
-      "答えは `sum`。",
+      "Excel や他言語にもよくある「合計」を表す 3 文字の英単語そのままです。",
     ],
     explanation: {
       summary: "`Enumerable#sum` は要素の合計を返す (Ruby 2.4+)。",
@@ -610,7 +610,7 @@ export const questions: Question[] = [
     hints: [
       "`inject(初期値) { |acc, x| ... }` は accumulator パターン。",
       "初期値 0 から始めて、各要素を加算。",
-      "0 + 1 + 2 + 3 = 6",
+      "初期値に各要素を順番に足し込んだ結果、ちょうど 1〜3 の総和に一致します。",
     ],
     explanation: {
       summary: "`inject` (= reduce) は畳み込み操作。初期値 + 各要素の累積。",
@@ -637,7 +637,7 @@ export const questions: Question[] = [
     hints: [
       "`to_h` は [key, value] ペアの配列を Hash に変換します。",
       "各内側配列の最初の要素がキー、2番目が値。",
-      "結果は `{1=>\"a\", 2=>\"b\", 3=>\"c\"}`",
+      "選択肢のうち、整数 (内側配列の 0 番目) がキー、文字 (1 番目) が値になっている Hash を選んでください。",
     ],
     explanation: {
       summary: "`to_h` は [key, value] 形式の配列を Hash に変換。",
@@ -664,7 +664,7 @@ export const questions: Question[] = [
     hints: [
       "`each_slice(n)` は n 個ずつに区切ります。",
       "余りは最後の塊に含まれます。",
-      "[1,2] / [3,4] / [5] になります。",
+      "5 要素を 2 個ずつ束ねるので 2 個・2 個・1 個に分かれ、最後の組だけ要素数が違う形になります。",
     ],
     explanation: {
       summary: "`each_slice(n)` は n 個ずつチャンクに分割する。",
@@ -685,7 +685,7 @@ export const questions: Question[] = [
     hints: [
       "Array にも String にも存在するメソッドです。",
       "破壊版は `reverse!`。",
-      "答えは `reverse`。",
+      "「逆」を意味する英単語そのままの 7 文字。同名のメソッドが文字列にもあり、`olleh` のような結果を返します。",
     ],
     explanation: {
       summary: "`Array#reverse` は要素を逆順にした新しい配列を返す。",
@@ -712,7 +712,7 @@ export const questions: Question[] = [
     hints: [
       "`group_by` はブロックの戻り値をキーにして要素をグルーピング。",
       "apple は 5 文字、banana と cherry は 6 文字。",
-      "結果は length をキーにしたハッシュ。",
+      "ブロックの戻り値 (length) ごとに要素が配列として束ねられた Hash 形式になります。",
     ],
     explanation: {
       summary:
@@ -740,7 +740,7 @@ export const questions: Question[] = [
     hints: [
       "戻り値に注目してください。",
       "each はループ用、map は変換用。",
-      "each → 元の配列が戻り値、map → ブロックの戻り値を集めた配列。",
+      "破壊性や利用可能なオブジェクトの違いではなく、「最終的に何が返ってくるか」に焦点を当てた選択肢が正解です。",
     ],
     explanation: {
       summary:
@@ -765,7 +765,7 @@ export const questions: Question[] = [
     hints: [
       "Python の zip と同じ機能。",
       "Array のメソッドです。",
-      "答えは `zip`。",
+      "ファイル圧縮の拡張子と同じ綴りの 3 文字メソッドで、「噛み合わせる」イメージのまま命名されています。",
     ],
     explanation: {
       summary: "`zip` は複数配列を要素ごとに結合する。",
@@ -787,7 +787,7 @@ export const questions: Question[] = [
     hints: [
       "`(1..5)` は Range オブジェクトで Enumerable。",
       "`reduce(:+)` は累積で全要素を加算。",
-      "1+2+3+4+5 = 15",
+      "Range は配列化されずに直接畳み込まれるので、結果は配列でも Range でもなく単一の整数。1〜5 の総和を計算してください。",
     ],
     explanation: {
       summary: "Range も Enumerable なので reduce が使える。",
@@ -840,7 +840,7 @@ export const questions: Question[] = [
     hints: [
       "`sort_by` で age 順にソート。",
       "最年少が先頭に来ます。",
-      "Bob (25 歳) が最年少。",
+      "ソート後の先頭要素は「最も age が小さい人」になります。各人物の年齢を比べて最小の名前を選んでください。",
     ],
     explanation: {
       summary:
@@ -865,7 +865,7 @@ export const questions: Question[] = [
     hints: [
       "ネストした配列を 1 次元化します。",
       "引数で深さ指定可能。",
-      "答えは `flatten`。",
+      "「平らにする」を意味する英単語そのまま 7 文字のメソッド名で、CSS の flat とも語源が同じ。",
     ],
     explanation: {
       summary: "`Array#flatten` は入れ子配列を平坦化する。",
@@ -892,7 +892,7 @@ export const questions: Question[] = [
     hints: [
       "両方とも累積処理に使えます。",
       "`each_with_object` のブロック引数は (要素, object) の順。",
-      "`inject` は最後のブロック戻り値が次の acc になりますが、`each_with_object` は object 自体を返します。",
+      "片方は「ブロックの最後の式」を次の acc に運び、もう片方は最初に渡したオブジェクトをずっと使い回して最後にそれを返します。",
     ],
     explanation: {
       summary:
@@ -928,7 +928,7 @@ export const questions: Question[] = [
     hints: [
       "reader = 取得のみ、writer = 設定のみ。",
       "両方欲しい時に使うのは accessor。",
-      "答えは `attr_accessor :name`。",
+      "reader と writer の両方を一度に定義する `attr_*` 系のメソッドを選んでください。`property` は Ruby には存在しません。",
     ],
     explanation: {
       summary:
@@ -954,7 +954,7 @@ export const questions: Question[] = [
     hints: [
       "`initialize` はコンストラクタ。`new` で呼ばれる。",
       "`@name` はインスタンス変数。",
-      "Pochi が @name に代入され、greet で参照される。",
+      "コンストラクタで渡された引数がインスタンス変数に保存され、greet 内の式展開で実際の値に置き換わります。",
     ],
     explanation: {
       summary:
@@ -985,7 +985,7 @@ export const questions: Question[] = [
     hints: [
       "JavaScript や Java とは違う構文。",
       "`<` 記号を使います。",
-      "`class Dog < Animal` が正解。",
+      "Java の `extends` や Python の括弧、C# の `:` ではなく、Ruby は『より小さい』を表す不等号 1 文字で継承関係を書きます。",
     ],
     explanation: {
       summary: "Ruby の継承は `class Child < Parent`。",
@@ -1007,7 +1007,7 @@ export const questions: Question[] = [
     hints: [
       "1単語のキーワード。",
       "メソッド内で `super` と書くだけで親の同名メソッドを呼びます。",
-      "答えは `super`。",
+      "Java や JavaScript と同じく『上位 (親)』を表す 5 文字の英単語そのままです。",
     ],
     explanation: {
       summary: "`super` は親クラスの同名メソッドを呼ぶ。",
@@ -1037,7 +1037,7 @@ export const questions: Question[] = [
     hints: [
       "Module はクラスとは違ってインスタンス化できません。",
       "Mixin, 名前空間, 定数群はすべて Module の役割。",
-      "答え: new できないのが Module の特徴。",
+      "Mixin・名前空間・定数群はすべて Module の正規の使い方。残り 1 つだけが Class でしかできない操作です。",
     ],
     explanation: {
       summary: "Module は new できない。Mixin / 名前空間 / 定数群が役割。",
@@ -1086,7 +1086,7 @@ export const questions: Question[] = [
     hints: [
       "`def self.method_name` で定義します。",
       "他にも `class << self` の中で `def` する書き方もあります。",
-      "答えは `self`。",
+      "クラス定義文の直下では「現在のクラス自身」を指す 4 文字の擬似変数で、メソッド内では「現在のインスタンス」になります。",
     ],
     explanation: {
       summary: "`def self.method_name` でクラスメソッドを定義。",
@@ -1113,7 +1113,7 @@ export const questions: Question[] = [
     hints: [
       "Java の private とは少し違います。",
       "サブクラスからは呼べます。",
-      "`self.private_method` は NG ですが `private_method` (レシーバ省略) は OK。",
+      "private は『継承可否』『リフレクション可否』ではなく、『呼び出し時のレシーバ記法』に制約をかける、と覚えてください。",
     ],
     explanation: {
       summary:
@@ -1172,7 +1172,7 @@ export const questions: Question[] = [
     hints: [
       "Struct はクラスを 1 行で作れるショートカット。",
       "attr_accessor + initialize + ==/hash が自動定義。",
-      "Hash より型がはっきりした値オブジェクトに使う。",
+      "DB 接続・大量データ保存・並列処理のためのクラスではなく、Hash 代わりに使う軽量データ型としての位置づけです。",
     ],
     explanation: {
       summary:
@@ -1194,7 +1194,7 @@ export const questions: Question[] = [
     hints: [
       "メソッド内では現在のインスタンス、クラス定義文の直下では現在のクラス。",
       "JavaScript の `this` に近い。",
-      "答えは `self`。",
+      "Python の `self` 引数や Java の `this` に当たる擬似変数で、Ruby では 4 文字、最初は s で始まります。",
     ],
     explanation: {
       summary:
@@ -1222,7 +1222,7 @@ export const questions: Question[] = [
     hints: [
       "Struct は ==, hash, inspect, to_a などが自動。",
       "ロジックを書くクラスは attr_accessor で普通に書いた方が見やすい。",
-      "値オブジェクトとして「他言語の record/data class 相当」が必要なら Struct。",
+      "両者は等価ではなく、どちらかが廃止予定でもなく、速度差が決め手でもありません。役割の住み分けで考えるのが正解。",
     ],
     explanation: {
       summary:
@@ -1249,7 +1249,7 @@ export const questions: Question[] = [
     hints: [
       "`yield` はブロックを呼び出します。",
       "`yield 10` は渡されたブロックに 10 を渡して実行。",
-      "`{ |x| x * 3 }` に 10 が渡され、30 が返る。",
+      "ブロックは渡されているので LocalJumpError にはなりません。yield に渡した値とブロックの式を掛け合わせた結果を考えてください。",
     ],
     explanation: {
       summary: "`yield` は渡されたブロックを呼ぶ。最後の式の戻り値が結果。",
@@ -1278,7 +1278,7 @@ export const questions: Question[] = [
     hints: [
       "Lambda の方が「関数らしい」厳密な挙動。",
       "Proc は「ブロックを切り出した」緩い挙動。",
-      "違いは 2 つ: 引数数のチェック、return の振る舞い。",
+      "選択肢のうち、片方の挙動だけを言っているものではなく、両者の差分を網羅的に説明しているものを選んでください。",
     ],
     explanation: {
       summary:
@@ -1325,7 +1325,7 @@ export const questions: Question[] = [
     hints: [
       "try/finally の finally に相当。",
       "DB接続のクローズなどクリーンアップに使います。",
-      "答えは `ensure`。",
+      "「保証する」を意味する 6 文字の英単語そのままで、Java/JS の `finally` に相当します。",
     ],
     explanation: {
       summary: "`ensure` は例外の有無に関わらず必ず実行される。",
@@ -1352,7 +1352,7 @@ export const questions: Question[] = [
     hints: [
       "シンボルにアンパサンド `&` を付けるとブロックに変換できます。",
       "`Symbol#to_proc` の機能。",
-      "答えは `(&:to_s)`。",
+      "選択肢のうち、`map` (= 変換用) かつ Symbol を Proc に変換する記法を含んでいるものは 1 つだけです。",
     ],
     explanation: {
       summary:
@@ -1375,7 +1375,7 @@ export const questions: Question[] = [
     hints: [
       "`method_missing` は未定義メソッド呼び出し時のフック。",
       "メタプログラミングで動的にメソッドを実装する手法。",
-      "`anything` は未定義なので method_missing が呼ばれる。",
+      "未定義メソッド名がフックの第 1 引数 (Symbol) として渡されるので、エラーにはならず文字列の一部に組み込まれます。",
     ],
     explanation: {
       summary:
@@ -1400,7 +1400,7 @@ export const questions: Question[] = [
     hints: [
       "Module のメソッドです。",
       "`define_method(:foo) { ... }` でメソッドを動的定義。",
-      "答えは `define_method`。",
+      "「メソッドを定義する」の英単語をそのまま snake_case にした形で、アンダースコア区切り 2 単語のメソッド名です。",
     ],
     explanation: {
       summary:
@@ -1456,7 +1456,7 @@ export const questions: Question[] = [
     hints: [
       "`def self.hello` は Module の特異メソッド (= モジュール直接呼び出し用)。",
       "include しても特異メソッドはコピーされない。",
-      "A.hello は NoMethodError、M.hello は呼べる。",
+      "include はインスタンスメソッドだけを取り込むので、Module 側に直接定義した特異メソッドは include 先のクラスからは呼べません。",
     ],
     explanation: {
       summary:
@@ -1513,7 +1513,7 @@ export const questions: Question[] = [
     hints: [
       "ブロックは引数の最後に `&blk` で受け取ります。",
       "`&` を付けるとブロック ↔ Proc 変換。",
-      "答えは `&blk`。",
+      "選択肢の引数定義のうち、ブロックを Proc に変換して受け取るための prefix 記号を付けたものを選んでください。",
     ],
     explanation: {
       summary:
@@ -1541,7 +1541,7 @@ export const questions: Question[] = [
     hints: [
       "クラスを後から開いて足す = open class。",
       "コミュニティでは `〇〇 patch` と呼ばれる。",
-      "答えは「モンキーパッチ」または「オープンクラス」。",
+      "Ruby/Python 界隈で「動物の名前 + 修正」と呼ぶ俗称か、または「class を再オープンする」を直訳した呼び方、いずれかで答えてください。",
     ],
     explanation: {
       summary:
@@ -1569,7 +1569,7 @@ export const questions: Question[] = [
     hints: [
       "参照カウントは循環参照に弱いので採用していません。",
       "Mark and Sweep が基本で、若い世代と古い世代を分ける『世代別GC』。",
-      "Ruby 2.1+ で世代別 (RGenGC) 導入。",
+      "古典的なマーク&スイープを土台に、寿命の短い若い世代と長く生きる古い世代を分けて効率化する手法が採用されています。",
     ],
     explanation: {
       summary:
@@ -1597,7 +1597,7 @@ export const questions: Question[] = [
     hints: [
       "Ruby 3.0+ のパターンマッチング `case/in` 構文。",
       "`String => s` で型チェック + 束縛、`if` でガード句。",
-      "'hello' は String かつ length > 3 なので最初の節にマッチ。",
+      "値の型と長さの両方が最初の節の条件を満たすかを確認すれば、どの枝が選ばれて何が出力されるかが決まります。",
     ],
     explanation: {
       summary:
@@ -1623,7 +1623,7 @@ export const questions: Question[] = [
     hints: [
       "Rails は「設定より規約 (Convention over Configuration)」が基本。",
       "テーブル名はモデル名を複数形にした snake_case です。",
-      "答えは `users`。",
+      "モデル名をそのまま英語の複数形にして、全文字を小文字にしたものがテーブル名になります。",
     ],
     explanation: {
       summary: "モデル名 (単数 CamelCase) → テーブル名 (複数 snake_case)。",
@@ -1649,7 +1649,7 @@ export const questions: Question[] = [
     hints: [
       "Model はデータとそれに関するロジックを担当。",
       "View はユーザーに見せる部分。",
-      "Controller はリクエストを受けて Model や View を呼び出します。",
+      "Controller は HTTP リクエストを受け取って Model と View の橋渡しをする役割。役割が入れ替わっている選択肢は誤りです。",
     ],
     explanation: {
       summary:
@@ -1671,7 +1671,7 @@ export const questions: Question[] = [
     hints: [
       "コントローラー名は複数形 + `Controller` が慣習。",
       "ファイル名は snake_case。",
-      "答えは `blog_posts_controller` (クラス名は `BlogPostsController`)。",
+      "モデル名を複数形にして snake_case にし、末尾に _controller を付ければ Zeitwerk の規約に合致します。",
     ],
     explanation: {
       summary:
@@ -1699,7 +1699,7 @@ export const questions: Question[] = [
     hints: [
       "DHH の Rails 設計哲学。",
       "命名規則やディレクトリ構成に従えば、ほぼ設定ゼロで動く。",
-      "「設定より規約」が直訳。",
+      "「設定 vs 規約」のどちらを優先する思想か、という対比で読み解くと自然に絞り込めます。",
     ],
     explanation: {
       summary:
@@ -1727,7 +1727,7 @@ export const questions: Question[] = [
     hints: [
       "View テンプレート (ERB) から呼び出すメソッド。",
       "リンク生成や日付フォーマットなど。",
-      "答えは『View 用の補助メソッド』。",
+      "ディレクトリ名そのまま「helper (補助役)」のためのフォルダで、DB 設定や fixture 置き場ではありません。",
     ],
     explanation: {
       summary:
@@ -1777,7 +1777,7 @@ export const questions: Question[] = [
     hints: [
       "`RAILS_ENV` 環境変数で切り替えるアレ。",
       "development / test / production の総称。",
-      "答えは `environment` (環境)。",
+      "`RAILS_ENV` の `ENV` 部分のフル単語そのままで、日本語の「環境」を意味する 11 文字の英単語です。",
     ],
     explanation: {
       summary:
@@ -1805,7 +1805,7 @@ export const questions: Question[] = [
     hints: [
       "ファイル名は snake_case。",
       "ディレクトリは名前空間 (module) に対応。",
-      "`blog_post.rb` → `BlogPost`、`admin/users_controller.rb` → `Admin::UsersController`。",
+      "ファイル名は単純な snake_case、対応するクラスは CamelCase。ディレクトリが無ければ名前空間 (`::`) も付きません。",
     ],
     explanation: {
       summary:
@@ -1833,7 +1833,7 @@ export const questions: Question[] = [
     hints: [
       "`RAILS_ENV` 環境変数で環境を指定します。",
       "`-e production` オプションでも可。",
-      "両方の書き方が存在しますが、もっとも一般的なのは環境変数指定。",
+      "`--production` や `:production` のような独自構文は存在せず、Unix シェル流儀で環境変数を先頭に付けて起動するのが正解。",
     ],
     explanation: {
       summary:
@@ -1861,7 +1861,7 @@ export const questions: Question[] = [
     hints: [
       "Rails 5.2 以降で導入された仕組み。",
       "暗号化されたファイルをリポジトリに含め、master.key で復号。",
-      "答えは `credentials.yml.enc` + `rails credentials:edit`。",
+      "Rails 5.2 以降の正式機構で、ファイル名末尾は `.enc` (encrypted)。`secrets.yml` や `.env` は旧来の手段で公式の解ではありません。",
     ],
     explanation: {
       summary:
@@ -1893,7 +1893,7 @@ export const questions: Question[] = [
     hints: [
       "`resources` は RESTful な 7 アクションを生成。",
       "index, show, new, create, edit, update, destroy の 7 つ。",
-      "`search` は標準ではない。",
+      "RESTful の標準セット (index/show/new/create/edit/update/destroy) に当てはまらないアクション名が 1 つだけ混じっています。",
     ],
     explanation: {
       summary:
@@ -1921,7 +1921,7 @@ export const questions: Question[] = [
     hints: [
       "params は ActionController::Parameters のインスタンス。",
       "Hash のように `[:キー]` で取り出します。",
-      "URL の `:id` は `params[:id]` で取れます。",
+      "ドット (`.id`) ではなく Hash と同じ角括弧アクセスを使うのが Rails の標準。`request`/`session` ではフォームや URL のパラメータは取れません。",
     ],
     explanation: {
       summary: "params[:id] で URL のパスパラメータを取得。",
@@ -1942,7 +1942,7 @@ export const questions: Question[] = [
     hints: [
       "HTTP 302 を返してブラウザを別URLに飛ばします。",
       "`render` は同じレスポンス内でテンプレートを描画するメソッド。",
-      "答えは `redirect_to`。",
+      "選択肢のうち、HTTP 302 (Location ヘッダー付き) を返すことを名前で表しているメソッドは 1 つだけです。",
     ],
     explanation: {
       summary: "`redirect_to` は HTTP リダイレクト、`render` は描画。",
@@ -1967,7 +1967,7 @@ export const questions: Question[] = [
     hints: [
       "Rails 4 以前は別名でした。",
       "`before_*` 系のメソッドです。",
-      "現在の慣習は `before_action :authenticate_user!` のような書き方。",
+      "Rails 4 で `_filter` 系から `_action` 系へリネームされ、現在は after や around も含めて `_action` 命名で統一されています。",
     ],
     explanation: {
       summary: "Rails 5+ は `before_action` が標準 (`before_filter` は廃止)。",
@@ -2025,7 +2025,7 @@ export const questions: Question[] = [
     hints: [
       "ネストリソースは親 ID をパスに含めます。",
       "`/posts/:post_id/comments` の形になります。",
-      "コントローラでは `params[:post_id]` でアクセス。",
+      "親リソースの id はパスパラメータとして `{単数形}_id` のキーで渡され、子リソース側はその下にネストして並びます。",
     ],
     explanation: {
       summary:
@@ -2081,7 +2081,7 @@ export const questions: Question[] = [
     hints: [
       "`namespace` は URL とコントローラ両方に prefix を付ける。",
       "URL: `/admin/users`、コントローラ: `Admin::UsersController`。",
-      "ファイル配置: `app/controllers/admin/users_controller.rb`",
+      "URL とクラス名の両方に `admin` が乗る形が正解。片方にしか付かない選択肢は誤りです。",
     ],
     explanation: {
       summary:
@@ -2108,7 +2108,7 @@ export const questions: Question[] = [
     hints: [
       "Rails 5+ では `rails` コマンドに統合。",
       "古いバージョンは `rake routes`。",
-      "答えは `rails routes`。",
+      "`rails` の後ろに、設問の URL/ルート構成を表す英単語の複数形 1 語を続けます。",
     ],
     explanation: {
       summary: "`rails routes` で全ルート一覧表示。",
@@ -2135,7 +2135,7 @@ export const questions: Question[] = [
     hints: [
       "`render` はテンプレートやデータを描画。",
       "リダイレクトは `redirect_to` (別メソッド)。",
-      "`render redirect_to:` は存在しないオプション。",
+      "render の引数は描画対象 (テンプレート名・json・plain など) を取るもので、別メソッドであるリダイレクトを混ぜ込むことはできません。",
     ],
     explanation: {
       summary:
@@ -2163,7 +2163,7 @@ export const questions: Question[] = [
     hints: [
       "Turbo はフォームの内容を Turbo Stream として再描画する。",
       "200 OK だとリダイレクト扱いになってフォームが消えてしまう。",
-      "4xx 系で返すと「失敗」と認識してフォームに置き換える。",
+      "Turbo はステータスコードでフォーム送信の成否を判定するため、2xx 系を返すとフォームが消えて意図しない挙動になります。",
     ],
     explanation: {
       summary:
@@ -2224,7 +2224,7 @@ export const questions: Question[] = [
     hints: [
       "1対多の関係です。",
       "`has_*` の系統。",
-      "`has_many :posts`。",
+      "User 側 (= 親) から見て複数の Post を持つ関係なので、メソッド名は「複数を持つ」を意味する 8 文字で、引数は複数形のシンボル。",
     ],
     explanation: {
       summary: "1対多は親 `has_many`、子 `belongs_to`。",
@@ -2251,7 +2251,7 @@ export const questions: Question[] = [
     hints: [
       "`where` は ActiveRecord::Relation を返します。",
       "1件取得 + 無ければ例外 = ?",
-      "答えは `find`。",
+      "選択肢のうち、Relation ではなく単一レコードを返し、見つからなければ ActiveRecord::RecordNotFound を投げる 4 文字メソッドを選んでください。",
     ],
     explanation: {
       summary:
@@ -2279,7 +2279,7 @@ export const questions: Question[] = [
     hints: [
       "`User.all` は全件メモリにロード。",
       "大量データだとメモリ不足。",
-      "`find_each` や `in_batches` でバッチ処理すべき。",
+      "バッチ処理用のメソッド (find_each, in_batches) や limit を付けた取得は安全で、それらに当てはまらない 1 つだけが危険な選択肢です。",
     ],
     explanation: {
       summary:
@@ -2302,7 +2302,7 @@ export const questions: Question[] = [
     hints: [
       "関連レコードを事前にロードします。",
       "それぞれ別クエリ / JOIN / 自動選択。",
-      "全部 N+1 対策に使えます。",
+      "preload・eager_load・includes は『別クエリで先読み』『JOIN で先読み』『自動選択』とアプローチは違いますが、目的は共通しています。",
     ],
     explanation: {
       summary:
@@ -2329,7 +2329,7 @@ export const questions: Question[] = [
     hints: [
       "命名規則: `Add{カラム名}To{テーブル名}` (CamelCase)。",
       "生成時にカラム型も指定できます: `name:string`",
-      "答え例: `AddNameToUsers name:string` (型省略可)",
+      "CamelCase の `Add{追加するカラム}To{対象テーブル}` 形式が定石。空白区切りでカラム名と型を続けるとマイグレーション本体も自動生成されます。",
     ],
     explanation: {
       summary:
@@ -2358,7 +2358,7 @@ export const questions: Question[] = [
     hints: [
       "`validate` (単数) と `validates` (複数) は別物。",
       "標準のバリデーションは `validates` (複数形)。",
-      "答えは `validates :name, presence: true`。",
+      "メソッド名は複数形の `validates`、必須チェックのオプション名は `presence`。両方が正しく揃っている選択肢を選んでください。",
     ],
     explanation: {
       summary:
@@ -2381,7 +2381,7 @@ export const questions: Question[] = [
     hints: [
       "Model 内に名前を付けてクエリを保存する仕組み。",
       "`scope :name, -> { ... }` と書きます。",
-      "答えは `scope`。",
+      "「クエリの適用範囲 (=有効範囲)」を意味する 5 文字の英単語そのままで、ActiveRecord にはこの名前のクラスマクロがあります。",
     ],
     explanation: {
       summary:
@@ -2459,7 +2459,7 @@ export const questions: Question[] = [
     hints: [
       "`before_*` の系統。",
       "代表的なものは before_validation, before_save, before_create, before_update。",
-      "答えはいずれかでOK。",
+      "「保存前」を表す英語 prefix と、save / create / validation などのライフサイクル名を `_` でつなげた形式が正解。",
     ],
     explanation: {
       summary:
@@ -2549,7 +2549,7 @@ export const questions: Question[] = [
     hints: [
       "中間テーブルを使う書き方が 2 種類。",
       "`has_many :through` は中間モデルを明示。",
-      "`has_and_belongs_to_many` (HABTM) は中間テーブルのみ。",
+      "中間モデル (Ruby クラス) を作るか、中間テーブル (DB のみ) で済ませるかの 2 派閥があり、選択肢にはその両方が並んでいます。",
     ],
     explanation: {
       summary:
@@ -2599,7 +2599,7 @@ export const questions: Question[] = [
     hints: [
       "Rails 規約の特別なカラム名。",
       "整数型でデフォルト 0。",
-      "答えは `lock_version`。",
+      "「ロック (排他制御) 用の version 番号」を意味する 2 単語の snake_case で、Rails が自動的にインクリメントしてくれる規約名です。",
     ],
     explanation: {
       summary:
@@ -2655,7 +2655,7 @@ export const questions: Question[] = [
     hints: [
       "validation だけだと並行リクエストですり抜けることがある。",
       "DB の制約だけだと UX エラーメッセージが出しにくい。",
-      "両方が定石。",
+      "片方だけでは『UX』『並行リクエストでのすり抜け』のどちらかが弱いままになるため、両方を重ねるのが Rails の定石。",
     ],
     explanation: {
       summary:
@@ -2710,7 +2710,7 @@ export const questions: Question[] = [
     hints: [
       "`each_with_object([])` は空配列を畳み込みの容器として渡します。",
       "`if n.odd?` で奇数だけが対象。",
-      "奇数 1,3,5 を 2 倍した [2,6,10] が answer。",
+      "奇数フィルタを通った要素だけを 2 倍して空配列に push していくので、結果の要素数は元配列の半分になります。",
     ],
     explanation: {
       summary:
@@ -2738,7 +2738,7 @@ export const questions: Question[] = [
     hints: [
       "`greeting:` はキーワード引数 (デフォルト値あり)。",
       "1回目は省略 → デフォルト 'Hello'。",
-      "2回目は明示的に 'Hi'。",
+      "デフォルト値 + 上書き値で出力が変わる組み合わせを順に追えば、ArgumentError や nil の選択肢は除外できます。",
     ],
     explanation: {
       summary:
@@ -2761,7 +2761,7 @@ export const questions: Question[] = [
     hints: [
       "Hash の reduce は要素として [key, value] の配列を渡します。",
       "ブロック引数で `(key, value)` のように分解。",
-      "value を累積加算: 1 + 2 + 3 = 6。",
+      "ブロックは初期値 + value を返すので、結果はキーには関係なく値の総和そのものになります。",
     ],
     explanation: {
       summary:
@@ -2784,7 +2784,7 @@ export const questions: Question[] = [
     hints: [
       "`@@count` はクラス変数。全インスタンスで共有。",
       "`Counter.new` するたびに +1。",
-      "3 回 new されたので 3。",
+      "クラス変数は全インスタンスで共有されるので、new された回数だけ単調に +1 されていきます。",
     ],
     explanation: {
       summary:
@@ -2810,7 +2810,7 @@ export const questions: Question[] = [
     hints: [
       "`each_with_index` は (要素, インデックス) を渡します。",
       "i は 0,1,2 なので (i+1) は 1,2,3。",
-      "10*1 + 20*2 + 30*3 = 10 + 40 + 90 = 140。",
+      "各要素を (index+1) 倍にしてから合計するので、単純合計 (60) より大きく、最大要素の 3 倍より少し大きい値になります。",
     ],
     explanation: {
       summary:
@@ -2861,7 +2861,7 @@ export const questions: Question[] = [
     hints: [
       "`select` で 'a' で始まる単語 → ['apple', 'avocado']。",
       "`map(&:length)` で長さを取得 → [5, 7]。",
-      "`max` → 7。",
+      "select で残った単語の length を比べて最大を取るので、最終結果は元の単語の文字数のうちの 1 つ。",
     ],
     explanation: {
       summary:
@@ -2889,7 +2889,7 @@ export const questions: Question[] = [
     hints: [
       "`||=` は『nil または false なら代入』。",
       "false も falsy なので 'default' で上書きされる。",
-      "'hi' は truthy なのでそのまま。",
+      "3 つの変数の元の値が nil/false/truthy のどれかを順番に判定し、||= が代入を行う条件と照らし合わせてください。",
     ],
     explanation: {
       summary:
@@ -2948,7 +2948,7 @@ export const questions: Question[] = [
     hints: [
       "二重ループの直積。",
       "i=1: 1*10, 1*20 → 10, 20",
-      "i=2: 2*10, 2*20 → 20, 40。i=3: 3*10, 3*20 → 30, 60。",
+      "外側ループの各値ごとに内側の全要素との積が積み上がるので、最終配列の長さは外側要素数 × 内側要素数 になります。",
     ],
     explanation: {
       summary:
@@ -2976,7 +2976,7 @@ export const questions: Question[] = [
     hints: [
       "Admin#greet → super で User の祖先チェーンを辿る。",
       "User 自身には greet 無し → Greeter#greet が呼ばれる。",
-      "結果: '[ADMIN] Hi, I'm Alice'",
+      "Admin → User → Greeter の祖先チェーンを super で辿るので、Greeter が返す挨拶文に Admin の prefix が付いた形になります。",
     ],
     explanation: {
       summary:
@@ -3004,7 +3004,7 @@ export const questions: Question[] = [
     hints: [
       "1 回目: 10/2 = 5。",
       "2 回目: ZeroDivisionError → Float::INFINITY。",
-      "3 回目: Integer / String は TypeError → e.class.name = 'TypeError'。",
+      "3 回目は数値と文字列の演算でクラスとして実行できず、rescue 内で例外クラス名 (の文字列) が出力されます。",
     ],
     explanation: {
       summary:
@@ -3031,7 +3031,7 @@ export const questions: Question[] = [
     hints: [
       "`=~` は正規表現マッチ。マッチ位置を返す。",
       "`$~` は最後のマッチ全体の MatchData。`$1` は最初のキャプチャグループ。",
-      "正規表現 `/o(.)/` は 'o' の直後 1 文字をキャプチャ。'hello' の 'o' の直後はスペース。",
+      "キャプチャは『o の次の 1 文字』。元の文字列で o の隣に来ている文字が何かを確認すれば、$1 の中身が見えてきます。",
     ],
     explanation: {
       summary:
@@ -3062,7 +3062,7 @@ export const questions: Question[] = [
     hints: [
       "`scan` はマッチした文字列を全部配列で返す。",
       "`/\\d+/` は連続する数字。",
-      "'123' が 1 回マッチ → [\"123\"]。",
+      "`+` は 1 文字以上の繰り返しを 1 つのマッチとして扱うので、結果配列の要素は 3 つではなく 1 つになります。",
     ],
     explanation: {
       summary:
@@ -3084,7 +3084,7 @@ export const questions: Question[] = [
     hints: [
       "前後だけ削除するメソッド。",
       "左だけは `lstrip`、右だけは `rstrip`。",
-      "答えは `strip`。",
+      "`lstrip` / `rstrip` から左右を表す接頭辞 (l / r) を取り除いた、5 文字の共通部分がメソッド名になります。",
     ],
     explanation: {
       summary: "`String#strip` は前後の空白文字を削除する。",
@@ -3111,7 +3111,7 @@ export const questions: Question[] = [
     hints: [
       "`split(\",\")` でカンマ区切り配列に。",
       "`map(&:upcase)` で各要素を大文字化。",
-      '結果は ["ABC", "DEF", "GHI"]',
+      "split で 3 要素の配列になり、map(&:upcase) は配列のまま各要素を大文字化するので、最終形は配列のまま要素数が変わらない選択肢です。",
     ],
     explanation: {
       summary:
@@ -3161,7 +3161,7 @@ export const questions: Question[] = [
     hints: [
       "標準 Ruby (Rails 無し) で動くもの。",
       "Rails の `Time.current` は ActiveSupport 拡張。",
-      "Pure Ruby は `Time.now`。",
+      "ActiveSupport (`Time.current`) や DateTime/Date 固有の選択肢を除外すれば、組み込みクラスのもっとも素直な書き方が残ります。",
     ],
     explanation: {
       summary:
@@ -3187,7 +3187,7 @@ export const questions: Question[] = [
     hints: [
       "`File.open` のブロック付き形式は自動でクローズ。",
       "`f.puts \"hello\"` は 'hello\\n' を書き込み。",
-      "`File.read` で全文読込、`chomp` で末尾改行を削除。",
+      "puts は末尾に改行を付けて書き込みますが、最後に chomp を通すのでその改行はトリムされた状態になります。",
     ],
     explanation: {
       summary:
@@ -3214,7 +3214,7 @@ export const questions: Question[] = [
     hints: [
       "`ENV` は擬似 Hash オブジェクト。",
       "`[]` でアクセスする。",
-      "答えは `ENV['PATH']`。",
+      "メソッドアクセス (`.PATH`) でも特殊変数 (`$`) でもなく、Hash 風に文字列キーで取り出す書き方が正解。",
     ],
     explanation: {
       summary:
@@ -3242,7 +3242,7 @@ export const questions: Question[] = [
     hints: [
       "rescue 句は上から順に評価される。",
       "最初の rescue で StandardError を捕捉、その中で再 raise。",
-      "rescue 句内で発生した例外は同じ begin の他の rescue では捕捉されない。",
+      "rescue ブロックの中で再 raise した例外は、同じ begin に並んでいる別の rescue 句では拾われず、外側に抜けていきます。",
     ],
     explanation: {
       summary:
@@ -3264,7 +3264,7 @@ export const questions: Question[] = [
     hints: [
       "`rescue` を class 指定なしで書いた時のデフォルト捕捉範囲。",
       "Exception > StandardError > RuntimeError などの階層。",
-      "答えは `StandardError`。",
+      "Exception の直下にある『標準』な親クラスで、PascalCase の 2 単語 (Standard + Error) を連結した名前です。",
     ],
     explanation: {
       summary:
@@ -3316,7 +3316,7 @@ export const questions: Question[] = [
     hints: [
       "`n.times` は n 回繰り返す。",
       "ブロック変数は 0 から n-1 まで。",
-      "0 始まりで 5 個 = 0,1,2,3,4。",
+      "配列のインデックスと同じく 0 始まりで、ブロックには n 個分の連番が順に渡されます。",
     ],
     explanation: {
       summary:
@@ -3343,7 +3343,7 @@ export const questions: Question[] = [
     hints: [
       "`instance_eval` はレシーバの self を切り替えてブロックを実行。",
       "ブロック内の `@bar` は foo のインスタンス変数。",
-      "結果として foo.@bar に 42 が格納される。",
+      "instance_eval ブロック内で self が foo に切り替わるため、`@bar = 42` の代入が後で `foo.instance_variable_get` で取り出せる値になります。",
     ],
     explanation: {
       summary:
@@ -3366,7 +3366,7 @@ export const questions: Question[] = [
     hints: [
       "`send` は private メソッドも呼べる。",
       "`public_send` だと public のみ。",
-      "結果は 'shh'。",
+      "send は可視性を無視して呼べるので、private メソッドの戻り値がそのまま得られます。NoMethodError にはなりません。",
     ],
     explanation: {
       summary:
@@ -3393,7 +3393,7 @@ export const questions: Question[] = [
     hints: [
       "クラス全体ではなく、特定のインスタンスに対してだけ追加できるメソッド。",
       "`def obj.method_name` または `obj.define_singleton_method(:name) { ... }`。",
-      "別名: Singleton Method。",
+      "英語名は『Singleton Method』。日本語訳は『〇〇メソッド』の形で、〇〇の部分は『特殊で唯一』を意味する漢字 2 文字です。",
     ],
     explanation: {
       summary:
@@ -3421,7 +3421,7 @@ export const questions: Question[] = [
     hints: [
       "`self.included(base)` はクラスに include された瞬間に呼ばれるフック。",
       "中で `base.extend(ClassMethods)` してクラスメソッドを追加。",
-      "User.class_meth が呼べる。",
+      "include の瞬間にフックで `puts` が走り、その後 ClassMethods のメソッド呼び出しも成功するので、出力は 2 行になります。",
     ],
     explanation: {
       summary:
@@ -3444,7 +3444,7 @@ export const questions: Question[] = [
     hints: [
       "Ruby 3.0+ のパターンマッチング。",
       "ネスト Hash 構造を一気に分解 + 型チェック + 値マッチ。",
-      "role: 'admin' なので最初の枝。",
+      "case/in の各節を上から順に試して最初にマッチするのはどこか、入力 Hash の role 値と照らし合わせて判定してください。",
     ],
     explanation: {
       summary:
@@ -3472,7 +3472,7 @@ export const questions: Question[] = [
     hints: [
       "モンキーパッチを限定スコープに閉じ込める。",
       "`refine Class do ... end` で定義、`using Module` で適用。",
-      "適用したファイル内でのみ有効。",
+      "通常のオープンクラス (= プロセス全体に波及) と違い、Refinements は `using` を書いた範囲だけに影響を閉じ込めるのが核心。",
     ],
     explanation: {
       summary:
@@ -3560,7 +3560,7 @@ export const questions: Question[] = [
     hints: [
       "`pluck` は SELECT した値を Array で直接返す。",
       "`select` は AR インスタンスを返すのでオブジェクト生成のコスト。",
-      "大量データなら pluck が圧倒的に速い。",
+      "AR インスタンスを生成するコストの有無が、特に大量データを扱うときの性能差として現れます。",
     ],
     explanation: {
       summary:
@@ -3617,7 +3617,7 @@ export const questions: Question[] = [
     hints: [
       "`has_many :tags, through: :tagging` のように書く中間モデルを指定するオプション。",
       "中間モデル名を指定。",
-      "答えは `through`。",
+      "「〜を通して」を意味する英単語 1 語そのままで、`has_many :xxx, ???: :中間モデル名` の `???` 部分にあたります。",
     ],
     explanation: {
       summary:
@@ -3676,7 +3676,7 @@ export const questions: Question[] = [
     hints: [
       "`joins` で内部結合、`where` で users.active で絞り込み。",
       "`group` でユーザー単位、`count` で件数集計。",
-      "結果は `{ user_id => count }` の Hash。",
+      "group(:何か).count は『グループ化キー → 件数』の Hash を返すため、Post や User の AR レコード一覧そのものは返ってきません。",
     ],
     explanation: {
       summary:
@@ -3784,7 +3784,7 @@ export const questions: Question[] = [
     hints: [
       "改行で分割、カンマで分割の 2 段階。",
       "`zip` でヘッダーと値をペアにする。",
-      "`headers.zip(values).to_h` で Hash 化。",
+      "ヘッダー配列と値配列をペアにする手段 (zip 等) を使ってから一気に Hash 化すると、`each` で 1 件ずつ詰める書き方より短く済みます。",
     ],
     reviewPoints: [
       "split('\\n') で行に分け、shift でヘッダーを取り出している",
@@ -3823,7 +3823,7 @@ export const questions: Question[] = [
     hints: [
       "外部キーは `t.references :user, foreign_key: true` で生成。",
       "`dependent: :destroy` で親削除時に子も削除。",
-      "validates :title, length: { maximum: 100 } で最大文字数。",
+      "presence と length を 1 行の validates にまとめても良いですし、文字数は `length:` オプションで maximum を指定します。",
     ],
     reviewPoints: [
       "マイグレーションで null: false と foreign_key: true を両方指定",
@@ -3898,7 +3898,7 @@ export const questions: Question[] = [
     hints: [
       "`scope :name, -> { ... }` の形で定義。",
       "`where.not(col: nil)` で NOT NULL。",
-      "`joins(:user).where(users: { name: name })` で関連テーブルの条件。",
+      "関連テーブルのカラムで絞る scope は `joins` でテーブルを連結してから where のネストハッシュで条件を書くと SQL インジェクションも防げます。",
     ],
     reviewPoints: [
       "scope は lambda (`->`) で定義 (毎回評価のため)",
@@ -4143,7 +4143,7 @@ export const questions: Question[] = [
     hints: [
       "`included` フックで extend(ClassMethods) パターン。",
       "`define_method` でブロック内のローカル変数 (names) を捕捉できる (クロージャ)。",
-      "attr_accessor(*names) でまとめて getter/setter を定義。",
+      "getter/setter の量産は 1 つずつ define_method を呼ぶより、Ruby 組み込みの可変長引数版マクロを 1 行で呼ぶと簡潔です。",
     ],
     reviewPoints: [
       "self.included フックで extend(ClassMethods)",

@@ -1,5 +1,5 @@
 import { categories } from "@/data/categories";
-import { questions, questionsByCategory } from "@/data/questions";
+import { allQuestions as questions, questionsByCategory } from "@/data/all-questions";
 import { ProgressSummary } from "@/components/ProgressSummary";
 import { CategoryCard } from "@/components/CategoryCard";
 

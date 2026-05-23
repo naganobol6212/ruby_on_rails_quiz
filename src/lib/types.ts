@@ -9,6 +9,12 @@ export type CategoryId =
   | "rails-convention"
   | "routing-controller"
   | "active-record"
+  | "rspec"
+  | "logs"
+  | "git-github"
+  | "security"
+  | "debugging"
+  | "linux-cli"
   | "practical";
 
 export type Category = {

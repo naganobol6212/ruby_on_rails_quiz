@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { findCategory, categories } from "@/data/categories";
-import { questionsByCategory } from "@/data/questions";
+import { questionsByCategory } from "@/data/all-questions";
 import { QuestionPicker } from "@/components/QuestionPicker";
 
 export function generateStaticParams() {
