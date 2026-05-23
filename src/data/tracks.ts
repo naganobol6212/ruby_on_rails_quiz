@@ -57,10 +57,10 @@ export const tracks: Track[] = [
     name: "Nuxt",
     short: "Nuxt",
     emoji: "💚",
-    description: "Vue ベースの Nuxt 3 / Composition API / 自動ルーティング",
+    description: "Vue 3 ベースの Nuxt 3 / Composition API / 自動ルーティング",
     accentClass: "from-emerald-500/20 to-green-500/5",
     ringClass: "hover:ring-emerald-500/40",
-    status: "coming-soon",
+    status: "available",
   },
   {
     id: "python",
@@ -70,7 +70,17 @@ export const tracks: Track[] = [
     description: "基礎構文、コレクション、内包表記、デコレータ",
     accentClass: "from-blue-500/20 to-indigo-500/5",
     ringClass: "hover:ring-blue-500/40",
-    status: "coming-soon",
+    status: "available",
+  },
+  {
+    id: "sql",
+    name: "SQL",
+    short: "SQL",
+    emoji: "🗃️",
+    description: "SELECT / JOIN / 集約 / インデックス / EXPLAIN",
+    accentClass: "from-indigo-500/20 to-violet-500/5",
+    ringClass: "hover:ring-indigo-500/40",
+    status: "available",
   },
 ];
 

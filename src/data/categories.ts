@@ -209,6 +209,63 @@ export const categories: Category[] = [
     accentClass: "from-zinc-500/20 to-slate-500/5",
     ringClass: "hover:ring-zinc-500/40",
   },
+
+  // ===========================================================================
+  // Track: Nuxt
+  // ===========================================================================
+  {
+    id: "nuxt-basics",
+    trackId: "nuxt",
+    name: "Nuxt 基礎",
+    description: "Vue 3 / Composition API / 自動ルーティング / useFetch",
+    emoji: "💚",
+    accentClass: "from-emerald-500/20 to-green-500/5",
+    ringClass: "hover:ring-emerald-500/40",
+  },
+
+  // ===========================================================================
+  // Track: Python
+  // ===========================================================================
+  {
+    id: "python-basics",
+    trackId: "python",
+    name: "Python 基礎",
+    description: "基本構文・コレクション・内包表記・関数・モジュール",
+    emoji: "🐍",
+    accentClass: "from-blue-500/20 to-indigo-500/5",
+    ringClass: "hover:ring-blue-500/40",
+  },
+
+  // ===========================================================================
+  // Track: SQL
+  // ===========================================================================
+  {
+    id: "sql-basics",
+    trackId: "sql",
+    name: "SQL 基礎",
+    description: "SELECT / WHERE / ORDER BY / GROUP BY / INSERT / UPDATE",
+    emoji: "🗃️",
+    accentClass: "from-indigo-500/20 to-violet-500/5",
+    ringClass: "hover:ring-indigo-500/40",
+  },
+  {
+    id: "sql-joins",
+    trackId: "sql",
+    name: "SQL 結合",
+    description: "INNER / LEFT / RIGHT / OUTER / セルフジョイン / サブクエリ",
+    emoji: "🔗",
+    accentClass: "from-violet-500/20 to-purple-500/5",
+    ringClass: "hover:ring-violet-500/40",
+  },
+  {
+    id: "sql-advanced",
+    trackId: "sql",
+    name: "SQL 上級",
+    description: "ウィンドウ関数・CTE・トランザクション・インデックス・EXPLAIN",
+    emoji: "📈",
+    accentClass: "from-purple-500/20 to-fuchsia-500/5",
+    ringClass: "hover:ring-purple-500/40",
+  },
 ];
 
 export const findCategory = (id: string) =>

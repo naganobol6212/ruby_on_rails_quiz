@@ -18,6 +18,7 @@ import { HintBox } from "./HintBox";
 import { CodeBlock } from "./CodeBlock";
 import { CodeEditor } from "./CodeEditor";
 import { ExplanationCard } from "./ExplanationCard";
+import { SelfExplanationBox } from "./SelfExplanationBox";
 import { StreakDisplay } from "./StreakDisplay";
 
 type Props = {
@@ -332,6 +333,13 @@ export function QuizRunner({
                   )}
                 </>
               )}
+
+              {/* 構造化言語トレーニング: 自分の言葉で説明 */}
+              <SelfExplanationBox
+                key={current.id}
+                questionId={current.id}
+                sampleSummary={current.explanation.summary}
+              />
 
               {/* 回答後のレビューマーク (大きく、目立つ場所) */}
               <div className="rounded-xl border border-zinc-200 bg-zinc-50/60 px-4 py-4 dark:border-white/10 dark:bg-white/[0.03]">

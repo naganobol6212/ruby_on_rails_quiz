@@ -10,7 +10,8 @@ export type TrackId =
   | "react"
   | "nextjs"
   | "nuxt"
-  | "python";
+  | "python"
+  | "sql";
 
 export type Track = {
   id: TrackId;
@@ -53,7 +54,11 @@ export type CategoryId =
   | "nextjs-basics"
   | "nuxt-basics"
   // Python
-  | "python-basics";
+  | "python-basics"
+  // SQL
+  | "sql-basics"
+  | "sql-joins"
+  | "sql-advanced";
 
 export type Category = {
   id: CategoryId;
@@ -118,6 +123,9 @@ export type QuestionAttempt = {
   hintsUsed: number;
   lastAnsweredAt: string;
   mark: ReviewMark;
+  /** 構造化言語訓練: ユーザーが自分の言葉で書いた説明 */
+  selfExplanation?: string;
+  selfExplanationUpdatedAt?: string;
 };
 
 export type Progress = {

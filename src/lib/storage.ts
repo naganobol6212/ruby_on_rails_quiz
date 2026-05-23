@@ -99,6 +99,35 @@ export const setReviewMark = (questionId: string, mark: ReviewMark) => {
   return newProgress;
 };
 
+/**
+ * 構造化言語訓練: ユーザーが書いた『自分の言葉での説明』を保存。
+ */
+export const setSelfExplanation = (
+  questionId: string,
+  text: string,
+): Progress => {
+  const progress = loadProgress();
+  const prev: QuestionAttempt = progress.attempts[questionId] ?? {
+    questionId,
+    solved: false,
+    attempts: 0,
+    hintsUsed: 0,
+    lastAnsweredAt: new Date().toISOString(),
+    mark: null,
+  };
+  const updated: QuestionAttempt = {
+    ...prev,
+    selfExplanation: text,
+    selfExplanationUpdatedAt: new Date().toISOString(),
+  };
+  const newProgress: Progress = {
+    ...progress,
+    attempts: { ...progress.attempts, [questionId]: updated },
+  };
+  saveProgress(newProgress);
+  return newProgress;
+};
+
 export const resetProgress = () => {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(STORAGE_KEY);
