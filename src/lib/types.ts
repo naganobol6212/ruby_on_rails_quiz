@@ -8,7 +8,8 @@ export type CategoryId =
   | "code-reading"
   | "rails-convention"
   | "routing-controller"
-  | "active-record";
+  | "active-record"
+  | "practical";
 
 export type Category = {
   id: CategoryId;
@@ -48,7 +49,16 @@ export type TextQuestion = BaseQuestion & {
   answers: string[];
 };
 
-export type Question = ChoiceQuestion | TextQuestion;
+export type PracticalQuestion = BaseQuestion & {
+  type: "practical";
+  requirements: string[];
+  sampleSolution: string;
+  reviewPoints: string[];
+};
+
+export type Question = ChoiceQuestion | TextQuestion | PracticalQuestion;
+
+export type ReviewMark = "mastered" | "review" | null;
 
 export type QuestionAttempt = {
   questionId: string;
@@ -56,6 +66,7 @@ export type QuestionAttempt = {
   attempts: number;
   hintsUsed: number;
   lastAnsweredAt: string;
+  mark: ReviewMark;
 };
 
 export type Progress = {

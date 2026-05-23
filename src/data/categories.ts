@@ -65,6 +65,14 @@ export const categories: Category[] = [
     accentClass: "from-fuchsia-500/20 to-pink-500/5",
     ringClass: "hover:ring-fuchsia-500/40",
   },
+  {
+    id: "practical",
+    name: "実践課題",
+    description: "実務想定タスク。要件→自分で実装→サンプル解答で答え合わせ",
+    emoji: "🛠️",
+    accentClass: "from-orange-500/20 to-amber-500/5",
+    ringClass: "hover:ring-orange-500/40",
+  },
 ];
 
 export const findCategory = (id: string) =>

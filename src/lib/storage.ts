@@ -1,6 +1,6 @@
-import type { Progress, QuestionAttempt } from "./types";
+import type { Progress, QuestionAttempt, ReviewMark } from "./types";
 
-const STORAGE_KEY = "rrq_progress_v2";
+const STORAGE_KEY = "rrq_progress_v3";
 
 const emptyProgress = (): Progress => ({
   attempts: {},
@@ -8,6 +8,12 @@ const emptyProgress = (): Progress => ({
   totalAttempts: 0,
   bestStreak: 0,
 });
+
+const emit = () => {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("rrq:progress-updated"));
+  }
+};
 
 export const loadProgress = (): Progress => {
   if (typeof window === "undefined") return emptyProgress();
@@ -29,8 +35,11 @@ export const loadProgress = (): Progress => {
 export const saveProgress = (progress: Progress) => {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-  window.dispatchEvent(new Event("rrq:progress-updated"));
+  emit();
 };
+
+export const getAttempt = (questionId: string): QuestionAttempt | undefined =>
+  loadProgress().attempts[questionId];
 
 export const recordAttempt = (
   questionId: string,
@@ -45,10 +54,12 @@ export const recordAttempt = (
     attempts: 0,
     hintsUsed: 0,
     lastAnsweredAt: new Date().toISOString(),
+    mark: null,
   };
 
   const wasAlreadySolved = prev.solved;
   const updated: QuestionAttempt = {
+    ...prev,
     questionId,
     solved: prev.solved || solved,
     attempts: prev.attempts + 1,
@@ -68,8 +79,28 @@ export const recordAttempt = (
   return newProgress;
 };
 
+export const setReviewMark = (questionId: string, mark: ReviewMark) => {
+  const progress = loadProgress();
+  const prev: QuestionAttempt = progress.attempts[questionId] ?? {
+    questionId,
+    solved: false,
+    attempts: 0,
+    hintsUsed: 0,
+    lastAnsweredAt: new Date().toISOString(),
+    mark: null,
+  };
+
+  const updated: QuestionAttempt = { ...prev, mark };
+  const newProgress: Progress = {
+    ...progress,
+    attempts: { ...progress.attempts, [questionId]: updated },
+  };
+  saveProgress(newProgress);
+  return newProgress;
+};
+
 export const resetProgress = () => {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(STORAGE_KEY);
-  window.dispatchEvent(new Event("rrq:progress-updated"));
+  emit();
 };

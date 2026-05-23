@@ -3015,6 +3015,1155 @@ export const questions: Question[] = [
         "# メソッドの末尾 rescue\ndef parse(s)\n  Integer(s)\nrescue ArgumentError\n  0\nend\n\n# begin/rescue/ensure フル形式\nbegin\n  risky\nrescue SpecificError => e\n  handle(e)\nrescue => e\n  log(e)\nensure\n  cleanup\nend",
     },
   },
+
+  // ===========================================================================
+  // Ruby 基礎 追加 (Silver 対策: 正規表現・Time・IO・String 詳細) 12問
+  // ===========================================================================
+  {
+    id: "rb-019",
+    categoryId: "ruby-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: '"hello world" =~ /o(.)/\nputs $~[1]\nputs $1',
+    choices: [" / ", "o / o", "rl / rl", "nil / nil"],
+    answerIndex: 0,
+    hints: [
+      "`=~` は正規表現マッチ。マッチ位置を返す。",
+      "`$~` は最後のマッチ全体の MatchData。`$1` は最初のキャプチャグループ。",
+      "正規表現 `/o(.)/` は 'o' の直後 1 文字をキャプチャ。'hello' の 'o' の直後はスペース。",
+    ],
+    explanation: {
+      summary:
+        "`$~[1]` と `$1` は同じ意味で、1番目のキャプチャグループを返す。",
+      reason:
+        "'hello world' に対し `/o(.)/` は最初の 'o' (hello の o) にマッチ。次の文字 ' ' (スペース) がキャプチャされる。`$~` (Regexp.last_match) は最後のマッチ情報、`$1`〜`$9` は対応するキャプチャ。",
+      codeExample:
+        '"hello world" =~ /o(.)/    # マッチ位置 4 を返す\n$~              #=> #<MatchData "o " 1:" ">\n$~[0]           #=> "o " (マッチ全体)\n$~[1]           #=> " " (1番目のキャプチャ)\n$1              #=> " " (同じ)\n\n# 名前付きキャプチャ\n"2024-01-15" =~ /(?<year>\\d+)-(?<month>\\d+)/\n$~[:year]       #=> "2024"',
+      commonMistakes: [
+        "`$1` などのグローバル変数は使い捨て。マルチスレッドや別マッチで上書きされるので、安全な MatchData オブジェクトを変数で受けるのが良い。",
+      ],
+    },
+  },
+  {
+    id: "rb-020",
+    categoryId: "ruby-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: '"abc-123-xyz".scan(/\\d+/)',
+    choices: [
+      '["123"]',
+      '["1", "2", "3"]',
+      '["abc", "xyz"]',
+      "nil",
+    ],
+    answerIndex: 0,
+    hints: [
+      "`scan` はマッチした文字列を全部配列で返す。",
+      "`/\\d+/` は連続する数字。",
+      "'123' が 1 回マッチ → [\"123\"]。",
+    ],
+    explanation: {
+      summary:
+        "`String#scan(regexp)` はマッチした部分文字列を配列で返す。",
+      reason:
+        "`match` は最初のマッチ 1 件、`scan` は全マッチを配列で。キャプチャグループがあるとキャプチャごとに配列の配列を返す: `scan(/(\\w+)=(\\w+)/) #=> [[\"a\",\"1\"], ...]`。",
+      codeExample:
+        '"abc-123-xyz".scan(/\\d+/)        #=> ["123"]\n"a1b2c3".scan(/[a-z](\\d)/)        #=> [["1"], ["2"], ["3"]]\n"name=alice&age=20".scan(/(\\w+)=(\\w+)/)\n#=> [["name","alice"], ["age","20"]]\n\n# Hash 化\n"name=alice&age=20".scan(/(\\w+)=(\\w+)/).to_h\n#=> {"name"=>"alice", "age"=>"20"}',
+    },
+  },
+  {
+    id: "rb-021",
+    categoryId: "ruby-basics",
+    difficulty: "intermediate",
+    type: "text",
+    question:
+      '"  hello  " の前後の空白を取り除いて "hello" を返す String のメソッド名は？(メソッド名のみ)',
+    answers: ["strip"],
+    hints: [
+      "前後だけ削除するメソッド。",
+      "左だけは `lstrip`、右だけは `rstrip`。",
+      "答えは `strip`。",
+    ],
+    explanation: {
+      summary: "`String#strip` は前後の空白文字を削除する。",
+      reason:
+        "削除対象はスペース・タブ・改行 (\\t \\n \\r 等)。中央の空白は残る。`lstrip` / `rstrip` で片側のみ。フォーム入力の正規化で頻出。",
+      codeExample:
+        '"  hello  ".strip       #=> "hello"\n"  hello  ".lstrip      #=> "hello  "\n"  hello  ".rstrip      #=> "  hello"\n"\\n\\t  hi \\n".strip    #=> "hi"\n\n# 文字列全体から空白を削除\n"a b c".gsub(/\\s/, "")  #=> "abc"\n"a b c".tr(" ", "")     #=> "abc"',
+    },
+  },
+  {
+    id: "rb-022",
+    categoryId: "ruby-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: '"abc,def,ghi".split(",").map(&:upcase)',
+    choices: [
+      '["ABC", "DEF", "GHI"]',
+      '["ABCDEFGHI"]',
+      '"ABC,DEF,GHI"',
+      "ArgumentError",
+    ],
+    answerIndex: 0,
+    hints: [
+      "`split(\",\")` でカンマ区切り配列に。",
+      "`map(&:upcase)` で各要素を大文字化。",
+      '結果は ["ABC", "DEF", "GHI"]',
+    ],
+    explanation: {
+      summary:
+        "split で文字列を配列化 → map(&:upcase) で各要素を大文字化。",
+      reason:
+        "`String#split(sep)` は区切り文字で配列分割。引数省略時は空白で分割。逆操作は `Array#join(sep)`。CSV っぽいパースで使うが、本格的な CSV は標準ライブラリ `csv` を使う。",
+      codeExample:
+        '"abc,def,ghi".split(",")          #=> ["abc","def","ghi"]\n"  a   b   c  ".split             #=> ["a","b","c"] (連続空白で分割)\n\n# 結合\n["a","b","c"].join("-")           #=> "a-b-c"\n\n# CSV パース\nrequire "csv"\nCSV.parse("a,b,c\\n1,2,3")\n#=> [["a","b","c"], ["1","2","3"]]',
+    },
+  },
+  {
+    id: "rb-023",
+    categoryId: "ruby-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: 'require "date"\nputs Date.new(2024, 1, 31) + 1',
+    choices: ["2024-02-01", "2024-01-32", "ArgumentError", "2024-02-29"],
+    answerIndex: 0,
+    hints: [
+      "`Date + 整数` は日付加算。",
+      "1月31日 + 1日 = 2月1日。",
+      "Date クラスは日数計算を月またぎで正しく処理。",
+    ],
+    explanation: {
+      summary: "Date オブジェクト + 整数 は日付加算 (月またぎ・うるう年も正しく処理)。",
+      reason:
+        "`Date` は date 標準ライブラリ。`Date + n` は n 日後、`Date - other_date` は日数差 (Rational)。`Date.today`, `Date.parse`, `Date#strftime` も頻出。",
+      codeExample:
+        'require "date"\nDate.new(2024, 1, 31) + 1     #=> #<Date: 2024-02-01>\nDate.today                     # 今日\nDate.parse("2024-12-25")       # 文字列パース\nDate.today.strftime("%Y/%m/%d")\n\n# Date と DateTime と Time\n# Date     : 日付のみ\n# DateTime : 日付 + 時刻 (廃止予定的、Time 推奨)\n# Time     : 時刻 (タイムゾーン対応)',
+    },
+  },
+  {
+    id: "rb-024",
+    categoryId: "ruby-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "次のうち、現在のシステム時刻を取得する正しい Ruby コードは？",
+    choices: [
+      "Time.now",
+      "Time.current",
+      "DateTime.today",
+      "Date.time",
+    ],
+    answerIndex: 0,
+    hints: [
+      "標準 Ruby (Rails 無し) で動くもの。",
+      "Rails の `Time.current` は ActiveSupport 拡張。",
+      "Pure Ruby は `Time.now`。",
+    ],
+    explanation: {
+      summary:
+        "Pure Ruby: `Time.now`。Rails 環境: `Time.current` (タイムゾーン考慮)。",
+      reason:
+        "`Time.now` はシステムローカル時刻。Rails の `Time.current` は `Time.zone.now` のラッパーで、`config.time_zone = 'Tokyo'` を尊重する。本番環境は常に UTC で保存、表示時に zone 変換が定石。",
+      codeExample:
+        'Time.now                  # システムローカル\nTime.now.utc              # UTC に変換\nTime.now.strftime("%Y-%m-%d %H:%M:%S")\n\n# Rails (ActiveSupport)\nTime.current              #=> Time.zone.now\nTime.zone.now\n1.hour.ago                # 1時間前\n3.days.from_now           # 3日後\nTime.zone                 #=> #<ActiveSupport::TimeZone: Tokyo>',
+      commonMistakes: [
+        "Rails で `Time.now` を直接使うとタイムゾーンが OS 依存になりバグの元。`Time.current` を使う。",
+      ],
+    },
+  },
+  {
+    id: "rb-025",
+    categoryId: "ruby-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: 'File.open("/tmp/test.txt", "w") do |f|\n  f.puts "hello"\nend\n# ↑ ファイル書き込み\n\nputs File.read("/tmp/test.txt").chomp',
+    choices: ["hello", "hello\\n", "nil", "Errno::ENOENT"],
+    answerIndex: 0,
+    hints: [
+      "`File.open` のブロック付き形式は自動でクローズ。",
+      "`f.puts \"hello\"` は 'hello\\n' を書き込み。",
+      "`File.read` で全文読込、`chomp` で末尾改行を削除。",
+    ],
+    explanation: {
+      summary:
+        "`File.open ... do |f|` のブロック付き形式は自動 close。File.read で一括読み込み + chomp で末尾改行除去。",
+      reason:
+        "ファイル操作はブロック付きで開くと例外時も自動 close。`'w'` 書き込み、`'r'` 読み込み、`'a'` 追記、`'r+'` 読み書き。`puts` は末尾改行付与、`print` は付与なし、`write` も付与なし。",
+      codeExample:
+        '# 書き込み (自動 close)\nFile.open("data.txt", "w") do |f|\n  f.puts "line1"     # 改行つき\n  f.print "line2"    # 改行なし\nend\n\n# 1 行ずつ読み込み (大きいファイル向け)\nFile.foreach("data.txt") do |line|\n  puts line.chomp\nend\n\n# 一括\ncontent = File.read("data.txt")\nlines   = File.readlines("data.txt")  # 行配列',
+    },
+  },
+  {
+    id: "rb-026",
+    categoryId: "ruby-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "Ruby で環境変数 PATH を取得する正しい書き方は？",
+    choices: [
+      "ENV['PATH']",
+      "ENV.PATH",
+      "$ENV[:PATH]",
+      "Environment.get('PATH')",
+    ],
+    answerIndex: 0,
+    hints: [
+      "`ENV` は擬似 Hash オブジェクト。",
+      "`[]` でアクセスする。",
+      "答えは `ENV['PATH']`。",
+    ],
+    explanation: {
+      summary:
+        "`ENV` は環境変数を扱う特殊な Hash 様オブジェクト。`ENV['KEY']` でアクセス。",
+      reason:
+        "`ENV[key]` で取得 (無ければ nil)、`ENV[key] = val` で設定、`ENV.fetch(key)` で必須化、`ENV.to_h` で Hash 化。`.env` ファイルで管理するなら dotenv gem を使うのが定番。",
+      codeExample:
+        'ENV["PATH"]                 # 取得 (nil 可)\nENV.fetch("DATABASE_URL")   # 無ければ例外\nENV.fetch("RAILS_ENV", "development")  # デフォルト指定\n\n# 全環境変数\nENV.to_h\n\n# 設定 (現在プロセスのみ)\nENV["FOO"] = "bar"\n\n# Rails の credentials を使う方がベター\nRails.application.credentials.aws[:key]',
+    },
+  },
+  {
+    id: "rb-027",
+    categoryId: "ruby-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: 'begin\n  raise StandardError, "first"\nrescue => e\n  raise ArgumentError, "second"\nrescue ArgumentError => e\n  puts "caught: #{e.message}"\nend',
+    choices: [
+      "caught: second",
+      "caught: first",
+      "ArgumentError: second (uncaught)",
+      "何も出力されない",
+    ],
+    answerIndex: 2,
+    hints: [
+      "rescue 句は上から順に評価される。",
+      "最初の rescue で StandardError を捕捉、その中で再 raise。",
+      "rescue 句内で発生した例外は同じ begin の他の rescue では捕捉されない。",
+    ],
+    explanation: {
+      summary:
+        "rescue 句内で発生/再 raise された例外は、同じ begin の他の rescue では捕捉されず外側に伝播する。",
+      reason:
+        "begin/rescue は『rescue で捕まえる対象は begin 本体のみ』。rescue 句の中で再 raise すると、そのまま外に飛ぶ (同じ begin の他の rescue には行かない)。第2のArgumentError → 未捕捉のまま外へ。",
+      codeExample:
+        'begin\n  begin\n    raise "first"\n  rescue => e\n    raise ArgumentError, "second"\n  end\nrescue ArgumentError => e\n  puts "caught: #{e.message}"   # caught: second\nend\n\n# 例外チェーンを保持\nbegin\n  raise OriginalError\nrescue => e\n  raise NewError, "wrapped"     # e が e.cause として保持される\nend',
+    },
+  },
+  {
+    id: "rb-028",
+    categoryId: "ruby-basics",
+    difficulty: "advanced",
+    type: "text",
+    question:
+      "Ruby のすべての標準例外クラスの『推奨される共通親』 (Exception ではなく、ユーザーがアプリで rescue すべきデフォルトの親) のクラス名は？(英語、PascalCase)",
+    answers: ["StandardError"],
+    hints: [
+      "`rescue` を class 指定なしで書いた時のデフォルト捕捉範囲。",
+      "Exception > StandardError > RuntimeError などの階層。",
+      "答えは `StandardError`。",
+    ],
+    explanation: {
+      summary:
+        "rescue のデフォルト捕捉対象は StandardError。Exception を直接 rescue するのは厳禁。",
+      reason:
+        "Exception の直下には SystemExit (exit時)、Interrupt (Ctrl-C)、NoMemoryError、SignalException など『プログラム制御に関わる重要例外』が含まれる。これらを rescue するとアプリが落ちないバグを生む。アプリ用のカスタム例外も `< StandardError` で定義する。",
+      codeExample:
+        "# 良い例\nclass MyError < StandardError; end\n\n# rescue StandardError (引数省略時のデフォルト)\nbegin\n  ...\nrescue => e          # = rescue StandardError => e\n  log(e)\nend\n\n# ダメな例 (Ctrl-C も捕まえてしまう)\nbegin\n  ...\nrescue Exception => e    # NG\nend",
+    },
+  },
+  {
+    id: "rb-029",
+    categoryId: "ruby-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: 'puts "hello"[0..2]\nputs "hello"[-3..]\nputs "hello"[1, 3]',
+    choices: [
+      "hel / llo / ell",
+      "hel / llo / llo",
+      "ell / hel / llo",
+      "hel / hello / ell",
+    ],
+    answerIndex: 0,
+    hints: [
+      "`str[range]` で部分文字列。",
+      "`str[start, length]` で開始位置 + 長さ。",
+      "負のインデックスは末尾から。",
+    ],
+    explanation: {
+      summary:
+        "String のスライス: [start..end] / [start..]/ [start, length] / [-n..]。",
+      reason:
+        "Ruby の文字列スライスは Range と (start, length) の両方をサポート。`[-3..]` は末尾から 3 文字 (... の終了側省略で末尾まで)。`[1, 3]` は index 1 から 3 文字。",
+      codeExample:
+        's = "hello"\ns[0..2]       #=> "hel"\ns[0..]        #=> "hello"\ns[-3..]       #=> "llo"\ns[1, 3]       #=> "ell"\ns[10]         #=> nil  (範囲外)\ns[/l+/]       #=> "ll" (正規表現マッチ)\ns[/(\\w)\\w/, 1] #=> "h" (キャプチャ)',
+    },
+  },
+  {
+    id: "rb-030",
+    categoryId: "ruby-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "Ruby の Integer の特殊なメソッド `times` は何回ブロックを実行する？",
+    code: "5.times { |i| puts i }",
+    choices: ["0,1,2,3,4 の 5 回", "1,2,3,4,5 の 5 回", "0,1,2,3,4,5 の 6 回", "実行されない"],
+    answerIndex: 0,
+    hints: [
+      "`n.times` は n 回繰り返す。",
+      "ブロック変数は 0 から n-1 まで。",
+      "0 始まりで 5 個 = 0,1,2,3,4。",
+    ],
+    explanation: {
+      summary:
+        "`n.times { |i| ... }` は 0..n-1 を i に渡してブロックを n 回実行。",
+      reason:
+        "Integer の繰り返しイディオム。`upto` `downto` `step` も類似。Ruby らしいコンパクトな書き方。",
+      codeExample:
+        '3.times { |i| puts i }       # 0, 1, 2\n1.upto(3) { |i| puts i }     # 1, 2, 3\n3.downto(1) { |i| puts i }   # 3, 2, 1\n1.step(10, 2) { |i| puts i } # 1, 3, 5, 7, 9\n\n# Array.new も times パターン\nArray.new(3) { |i| i * 2 }   #=> [0, 2, 4]',
+    },
+  },
+
+  // ===========================================================================
+  // Ruby 上級 追加 (Gold 対策: メタプロ詳細・パターンマッチ) 8問
+  // ===========================================================================
+  {
+    id: "adv-015",
+    categoryId: "ruby-advanced",
+    difficulty: "advanced",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: 'class Foo\nend\n\nfoo = Foo.new\nfoo.instance_eval do\n  @bar = 42\nend\nputs foo.instance_variable_get(:@bar)',
+    choices: ["42", "nil", "NameError", "0"],
+    answerIndex: 0,
+    hints: [
+      "`instance_eval` はレシーバの self を切り替えてブロックを実行。",
+      "ブロック内の `@bar` は foo のインスタンス変数。",
+      "結果として foo.@bar に 42 が格納される。",
+    ],
+    explanation: {
+      summary:
+        "`instance_eval` はオブジェクトの内部状態を直接操作するメタプロの定番。",
+      reason:
+        "ブロックの self を一時的にレシーバに切り替えるため、`@xxx` でインスタンス変数を直接操作できる。RSpec の `describe ... do` や DSL の実装に多用。`class_eval` (= module_eval) はクラスの定義スコープに入る。",
+      codeExample:
+        'class Empty; end\n\ne = Empty.new\ne.instance_eval do\n  @name = "Alice"\n  def shout              # 特異メソッド定義\n    "HI"\n  end\nend\n\ne.instance_variable_get(:@name)  #=> "Alice"\ne.shout                          #=> "HI"\n\n# class_eval (クラス本体の中に入る)\nClass.new.class_eval do\n  define_method(:greet) { "hi" }\nend',
+    },
+  },
+  {
+    id: "adv-016",
+    categoryId: "ruby-advanced",
+    difficulty: "advanced",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: "class Foo\n  def secret\n    'shh'\n  end\n  private :secret\nend\n\nputs Foo.new.send(:secret)",
+    choices: ["shh", "NoMethodError", "nil", "secret"],
+    answerIndex: 0,
+    hints: [
+      "`send` は private メソッドも呼べる。",
+      "`public_send` だと public のみ。",
+      "結果は 'shh'。",
+    ],
+    explanation: {
+      summary:
+        "`send` は private/protected も無視して呼べる。public しか呼ばないなら `public_send`。",
+      reason:
+        "`send` はメタプロ用に強力に設計されており、可視性をバイパスする。意図せずカプセル化を破壊する可能性があるため、外部から呼ぶなら `public_send` を使うのが安全。",
+      codeExample:
+        'class Foo\n  private\n  def secret; "shh"; end\nend\n\nFoo.new.secret              # NoMethodError (private)\nFoo.new.send(:secret)       #=> "shh" (バイパス)\nFoo.new.public_send(:secret) # NoMethodError (尊重)\n\n# 動的にメソッド名を組み立てて呼び出すパターン\nattrs.each do |a|\n  obj.public_send("#{a}=", values[a])\nend',
+    },
+  },
+  {
+    id: "adv-017",
+    categoryId: "ruby-advanced",
+    difficulty: "advanced",
+    type: "text",
+    question:
+      "オブジェクトに対して『そのオブジェクトだけに有効なメソッド』を実行時に追加する仕組みの名称は？(カタカナ、〇〇メソッド)",
+    answers: [
+      "特異メソッド",
+      "特異メソッド (singleton method)",
+      "Singleton Method",
+      "singleton method",
+    ],
+    hints: [
+      "クラス全体ではなく、特定のインスタンスに対してだけ追加できるメソッド。",
+      "`def obj.method_name` または `obj.define_singleton_method(:name) { ... }`。",
+      "別名: Singleton Method。",
+    ],
+    explanation: {
+      summary:
+        "特異メソッド (Singleton Method) は特定オブジェクトだけに定義されるメソッド。",
+      reason:
+        "Ruby ではすべてのオブジェクトが暗黙の特異クラス (singleton class) を持つ。`def obj.foo` で定義したメソッドはこの特異クラスに入る。クラスメソッドも実はクラスオブジェクトの特異メソッド。",
+      codeExample:
+        'str = "hello"\ndef str.shout\n  upcase + "!!"\nend\nstr.shout         #=> "HELLO!!"\n"other".shout     # NoMethodError\n\n# 別の書き方\nstr.define_singleton_method(:greet) { "hi" }\n\n# クラスメソッドも特異メソッド\nclass Foo\n  def self.bar; end   # Foo の特異メソッド\nend\nFoo.singleton_class.instance_methods(false)\n#=> [:bar]',
+    },
+  },
+  {
+    id: "adv-018",
+    categoryId: "ruby-advanced",
+    difficulty: "advanced",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: "module Loggable\n  def self.included(base)\n    puts \"included into #{base}\"\n    base.extend(ClassMethods)\n  end\n\n  module ClassMethods\n    def class_meth\n      'class!'\n    end\n  end\nend\n\nclass User\n  include Loggable\nend\n\nputs User.class_meth",
+    choices: [
+      "included into User / class!",
+      "class!",
+      "NoMethodError",
+      "included into User",
+    ],
+    answerIndex: 0,
+    hints: [
+      "`self.included(base)` はクラスに include された瞬間に呼ばれるフック。",
+      "中で `base.extend(ClassMethods)` してクラスメソッドを追加。",
+      "User.class_meth が呼べる。",
+    ],
+    explanation: {
+      summary:
+        "`included` フックで base.extend(ClassMethods) するのが、include だけでクラスメソッドも入れる Rails 流のパターン。",
+      reason:
+        "Module には include / extend / prepend のフック (`included` / `extended` / `prepended`) が用意されている。Rails の Concern (`extend ActiveSupport::Concern`) はこれを綺麗に書ける糖衣構文を提供する。",
+      codeExample:
+        'module Trackable\n  extend ActiveSupport::Concern  # Rails 流\n\n  included do\n    scope :recent, -> { order(created_at: :desc) }  # クラスメソッド扱い\n  end\n\n  def track!                  # インスタンスメソッド\n    update(tracked_at: Time.current)\n  end\n\n  class_methods do\n    def archived\n      where.not(archived_at: nil)\n    end\n  end\nend',
+    },
+  },
+  {
+    id: "adv-019",
+    categoryId: "ruby-advanced",
+    difficulty: "advanced",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: "case { user: { name: 'Alice', age: 20 }, role: 'admin' }\nin { user: { name: String => n }, role: 'admin' }\n  puts \"admin: #{n}\"\nin { user: { name: String => n } }\n  puts \"user: #{n}\"\nend",
+    choices: ["admin: Alice", "user: Alice", "NoMatchingPatternError", "nil"],
+    answerIndex: 0,
+    hints: [
+      "Ruby 3.0+ のパターンマッチング。",
+      "ネスト Hash 構造を一気に分解 + 型チェック + 値マッチ。",
+      "role: 'admin' なので最初の枝。",
+    ],
+    explanation: {
+      summary:
+        "case/in はネスト Hash の構造分解 + 型チェック + 値マッチが一度に書ける強力構文。",
+      reason:
+        "Ruby 3.0 で正式導入された Pattern Matching。`String => n` は『String 型なら n に束縛』。`role: 'admin'` は値マッチ。マッチしない場合 `else` 無しだと NoMatchingPatternError。",
+      codeExample:
+        'response = { status: 200, body: { id: 1, name: "x" } }\n\ncase response\nin { status: 200..299, body: { id: Integer => id } }\n  puts "OK id=#{id}"\nin { status: 4.. , body: { error: String => msg } }\n  puts "error: #{msg}"\nin { status: }\n  puts "unknown status: #{status}"\nend\n\n# 配列の分解\ncase [1, 2, 3, 4]\nin [first, *rest]\n  [first, rest]   #=> [1, [2,3,4]]\nend',
+    },
+  },
+  {
+    id: "adv-020",
+    categoryId: "ruby-advanced",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "Ruby の Refinements (using) の最大の特徴は？",
+    choices: [
+      "ファイル/モジュールスコープ限定でクラスにメソッドを追加できる",
+      "全プロセスでメソッドを追加",
+      "クラスを動的に作成する",
+      "クラスを削除する",
+    ],
+    answerIndex: 0,
+    hints: [
+      "モンキーパッチを限定スコープに閉じ込める。",
+      "`refine Class do ... end` で定義、`using Module` で適用。",
+      "適用したファイル内でのみ有効。",
+    ],
+    explanation: {
+      summary:
+        "Refinements (using) はモンキーパッチのスコープを限定する仕組み。",
+      reason:
+        "通常の `class String; def x; end; end` は全体に影響するが、Refinements は `using` した位置以降のスコープ (ファイル/モジュール) でのみ有効。標準ライブラリ拡張時の副作用を抑える。Gold 試験頻出。",
+      codeExample:
+        "module StringExt\n  refine String do\n    def shout\n      upcase + \"!!\"\n    end\n  end\nend\n\nclass MyClass\n  using StringExt\n  def call\n    \"hi\".shout   # OK\n  end\nend\n\n\"hi\".shout       # NoMethodError (スコープ外)",
+    },
+  },
+  {
+    id: "adv-021",
+    categoryId: "ruby-advanced",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "Fiber の主な用途として正しいものは？",
+    choices: [
+      "プロセス並列",
+      "OS スレッド並列",
+      "協調的なコルーチン (明示的に切り替える軽量実行単位)",
+      "GC",
+    ],
+    answerIndex: 2,
+    hints: [
+      "Fiber = 軽量な実行単位。",
+      "OS スレッドではなく、自分で `resume` `yield` で切り替える。",
+      "ジェネレータや非同期 IO の基盤。",
+    ],
+    explanation: {
+      summary:
+        "Fiber は『手動で切り替える軽量コルーチン』。プリエンプトされず明示的に resume/yield。",
+      reason:
+        "Thread はプリエンプティブ (OS が自動で切り替える)、Fiber は協調的 (自分で切り替える)。Ruby 3.0+ の Fiber Scheduler により非同期 IO の基盤として活用 (Async gem 等)。",
+      codeExample:
+        'fib = Fiber.new do\n  Fiber.yield 1\n  Fiber.yield 2\n  3\nend\n\nfib.resume    #=> 1\nfib.resume    #=> 2\nfib.resume    #=> 3\nfib.resume    # FiberError: dead\n\n# 無限列生成 (lazy みたいに)\ncounter = Fiber.new do\n  n = 0\n  loop { Fiber.yield(n += 1) }\nend\n3.times { puts counter.resume }   # 1, 2, 3',
+    },
+  },
+  {
+    id: "adv-022",
+    categoryId: "ruby-advanced",
+    difficulty: "advanced",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: 'puts "あいう".encoding\nputs "あいう".bytesize\nputs "あいう".length',
+    choices: [
+      "UTF-8 / 9 / 3",
+      "ASCII-8BIT / 3 / 3",
+      "UTF-8 / 3 / 3",
+      "UTF-8 / 9 / 9",
+    ],
+    answerIndex: 0,
+    hints: [
+      "Ruby 文字列のデフォルトエンコーディングは UTF-8。",
+      "ひらがな 1 文字は UTF-8 で 3 バイト。",
+      "length は文字数、bytesize はバイト数。",
+    ],
+    explanation: {
+      summary:
+        "Ruby の String は『文字列 + エンコーディング』のセット。length は文字数、bytesize はバイト数。",
+      reason:
+        "Ruby M17N: 文字列ごとに encoding を持つ。`force_encoding` で再解釈、`encode` で変換。マルチバイトで `length != bytesize`、`each_char` で文字単位イテレート。",
+      codeExample:
+        's = "あいう"\ns.encoding      #=> #<Encoding:UTF-8>\ns.length        #=> 3 (文字数)\ns.bytesize      #=> 9 (バイト数)\ns.bytes         #=> [227,129,130,...]\ns.each_char.to_a #=> ["あ","い","う"]\n\n# エンコーディング変換\ns.encode("Shift_JIS")\ns.force_encoding("ASCII-8BIT")   # 再解釈 (バイト列は変わらず)',
+    },
+  },
+
+  // ===========================================================================
+  // ActiveRecord 追加 (実務頻出) 5問
+  // ===========================================================================
+  {
+    id: "ar-019",
+    categoryId: "active-record",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "ActiveRecord で `pluck(:id)` と `select(:id).map(&:id)` の違いは？",
+    choices: [
+      "pluck は値の配列を直接返す (高速)、select.map は AR オブジェクト経由",
+      "両者は完全に同じ",
+      "pluck は遅い",
+      "select は使えない",
+    ],
+    answerIndex: 0,
+    hints: [
+      "`pluck` は SELECT した値を Array で直接返す。",
+      "`select` は AR インスタンスを返すのでオブジェクト生成のコスト。",
+      "大量データなら pluck が圧倒的に速い。",
+    ],
+    explanation: {
+      summary:
+        "pluck は値配列を直接返すので軽い。select.map は AR オブジェクトを作るので重い。",
+      reason:
+        "`pluck(:column)` は SQL の SELECT 結果を直接 Array にする。AR インスタンスを作らないので速く、メモリも少ない。複数カラムなら `pluck(:id, :name)` で配列の配列。プレ計算した値が欲しいだけの時に使う。",
+      codeExample:
+        "User.pluck(:email)\n#=> [\"a@x\", \"b@y\", ...]\n# SELECT \"users\".\"email\" FROM \"users\"\n\nUser.pluck(:id, :name)\n#=> [[1, \"Alice\"], [2, \"Bob\"], ...]\n\n# 重複しない\nUser.distinct.pluck(:role)\n\n# pluck で COUNT などの式も書ける\nUser.group(:role).pluck(:role, Arel.sql('COUNT(*)'))",
+      commonMistakes: [
+        "pluck は AR コールバックや関連ロードをスキップする。オブジェクトとして扱いたい時は使えない。",
+      ],
+    },
+  },
+  {
+    id: "ar-020",
+    categoryId: "active-record",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "ActiveRecord で `find_or_create_by` と `find_or_initialize_by` の違いは？",
+    choices: [
+      "find_or_create_by は無ければ DB に保存、find_or_initialize_by はメモリ上に new するだけ",
+      "両者は同じ",
+      "find_or_create_by は遅い",
+      "find_or_initialize_by は廃止",
+    ],
+    answerIndex: 0,
+    hints: [
+      "「初期化のみ」と「保存まで」の違い。",
+      "initialize は new と同等で .save が必要。",
+      "create_by は内部で .create を呼ぶ。",
+    ],
+    explanation: {
+      summary:
+        "find_or_create_by は無ければ save、find_or_initialize_by は new するだけ (要 .save)。",
+      reason:
+        "find_or_create_by は便利だが race condition の可能性あり (DB 制約と組み合わせて RecordNotUnique を rescue するのが安全)。`find_or_create_by!` は失敗時に例外を投げる版。",
+      codeExample:
+        "# 取得 or 作成 (保存)\nuser = User.find_or_create_by(email: 'a@x') do |u|\n  u.name = 'Alice'\nend\n\n# 取得 or 初期化のみ (未保存)\nuser = User.find_or_initialize_by(email: 'a@x')\nuser.name = 'Alice'\nuser.save\n\n# race 対策\nuser = User.find_or_create_by(email: 'a@x')\nrescue ActiveRecord::RecordNotUnique\nuser = User.find_by(email: 'a@x')",
+    },
+  },
+  {
+    id: "ar-021",
+    categoryId: "active-record",
+    difficulty: "intermediate",
+    type: "text",
+    question:
+      "ActiveRecord で関連 (has_many 等) の中間テーブル名を変えたい時の DSL オプション名は？(英語1単語、コロン付き要素を答えてOK 例: foo:)",
+    answers: [
+      "through",
+      "through:",
+      ":through",
+    ],
+    hints: [
+      "`has_many :tags, through: :tagging` のように書く中間モデルを指定するオプション。",
+      "中間モデル名を指定。",
+      "答えは `through`。",
+    ],
+    explanation: {
+      summary:
+        "`has_many :through` で多対多の中間モデルを指定する。",
+      reason:
+        "`has_many :through` は中間に Model を置く多対多の標準パターン。中間モデルに追加の属性 (role, joined_at など) を持たせられる利点がある。HABTM (`has_and_belongs_to_many`) は中間 Model 不要だが拡張性が低い。",
+      codeExample:
+        'class User < ApplicationRecord\n  has_many :tagging\n  has_many :tags, through: :tagging\nend\n\nclass Tagging < ApplicationRecord\n  belongs_to :user\n  belongs_to :tag\n  # added_at, role などの追加属性が持てる\nend\n\nclass Tag < ApplicationRecord\n  has_many :tagging\n  has_many :users, through: :tagging\nend\n\nuser.tags << Tag.find(1)   # 中間レコードを自動作成',
+    },
+  },
+  {
+    id: "ar-022",
+    categoryId: "active-record",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "次のうち、ActiveRecord の `transaction` の挙動として正しいものは？",
+    choices: [
+      "ブロック内で例外が出ると自動 ROLLBACK、正常終了で COMMIT",
+      "save の失敗 (false 戻り) でも自動 ROLLBACK",
+      "ブロック外で発生した例外もキャッチする",
+      "再 raise されない",
+    ],
+    answerIndex: 0,
+    hints: [
+      "transaction は例外でロールバック、正常で commit。",
+      "`save` (`!` なし) で false が返っても例外ではないのでロールバックされない。",
+      "整合性のため、トランザクション内では `!` 系を使う。",
+    ],
+    explanation: {
+      summary:
+        "transaction は例外で ROLLBACK。save (! なし) は false を返すだけで例外ではないので注意。",
+      reason:
+        "整合性が必要な複数 INSERT/UPDATE は transaction で囲み、内部では `save!` `create!` `update!` で例外を出して確実にロールバックさせる。`raise ActiveRecord::Rollback` を投げると、例外伝播せずにロールバックだけする。",
+      codeExample:
+        "ActiveRecord::Base.transaction do\n  user.save!                       # 失敗で例外 → ロールバック\n  account.save!\nend\n\n# 例外伝播なしでロールバック\nActiveRecord::Base.transaction do\n  do_something\n  raise ActiveRecord::Rollback if condition\nend\n\n# ネスト (savepoint)\nActiveRecord::Base.transaction do\n  user.save!\n  ActiveRecord::Base.transaction(requires_new: true) do\n    inner.save!\n  end\nend",
+      commonMistakes: [
+        "transaction 内で `save` (! なし) して if 分岐すると、save が false でもロールバックされない。必ず `!` 系か `raise ActiveRecord::Rollback`。",
+      ],
+    },
+  },
+  {
+    id: "ar-023",
+    categoryId: "active-record",
+    difficulty: "advanced",
+    type: "choice",
+    question: "次のコードの SQL イメージは？",
+    code: "Post.joins(:user).where(users: { active: true }).group('users.id').count",
+    choices: [
+      "user ごとの post 件数を返す Hash",
+      "全 post を返す",
+      "全 user を返す",
+      "SyntaxError",
+    ],
+    answerIndex: 0,
+    hints: [
+      "`joins` で内部結合、`where` で users.active で絞り込み。",
+      "`group` でユーザー単位、`count` で件数集計。",
+      "結果は `{ user_id => count }` の Hash。",
+    ],
+    explanation: {
+      summary:
+        "joins + group + count は SQL の集計クエリ。ユーザーごとの post 件数集計。",
+      reason:
+        "`joins(:user)` は INNER JOIN、`group` は GROUP BY、`count` は COUNT(*) 相当。結果は `{グループキー => count}` の Hash。`having` で集計後の条件、`pluck` と組み合わせて配列化も可。`includes` (LEFT OUTER JOIN 別クエリ) と混同しないこと。",
+      codeExample:
+        "Post.joins(:user)\n    .where(users: { active: true })\n    .group('users.id')\n    .count\n#=> {1=>5, 2=>3, ...} (user_id => post count)\n\n# user オブジェクト付きで\nresult = User.left_joins(:posts).group('users.id').count('posts.id')\n\n# 集計後の条件\nPost.group(:user_id).having('count(*) > ?', 10).count",
+    },
+  },
+
+  // ===========================================================================
+  // 実践課題 (12問) - 未経験から実務即戦力レベルの課題
+  // ===========================================================================
+  {
+    id: "pr-001",
+    categoryId: "practical",
+    difficulty: "beginner",
+    type: "practical",
+    question:
+      "FizzBuzz: 1 から 100 までの整数を出力。3 の倍数で 'Fizz'、5 の倍数で 'Buzz'、両方の倍数で 'FizzBuzz' を出力するスクリプトを書いてください。",
+    requirements: [
+      "1 から 100 までループする",
+      "3 の倍数のとき 'Fizz' を出力",
+      "5 の倍数のとき 'Buzz' を出力",
+      "15 の倍数のとき 'FizzBuzz' を出力",
+      "それ以外は数字をそのまま出力",
+    ],
+    sampleSolution:
+      "(1..100).each do |n|\n  if n % 15 == 0\n    puts 'FizzBuzz'\n  elsif n % 3 == 0\n    puts 'Fizz'\n  elsif n % 5 == 0\n    puts 'Buzz'\n  else\n    puts n\n  end\nend\n\n# 別解 (case/in パターンマッチ Ruby 3.0+)\n(1..100).each do |n|\n  case [n % 3, n % 5]\n  in [0, 0] then puts 'FizzBuzz'\n  in [0, _] then puts 'Fizz'\n  in [_, 0] then puts 'Buzz'\n  else           puts n\n  end\nend",
+    hints: [
+      "modulo 演算子 `%` で割り算の余りを取得できます。",
+      "条件の順序が重要。15 の倍数を先にチェックしないと Fizz/Buzz に取られる。",
+      "if/elsif/else または case/in パターンマッチで書けます。",
+    ],
+    reviewPoints: [
+      "15の倍数を最初にチェック (または 3 と 5 両方の条件を組み合わせる)",
+      "数値そのままを出力する分岐を忘れていない",
+      "1..100 (両端含む) と 1...100 (100含まず) の違いに注意",
+      "puts は引数を to_s してから改行付きで出力する",
+    ],
+    explanation: {
+      summary:
+        "FizzBuzz は条件分岐の練習。15 の倍数チェックを最初に書くのがポイント。",
+      reason:
+        "FizzBuzz は分岐の評価順序の良い練習問題。% で余りを判定し、最も特殊なケース (15の倍数) から評価する。Ruby 3.0+ なら case/in でも書ける。",
+      commonMistakes: [
+        "3 の倍数 → 5 の倍数 → 15 の倍数 の順で書くと 15 が常に Fizz になってしまう。",
+      ],
+    },
+  },
+  {
+    id: "pr-002",
+    categoryId: "practical",
+    difficulty: "beginner",
+    type: "practical",
+    question:
+      "配列の要素を集計: 整数の配列を受け取り、合計・平均・最大・最小を Hash で返すメソッド `stats(arr)` を実装してください。",
+    requirements: [
+      "メソッド名は `stats`、引数は整数の配列",
+      "戻り値は { sum: 〜, avg: 〜, max: 〜, min: 〜 } の Hash",
+      "空配列が来たら全てのキーが nil の Hash を返す",
+      "avg は Float (例: 3.5)",
+    ],
+    sampleSolution:
+      "def stats(arr)\n  return { sum: nil, avg: nil, max: nil, min: nil } if arr.empty?\n\n  {\n    sum: arr.sum,\n    avg: arr.sum.to_f / arr.length,\n    max: arr.max,\n    min: arr.min,\n  }\nend\n\n# 動作確認\nstats([1, 2, 3, 4, 5])\n#=> {sum: 15, avg: 3.0, max: 5, min: 1}\nstats([])\n#=> {sum: nil, avg: nil, max: nil, min: nil}",
+    hints: [
+      "`Enumerable#sum`, `#max`, `#min` が標準で使えます。",
+      "平均は `sum.to_f / length` (to_f しないと整数除算になる)。",
+      "空配列の場合は早期 return で処理を分けましょう。",
+    ],
+    reviewPoints: [
+      "空配列を最初にチェックしている (`max` などは空配列で nil を返すが、avg は ZeroDivisionError)",
+      "avg を Float にする変換 (.to_f) を入れている",
+      "sum, max, min を標準メソッドで簡潔に書いている",
+      "戻り値は Hash で 4 つのキーを揃えている",
+    ],
+    explanation: {
+      summary:
+        "標準 Enumerable メソッドを使えば短く書ける。エッジケース (空配列) のハンドリングが重要。",
+      reason:
+        "実務でデータを集計する処理の最小ケース。空配列など『データが無いとき』の挙動を明示するのが重要 (nil を返すか、0 を返すか、例外を投げるかは要件次第)。to_f を忘れると整数除算で誤差。",
+      commonMistakes: [
+        "`arr.sum / arr.length` だと整数除算で 3 (本来は 3.0) になる。",
+        "空配列で `[].max` は nil だが `[].sum / 0` は ZeroDivisionError。",
+      ],
+    },
+  },
+  {
+    id: "pr-003",
+    categoryId: "practical",
+    difficulty: "intermediate",
+    type: "practical",
+    question:
+      "CSV パーサ: 文字列 'name,age\\nAlice,20\\nBob,30' を受け取り、[{name: 'Alice', age: '20'}, {name: 'Bob', age: '30'}] のような Array of Hash に変換するメソッド `parse_csv(text)` を実装してください。",
+    requirements: [
+      "1 行目をヘッダーとして扱う",
+      "残りの行を Hash に変換し、配列で返す",
+      "ヘッダーはシンボル化する (例: :name)",
+      "値は文字列のままで OK",
+      "標準ライブラリ csv は使わず、自前で実装",
+    ],
+    sampleSolution:
+      "def parse_csv(text)\n  lines = text.split(\"\\n\")\n  headers = lines.shift.split(',').map(&:to_sym)\n  lines.map do |line|\n    values = line.split(',')\n    headers.zip(values).to_h\n  end\nend\n\n# 動作確認\ntext = \"name,age\\nAlice,20\\nBob,30\"\nparse_csv(text)\n#=> [{name: \"Alice\", age: \"20\"}, {name: \"Bob\", age: \"30\"}]\n\n# 本格的にやるなら標準ライブラリ\nrequire 'csv'\nCSV.parse(text, headers: true, header_converters: :symbol).map(&:to_h)",
+    hints: [
+      "改行で分割、カンマで分割の 2 段階。",
+      "`zip` でヘッダーと値をペアにする。",
+      "`headers.zip(values).to_h` で Hash 化。",
+    ],
+    reviewPoints: [
+      "split('\\n') で行に分け、shift でヘッダーを取り出している",
+      "headers.zip(values).to_h のイディオムを使っている",
+      "ヘッダーをシンボル化している (to_sym)",
+      "本格運用なら標準ライブラリ csv を使うべきと理解している",
+    ],
+    explanation: {
+      summary:
+        "split + zip + to_h は Ruby らしいイディオム。実運用は標準ライブラリ csv を推奨。",
+      reason:
+        "簡易 CSV パースは split で書けるが、ダブルクォート囲み、エスケープ、改行を含む値などのエッジケースに弱い。本番では `CSV.parse` を使うこと。練習としては手書きでイディオムを身につけるとよい。",
+      commonMistakes: [
+        "値にカンマが含まれる場合 (\"hello, world\") は split で正しくパースできない。",
+        "BOM 付き UTF-8 CSV は最初の文字に注意。CSV ライブラリならオプションで処理可。",
+      ],
+    },
+  },
+  {
+    id: "pr-004",
+    categoryId: "practical",
+    difficulty: "intermediate",
+    type: "practical",
+    question:
+      "Rails モデル: User と Post の 1対多関係を設計してください。User 削除時は紐づく Post も削除、Post には title (必須、最大100文字) と body (必須) のバリデーションを設定。",
+    requirements: [
+      "User モデル: name (string, 必須)",
+      "Post モデル: title, body, user_id (NOT NULL, FK)",
+      "User has_many :posts (User 削除で Post も削除)",
+      "Post belongs_to :user",
+      "Post の title: 必須・最大 100 文字",
+      "Post の body: 必須",
+    ],
+    sampleSolution:
+      "# migration: db/migrate/xxx_create_users.rb\nclass CreateUsers < ActiveRecord::Migration[7.1]\n  def change\n    create_table :users do |t|\n      t.string :name, null: false\n      t.timestamps\n    end\n  end\nend\n\n# migration: db/migrate/xxx_create_posts.rb\nclass CreatePosts < ActiveRecord::Migration[7.1]\n  def change\n    create_table :posts do |t|\n      t.string :title, null: false\n      t.text :body, null: false\n      t.references :user, null: false, foreign_key: true\n      t.timestamps\n    end\n  end\nend\n\n# app/models/user.rb\nclass User < ApplicationRecord\n  has_many :posts, dependent: :destroy\n  validates :name, presence: true\nend\n\n# app/models/post.rb\nclass Post < ApplicationRecord\n  belongs_to :user\n  validates :title, presence: true, length: { maximum: 100 }\n  validates :body,  presence: true\nend",
+    hints: [
+      "外部キーは `t.references :user, foreign_key: true` で生成。",
+      "`dependent: :destroy` で親削除時に子も削除。",
+      "validates :title, length: { maximum: 100 } で最大文字数。",
+    ],
+    reviewPoints: [
+      "マイグレーションで null: false と foreign_key: true を両方指定",
+      "User#has_many :posts に dependent: :destroy を指定",
+      "Post#belongs_to :user (デフォルトで required)",
+      "validates でモデル側の制約も二重に設定 (DB + Model)",
+      "ファイル名・クラス名が Rails の規約通り (users_controller.rb etc.)",
+    ],
+    explanation: {
+      summary:
+        "DB 制約 (NOT NULL, FK) と Model バリデーションを両方設定するのが定石。",
+      reason:
+        "DB レベルでも Model レベルでも制約をかけることで、(1) DB が最終防衛線、(2) Model が UI 親切なエラーメッセージ。`dependent: :destroy` は孤立レコードを防ぐ。delete_all は速いがコールバックを飛ばすのでファイル添付などがあると不整合のリスク。",
+      commonMistakes: [
+        "validates だけで DB 制約を入れないと、コンソールや別アプリから不正データが入る。",
+        "dependent: :destroy を忘れると、User 削除時に posts が残り orphan になる。",
+      ],
+    },
+  },
+  {
+    id: "pr-005",
+    categoryId: "practical",
+    difficulty: "intermediate",
+    type: "practical",
+    question:
+      "N+1 問題の解消: `Post.all.each { |p| puts p.user.name }` が N+1 になっています。これを 2 クエリで済むように修正してください。",
+    requirements: [
+      "全 Post を取得して各 user.name を出力する処理",
+      "クエリ数は 2 (posts 取得 + users 取得) になるようにする",
+      "結果は元コードと同じ",
+      "includes / preload / eager_load のいずれかを使う",
+    ],
+    sampleSolution:
+      "# 修正後\nPost.includes(:user).each { |p| puts p.user.name }\n\n# 発行される SQL\n# SELECT * FROM posts;\n# SELECT * FROM users WHERE id IN (1, 2, 3, ...);\n\n# 検出には bullet gem が便利 (Gemfile)\ngroup :development do\n  gem 'bullet'\nend\n\n# config/environments/development.rb\nconfig.after_initialize do\n  Bullet.enable        = true\n  Bullet.alert         = true\n  Bullet.bullet_logger = true\nend",
+    hints: [
+      "`includes(:関連名)` で関連を事前ロード。",
+      "条件指定がなければ `preload`、JOIN したいなら `eager_load`、自動選択は `includes`。",
+      "bullet gem で開発中の N+1 を自動検出できます。",
+    ],
+    reviewPoints: [
+      "includes / preload / eager_load の違いを理解している",
+      "発行クエリが 2 つになることを確認できる",
+      "where で関連テーブルの条件を指定する場合は eager_load",
+      "bullet gem の導入で早期検出する習慣",
+    ],
+    explanation: {
+      summary:
+        "includes が N+1 対策の基本。preload (別クエリ) と eager_load (JOIN) を内部で使い分け。",
+      reason:
+        "N+1 は Rails アプリの典型的なパフォーマンス問題。テンプレートで関連を参照するだけで発生。bullet gem は dev 環境で自動検出してくれるので必ず入れる。本番では skylight / scout / new relic 等の APM で検出。",
+      commonMistakes: [
+        "`includes(:user).where(users: { active: true })` は意外と eager_load 扱いになる。条件付き includes は references も指定する。",
+        "joins は preload しないので関連オブジェクトアクセスで N+1 になる。",
+      ],
+    },
+  },
+  {
+    id: "pr-006",
+    categoryId: "practical",
+    difficulty: "intermediate",
+    type: "practical",
+    question:
+      "Rails スコープ: Post モデルに以下のスコープを定義してください。`published` (公開済み), `recent` (新しい順), `by_author(name)` (著者名で絞り込み, 関連 user.name で)",
+    requirements: [
+      "published: published_at が NULL でない",
+      "recent: created_at の降順",
+      "by_author(name): user.name = ? で絞り込み (joins 使用)",
+      "Post.published.recent.by_author('Alice') がチェーン可能",
+    ],
+    sampleSolution:
+      "class Post < ApplicationRecord\n  belongs_to :user\n\n  scope :published, -> { where.not(published_at: nil) }\n  scope :recent,    -> { order(created_at: :desc) }\n  scope :by_author, ->(name) { joins(:user).where(users: { name: name }) }\nend\n\n# 使用例\nPost.published.recent.by_author('Alice')\n# SELECT posts.* FROM posts\n# INNER JOIN users ON users.id = posts.user_id\n# WHERE posts.published_at IS NOT NULL\n#   AND users.name = 'Alice'\n# ORDER BY posts.created_at DESC",
+    hints: [
+      "`scope :name, -> { ... }` の形で定義。",
+      "`where.not(col: nil)` で NOT NULL。",
+      "`joins(:user).where(users: { name: name })` で関連テーブルの条件。",
+    ],
+    reviewPoints: [
+      "scope は lambda (`->`) で定義 (毎回評価のため)",
+      "where.not で否定条件",
+      "関連条件は `joins(:user).where(users: { ... })` の形",
+      "チェーン可能 (ActiveRecord::Relation を返す)",
+      "引数を取る scope は `->(arg) { ... }`",
+    ],
+    explanation: {
+      summary:
+        "scope は再利用可能なクエリ片。lambda で定義してチェーン可能にする。",
+      reason:
+        "scope は通常のクラスメソッドでも書けるが、宣言的に書ける利点がある。lambda で書く理由は『毎回評価』のため (定数だと初期化時の値で固定される)。チェーンしても 1 つの SQL にまとめられるのが ActiveRecord の強み。",
+      commonMistakes: [
+        "scope を `-> { Time.current }` で書くと毎回評価される (= 期待通り)。Proc.new だと、引数の数チェックが緩い。",
+        "`includes` を含む scope は join 戦略に注意。",
+      ],
+    },
+  },
+  {
+    id: "pr-007",
+    categoryId: "practical",
+    difficulty: "intermediate",
+    type: "practical",
+    question:
+      "Rails コントローラ: PostsController で標準的な CRUD (index/show/new/create/edit/update/destroy) を実装してください。Strong Parameters でセキュリティ対策、`before_action` で重複削減。",
+    requirements: [
+      "RESTful 7 アクション",
+      "set_post を before_action で抽出 (show/edit/update/destroy)",
+      "post_params で title, body のみ permit",
+      "create/update 失敗時は :unprocessable_entity で再 render",
+      "destroy 後は :see_other (303) でリダイレクト (Turbo 対応)",
+    ],
+    sampleSolution:
+      "class PostsController < ApplicationController\n  before_action :set_post, only: %i[show edit update destroy]\n\n  def index\n    @posts = Post.includes(:user).recent\n  end\n\n  def show; end\n\n  def new\n    @post = Post.new\n  end\n\n  def create\n    @post = current_user.posts.build(post_params)\n    if @post.save\n      redirect_to @post, notice: '作成しました'\n    else\n      render :new, status: :unprocessable_entity\n    end\n  end\n\n  def edit; end\n\n  def update\n    if @post.update(post_params)\n      redirect_to @post, notice: '更新しました'\n    else\n      render :edit, status: :unprocessable_entity\n    end\n  end\n\n  def destroy\n    @post.destroy\n    redirect_to posts_path, notice: '削除しました', status: :see_other\n  end\n\n  private\n\n  def set_post\n    @post = Post.find(params[:id])\n  end\n\n  def post_params\n    params.require(:post).permit(:title, :body)\n  end\nend",
+    hints: [
+      "before_action で共通処理を抽出。",
+      "Strong Parameters: `params.require(:resource).permit(:fields)`。",
+      "Turbo: form 失敗時は :unprocessable_entity、DELETE 後は :see_other。",
+    ],
+    reviewPoints: [
+      "before_action で set_post を共通化",
+      "Strong Parameters で permit を明示",
+      "create/update 失敗時の status: :unprocessable_entity (Turbo 互換)",
+      "destroy 後の status: :see_other (Turbo 7+ 推奨)",
+      "ユーザーとの関連が必要なら current_user.posts.build を使う",
+      "index で N+1 対策 (includes)",
+    ],
+    explanation: {
+      summary:
+        "RESTful コントローラのテンプレ。Strong Parameters と Turbo 互換ステータスが現代の必須項目。",
+      reason:
+        "Rails 7+ の Turbo 環境では HTTP ステータスコードがフォームの再表示挙動に影響する。`:unprocessable_entity` (422) で再描画、`:see_other` (303) で DELETE 後のリダイレクト。これらを忘れると Turbo が期待通り動かない。",
+      commonMistakes: [
+        "render :new で status を付け忘れると 200 で返り Turbo がリダイレクト扱いしてしまう。",
+        "destroy 後のリダイレクトが 302 だと Turbo がフェッチを GET ではなく DELETE で行ってループになる。",
+      ],
+    },
+  },
+  {
+    id: "pr-008",
+    categoryId: "practical",
+    difficulty: "advanced",
+    type: "practical",
+    question:
+      "Service Object パターン: ユーザー登録時に『ユーザー作成 + 初期プロジェクト作成 + 歓迎メール送信』を行う SignUpUser サービスクラスを実装してください。失敗時はロールバック。",
+    requirements: [
+      "`SignUpUser.new(params).call` の形で呼べる",
+      "User の作成、Project の作成、Mailer 送信を行う",
+      "transaction でラップし、いずれか失敗ですべてロールバック",
+      "成功時は user オブジェクト、失敗時は errors を返す",
+      "app/services/sign_up_user.rb に配置",
+    ],
+    sampleSolution:
+      "# app/services/sign_up_user.rb\nclass SignUpUser\n  Result = Struct.new(:success?, :user, :errors, keyword_init: true)\n\n  def initialize(params)\n    @params = params\n  end\n\n  def call\n    user = nil\n    ActiveRecord::Base.transaction do\n      user = User.create!(@params.slice(:name, :email, :password))\n      user.projects.create!(name: 'My First Project')\n    end\n    WelcomeMailer.greet(user).deliver_later\n    Result.new(success?: true, user: user, errors: [])\n  rescue ActiveRecord::RecordInvalid => e\n    Result.new(success?: false, user: e.record, errors: e.record.errors.full_messages)\n  end\nend\n\n# 使用例 (コントローラ)\ndef create\n  result = SignUpUser.new(user_params).call\n  if result.success?\n    sign_in(result.user)\n    redirect_to dashboard_path\n  else\n    @user = result.user\n    render :new, status: :unprocessable_entity\n  end\nend",
+    hints: [
+      "transaction でラップして失敗時に全ロールバック。",
+      "`create!` (! 付き) で失敗時に例外 → ロールバック。",
+      "メール送信はトランザクション外 (commit 後) に行う。",
+      "戻り値は Struct や独自クラスで {success?, user, errors} の形に。",
+    ],
+    reviewPoints: [
+      "transaction で囲んでいる",
+      "create! (! 付き) で失敗を例外として扱っている",
+      "メール送信は transaction 外 (失敗時に送らないため)",
+      "戻り値が Struct/独自オブジェクトで呼び出し側が判定しやすい",
+      "rescue で例外を捕まえて結果オブジェクトに変換",
+      "deliver_later で非同期送信 (ActiveJob 経由)",
+    ],
+    explanation: {
+      summary:
+        "Service Object は controller/model が肥大化したロジックを切り出す定番パターン。transaction + 例外 + Struct 戻り値が定石。",
+      reason:
+        "Controller は HTTP 層、Model は DB ロジックに集中させ、複数 Model にまたがる業務ロジックは Service に切り出す。テスタブル・再利用可。Rails 公式では推奨されていないが、コミュニティで広く採用。dry-rb の dry-monads や Trailblazer Operation などの拡張パターンもある。",
+      commonMistakes: [
+        "transaction 内で deliver_later するとロールバックされても enqueue だけは残り、メールが送られる。",
+        "save (! なし) を使うと例外が出ず transaction がロールバックされない。",
+      ],
+    },
+  },
+  {
+    id: "pr-009",
+    categoryId: "practical",
+    difficulty: "advanced",
+    type: "practical",
+    question:
+      "JSON API エンドポイント: GET /api/v1/posts で公開済み Post 一覧を JSON で返す API を実装してください。N+1 対策、ページネーション (page/per)、Total-Count ヘッダー付き。",
+    requirements: [
+      "ルート: namespace api do namespace v1 do resources :posts, only: %i[index] end end",
+      "コントローラ: Api::V1::PostsController < ApplicationController",
+      "認証: 一旦不要 (TODO 想定)",
+      "JSON 構造: [{id, title, body, author_name, published_at}, ...]",
+      "ページネーション (kaminari か pagy を仮定): page / per パラメータ",
+      "レスポンスヘッダー X-Total-Count に総件数を入れる",
+      "N+1 対策で includes(:user)",
+    ],
+    sampleSolution:
+      "# config/routes.rb\nnamespace :api do\n  namespace :v1 do\n    resources :posts, only: %i[index show]\n  end\nend\n\n# app/controllers/api/v1/posts_controller.rb\nmodule Api\n  module V1\n    class PostsController < ApplicationController\n      def index\n        scope = Post.includes(:user).published.recent\n        @posts = scope.page(params[:page]).per(params[:per] || 20)\n\n        response.headers['X-Total-Count'] = scope.count.to_s\n        render json: @posts.map { |p|\n          {\n            id: p.id,\n            title: p.title,\n            body: p.body,\n            author_name: p.user.name,\n            published_at: p.published_at&.iso8601,\n          }\n        }\n      end\n    end\n  end\nend\n\n# Gemfile (kaminari の場合)\ngem 'kaminari'",
+    hints: [
+      "namespace でルートを分離。",
+      "Kaminari (`page`/`per`) または Pagy を使う。",
+      "X-Total-Count はフロントが全ページ数を知るのに便利。",
+      "JsonRenderer や jbuilder, ActiveModel::Serializers でも書ける。",
+    ],
+    reviewPoints: [
+      "namespace :api do namespace :v1 do ... end end で URL/モジュール両方をスコープ",
+      "Post.includes(:user) で N+1 対策",
+      "ページネーションを実装 (page, per を受け取る)",
+      "X-Total-Count ヘッダーを設定 (フロントエンドが全件数を知るため)",
+      "iso8601 など標準フォーマットで日付を返す",
+      "本格的には jbuilder や JSON シリアライザを使うと保守しやすい",
+    ],
+    explanation: {
+      summary:
+        "RESTful API は URL/コントローラ階層・ページネーション・N+1 対策・標準ヘッダーの 4 点セットを意識。",
+      reason:
+        "実務 API は (1) versioning (v1, v2), (2) ページネーション, (3) 認証 (今回は省略), (4) パフォーマンス (N+1, インデックス) が重要。CORS 設定 (config/initializers/cors.rb) も別途必要。OpenAPI で API 仕様を文書化するとフロント連携が楽。",
+      commonMistakes: [
+        "ページネーションを忘れると 1 リクエストで全件返って爆発する。",
+        "総件数を返さないとフロントが『次ページがあるか』判定できない。",
+        "認証が必要な本番では JWT や API Key を導入。",
+      ],
+    },
+  },
+  {
+    id: "pr-010",
+    categoryId: "practical",
+    difficulty: "advanced",
+    type: "practical",
+    question:
+      "ActiveJob で非同期処理: ユーザー登録後にバックグラウンドで歓迎メール送信 + 統計記録を行う Job を実装してください。失敗時は最大 3 回リトライ。",
+    requirements: [
+      "Job 名: WelcomeJob、引数は user_id",
+      "perform で User を find、メール送信、Stats 記録",
+      "retry_on で 3 回までリトライ (一般的なネットワークエラー対象)",
+      "discard_on ActiveRecord::RecordNotFound (User が消えていたらリトライしない)",
+      "queue_as :default",
+    ],
+    sampleSolution:
+      "# app/jobs/welcome_job.rb\nclass WelcomeJob < ApplicationJob\n  queue_as :default\n\n  retry_on Net::OpenTimeout, wait: :polynomially_longer, attempts: 3\n  retry_on Net::ReadTimeout, wait: :polynomially_longer, attempts: 3\n  discard_on ActiveRecord::RecordNotFound\n\n  def perform(user_id)\n    user = User.find(user_id)\n    WelcomeMailer.greet(user).deliver_now\n    UserSignupStats.record!(user)\n  end\nend\n\n# 呼び出し側\nWelcomeJob.perform_later(user.id)\n# またはメールなら\nWelcomeMailer.greet(user).deliver_later\n\n# 設定 (config/application.rb)\nconfig.active_job.queue_adapter = :sidekiq  # 本番は Sidekiq / GoodJob 等",
+    hints: [
+      "引数は ID (Object 全体ではなく) を渡すのが定石 (シリアライズの罠回避)。",
+      "`retry_on` で特定例外を自動リトライ。`discard_on` でリトライ無しに破棄。",
+      "本番では Sidekiq / GoodJob / SolidQueue などのキューバックエンドを使う。",
+    ],
+    reviewPoints: [
+      "引数は ID (Active Job は GlobalID で AR を渡せるが、find を Job 側でやる方が安全)",
+      "retry_on で一時的エラーに耐性",
+      "discard_on で永続的エラー (レコード消失) は捨てる",
+      "queue_as でキュー振り分け",
+      "本番では Sidekiq などの adapter を設定",
+      "deliver_later で Mailer 経由なら ActionMailer が内部で Job 化",
+    ],
+    explanation: {
+      summary:
+        "ActiveJob はキューアダプタ抽象化。引数は ID 渡し、retry_on/discard_on で適切なリトライ戦略。",
+      reason:
+        "メール送信や統計記録など『失敗してもいい/再試行可』の処理はバックグラウンドへ。リトライ戦略は (1) ネットワーク系は数回リトライ、(2) ロジックバグはリトライしないで失敗通知、と切り分ける。Sidekiq の場合は perform_in / perform_at で遅延実行もできる。",
+      commonMistakes: [
+        "AR インスタンスを直接 perform_later すると、シリアライズで GlobalID 経由になり、Job 実行時にレコードが消えていると ActiveJob::DeserializationError。ID 渡しが安全。",
+        "transaction 内で perform_later すると、コミット前に Job が走ってレコードが見えない場合がある。after_commit や after_create_commit を使う。",
+      ],
+    },
+  },
+  {
+    id: "pr-011",
+    categoryId: "practical",
+    difficulty: "advanced",
+    type: "practical",
+    question:
+      "認証付き API: HTTP ヘッダー `Authorization: Bearer <token>` で User を特定し、トークンが無効なら 401 を返す `authenticate_api_user!` を ApplicationController に実装してください。",
+    requirements: [
+      "before_action :authenticate_api_user! で呼ぶ",
+      "Authorization ヘッダーから Bearer トークンを取り出す",
+      "User.find_by(api_token: token) で照合",
+      "見つからなければ render json: {error: 'unauthorized'}, status: :unauthorized",
+      "current_api_user メソッドで User オブジェクトにアクセス可能に",
+    ],
+    sampleSolution:
+      "class ApplicationController < ActionController::API\n  private\n\n  def authenticate_api_user!\n    token = bearer_token\n    @current_api_user = User.find_by(api_token: token) if token\n    return if @current_api_user\n\n    render json: { error: 'unauthorized' }, status: :unauthorized\n  end\n\n  def current_api_user\n    @current_api_user\n  end\n\n  def bearer_token\n    auth = request.headers['Authorization']\n    return nil unless auth.present?\n    match = auth.match(/\\ABearer\\s+(.+)\\z/)\n    match && match[1]\n  end\nend\n\n# 使い方\nclass Api::V1::PostsController < ApplicationController\n  before_action :authenticate_api_user!\n  def index\n    @posts = current_api_user.posts\n    render json: @posts\n  end\nend",
+    hints: [
+      "Authorization ヘッダーは `request.headers['Authorization']` で取得。",
+      "Bearer のあとに半角スペース + token。正規表現でパース。",
+      "認証失敗は 401 (:unauthorized)、認可失敗は 403 (:forbidden)。",
+      "本格運用は JWT (jwt gem) や Devise::Token 等を使う。",
+    ],
+    reviewPoints: [
+      "Authorization ヘッダーから Bearer トークンを安全にパース",
+      "DB の api_token カラムは has_secure_token や SecureRandom.hex で生成",
+      "失敗時は 401 で {error: ...} を返す (404 ではない)",
+      "current_api_user は @current_api_user のキャッシュを返す",
+      "本格運用は JWT + 有効期限 + refresh token の仕組みを検討",
+    ],
+    explanation: {
+      summary:
+        "API 認証の基本: Bearer トークンを抽出 → DB 照合 → 失敗時 401。シンプルな token 認証から始めて要件次第で JWT 等へ。",
+      reason:
+        "HTTP 401 は認証 (誰か分からない)、403 は認可 (誰かは分かるが権限なし) を意味するので区別する。トークンは ActiveSupport::SecurityUtils.secure_compare でタイミング攻撃対策をするとさらに良い。",
+      commonMistakes: [
+        "User.find_by に nil トークンが渡ると全ユーザーの中の nil トークン User がヒットしてしまう。事前 nil チェック必須。",
+        "トークンを == で比較するとタイミング攻撃の余地。`ActiveSupport::SecurityUtils.secure_compare` を使う。",
+        "本番でトークンをログに出さない (filter_parameters 設定)。",
+      ],
+    },
+  },
+  {
+    id: "pr-012",
+    categoryId: "practical",
+    difficulty: "advanced",
+    type: "practical",
+    question:
+      "メタプログラミング応用: 任意のクラスに include すると、属性名のリストから getter/setter と #to_h を生成する Module `AttrHashable` を実装してください。",
+    requirements: [
+      "`define_attrs :name, :age` のような DSL を提供",
+      "各属性に attr_accessor を作る",
+      "`to_h` で {name: 値, age: 値} を返す",
+      "include 対象のクラスを限定しない (どのクラスでも使える)",
+      "ActiveSupport::Concern を使わずピュアな Ruby で書く",
+    ],
+    sampleSolution:
+      "module AttrHashable\n  def self.included(base)\n    base.extend(ClassMethods)\n  end\n\n  module ClassMethods\n    def define_attrs(*names)\n      attr_accessor(*names)\n      # to_h を動的定義\n      define_method(:to_h) do\n        names.each_with_object({}) do |n, h|\n          h[n] = instance_variable_get(\"@#{n}\")\n        end\n      end\n      # 内部で保持しておくと __attrs__ で参照可\n      define_singleton_method(:__attrs__) { names }\n    end\n  end\nend\n\nclass User\n  include AttrHashable\n  define_attrs :name, :age\nend\n\nu = User.new\nu.name = 'Alice'\nu.age  = 20\nu.to_h            #=> {name: 'Alice', age: 20}\nUser.__attrs__    #=> [:name, :age]",
+    hints: [
+      "`included` フックで extend(ClassMethods) パターン。",
+      "`define_method` でブロック内のローカル変数 (names) を捕捉できる (クロージャ)。",
+      "attr_accessor(*names) でまとめて getter/setter を定義。",
+    ],
+    reviewPoints: [
+      "self.included フックで extend(ClassMethods)",
+      "define_method を使ってクロージャで names を保持",
+      "instance_variable_get('@name') で動的に取得",
+      "attr_accessor(*names) で展開",
+      "ActiveSupport::Concern を使わない素の Ruby メタプロ",
+      "テスト時に Object.const_set で動的にクラス作って試せる",
+    ],
+    explanation: {
+      summary:
+        "include + ClassMethods + define_method はメタプロの基本イディオム。Rails Concern も同じパターンの糖衣構文。",
+      reason:
+        "Module の `self.included(base)` フックで base.extend(ClassMethods) するパターンは Rails 全体で頻出。define_method はクロージャを作るので def では到達できない動的定義ができる。Gold 試験対策にも最適。",
+      commonMistakes: [
+        "def メソッド名 ... end で書くと names が見えないため動かない (def はスコープゲート)。define_method がクロージャを作るのが鍵。",
+        "instance_variable_get の引数は :@name または '@name' (@ 必須)。",
+      ],
+    },
+  },
 ];
 
 export const questionsByCategory = (categoryId: string) =>
