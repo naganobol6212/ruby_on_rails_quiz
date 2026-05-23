@@ -20,16 +20,16 @@ export function StreakDisplay({ streak }: Props) {
     <AnimatePresence mode="popLayout">
       <motion.div
         key={streak}
-        initial={{ scale: 0.6, opacity: 0, y: 8 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.8, opacity: 0, y: -8 }}
-        transition={{ type: "spring", stiffness: 320, damping: 18 }}
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -4 }}
+        transition={{ duration: 0.15 }}
         className={`flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-xs ${
           streak >= 5
-            ? "border-rose-500/40 bg-rose-500/15 text-rose-200"
+            ? "border-rose-400 bg-rose-50 text-rose-700 dark:border-rose-500/40 dark:bg-rose-500/15 dark:text-rose-200"
             : streak >= 3
-              ? "border-amber-500/40 bg-amber-500/15 text-amber-200"
-              : "border-white/10 bg-white/5 text-zinc-400"
+              ? "border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-200"
+              : "border-zinc-200 bg-white text-zinc-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-400"
         }`}
       >
         {heat && <span className="text-sm leading-none">{heat}</span>}

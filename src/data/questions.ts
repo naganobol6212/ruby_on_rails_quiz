@@ -2694,6 +2694,327 @@ export const questions: Question[] = [
         '# 危険な例\nrename_column :users, :email, :email_address  # 旧コード壊れる\n\n# ゼロダウン的な対応\n# Step 1: 新カラム追加 + 同期\nadd_column :users, :email_address, :string\n# アプリ側で両方に書き込む期間\n\n# Step 2: バックフィル (バッチ)\nUser.in_batches { |b| b.update_all("email_address = email") }\n\n# Step 3: 旧カラム削除 (全コードが新カラム参照に)\nremove_column :users, :email\n\n# strong_migrations gem で警告\ngem "strong_migrations"',
     },
   },
+
+  // ===========================================================================
+  // コードリーディング (12問)
+  // ===========================================================================
+  {
+    id: "cr-001",
+    categoryId: "code-reading",
+    difficulty: "beginner",
+    type: "choice",
+    question: "次のコードを実行した時の出力は？",
+    code: "arr = [1, 2, 3, 4, 5]\nresult = arr.each_with_object([]) do |n, acc|\n  acc << n * 2 if n.odd?\nend\np result",
+    choices: ["[2, 6, 10]", "[1, 3, 5]", "[2, 4, 6, 8, 10]", "[]"],
+    answerIndex: 0,
+    hints: [
+      "`each_with_object([])` は空配列を畳み込みの容器として渡します。",
+      "`if n.odd?` で奇数だけが対象。",
+      "奇数 1,3,5 を 2 倍した [2,6,10] が answer。",
+    ],
+    explanation: {
+      summary:
+        "奇数だけを 2 倍にして配列に積む処理。each_with_object は『畳み込み容器』を渡しながら累積する。",
+      reason:
+        "1,2,3,4,5 を順に処理。奇数 (1,3,5) の時のみ acc に 2倍した値を push。偶数はスキップ。最終的に [2, 6, 10] を返す。inject だと『最後の式を必ず返す』必要があるが each_with_object は不要。",
+      codeExample:
+        "# 同じ意味で書くなら\narr.select(&:odd?).map { |n| n * 2 }\n#=> [2, 6, 10]\n\n# filter_map (Ruby 2.7+) で 1 行\narr.filter_map { |n| n * 2 if n.odd? }\n#=> [2, 6, 10]",
+    },
+  },
+  {
+    id: "cr-002",
+    categoryId: "code-reading",
+    difficulty: "beginner",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: 'def greet(name, greeting: "Hello")\n  "#{greeting}, #{name}!"\nend\n\nputs greet("Alice")\nputs greet("Bob", greeting: "Hi")',
+    choices: [
+      "Hello, Alice! / Hi, Bob!",
+      "Hello, Alice! / Hello, Bob!",
+      "ArgumentError / Hi, Bob!",
+      "nil / Hi, Bob!",
+    ],
+    answerIndex: 0,
+    hints: [
+      "`greeting:` はキーワード引数 (デフォルト値あり)。",
+      "1回目は省略 → デフォルト 'Hello'。",
+      "2回目は明示的に 'Hi'。",
+    ],
+    explanation: {
+      summary:
+        "キーワード引数はデフォルト値が使われ、明示すれば上書きされる。",
+      reason:
+        "`greeting: 'Hello'` は呼び出し時に省略可能。1 回目は省略 → 'Hello, Alice!'。2 回目は `greeting: 'Hi'` を渡している → 'Hi, Bob!'。Ruby 3.0+ では位置引数とキーワード引数が完全分離されたので、`greet('Bob', 'Hi')` のように位置で渡すと ArgumentError。",
+      codeExample:
+        '# Ruby 3.0+ では位置引数とキーワード引数が厳格に分離\ngreet("Bob", "Hi")            # ArgumentError\ngreet("Bob", greeting: "Hi")  # OK\n\n# 必須キーワード引数 (デフォルトなし)\ndef create(name:)\n  ...\nend\ncreate           # ArgumentError: missing keyword: name\ncreate(name: "A")',
+    },
+  },
+  {
+    id: "cr-003",
+    categoryId: "code-reading",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: 'h = { a: 1, b: 2, c: 3 }\nresult = h.reduce(0) do |sum, (key, value)|\n  sum + value\nend\nputs result',
+    choices: ["6", "[6]", "{a: 1, b: 2, c: 3}", "TypeError"],
+    answerIndex: 0,
+    hints: [
+      "Hash の reduce は要素として [key, value] の配列を渡します。",
+      "ブロック引数で `(key, value)` のように分解。",
+      "value を累積加算: 1 + 2 + 3 = 6。",
+    ],
+    explanation: {
+      summary:
+        "Hash の reduce では要素は [key, value] 配列。`(key, value)` で分解できる。",
+      reason:
+        "Hash#each は [key, value] の配列を yield する。reduce のブロック引数で `(k, v)` と書くと自動分解 (destructuring)。`value` だけ合計したいなら `h.values.sum` のほうがシンプル。",
+      codeExample:
+        "# 同じ意味でもっと素直に\nh.values.sum  #=> 6\nh.sum { |_, v| v }  #=> 6\n\n# キーと値の両方を使う場合は reduce が便利\nh.reduce(0) { |sum, (k, v)| sum + (k == :a ? v * 10 : v) }\n#=> 1*10 + 2 + 3 = 15",
+    },
+  },
+  {
+    id: "cr-004",
+    categoryId: "code-reading",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: "class Counter\n  @@count = 0\n  def initialize\n    @@count += 1\n  end\n  def self.count\n    @@count\n  end\nend\n\n3.times { Counter.new }\nputs Counter.count",
+    choices: ["0", "1", "3", "NameError"],
+    answerIndex: 2,
+    hints: [
+      "`@@count` はクラス変数。全インスタンスで共有。",
+      "`Counter.new` するたびに +1。",
+      "3 回 new されたので 3。",
+    ],
+    explanation: {
+      summary:
+        "クラス変数 (@@) はクラス + 全インスタンスで共有される。",
+      reason:
+        "`@@count` はクラスにひも付く 1 つの変数で、`initialize` 内で `+= 1` するたびに全体カウンタが増える。3 回 new したので 3。クラスメソッド `self.count` から参照すると 3 が返る。継承先と共有してしまうので、現代では `class << self; attr_accessor :count; end` のように特異クラスのインスタンス変数にする方が安全。",
+      codeExample:
+        "# 推奨される書き方 (クラスのインスタンス変数)\nclass Counter\n  class << self\n    attr_accessor :count\n  end\n  self.count = 0\n  def initialize\n    self.class.count += 1\n  end\nend",
+      commonMistakes: [
+        "クラス変数 @@count は継承時に親子で共有されて意図しないバグの原因になる。クラスのインスタンス変数 (@count) を class << self で公開する方が安全。",
+      ],
+    },
+  },
+  {
+    id: "cr-005",
+    categoryId: "code-reading",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: "def calc(arr)\n  arr.each_with_index.map { |x, i| x * (i + 1) }.sum\nend\n\nputs calc([10, 20, 30])",
+    choices: ["60", "140", "100", "180"],
+    answerIndex: 1,
+    hints: [
+      "`each_with_index` は (要素, インデックス) を渡します。",
+      "i は 0,1,2 なので (i+1) は 1,2,3。",
+      "10*1 + 20*2 + 30*3 = 10 + 40 + 90 = 140。",
+    ],
+    explanation: {
+      summary:
+        "各要素に (インデックス+1) を掛けて合計する処理。",
+      reason:
+        "10×1 + 20×2 + 30×3 = 140。`each_with_index` は要素と 0 始まりのインデックスを yield する Enumerator。`with_index(1)` で 1 始まりにできる。",
+      codeExample:
+        "# 1始まりにする\n[10, 20, 30].each.with_index(1).map { |x, i| x * i }.sum\n#=> 140\n\n# zip でも書ける\narr.zip(1..).map { |x, i| x * i }.sum",
+    },
+  },
+  {
+    id: "cr-006",
+    categoryId: "code-reading",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: "class Animal\n  def sound\n    'generic'\n  end\nend\n\nclass Dog < Animal\n  def sound\n    \"#{super} + bark\"\n  end\nend\n\nclass Puppy < Dog\n  def sound\n    \"#{super} + yip\"\n  end\nend\n\nputs Puppy.new.sound",
+    choices: [
+      "generic + bark + yip",
+      "generic + yip",
+      "bark + yip",
+      "yip",
+    ],
+    answerIndex: 0,
+    hints: [
+      "`super` は親クラスの同名メソッドを呼ぶ。",
+      "Puppy#sound → super で Dog#sound → super で Animal#sound。",
+      "下から上に辿って文字列が積まれていく。",
+    ],
+    explanation: {
+      summary:
+        "super チェーンで親→孫の順に評価され、結果が文字列で積み上がる。",
+      reason:
+        "Puppy#sound が呼ばれ、内部の `super` で Dog#sound が呼ばれる。Dog#sound の中の `super` で Animal#sound → 'generic'。これを使って Dog は 'generic + bark'、それを使って Puppy は 'generic + bark + yip' を返す。",
+      codeExample:
+        "# ancestors で継承チェーンを確認\nPuppy.ancestors\n#=> [Puppy, Dog, Animal, Object, ...]\n\n# super と super() の違い\n#   super   → 現在のメソッドの引数をそのまま親に渡す\n#   super() → 引数なしで親を呼ぶ",
+    },
+  },
+  {
+    id: "cr-007",
+    categoryId: "code-reading",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: 'arr = ["apple", "banana", "cherry", "avocado"]\n\nresult = arr\n  .select { |w| w.start_with?("a") }\n  .map(&:length)\n  .max\n\nputs result',
+    choices: ["7", "5", "6", "nil"],
+    answerIndex: 0,
+    hints: [
+      "`select` で 'a' で始まる単語 → ['apple', 'avocado']。",
+      "`map(&:length)` で長さを取得 → [5, 7]。",
+      "`max` → 7。",
+    ],
+    explanation: {
+      summary:
+        "'a' で始まる単語の最大文字数を求めるパイプライン。",
+      reason:
+        "select で apple, avocado を抽出 → map で長さ [5, 7] → max で 7。Rails/Ruby ではこのようなメソッドチェーンが頻出。読みやすさのため改行 + インデントを推奨。",
+      codeExample:
+        '# 1 行で書くと\narr.select { |w| w.start_with?("a") }.map(&:length).max\n\n# filter_map を使って圧縮 (Ruby 2.7+)\narr.filter_map { |w| w.length if w.start_with?("a") }.max',
+    },
+  },
+  {
+    id: "cr-008",
+    categoryId: "code-reading",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: "def maybe_set(value)\n  value ||= 'default'\n  value\nend\n\nputs maybe_set(nil)\nputs maybe_set(false)\nputs maybe_set('hi')",
+    choices: [
+      "default / default / hi",
+      "default / false / hi",
+      "nil / false / hi",
+      "default / default / default",
+    ],
+    answerIndex: 0,
+    hints: [
+      "`||=` は『nil または false なら代入』。",
+      "false も falsy なので 'default' で上書きされる。",
+      "'hi' は truthy なのでそのまま。",
+    ],
+    explanation: {
+      summary:
+        "`||=` は nil/false 両方で発火する。false を保持したい時は注意。",
+      reason:
+        "`a ||= b` は `a = a || b` の糖衣構文。a が nil または false なら b を代入。false を有効な値として保持したいなら `a = b if a.nil?` のように `.nil?` で明示判定する。",
+      codeExample:
+        "# false を保持したい場合\nvalue = b if value.nil?\n\n# Hash でデフォルト値 (false も保持)\nh[:key] = default unless h.key?(:key)\nh.fetch(:key, default)\n\n# Hash#fetch なら nil/false も区別可\nh = { flag: false }\nh.fetch(:flag, true)   #=> false (キーが存在するので)\nh[:flag] || true       #=> true (falseだと上書きされてしまう)",
+      commonMistakes: [
+        "boolean フラグに `||=` を使うと false が上書きされてバグになる。",
+      ],
+    },
+  },
+  {
+    id: "cr-009",
+    categoryId: "code-reading",
+    difficulty: "advanced",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: "users = [\n  { name: 'Alice', score: 80 },\n  { name: 'Bob',   score: 95 },\n  { name: 'Carol', score: 72 },\n  { name: 'Dave',  score: 88 }\n]\n\ntop = users.sort_by { |u| -u[:score] }.first(2).map { |u| u[:name] }\nputs top.join(', ')",
+    choices: [
+      "Bob, Dave",
+      "Alice, Bob",
+      "Carol, Alice",
+      "Bob, Alice",
+    ],
+    answerIndex: 0,
+    hints: [
+      "`-u[:score]` で降順ソート (大きい方が先頭)。",
+      "上位 2 名は Bob (95) と Dave (88)。",
+      "name だけ抜き出して join。",
+    ],
+    explanation: {
+      summary:
+        "スコア降順 → 上位 2 名 → 名前抽出 → カンマ結合のパイプライン。",
+      reason:
+        "score 降順: Bob(95), Dave(88), Alice(80), Carol(72)。first(2) で Bob と Dave。map で name 取り出し → join で 'Bob, Dave'。`sort_by { -x }` は降順の定番イディオム。`sort_by { x }.reverse` も同じ意味だが計算量は同等。",
+      codeExample:
+        "# max_by を使うと sort+first より速い\nusers.max_by(2) { |u| u[:score] }.map { |u| u[:name] }\n#=> ['Bob', 'Dave']\n\n# Rails の ActiveRecord ならDBでソート\nUser.order(score: :desc).limit(2).pluck(:name)",
+    },
+  },
+  {
+    id: "cr-010",
+    categoryId: "code-reading",
+    difficulty: "advanced",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: "result = []\n\n[1, 2, 3].each do |i|\n  [10, 20].each do |j|\n    result << i * j\n  end\nend\n\nputs result.inspect",
+    choices: [
+      "[10, 20, 20, 40, 30, 60]",
+      "[10, 20, 30]",
+      "[10, 30, 60]",
+      "[60]",
+    ],
+    answerIndex: 0,
+    hints: [
+      "二重ループの直積。",
+      "i=1: 1*10, 1*20 → 10, 20",
+      "i=2: 2*10, 2*20 → 20, 40。i=3: 3*10, 3*20 → 30, 60。",
+    ],
+    explanation: {
+      summary:
+        "ネストした each による直積。1×{10,20}, 2×{10,20}, 3×{10,20}。",
+      reason:
+        "外側ループの各 i に対して内側ループが回り、ペアを生成。`product` メソッドを使うと同じことが宣言的に書ける。",
+      codeExample:
+        "# product で書き直し\n[1, 2, 3].product([10, 20]).map { |a, b| a * b }\n#=> [10, 20, 20, 40, 30, 60]\n\n# flat_map でも書ける\n[1,2,3].flat_map { |i| [10,20].map { |j| i * j } }",
+    },
+  },
+  {
+    id: "cr-011",
+    categoryId: "code-reading",
+    difficulty: "advanced",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: "module Greeter\n  def greet\n    \"Hi, I'm #{name}\"\n  end\nend\n\nclass User\n  include Greeter\n  attr_reader :name\n  def initialize(name)\n    @name = name\n  end\nend\n\nclass Admin < User\n  def greet\n    \"[ADMIN] #{super}\"\n  end\nend\n\nputs Admin.new('Alice').greet",
+    choices: [
+      "[ADMIN] Hi, I'm Alice",
+      "[ADMIN] Hi, I'm ",
+      "Hi, I'm Alice",
+      "NoMethodError",
+    ],
+    answerIndex: 0,
+    hints: [
+      "Admin#greet → super で User の祖先チェーンを辿る。",
+      "User 自身には greet 無し → Greeter#greet が呼ばれる。",
+      "結果: '[ADMIN] Hi, I'm Alice'",
+    ],
+    explanation: {
+      summary:
+        "super は祖先チェーンを辿って一致するメソッドを探す。Mixin (include) も探索対象。",
+      reason:
+        "Admin#greet 内の super は親方向 (User → Greeter → Object) を順に探す。User に greet が無くても Greeter#greet が見つかるのでそれが呼ばれる。`Admin.ancestors` で順序を確認できる。",
+      codeExample:
+        "Admin.ancestors\n#=> [Admin, User, Greeter, Object, ...]\n\n# super は次の祖先のメソッドを呼ぶ\n#   Admin#greet -> User (greet なし) -> Greeter#greet が呼ばれる",
+    },
+  },
+  {
+    id: "cr-012",
+    categoryId: "code-reading",
+    difficulty: "advanced",
+    type: "choice",
+    question: "次のコードの出力は？",
+    code: "def safe_divide(a, b)\n  a / b\nrescue ZeroDivisionError\n  Float::INFINITY\nrescue => e\n  e.class.name\nend\n\nputs safe_divide(10, 2)\nputs safe_divide(10, 0)\nputs safe_divide(10, 'x')",
+    choices: [
+      "5 / Infinity / TypeError",
+      "5 / 0 / TypeError",
+      "5 / Infinity / nil",
+      "5 / Float::INFINITY / String",
+    ],
+    answerIndex: 0,
+    hints: [
+      "1 回目: 10/2 = 5。",
+      "2 回目: ZeroDivisionError → Float::INFINITY。",
+      "3 回目: Integer / String は TypeError → e.class.name = 'TypeError'。",
+    ],
+    explanation: {
+      summary:
+        "メソッド末尾 rescue で例外をハンドリング。複数 rescue 句で例外クラス別に分岐できる。",
+      reason:
+        "メソッド全体を begin/end で囲んだのと同等。先にマッチした rescue 句が実行される。`rescue =>` (デフォルト) は StandardError 以下を捕まえる。`Exception` を直接 rescue するのは SystemExit などを捕まえてしまうため避ける。Float::INFINITY は puts で 'Infinity' と表示される。",
+      codeExample:
+        "# メソッドの末尾 rescue\ndef parse(s)\n  Integer(s)\nrescue ArgumentError\n  0\nend\n\n# begin/rescue/ensure フル形式\nbegin\n  risky\nrescue SpecificError => e\n  handle(e)\nrescue => e\n  log(e)\nensure\n  cleanup\nend",
+    },
+  },
 ];
 
 export const questionsByCategory = (categoryId: string) =>

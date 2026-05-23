@@ -34,6 +34,14 @@ export const categories: Category[] = [
     ringClass: "hover:ring-violet-500/40",
   },
   {
+    id: "code-reading",
+    name: "コードリーディング",
+    description: "複数行のコードを読んで出力・挙動を予測する読解問題",
+    emoji: "🔎",
+    accentClass: "from-sky-500/20 to-indigo-500/5",
+    ringClass: "hover:ring-sky-500/40",
+  },
+  {
     id: "rails-convention",
     name: "Rails 規約",
     description: "命名規則・MVC・CoC・ディレクトリ構成",

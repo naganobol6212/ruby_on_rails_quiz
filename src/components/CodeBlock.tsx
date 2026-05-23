@@ -68,64 +68,54 @@ const KEYWORDS = new Set([
   "resources",
   "resource",
   "namespace",
-  "scope",
 ]);
 
 function highlightLine(line: string, lineKey: number) {
-  // Tokenize while preserving order: strings, comments, then identifiers/numbers.
   const tokens: Array<{ text: string; cls: string }> = [];
   let remaining = line;
 
   while (remaining.length > 0) {
-    // Comment: rest of line
     if (remaining.startsWith("#")) {
       tokens.push({ text: remaining, cls: "text-zinc-500 italic" });
       remaining = "";
       break;
     }
-    // Double-quoted string
     const dq = remaining.match(/^"([^"\\]|\\.)*"/);
     if (dq) {
       tokens.push({ text: dq[0], cls: "text-amber-300" });
       remaining = remaining.slice(dq[0].length);
       continue;
     }
-    // Single-quoted string
     const sq = remaining.match(/^'([^'\\]|\\.)*'/);
     if (sq) {
       tokens.push({ text: sq[0], cls: "text-amber-300" });
       remaining = remaining.slice(sq[0].length);
       continue;
     }
-    // Symbol
     const sym = remaining.match(/^:[a-zA-Z_][a-zA-Z0-9_]*[?!=]?/);
     if (sym) {
       tokens.push({ text: sym[0], cls: "text-fuchsia-300" });
       remaining = remaining.slice(sym[0].length);
       continue;
     }
-    // Instance variable
     const ivar = remaining.match(/^@@?[a-zA-Z_][a-zA-Z0-9_]*/);
     if (ivar) {
       tokens.push({ text: ivar[0], cls: "text-rose-300" });
       remaining = remaining.slice(ivar[0].length);
       continue;
     }
-    // Number
     const num = remaining.match(/^\d+(\.\d+)?/);
     if (num) {
       tokens.push({ text: num[0], cls: "text-emerald-300" });
       remaining = remaining.slice(num[0].length);
       continue;
     }
-    // Constant (capitalized)
     const constMatch = remaining.match(/^[A-Z][a-zA-Z0-9_]*/);
     if (constMatch) {
       tokens.push({ text: constMatch[0], cls: "text-cyan-300" });
       remaining = remaining.slice(constMatch[0].length);
       continue;
     }
-    // Identifier (could be keyword)
     const ident = remaining.match(/^[a-z_][a-zA-Z0-9_]*[?!]?/);
     if (ident) {
       const word = ident[0];
@@ -138,7 +128,6 @@ function highlightLine(line: string, lineKey: number) {
       remaining = remaining.slice(word.length);
       continue;
     }
-    // Fallback char
     tokens.push({ text: remaining[0], cls: "text-zinc-400" });
     remaining = remaining.slice(1);
   }
@@ -157,8 +146,9 @@ function highlightLine(line: string, lineKey: number) {
 export function CodeBlock({ code, label }: Props) {
   const lines = code.split("\n");
 
+  // ライト/ダーク共通: コードブロックは VSCode 風に常時暗めの背景
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-white/5 bg-zinc-900/80 shadow-2xl shadow-black/30 backdrop-blur">
+    <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-md shadow-black/10 dark:border-white/5 dark:bg-zinc-900/80 dark:shadow-2xl dark:shadow-black/30">
       <div className="flex items-center justify-between border-b border-white/5 bg-black/30 px-4 py-2">
         <div className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-rose-500/70" />
@@ -177,7 +167,7 @@ export function CodeBlock({ code, label }: Props) {
                 {String(i + 1).padStart(2, " ")}
               </span>
               <span className="flex-1">
-                {line.length === 0 ? " " : highlightLine(line, i)}
+                {line.length === 0 ? " " : highlightLine(line, i)}
               </span>
             </span>
           ))}

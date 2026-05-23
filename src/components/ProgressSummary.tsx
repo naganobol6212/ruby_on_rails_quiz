@@ -17,7 +17,7 @@ export function ProgressSummary({ totalQuestions }: Props) {
   }, []);
 
   useEffect(() => {
-    // localStorage はマウント後に読み込み
+    // 初回マウント時に localStorage から読み出して state を埋める
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
     const handler = () => refresh();
@@ -31,7 +31,7 @@ export function ProgressSummary({ totalQuestions }: Props) {
 
   if (!progress) {
     return (
-      <div className="h-32 animate-pulse rounded-2xl border border-white/5 bg-white/[0.02]" />
+      <div className="h-32 animate-pulse rounded-2xl border border-zinc-200 bg-zinc-100/50 dark:border-white/5 dark:bg-white/[0.02]" />
     );
   }
 
@@ -52,21 +52,21 @@ export function ProgressSummary({ totalQuestions }: Props) {
   };
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 via-white/[0.03] to-transparent p-6 backdrop-blur">
-      <div className="absolute -top-20 -right-20 h-40 w-40 rounded-full bg-rose-500/10 blur-3xl" />
+    <section className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gradient-to-br dark:from-white/5 dark:via-white/[0.03] dark:to-transparent">
+      <div className="absolute -top-20 -right-20 h-40 w-40 rounded-full bg-rose-200/40 blur-3xl dark:bg-rose-500/10" />
 
       <div className="relative">
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xl">📊</span>
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-zinc-300">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-zinc-600 dark:text-zinc-300">
               あなたの進捗
             </h2>
           </div>
           <button
             type="button"
             onClick={handleReset}
-            className="text-[11px] text-zinc-500 transition hover:text-rose-300 hover:underline"
+            className="text-[11px] text-zinc-500 transition hover:text-rose-600 hover:underline dark:hover:text-rose-300"
           >
             リセット
           </button>
@@ -77,32 +77,32 @@ export function ProgressSummary({ totalQuestions }: Props) {
             label="完答した問題"
             value={`${progress.totalSolved}`}
             suffix={`/ ${totalQuestions}`}
-            accent="text-emerald-300"
+            accent="text-emerald-600 dark:text-emerald-300"
           />
           <Stat
             label="正解率"
             value={`${accuracy}%`}
-            accent="text-rose-300"
+            accent="text-rose-600 dark:text-rose-300"
           />
           <Stat
             label="進捗率"
             value={`${solvedRate}%`}
-            accent="text-fuchsia-300"
+            accent="text-fuchsia-600 dark:text-fuchsia-300"
           />
           <Stat
             label="最高ストリーク"
             value={`${progress.bestStreak}`}
             suffix="連続"
-            accent="text-amber-300"
+            accent="text-amber-600 dark:text-amber-300"
           />
         </div>
 
-        <div className="relative mt-6 h-2 w-full overflow-hidden rounded-full bg-white/5">
+        <div className="relative mt-6 h-2 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-white/5">
           <motion.div
             className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-rose-500 via-fuchsia-500 to-violet-500"
             initial={{ width: 0 }}
             animate={{ width: `${solvedRate}%` }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           />
         </div>
       </div>

@@ -5,6 +5,7 @@ export type CategoryId =
   | "collections"
   | "ruby-oop"
   | "ruby-advanced"
+  | "code-reading"
   | "rails-convention"
   | "routing-controller"
   | "active-record";

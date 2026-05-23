@@ -12,42 +12,44 @@ type Props = {
 export function ExplanationCard({ explanation, isCorrect }: Props) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
+      transition={{ duration: 0.2 }}
       className={`overflow-hidden rounded-xl border ${
         isCorrect
-          ? "border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent"
-          : "border-rose-500/30 bg-gradient-to-br from-rose-500/10 via-rose-500/5 to-transparent"
+          ? "border-emerald-300 bg-gradient-to-br from-emerald-50 to-white dark:border-emerald-500/30 dark:from-emerald-500/10 dark:via-emerald-500/5 dark:to-transparent"
+          : "border-rose-300 bg-gradient-to-br from-rose-50 to-white dark:border-rose-500/30 dark:from-rose-500/10 dark:via-rose-500/5 dark:to-transparent"
       }`}
     >
-      <div className="border-b border-white/5 px-5 py-4">
+      <div className="border-b border-zinc-200 px-5 py-4 dark:border-white/5">
         <div className="flex items-center gap-2">
           <span
             className={`flex h-7 w-7 items-center justify-center rounded-full text-base ${
               isCorrect
-                ? "bg-emerald-500/20 text-emerald-300"
-                : "bg-rose-500/20 text-rose-300"
+                ? "bg-emerald-500 text-white dark:bg-emerald-500/20 dark:text-emerald-300"
+                : "bg-rose-500 text-white dark:bg-rose-500/20 dark:text-rose-300"
             }`}
           >
             {isCorrect ? "✓" : "✕"}
           </span>
           <p
             className={`text-base font-bold ${
-              isCorrect ? "text-emerald-300" : "text-rose-300"
+              isCorrect
+                ? "text-emerald-700 dark:text-emerald-300"
+                : "text-rose-700 dark:text-rose-300"
             }`}
           >
             {isCorrect ? "正解" : "不正解"}
           </p>
         </div>
-        <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-100">
+        <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-800 dark:text-zinc-100">
           {explanation.summary}
         </p>
       </div>
 
       <div className="space-y-5 px-5 py-5">
         <Section title="なぜそうなるのか" icon="🧠">
-          <p className="text-sm leading-relaxed text-zinc-300">
+          <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
             {explanation.reason}
           </p>
         </Section>
@@ -65,9 +67,9 @@ export function ExplanationCard({ explanation, isCorrect }: Props) {
                 {explanation.commonMistakes.map((m, i) => (
                   <li
                     key={i}
-                    className="flex gap-2.5 text-sm leading-relaxed text-zinc-300"
+                    className="flex gap-2.5 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300"
                   >
-                    <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
+                    <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-amber-500" />
                     <span>{m}</span>
                   </li>
                 ))}
@@ -84,7 +86,7 @@ export function ExplanationCard({ explanation, isCorrect }: Props) {
                     href={r.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-rose-300 underline-offset-4 hover:underline"
+                    className="text-sm text-rose-600 underline-offset-4 hover:underline dark:text-rose-300"
                   >
                     {r.label} ↗
                   </a>
@@ -111,7 +113,7 @@ function Section({
     <section>
       <div className="mb-2 flex items-center gap-1.5">
         <span className="text-xs">{icon}</span>
-        <h4 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+        <h4 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
           {title}
         </h4>
       </div>

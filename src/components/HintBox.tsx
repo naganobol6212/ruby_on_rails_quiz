@@ -20,14 +20,14 @@ export function HintBox({ hints, onHintReveal }: Props) {
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent">
-      <div className="flex items-center justify-between gap-3 border-b border-amber-500/10 bg-amber-500/5 px-4 py-3">
+    <div className="overflow-hidden rounded-xl border border-amber-300/60 bg-gradient-to-br from-amber-50 to-white dark:border-amber-500/20 dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent">
+      <div className="flex items-center justify-between gap-3 border-b border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-500/10 dark:bg-amber-500/5">
         <div className="flex items-center gap-2">
           <span className="text-base">💡</span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-amber-300">
+          <span className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">
             ヒント
           </span>
-          <span className="rounded-full bg-amber-500/20 px-2 py-0.5 font-mono text-[10px] text-amber-200">
+          <span className="rounded-full bg-amber-200/70 px-2 py-0.5 font-mono text-[10px] text-amber-800 dark:bg-amber-500/20 dark:text-amber-200">
             {revealed} / {hints.length}
           </span>
         </div>
@@ -35,7 +35,7 @@ export function HintBox({ hints, onHintReveal }: Props) {
           <button
             type="button"
             onClick={handleReveal}
-            className="group/btn flex items-center gap-1.5 rounded-md bg-amber-500/20 px-3 py-1.5 text-xs font-medium text-amber-100 transition hover:bg-amber-500/30"
+            className="group/btn flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-amber-400 dark:bg-amber-500/20 dark:text-amber-100 dark:hover:bg-amber-500/30"
           >
             <span>
               {revealed === 0
@@ -57,7 +57,7 @@ export function HintBox({ hints, onHintReveal }: Props) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-xs text-amber-200/70"
+              className="text-xs text-amber-800/80 dark:text-amber-200/70"
             >
               わからない時は段階的にヒントを開けます。
               なるべく自力で考えてから使ってみてください。
@@ -72,12 +72,12 @@ export function HintBox({ hints, onHintReveal }: Props) {
               {hints.slice(0, revealed).map((hint, i) => (
                 <motion.li
                   key={i}
-                  initial={{ opacity: 0, x: -8 }}
+                  initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="flex gap-3 text-sm text-amber-50"
+                  transition={{ delay: i * 0.04 }}
+                  className="flex gap-3 text-sm text-amber-900 dark:text-amber-50"
                 >
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-500/20 font-mono text-[10px] text-amber-200">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-200 font-mono text-[10px] text-amber-800 dark:bg-amber-500/20 dark:text-amber-200">
                     {i + 1}
                   </span>
                   <span className="flex-1 leading-relaxed">{hint}</span>
