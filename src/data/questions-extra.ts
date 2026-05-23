@@ -1232,4 +1232,1307 @@ export const extraQuestions: Question[] = [
         "# 検索結果に対して別コマンド実行\nfind . -name '*.tmp' | xargs rm\nfind . -name '*.tmp' -print0 | xargs -0 rm  # ファイル名に空白OK\n\n# 1 件ずつ別位置に挿入\nfind . -name '*.rb' | xargs -I {} cp {} backup/\n\n# 並列実行\ncat urls.txt | xargs -P 8 -I {} curl -s {} -o /dev/null -w '%{http_code} {}\\n'\n\n# 引数の数を制限 (1 回のコマンドに N 個まで)\nls *.jpg | xargs -n 1 -I {} convert {} -resize 50% small_{}",
     },
   },
+
+  // ===========================================================================
+  // 🧪 RSpec 追加 (8問: shared_examples, subject, matcher, system spec 等)
+  // ===========================================================================
+  {
+    id: "rspec-009",
+    categoryId: "rspec",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "RSpec で『複数の describe / context から共通のテストブロックを呼び出して再利用する』仕組みは？",
+    choices: [
+      "shared_examples / it_behaves_like",
+      "include_module",
+      "merge_describe",
+      "import_specs",
+    ],
+    answerIndex: 0,
+    hints: [
+      "テストのテンプレートを定義しておき、複数箇所から名前で呼び出します。",
+      "DRY (Don't Repeat Yourself) をテストにも適用するイディオム。",
+      "宣言ブロックと呼び出しキーワードがペアで存在し、後者は英語の慣用句『〇〇のように振る舞う』に近い名前。",
+    ],
+    explanation: {
+      summary:
+        "`shared_examples` でテンプレ宣言、`it_behaves_like` (または `include_examples`) で呼び出す。",
+      reason:
+        "ロールや属性が違うだけで同じ振る舞いを期待するクラスのテストを共通化できます。`it_behaves_like` は内部で新しい context を作り、`include_examples` はその場に展開します。Pundit ポリシーや Devise の認証テストで定番。",
+      codeExample:
+        "RSpec.shared_examples '読み取り専用ポリシー' do\n  it { is_expected.to permit_action(:show) }\n  it { is_expected.to forbid_action(:update) }\nend\n\nRSpec.describe PostPolicy do\n  subject { described_class.new(user, post) }\n  context 'ゲストユーザー' do\n    let(:user) { build_stubbed(:guest_user) }\n    it_behaves_like '読み取り専用ポリシー'\n  end\nend",
+    },
+  },
+  {
+    id: "rspec-010",
+    categoryId: "rspec",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "次のコードで `subject` を省略形で書き直すと？",
+    code: "describe Calculator do\n  describe '#add' do\n    subject { Calculator.new.add(2, 3) }\n    it { expect(subject).to eq 5 }\n  end\nend",
+    choices: [
+      "it { is_expected.to eq 5 }",
+      "it { subject.must_equal 5 }",
+      "it.to eq 5",
+      "省略はできない",
+    ],
+    answerIndex: 0,
+    hints: [
+      "subject を明示せずに it ブロックから参照する書き方があります。",
+      "受動態の英語表現で『〜であると期待される』を意味する記法。",
+      "be 動詞の過去分詞を含む 12 文字程度のメソッドが暗黙の subject に対する expect を作ります。",
+    ],
+    explanation: {
+      summary:
+        "`it { is_expected.to MATCHER }` は `expect(subject).to MATCHER` の糖衣構文。",
+      reason:
+        "subject が明示されている、または描述対象クラスから暗黙生成されるとき、`is_expected` で短く書けます。さらに `it { is_expected.to eq(5) }` のような one-liner はテストコードが仕様書のように読めて美しい。",
+      codeExample:
+        "describe Array do\n  # described_class は Array、subject はその new\n  it { is_expected.to be_empty }    # expect(Array.new).to be_empty\nend\n\n# subject 明示 + named subject\ndescribe User do\n  subject(:user) { build(:user) }\n  it { is_expected.to be_valid }    # 暗黙\n  it 'has admin role' do\n    user.role = 'admin'             # 名前付き subject も使える\n    expect(user.role).to eq 'admin'\n  end\nend",
+    },
+  },
+  {
+    id: "rspec-011",
+    categoryId: "rspec",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "次の matcher のうち、ブロック内で値が変わったかを検証するのは？",
+    choices: [
+      "change",
+      "diff",
+      "mutate",
+      "alter",
+    ],
+    answerIndex: 0,
+    hints: [
+      "before / after の差分を検証する matcher です。",
+      "DB レコード数増加のテストでよく使われます。",
+      "英語で『変化する』を意味する一般動詞そのままの 1 単語。",
+    ],
+    explanation: {
+      summary:
+        "`expect { ... }.to change(obj, :method).by(N)` でブロック実行による値の変化を検証。",
+      reason:
+        "ブロック実行前後の値を比較して差分を確認する RSpec の強力な matcher。`from(x).to(y)` で具体値、`by(n)` で増減量を指定可能。`change(Model, :count)` で件数変化、複数同時は `.and` で連結。",
+      codeExample:
+        "expect { Post.create!(...) }.to change(Post, :count).by(1)\nexpect { user.deactivate }.to change(user, :active?).from(true).to(false)\n\n# 複数の変化を 1 回で検証\nexpect { register_user }\n  .to change(User, :count).by(1)\n  .and change(Profile, :count).by(1)\n  .and have_enqueued_mail(WelcomeMailer, :greet)",
+    },
+  },
+  {
+    id: "rspec-012",
+    categoryId: "rspec",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "次のコードが検証していることは？",
+    code: "expect { fetch_user }.to raise_error(ActiveRecord::RecordNotFound, /User with id/)",
+    choices: [
+      "fetch_user が指定例外を、指定メッセージパターン付きで投げる",
+      "fetch_user が成功する",
+      "fetch_user が nil を返す",
+      "fetch_user の戻り値が ActiveRecord::Base",
+    ],
+    answerIndex: 0,
+    hints: [
+      "ブロック付き expect は副作用 (例外 / 出力など) を検証します。",
+      "matcher 名に raise が含まれているのが大きなヒント。",
+      "第2引数の正規表現は『例外メッセージにこの文字列が含まれるか』のチェック。",
+    ],
+    explanation: {
+      summary:
+        "`raise_error(クラス, パターン)` でブロック内の例外発生・クラス・メッセージを検証。",
+      reason:
+        "通常の `expect(value).to` は値を渡しますが、`expect { ... }` のブロック版は副作用 (例外発生・出力・状態変化) を捕捉します。`raise_error` は例外検証、`output` は標準出力、`change` は値変化用。",
+      codeExample:
+        "expect { invalid_op }.to raise_error(StandardError)\nexpect { invalid_op }.to raise_error(MyError, 'specific message')\nexpect { invalid_op }.to raise_error(MyError, /partial/)\n\n# 標準出力\nexpect { puts 'hi' }.to output(\"hi\\n\").to_stdout\n\n# 状態変化\nexpect { user.deactivate }.to change(user, :active?).from(true).to(false)",
+    },
+  },
+  {
+    id: "rspec-013",
+    categoryId: "rspec",
+    difficulty: "intermediate",
+    type: "text",
+    question:
+      "ActiveRecord モデルのバリデーションテストを 1 行で書ける gem として広く使われるのは？(ハイフン付き 1 語、英語)",
+    answers: ["shoulda-matchers", "shoulda"],
+    hints: [
+      "thoughtbot 社製、Rails コミュニティで人気。",
+      "`it { is_expected.to validate_presence_of(:email) }` のように書けます。",
+      "英語で『すべきだ』を意味する 1 単語に -matchers を付けた名前。",
+    ],
+    explanation: {
+      summary:
+        "`shoulda-matchers` は Rails 向けの宣言的 matcher 群 (validation / association / column 等)。",
+      reason:
+        "AR の検証コード `validates :email, presence: true, uniqueness: true` を 2 行のテストで網羅できる。一行 spec が増えてテストファイルがスッキリ。",
+      codeExample:
+        "# Gemfile (test)\ngem 'shoulda-matchers'\n\nRSpec.describe User do\n  it { is_expected.to validate_presence_of(:email) }\n  it { is_expected.to validate_uniqueness_of(:email).case_insensitive }\n  it { is_expected.to have_many(:posts).dependent(:destroy) }\n  it { is_expected.to belong_to(:account) }\n  it { is_expected.to have_db_index(:email).unique }\nend",
+    },
+  },
+  {
+    id: "rspec-014",
+    categoryId: "rspec",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "ブラウザ操作 (クリック / 入力 / 表示確認) を含む E2E テストを書く Rails 推奨の spec タイプは？",
+    choices: [
+      "system spec (Capybara + headless browser)",
+      "model spec",
+      "view spec",
+      "helper spec",
+    ],
+    answerIndex: 0,
+    hints: [
+      "Rails 5.1 から組み込み、Capybara + 実ブラウザを使います。",
+      "JavaScript も実行できる本物に近い E2E テスト。",
+      "DB / view / JS / フォーム送信を一気に通すフルスタックなテストタイプ。",
+    ],
+    explanation: {
+      summary:
+        "system spec は Capybara + headless browser (Selenium/Cuprite 等) でブラウザ操作レベルの E2E。",
+      reason:
+        "Rails 5.1+ では `bin/rails generate system_test` で雛形生成。`spec/system/` 配下に配置、`type: :system` 自動付与。screenshot 自動取得、JS 実行可能。request spec より遅いがリアルなテスト。CI で安定運用するには Cuprite が人気。",
+      codeExample:
+        "# spec/system/post_creation_spec.rb\nRSpec.describe 'Post creation', type: :system do\n  it 'creates a post' do\n    sign_in create(:user)\n    visit new_post_path\n    fill_in 'Title', with: 'Hello'\n    fill_in 'Body',  with: 'World'\n    click_button '投稿する'\n    expect(page).to have_text('作成しました')\n    expect(Post.last.title).to eq 'Hello'\n  end\nend\n\n# Cuprite を使う設定 (spec_helper.rb)\nCapybara.javascript_driver = :cuprite",
+    },
+  },
+  {
+    id: "rspec-015",
+    categoryId: "rspec",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "外部 API への HTTP リクエストをテストで再生・記録する gem は？",
+    choices: [
+      "VCR (+ WebMock)",
+      "Capybara",
+      "factory_bot",
+      "Devise",
+    ],
+    answerIndex: 0,
+    hints: [
+      "実 HTTP リクエストを最初の 1 回だけ記録、以降はカセットから再生。",
+      "ビデオデッキの略のような 3 文字の名前。",
+      "外部 API テストのデファクトで、WebMock と組み合わせて使うのが一般的。",
+    ],
+    explanation: {
+      summary:
+        "VCR は HTTP リクエスト/レスポンスを YAML に記録 (cassette) → 以降オフラインで再生する gem。",
+      reason:
+        "外部 API テストは速度・安定性・コスト面で問題があるので、VCR で実通信を 1 度だけ行い、以降は録画から再生。WebMock は『偽の HTTP レスポンスを返す』gem で、VCR はその上に再生機能を載せたイメージ。シークレットは filter で除外。",
+      codeExample:
+        "# Gemfile (test)\ngem 'vcr'\ngem 'webmock'\n\n# spec/rails_helper.rb\nVCR.configure do |c|\n  c.cassette_library_dir = 'spec/cassettes'\n  c.hook_into :webmock\n  c.filter_sensitive_data('<API_KEY>') { ENV['STRIPE_API_KEY'] }\nend\n\n# 使い方\nit 'fetches the user', :vcr do      # spec/cassettes/<auto_name>.yml\n  result = StripeClient.fetch_customer('cus_xxx')\n  expect(result['email']).to eq 'a@x'\nend",
+    },
+  },
+  {
+    id: "rspec-016",
+    categoryId: "rspec",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "RSpec で『開発中はこのテストだけ実行したい』時に使える、describe/it に付けるメタデータは？",
+    choices: [
+      ":focus (focus: true) と --tag focus",
+      ":hidden",
+      ":only",
+      ":private",
+    ],
+    answerIndex: 0,
+    hints: [
+      "メタデータをタグで指定し、コマンドラインで絞り込む方法です。",
+      "RSpec の `fdescribe` / `fit` を使うと自動でこのタグが付きます。",
+      "英語で『集中』を意味する 5 文字のキーワード。",
+    ],
+    explanation: {
+      summary:
+        "`fit` / `fdescribe` で focus メタデータが付与、`--tag focus` で絞り込み実行。",
+      reason:
+        "巨大プロジェクトで全テスト実行が重い時に、注目したいテストだけ動かすイディオム。spec_helper で `config.filter_run_when_matching :focus` を設定すると、focus が無ければ全テスト、有れば focus だけが走る賢い切り替えに。`fit` をコミットしないよう pre-commit hook で弾くチームも多い。",
+      codeExample:
+        "# spec_helper.rb\nRSpec.configure do |c|\n  c.filter_run_when_matching :focus\nend\n\n# spec ファイル\nfit '注目したいテスト' do            # 自動で focus: true\n  ...\nend\n\nfdescribe '注目グループ' do          # 同上\n  it { ... }\nend\n\n# 一時的に無効化\nxit '無効化' do; end                # skip\npending '実装中' do; end",
+    },
+  },
+
+  // ===========================================================================
+  // 📜 ログ調査 追加 (8問: lograge, jq, X-Request-Id, ローテーション 等)
+  // ===========================================================================
+  {
+    id: "logs-009",
+    categoryId: "logs",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "Rails のデフォルトログを『1 リクエスト = 1 行の構造化ログ』に変換する人気 gem は？",
+    choices: ["lograge", "logger-pretty", "json-rails", "log-aggregator"],
+    answerIndex: 0,
+    hints: [
+      "デフォルト Rails ログは 1 リクエストで複数行に渡り集計しづらいのを解決します。",
+      "1 行 1 リクエスト形式 (JSON 出力も可)、CloudWatch / Datadog 等での集計に最適。",
+      "log + 集約 を意味する英語の合成で、英国読みっぽい綴り (-rage で終わる)。",
+    ],
+    explanation: {
+      summary:
+        "`lograge` は Rails ログを 1 リクエスト = 1 行に圧縮する gem。集計・パースが容易になる。",
+      reason:
+        "デフォルトの Rails ログは Started/Processing/Parameters/Rendered/Completed と複数行に渡るため検索・集計しづらい。lograge は status / duration / params / IP / controller#action 等を 1 行にまとめて出力。JSON formatter も使え、CloudWatch Logs Insights や Datadog で集計可能。",
+      codeExample:
+        "# Gemfile\ngem 'lograge'\n\n# config/environments/production.rb\nconfig.lograge.enabled = true\nconfig.lograge.formatter = Lograge::Formatters::Json.new\nconfig.lograge.custom_options = lambda do |event|\n  {\n    request_id: event.payload[:request_id],\n    user_id:    event.payload[:user_id],\n    params:     event.payload[:params].except('controller', 'action')\n  }\nend\n\n# 出力 (1 行)\n# {\"method\":\"GET\",\"path\":\"/posts/1\",\"status\":200,\"duration\":12.34,...}",
+    },
+  },
+  {
+    id: "logs-010",
+    categoryId: "logs",
+    difficulty: "intermediate",
+    type: "text",
+    question:
+      "Rails が全リクエストに自動付与する『リクエスト追跡用のヘッダー名』は？(ハイフン区切り英語)",
+    answers: ["X-Request-Id", "X-Request-ID", "x-request-id"],
+    hints: [
+      "ロードバランサ / Web サーバ / アプリ間でリクエストを横断追跡するための識別子。",
+      "レスポンスヘッダにも含まれ、エラー報告時にユーザーに伝える ID として使われます。",
+      "X- prefix + 機能名 + Id の慣習的なヘッダー名。Heroku / nginx 等が標準で発行。",
+    ],
+    explanation: {
+      summary:
+        "`X-Request-Id` は分散システムで 1 リクエストを横断追跡するための一意 ID。Rails / Heroku / nginx 等が自動付与。",
+      reason:
+        "ロードバランサがクライアントから受けた瞬間に発行 → アプリ / DB / ジョブにヘッダーで伝搬。Rails では `request.request_id` で参照可能。lograge と組み合わせると 1 行ログに含めて『この遅いリクエストの全旅程』を辿れる。Sentry / Bugsnag のエラーレポートにも付与すると追跡が劇的に楽。",
+      codeExample:
+        "# Controller / Job からアクセス\nRails.logger.info \"user_id=#{current_user.id} request_id=#{request.request_id}\"\n\n# lograge と組み合わせ\nconfig.lograge.custom_options = lambda do |event|\n  { request_id: event.payload[:request_id] }\nend\n\n# 外部 API 呼び出し時に伝搬\nHTTP.headers('X-Request-Id' => request.request_id).get(url)\n\n# Sidekiq Job への伝搬 (current_attributes 経由)\nclass MyJob < ApplicationJob\n  around_perform { |job, block| Current.request_id = job.arguments.last; block.call }\nend",
+    },
+  },
+  {
+    id: "logs-011",
+    categoryId: "logs",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "JSON 形式のログを抽出・整形する CLI ツールは？",
+    choices: ["jq", "json-cli", "jconvert", "jsed"],
+    answerIndex: 0,
+    hints: [
+      "2 文字の短いコマンド名。",
+      "ドットでフィールドアクセス、`.[]` で配列展開、`select()` でフィルタなど SQL に近い表現が書けます。",
+      "Mac の brew, apt, yum どれでも標準的に入れられる定番ツール。",
+    ],
+    explanation: {
+      summary:
+        "`jq` は JSON 用の sed/awk。フィルタリング・整形・抽出を CLI で簡潔に書ける。",
+      reason:
+        "Rails 構造化ログ (lograge JSON) や API レスポンスの解析で必須。`.field` でフィールドアクセス、`select(条件)` でフィルタ、`map(...)` で変換、`group_by` で集計、`-r` で raw 文字列出力。`curl ... | jq` のように使うのが定番。",
+      codeExample:
+        '# 特定フィールドだけ抜き出し\ncat log.json | jq \'.path\'\n\n# 配列を展開して特定フィールドだけ\ncurl -s api.example.com/users | jq \'.[].name\'\n\n# 条件フィルタ + 集計\ncat log.json | jq \'select(.status >= 500) | .path\' | sort | uniq -c\n\n# CSV 出力\ncat users.json | jq -r \'.[] | [.id, .name, .email] | @csv\'\n\n# 整形 (pretty print)\ncurl -s api.example.com/posts | jq \'.\'',
+    },
+  },
+  {
+    id: "logs-012",
+    categoryId: "logs",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "ログファイルが肥大化しすぎないよう、サイズ/日付で自動分割・圧縮・古いものを削除する Linux の標準ツールは？",
+    choices: ["logrotate", "log-cleaner", "ftruncate", "auto-purge"],
+    answerIndex: 0,
+    hints: [
+      "Cron 経由で日次実行されるのが標準的なセットアップ。",
+      "/etc/logrotate.d/ 配下に設定ファイルを置く方式。",
+      "英語で『ログを回転させる』をそのまま意味する 1 単語。",
+    ],
+    explanation: {
+      summary:
+        "`logrotate` は Linux 標準のログローテーション。設定ファイルでサイズ/日次/週次/圧縮ルールを宣言。",
+      reason:
+        "ディスク逼迫の主要因がログ蓄積。logrotate は cron 経由で自動回転、`copytruncate` でアプリ無停止での切り替えが定番。Rails 自体は再起動が必要なケースもあるので注意。Heroku / AWS ECS のようなマネージド環境では不要 (プラットフォームが管理)。",
+      codeExample:
+        "# /etc/logrotate.d/myapp\n/var/www/myapp/log/*.log {\n  daily                    # 1 日 1 回\n  rotate 14                # 14 世代保持\n  compress                 # gzip で圧縮\n  delaycompress\n  missingok                # ファイル無くてもエラーにしない\n  notifempty               # 空ならスキップ\n  copytruncate             # アプリの fd を維持しつつ truncate\n  postrotate\n    # 必要ならアプリにシグナル\n  endscript\n}\n\n# テスト実行\nlogrotate -d /etc/logrotate.d/myapp   # dry-run\nlogrotate -f /etc/logrotate.d/myapp   # 強制実行",
+    },
+  },
+  {
+    id: "logs-013",
+    categoryId: "logs",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "Rails で『エラーを Slack / Sentry / Datadog に自動通知する』エラー監視 SaaS として広く使われるのは？",
+    choices: [
+      "Sentry / Rollbar / Honeybadger / Bugsnag",
+      "GitHub Actions",
+      "RubyGems",
+      "Bundler",
+    ],
+    answerIndex: 0,
+    hints: [
+      "捕捉した例外を集約し、頻度・影響ユーザー・スタックトレースで一覧化する SaaS 群です。",
+      "Slack / メール通知、課題追跡ツール (Jira/Linear 等) との連携も標準装備。",
+      "選択肢の中で『エラー監視』専門の SaaS だけが並ぶグループを選んでください。",
+    ],
+    explanation: {
+      summary:
+        "エラー監視 SaaS: Sentry / Rollbar / Honeybadger / Bugsnag が代表的。APM (New Relic 等) とは別レイヤー。",
+      reason:
+        "本番のエラーをログだけで追うのは現実的ではない。エラー監視 SaaS は (1) スタックトレース集約、(2) 同一エラーのグルーピング、(3) 影響範囲 (ユーザー数 / セッション数)、(4) 通知 (Slack/Email/PagerDuty) を提供。Rails では各 gem を Gemfile に追加 + DSN 設定だけで稼働。",
+      codeExample:
+        "# Gemfile\ngem 'sentry-ruby'\ngem 'sentry-rails'\n\n# config/initializers/sentry.rb\nSentry.init do |config|\n  config.dsn = ENV['SENTRY_DSN']\n  config.traces_sample_rate = 0.1\n  config.environment = Rails.env\n  config.before_send = lambda do |event, _hint|\n    # PII を除去\n    event.user[:email] = nil\n    event\n  end\nend\n\n# 手動キャプチャ\nbegin\n  risky_operation\nrescue => e\n  Sentry.capture_exception(e, tags: { feature: 'payment' })\n  raise\nend",
+    },
+  },
+  {
+    id: "logs-014",
+    categoryId: "logs",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "本番でログレベルを一時的に DEBUG にしたい時の、再起動不要な定番アプローチは？",
+    choices: [
+      "Rails.logger.level = Logger::DEBUG を Rails console で実行",
+      "/etc/rails.conf を編集",
+      "Heroku を再起動",
+      "config を git push してデプロイ",
+    ],
+    answerIndex: 0,
+    hints: [
+      "Rails コンソールから実行中のプロセスに対して動的に変更できます。",
+      "ただしマルチプロセス環境 (Puma) では 1 ワーカーにしか効かないので注意。",
+      "Logger::DEBUG / INFO / WARN / ERROR / FATAL の定数を代入する方法。",
+    ],
+    explanation: {
+      summary:
+        "Rails console から `Rails.logger.level = Logger::DEBUG` でその場で変更可能。ただしマルチワーカー環境では当該プロセスのみ。",
+      reason:
+        "本番で詳細ログが必要な障害時の対応。永続的に変更するには config 修正 + デプロイが必要。一時的なら console 経由が早い。マルチワーカー環境 (Puma 等) は全ワーカーには波及しないので、SIGUSR2 や signal handling でアプリ側に切替ロジックを実装する例もある。",
+      codeExample:
+        "# 一時的に DEBUG レベル (このコンソールセッション + 同プロセス)\nRails.logger.level = Logger::DEBUG\nRails.logger.debug 'now visible in production'\n\n# 元に戻す\nRails.logger.level = Logger::INFO\n\n# 全プロセスに波及するには Redis 等で共有 + 各プロセスでチェック\n# (簡易例)\nbefore_action do\n  Rails.logger.level = Redis.current.get('log_level').to_i\nend\n\n# 危険: 大量ログで disk を埋めない設計が前提",
+    },
+  },
+  {
+    id: "logs-015",
+    categoryId: "logs",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "次のコマンドの目的として最も適切なのは？",
+    code: "ps -p $(lsof -t -i:3000) -o pid,etime,rss,cmd",
+    choices: [
+      "ポート 3000 を使っているプロセスの起動時間・メモリ・コマンドを表示",
+      "ポート 3000 を閉じる",
+      "Rails アプリを再起動",
+      "ファイルをロック",
+    ],
+    answerIndex: 0,
+    hints: [
+      "コマンド置換 `$(...)` で内側を先に実行している点に注目。",
+      "lsof -t -i:PORT は『そのポートを listen している PID のみ』を返します。",
+      "ps -p PID -o ... は PID を指定して必要な情報だけを表示するオプション。",
+    ],
+    explanation: {
+      summary:
+        "lsof でポート使用 PID を取得 → ps でその起動時間・メモリ・コマンドラインを表示。本番調査の定番複合コマンド。",
+      reason:
+        "『なぜか重い』『誰がこのポート握ってる?』を一発で調べる。`lsof -i:PORT` の `-t` で PID のみ。`ps -o` で出力列を絞れる。組み合わせでスナップショット情報が見やすい。`netstat -tlnp` / `ss -tlnp` で同様の情報も取れる。",
+      codeExample:
+        "# 完全版\nlsof -i:3000                      # ポート 3000 を使うプロセス詳細\nlsof -t -i:3000                   # PID だけ\nss -tlnp | grep 3000              # ss でポート確認 (新しい net-tools)\nnetstat -tlnp | grep 3000         # netstat (古い)\n\n# プロセス詳細\nps -p <PID> -o pid,etime,rss,cmd\n#   etime: 起動からの経過時間\n#   rss:   実メモリ使用 (KB)\n#   cmd:   コマンドライン",
+    },
+  },
+  {
+    id: "logs-016",
+    categoryId: "logs",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "1 リクエストごとに『そのリクエスト中の全ログ』を後で追えるようにする Rails の仕組みは？",
+    choices: [
+      "Rails.logger.tagged ブロック (TaggedLogging)",
+      "Rails.cache.write",
+      "Rails.cookies.write",
+      "Rails.session.tagged",
+    ],
+    answerIndex: 0,
+    hints: [
+      "ログ行の先頭に [tag] が付き、grep で 1 リクエスト分のログをまとめて抽出できるようになります。",
+      "Rails 標準で、デフォルトでは request_id が付与されます。",
+      "ロガーに対するブロック付きメソッドで、英語の『タグ付き』を意味する過去分詞。",
+    ],
+    explanation: {
+      summary:
+        "`Rails.logger.tagged('tag') { ... }` で囲むと内部のログ全行に prefix [tag] が付く。",
+      reason:
+        "デフォルトで `[request_id]` が付与されており、`grep <REQUEST_ID> log/production.log` で 1 リクエスト分のログを横断抽出できる。任意のタグ (user_id / feature) を追加可能。`config.log_tags = [:request_id, :remote_ip]` で全リクエストに自動付与もできる。",
+      codeExample:
+        "# config/environments/production.rb\nconfig.log_tags = [:request_id, :remote_ip]\n\n# 任意のブロック内でも追加\nRails.logger.tagged('SignUp', user.id) do\n  Rails.logger.info 'started'\n  process_signup\n  Rails.logger.info 'completed'\nend\n\n# ログ例\n# [abc-123-def] [192.168.1.1] [SignUp] [42] started\n\n# 1 リクエスト追跡\ngrep 'abc-123-def' log/production.log",
+    },
+  },
+
+  // ===========================================================================
+  // 🔧 Git & GitHub 追加 (8問: bisect, reflog, cherry-pick, GitHub Actions 等)
+  // ===========================================================================
+  {
+    id: "git-009",
+    categoryId: "git-github",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "『この機能、ある時点では動いていたのに最近壊れた』を二分探索で原因コミットを特定する Git コマンドは？",
+    choices: ["git bisect", "git find", "git blame", "git binary"],
+    answerIndex: 0,
+    hints: [
+      "コミット履歴を二分探索で絞り込む機能。",
+      "good / bad コミットを指定すると、Git が真ん中を順に提示してくれます。",
+      "英語で『二分する』を意味する 6 文字のコマンド名。",
+    ],
+    explanation: {
+      summary:
+        "`git bisect` は『動く版』と『壊れた版』の間を二分探索で『どのコミットで壊れたか』を見つけるツール。",
+      reason:
+        "100 コミット先で壊れていたら 1 個ずつ追うと大変だが、二分探索なら log2(100) ≈ 7 回で特定できる。回帰テストがあれば `git bisect run <test-script>` で自動化も可能。",
+      codeExample:
+        "# 開始\ngit bisect start\ngit bisect bad                 # 現在 (壊れている) を bad に\ngit bisect good v1.2.0         # 動いていた版を good に\n\n# Git が中間コミットを checkout する\n# 動作確認して回答\ngit bisect good                # 動く\n# または\ngit bisect bad                 # 壊れている\n\n# ループ → 原因コミット特定\n# bisect found: deadbeef is the first bad commit\n\n# 終了\ngit bisect reset\n\n# 自動化 (script の exit code 0=good, 非0=bad)\ngit bisect run rspec spec/regression_spec.rb",
+    },
+  },
+  {
+    id: "git-010",
+    categoryId: "git-github",
+    difficulty: "intermediate",
+    type: "text",
+    question:
+      "誤って `git reset --hard` で消したコミットを救出するために、HEAD の移動履歴を見るコマンドは `git ???`。??? に入る 1 単語は？(英語)",
+    answers: ["reflog"],
+    hints: [
+      "ref (参照) + log の合成語です。",
+      "HEAD の動き (commit/reset/rebase/checkout 等) がすべて記録されています。",
+      "デフォルトで 90 日間履歴を保持。",
+    ],
+    explanation: {
+      summary:
+        "`git reflog` は HEAD の移動履歴。`reset --hard` 等で消えたコミットも 90 日間は救出可能。",
+      reason:
+        "Git の『迷子コミット』救出ツール。`git reset --hard HEAD~5` でコミット 5 つ吹き飛ばしても、reflog で `HEAD@{1}` 等のラベルを使って復元可能。意外と知らない人が多いが、Git の安全網。`git fsck --lost-found` で完全に dangling になったコミットを探すこともできる。",
+      codeExample:
+        "# 履歴確認\ngit reflog\n# abc1234 HEAD@{0}: reset: moving to HEAD~5\n# def5678 HEAD@{1}: commit: 救いたいコミット\n# ...\n\n# 復元 (def5678 を取り戻す)\ngit reset --hard def5678\n# または\ngit reset --hard HEAD@{1}\n\n# 特定ブランチを誤って削除した\ngit reflog | grep <branch_name>\ngit branch <restored_name> <SHA>",
+    },
+  },
+  {
+    id: "git-011",
+    categoryId: "git-github",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "別ブランチの特定の 1 コミットだけを現在のブランチに取り込むコマンドは？",
+    choices: ["git cherry-pick <SHA>", "git copy <SHA>", "git import <SHA>", "git apply <SHA>"],
+    answerIndex: 0,
+    hints: [
+      "果物に関連する複合語名のコマンド。",
+      "他のブランチから『美味しい所どり』するイメージ。",
+      "hotfix を main と develop の両方に取り込みたい時の定番。",
+    ],
+    explanation: {
+      summary:
+        "`git cherry-pick <SHA>` で指定コミットを現在ブランチに新しいコミットとして適用。",
+      reason:
+        "hotfix を main + develop 両方に入れたい時、リリースブランチからの逆輸入、緊急パッチの選択的適用などで使う。連続適用、コンフリクトしたら手動解決 + `--continue`。`-x` オプションで『元コミット情報』をメッセージに残せる。",
+      codeExample:
+        "# 1 コミット適用\ngit cherry-pick deadbeef\n\n# 範囲 (deadbeef を含まない deadbeef..feedface)\ngit cherry-pick deadbeef..feedface\n\n# 元コミット情報をメッセージに残す (履歴追跡用)\ngit cherry-pick -x deadbeef\n\n# コンフリクト解決後\ngit cherry-pick --continue\ngit cherry-pick --abort        # やめる",
+    },
+  },
+  {
+    id: "git-012",
+    categoryId: "git-github",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "1 つのリポジトリで複数ブランチを同時にチェックアウトして並行作業する Git の機能は？",
+    choices: ["git worktree", "git multibranch", "git parallel", "git clone --multi"],
+    answerIndex: 0,
+    hints: [
+      "別ディレクトリにブランチを展開し、本体は維持しつつ並行で見られます。",
+      "git stash や master ⇔ feature 切替の手間を省きます。",
+      "英語で『作業の樹』を意味する 1 単語。",
+    ],
+    explanation: {
+      summary:
+        "`git worktree add ../path branch` で別ディレクトリに別ブランチをチェックアウト。同時並行作業が可能。",
+      reason:
+        "feature ブランチで作業中に hotfix が降ってきた時、現状を stash せずに別ディレクトリで対応できる。Rails アプリで同時に複数 Rails サーバを起動する必要があるとき (e.g., 旧バージョンと新バージョン比較) にも便利。一時的に切ったツリーは `git worktree remove` で削除。",
+      codeExample:
+        "# 別ディレクトリにブランチを展開\ngit worktree add ../myapp-hotfix hotfix/x\ncd ../myapp-hotfix\n# 普通に作業 (元の作業ディレクトリには影響なし)\n\n# 一覧\ngit worktree list\n\n# 削除\ngit worktree remove ../myapp-hotfix\n\n# 注意: 同じブランチを複数 worktree で開くことはできない",
+    },
+  },
+  {
+    id: "git-013",
+    categoryId: "git-github",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "GitHub で『push 時に自動でテストを走らせる』ファイルの配置場所は？",
+    choices: [
+      ".github/workflows/*.yml",
+      ".circleci/config.yml",
+      "Jenkinsfile",
+      ".gitlab-ci.yml",
+    ],
+    answerIndex: 0,
+    hints: [
+      "GitHub 公式の CI/CD 機能 (GitHub Actions) で使う設定ファイル。",
+      "ディレクトリ名は『.github』、その配下に workflows ディレクトリ。",
+      "ファイル拡張子は YAML。",
+    ],
+    explanation: {
+      summary:
+        "GitHub Actions は `.github/workflows/*.yml` を自動検出して push / PR / cron トリガーで実行。",
+      reason:
+        "リポジトリ専用の CI/CD。`on:` でトリガー、`jobs:` で並列ジョブ、`steps:` で各コマンド。公開 marketplace の actions (例: `actions/checkout@v4`) を `uses:` で取り込み。Rails テンプレ: PostgreSQL サービス、bundler キャッシュ、rspec/rubocop 実行が一般的。",
+      codeExample:
+        "# .github/workflows/ci.yml\nname: CI\non:\n  push:\n    branches: [main]\n  pull_request:\nconcurrency:\n  group: ${{ github.workflow }}-${{ github.ref }}\n  cancel-in-progress: true\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    services:\n      postgres:\n        image: postgres:16\n        env: { POSTGRES_PASSWORD: postgres }\n        options: >-\n          --health-cmd pg_isready\n    steps:\n      - uses: actions/checkout@v4\n      - uses: ruby/setup-ruby@v1\n        with: { ruby-version: '3.3', bundler-cache: true }\n      - run: bundle exec rspec",
+    },
+  },
+  {
+    id: "git-014",
+    categoryId: "git-github",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "GitHub で『main へ直接 push 禁止 / CI 通過必須 / レビュー 1 名以上』を強制する仕組みは？",
+    choices: [
+      "branch protection rule",
+      "deploy keys",
+      "secret scanning",
+      "code owners only",
+    ],
+    answerIndex: 0,
+    hints: [
+      "Settings → Branches で設定する機能。",
+      "PR を必須にして、CI / レビュー / 署名コミットなどのルールを強制。",
+      "英語で『枝の保護ルール』を意味する 3 語。",
+    ],
+    explanation: {
+      summary:
+        "Branch Protection Rule で main 等への直接 push を禁止し、PR + CI + レビュー必須化。",
+      reason:
+        "main の品質保証の基本。`Settings → Branches → Add rule` で設定。主な項目: (1) Require PR before merging、(2) Require status checks to pass (CI 名指定)、(3) Require approvals N 名以上、(4) Require signed commits、(5) Restrict who can push、(6) Require linear history (merge commit 禁止 / squash 強制)。チーム規模に合わせてカスタマイズ。",
+      codeExample:
+        "# 設定後の挙動\n$ git push origin main\n# remote: error: GH006: Protected branch update failed\n# remote: error: At least 1 approving review is required\n\n# 代わりに必ず PR\n$ git checkout -b feature/x\n$ git push -u origin feature/x\n$ gh pr create --base main\n# CI 通過 + 1 名承認 → Merge ボタン有効化",
+    },
+  },
+  {
+    id: "git-015",
+    categoryId: "git-github",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "コミットメッセージのスタイルとして広く採用される『feat / fix / docs / refactor 等の prefix』規約は？",
+    choices: [
+      "Conventional Commits",
+      "Strict Commits",
+      "Semantic Style",
+      "Atom Style",
+    ],
+    answerIndex: 0,
+    hints: [
+      "Angular プロジェクトから広まった規約。",
+      "type(scope): subject の形式で書きます。",
+      "英語で『慣習的な』を意味する形容詞 + Commits。",
+    ],
+    explanation: {
+      summary:
+        "Conventional Commits は `type(scope): subject` 形式の規約。CHANGELOG 自動生成や semver と相性が良い。",
+      reason:
+        "代表的 type: feat (新機能 → MINOR)、fix (バグ修正 → PATCH)、docs / chore / style / refactor / test / perf / build / ci。`BREAKING CHANGE: ...` のフッターで MAJOR を発火。`semantic-release` / `release-please` などのツールで自動的にバージョン更新 + CHANGELOG + GitHub Release が作れる。",
+      codeExample:
+        "# 良い例\nfeat(auth): JWT による API 認証を追加\nfix(post): 公開済み投稿の編集で 500 エラーが出るバグを修正\ndocs(readme): デプロイ手順を Vercel 向けに刷新\nrefactor(user): pluck で N+1 を解消\n\n# BREAKING\nfeat(api)!: v1 を廃止、v2 のみサポート\n\nBREAKING CHANGE: GET /v1/users は 410 を返す。クライアントは v2 に移行が必要",
+    },
+  },
+  {
+    id: "git-016",
+    categoryId: "git-github",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "対話的 rebase (`git rebase -i HEAD~3`) でできない操作はどれ？",
+    choices: [
+      "コミットを跨いだファイル名の変更履歴を消す",
+      "コミットの順番を入れ替える (reorder)",
+      "複数コミットを 1 つに squash する",
+      "コミットメッセージを書き換える",
+    ],
+    answerIndex: 0,
+    hints: [
+      "rebase -i のメニューは pick / reword / edit / squash / fixup / drop の組み合わせ。",
+      "順番入れ替え・統合・編集・削除はできるが、ファイルレベルの履歴改変は別操作。",
+      "rebase の中ではコミット単位の操作しかできず、ファイルの追跡履歴 (rename detection) は手出しできません。",
+    ],
+    explanation: {
+      summary:
+        "interactive rebase は『コミット単位』の操作 (順序入替/統合/書換/削除)。ファイル追跡の改変は filter-branch / git-filter-repo の領域。",
+      reason:
+        "メニューの主要キーワード: `pick` 採用、`reword` メッセージ書換、`edit` 一時停止して修正、`squash` 前のと統合してメッセージ編集、`fixup` 統合してメッセージ捨てる、`drop` 削除。順序入替は行を入れ替えるだけ。ファイル履歴の改変 (例: 機密情報を全履歴から削除) は `git filter-repo` (今は推奨) / 旧 `filter-branch`。",
+      codeExample:
+        "# 直近 5 コミットを整理\ngit rebase -i HEAD~5\n\n# エディタが開く\n# pick abc1 first feature\n# pick def2 typo fix\n# pick ghi3 lint\n# pick jkl4 second feature\n# pick mno5 fix for first\n\n# 編集後 (mno5 を abc1 にまとめる + ghi3 を捨てる)\n# pick abc1 first feature\n# fixup mno5 fix for first\n# pick def2 typo fix\n# drop ghi3 lint\n# pick jkl4 second feature\n\n# 機密情報削除は別ツール\ngit filter-repo --path config/secrets.yml --invert-paths",
+    },
+  },
+
+  // ===========================================================================
+  // 🛡️ セキュリティ 追加 (8問: HSTS, CSP, JWT, rack-attack, bundle audit 等)
+  // ===========================================================================
+  {
+    id: "sec-008",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "ブラウザに『今後このサイトは HTTPS のみで接続する』を強制する HTTP ヘッダーは？",
+    choices: [
+      "Strict-Transport-Security (HSTS)",
+      "X-Frame-Options",
+      "X-Content-Type-Options",
+      "Cache-Control",
+    ],
+    answerIndex: 0,
+    hints: [
+      "HTTP → HTTPS 自動アップグレードと、HTTPS なしアクセスのブロックを行う設定。",
+      "max-age と includeSubDomains を指定するヘッダー。",
+      "英語で『厳格な輸送セキュリティ』を意味する 3 単語ヘッダー名。",
+    ],
+    explanation: {
+      summary:
+        "`Strict-Transport-Security: max-age=N; includeSubDomains; preload` で HTTPS 強制 + ダウングレード攻撃防止。",
+      reason:
+        "HSTS を有効にするとブラウザは max-age 秒間 HTTP リクエストを HTTPS に自動変換、証明書エラー時もアクセス拒否。Rails では `config.force_ssl = true` で自動付与。`preload` はブラウザ組み込みリストに事前登録 (一度設定すると外せないので慎重に)。",
+      codeExample:
+        "# config/environments/production.rb\nconfig.force_ssl = true\n\n# レスポンスヘッダ\nStrict-Transport-Security: max-age=63072000; includeSubDomains; preload\n\n# 細かく制御\nconfig.ssl_options = {\n  hsts: {\n    expires: 1.year,\n    subdomains: true,\n    preload: true\n  }\n}\n\n# 関連の重要ヘッダ\n# X-Frame-Options: SAMEORIGIN     # クリックジャッキング対策\n# X-Content-Type-Options: nosniff # MIME sniffing 防止\n# Referrer-Policy: strict-origin-when-cross-origin",
+    },
+  },
+  {
+    id: "sec-009",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "ブラウザに『どこから来た JS/CSS/image なら実行を許可するか』のホワイトリストを指示する HTTP ヘッダーは？",
+    choices: [
+      "Content-Security-Policy (CSP)",
+      "Access-Control-Allow-Origin (CORS)",
+      "X-XSS-Protection",
+      "Referrer-Policy",
+    ],
+    answerIndex: 0,
+    hints: [
+      "XSS の二次被害 (inject されたスクリプトの実行) を強力に防ぐ仕組み。",
+      "default-src / script-src / style-src 等でドメインを許可リスト化します。",
+      "Rails 5.2+ は `config/initializers/content_security_policy.rb` で DSL 提供。",
+    ],
+    explanation: {
+      summary:
+        "CSP は『許可された出所からだけリソース読み込み / インライン JS 禁止』をブラウザに指示する強力な XSS 対策。",
+      reason:
+        "XSS で attacker が <script> を仕込んでも、CSP で外部スクリプトを禁止していれば実行されない (二段の防御)。インライン JS も禁止できるので、`<script>alert(1)</script>` を埋め込まれても無効化。Rails の `content_security_policy do |policy| ... end` DSL で宣言。`script_src_nonce` で安全な手書きインライン許可も。",
+      codeExample:
+        "# config/initializers/content_security_policy.rb\nRails.application.config.content_security_policy do |policy|\n  policy.default_src :self, :https\n  policy.font_src    :self, :https, :data\n  policy.img_src     :self, :https, :data\n  policy.object_src  :none\n  policy.script_src  :self, :https\n  policy.style_src   :self, :https\n  policy.connect_src :self, :https, 'wss://example.com'\n  # nonce 自動生成して inline 許可\nend\n\nRails.application.config.content_security_policy_nonce_generator = ->(req) { SecureRandom.base64(16) }",
+    },
+  },
+  {
+    id: "sec-010",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "JWT (JSON Web Token) のセキュリティで『最重要の落とし穴』として有名なのは？",
+    choices: [
+      "alg=none / 弱いアルゴリズムを許可してしまう (alg confusion)",
+      "Base64 が遅い",
+      "JSON のパースに時間がかかる",
+      "ペイロードが大きすぎる",
+    ],
+    answerIndex: 0,
+    hints: [
+      "署名アルゴリズム自体を改ざんされる攻撃。",
+      "alg ヘッダで none を指定して署名を無効化、または HS256 ↔ RS256 を悪用するパターン。",
+      "ライブラリ側で『許可するアルゴリズム』を明示する必要がある脆弱性。",
+    ],
+    explanation: {
+      summary:
+        "JWT の alg confusion: トークンの alg ヘッダを攻撃者が書き換えて検証ロジックを欺く。`alg=none` を許可しない、想定 alg を明示することで防ぐ。",
+      reason:
+        "歴史的に多くの JWT ライブラリが脆弱だった。例: alg=none を許可 → 署名なしで通る / RS256 (公開鍵) を HS256 (共有鍵) として処理 → 公開鍵で署名できてしまう。対策: (1) 検証時に許可 alg を配列で明示、(2) 適切な有効期限 (exp)、(3) シークレットを credentials で管理、(4) JTI で再利用防止。",
+      codeExample:
+        "require 'jwt'\n\n# ❌ 危険 (alg を自動検出するので攻撃者が改変可能)\nJWT.decode(token, secret)\n\n# ✅ 安全 (許可 alg を明示)\nJWT.decode(token, secret, true, { algorithm: 'HS256' })\n\n# 発行時\npayload = {\n  user_id: user.id,\n  exp: 1.hour.from_now.to_i,    # 短め推奨\n  iat: Time.current.to_i,\n  jti: SecureRandom.uuid        # 失効管理用\n}\nJWT.encode(payload, secret, 'HS256')",
+    },
+  },
+  {
+    id: "sec-011",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "Rails で『ログイン試行を 1 IP/1 分につき 5 回まで』に制限する定番 gem は？",
+    choices: ["rack-attack", "throttle-rate", "limiter", "shield-rate"],
+    answerIndex: 0,
+    hints: [
+      "Rack ミドルウェアとして動作。Rails 以外でも使えます。",
+      "DSL で `throttle('logins/ip', limit: 5, period: 1.minute) do |req|...` のように書きます。",
+      "rack + 攻撃を意味する英単語 のハイフン連結。",
+    ],
+    explanation: {
+      summary:
+        "`rack-attack` は IP / メールアドレス / URL 単位で『N 回 / N 秒』のレート制限ができる Rack ミドルウェア。",
+      reason:
+        "ブルートフォース対策 / DoS 緩和の標準解。`Rack::Attack.throttle` で制限、`Rack::Attack.blocklist` でブロック、`Rack::Attack.safelist` で除外。Redis をストアにすると複数プロセスで共有可能 (本番必須)。",
+      codeExample:
+        "# Gemfile\ngem 'rack-attack'\n\n# config/initializers/rack_attack.rb\nclass Rack::Attack\n  cache.store = ActiveSupport::Cache::RedisCacheStore.new(url: ENV['REDIS_URL'])\n\n  # ログイン: IP 単位 5 回 / 分\n  throttle('logins/ip', limit: 5, period: 1.minute) do |req|\n    req.ip if req.path == '/login' && req.post?\n  end\n\n  # ログイン: メールアドレス単位 5 回 / 分\n  throttle('logins/email', limit: 5, period: 1.minute) do |req|\n    req.params['email'].presence if req.path == '/login' && req.post?\n  end\n\n  blocklist('block bad bots') { |req| req.user_agent =~ /BadBot/ }\nend",
+    },
+  },
+  {
+    id: "sec-012",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "Rails ログから『password』『credit_card』等の機密値を自動マスキングする設定は？",
+    choices: [
+      "Rails.application.config.filter_parameters",
+      "Rails.application.config.skip_params",
+      "Rails.application.config.hide_log",
+      "Rails.application.config.secret_log",
+    ],
+    answerIndex: 0,
+    hints: [
+      "Rails が自動でログに `[FILTERED]` と置換してくれる仕組み。",
+      "config/initializers/filter_parameter_logging.rb がデフォルトで生成されます。",
+      "params フィルタリングの設定。",
+    ],
+    explanation: {
+      summary:
+        "`config.filter_parameters += [:password, :credit_card]` でログから値を自動マスキング ([FILTERED] に置換)。",
+      reason:
+        "デフォルトで :passw, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :ssn が含まれる (Rails 6+)。アプリ独自の機密フィールド (:api_key, :credit_card) は追加。完全な値が必要な debug 時は別途構造化ログ等で。Sentry 等のエラーレポートにも有効。",
+      codeExample:
+        "# config/initializers/filter_parameter_logging.rb\nRails.application.config.filter_parameters += [\n  :password, :password_confirmation,\n  :credit_card, :cvv, :ssn,\n  :api_key, :token, :secret,\n]\n\n# ログ例 (フィルタ適用後)\n# Parameters: {\"user\"=>{\"email\"=>\"a@x\", \"password\"=>\"[FILTERED]\"}}\n\n# 関連: filter_redirect でリダイレクト先 URL の機密もマスク\nRails.application.config.filter_redirect += [\n  'oauth_token', 'access_token'\n]",
+    },
+  },
+  {
+    id: "sec-013",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "text",
+    question:
+      "Gemfile.lock 内の依存 gem に既知の脆弱性が無いかチェックする CLI ツールは `bundle ?????`。????? に入る英単語は？",
+    answers: ["audit", "audit check"],
+    hints: [
+      "監査を意味する英単語そのまま。",
+      "bundle audit gem を入れると bundler サブコマンドとして使えます。",
+      "GitHub Dependabot も同じ思想の自動化。",
+    ],
+    explanation: {
+      summary:
+        "`bundle audit` は Ruby Advisory Database を参照して Gemfile.lock 内の既知脆弱性を検出する CLI。",
+      reason:
+        "CI に組み込むのが定番。bundler-audit gem を `bundle add --group development bundler-audit` → `bundle audit check --update` で実行。GitHub Dependabot / Snyk と組み合わせると、自動 PR で脆弱性 gem の更新を提案してくれる。",
+      codeExample:
+        "# インストール\ngem install bundler-audit\n\n# 実行\nbundle audit check --update\n# Updating ruby-advisory-db ...\n# Scanning ...\n# No vulnerabilities found\n\n# CI 組み込み (.github/workflows/ci.yml)\n- name: Audit dependencies\n  run: bundle exec bundle audit check --update\n\n# Dependabot 設定 (.github/dependabot.yml)\nversion: 2\nupdates:\n  - package-ecosystem: bundler\n    directory: '/'\n    schedule: { interval: weekly }",
+    },
+  },
+  {
+    id: "sec-014",
+    categoryId: "security",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "セッション Cookie に必須で付けるべきフラグの組み合わせは？",
+    choices: [
+      "Secure / HttpOnly / SameSite",
+      "Cache / Compress / Versioned",
+      "Public / Indexed / Compressed",
+      "Persistent / Shared / Open",
+    ],
+    answerIndex: 0,
+    hints: [
+      "HTTPS 限定送信、JavaScript からの読取禁止、CSRF 緩和の 3 つを実現するフラグ群。",
+      "Rails 6+ では SameSite=Lax がデフォルトで付与されます。",
+      "セッションハイジャック / XSS 二次被害 / CSRF を一気に下げる組み合わせ。",
+    ],
+    explanation: {
+      summary:
+        "Secure (HTTPS 限定) / HttpOnly (JS から読めない) / SameSite (クロスサイト送信制限) の 3 つがセッション Cookie の必須セット。",
+      reason:
+        "Secure: 平文 HTTP では送信されない (盗聴対策)。HttpOnly: document.cookie からアクセス不能 (XSS 二次被害防止)。SameSite=Lax (デフォルト) / Strict (より厳格) / None (要 Secure): CSRF 緩和。Rails ではセッションストア設定で自動付与、独自 cookie は明示指定。",
+      codeExample:
+        "# config/initializers/session_store.rb\nRails.application.config.session_store :cookie_store,\n  key: '_myapp_session',\n  secure: Rails.env.production?,   # HTTPS 限定\n  httponly: true,                  # JS から読めない\n  same_site: :lax                  # CSRF 緩和\n\n# 独自 cookie\ncookies[:remember_me] = {\n  value: token,\n  expires: 1.year.from_now,\n  secure: Rails.env.production?,\n  httponly: true,\n  same_site: :strict\n}\n\n# 暗号化 cookie (改ざん防止)\ncookies.encrypted[:user_id] = current_user.id",
+    },
+  },
+  {
+    id: "sec-015",
+    categoryId: "security",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "ファイルアップロード機能のセキュリティ対策として最重要なのは？",
+    choices: [
+      "拡張子だけでなく Content-Type / マジックバイトで実コンテンツを検証し、別ドメイン or S3 から配信",
+      "ファイル名を ROT13 で暗号化する",
+      "アップロード後に削除する",
+      "ZIP に圧縮する",
+    ],
+    answerIndex: 0,
+    hints: [
+      "拡張子だけのチェックは簡単に bypass される (foo.jpg と名乗る .exe など)。",
+      "実際のコンテンツのマジックバイト (ファイル先頭の数バイト) を確認する必要があります。",
+      "配信時にアプリと同じドメインから出すと XSS / セッション窃取の温床に。",
+    ],
+    explanation: {
+      summary:
+        "ファイルアップロードは『拡張子 + Content-Type + マジックバイト』の 3 段検証 + 別ドメイン / S3 配信 + サイズ制限が必要。",
+      reason:
+        "攻撃の典型: (1) 拡張子偽装で .html を上げて XSS、(2) .svg に script を仕込む、(3) 巨大ファイルで DoS、(4) アプリと同じドメイン配信で Cookie 盗難。対策: ActiveStorage + image_processing (Vips) で content_type 検証、許可拡張子の正規表現、サイズ制限、`config.action_dispatch.show_exceptions` 等。S3 等の別ドメインから配信すれば XSS 被害も限定的。",
+      codeExample:
+        "class Post < ApplicationRecord\n  has_one_attached :image\n  validate :image_type\n  validate :image_size\n\n  private\n\n  def image_type\n    return unless image.attached?\n    unless image.blob.content_type.start_with?('image/')\n      errors.add(:image, 'must be an image')\n    end\n    # 拡張子も検証\n    unless image.filename.extension.in?(%w[jpg jpeg png gif webp])\n      errors.add(:image, 'invalid extension')\n    end\n  end\n\n  def image_size\n    return unless image.attached?\n    if image.blob.byte_size > 5.megabytes\n      errors.add(:image, 'too large (max 5MB)')\n    end\n  end\nend",
+    },
+  },
+
+  // ===========================================================================
+  // 🔬 デバッグ&パフォーマンス 追加 (8問: ActiveRecord::QueryLog, GC, stackprof 等)
+  // ===========================================================================
+  {
+    id: "dbg-008",
+    categoryId: "debugging",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "Rails 7.1+ で『SQL クエリ発行元のコード位置を SQL コメントに自動付与』する標準機能は？",
+    choices: [
+      "Marginalia / ActiveRecord::QueryLogs",
+      "Sql::Tracer",
+      "Sequel::SourceMap",
+      "Bullet::Annotator",
+    ],
+    answerIndex: 0,
+    hints: [
+      "SQL のコメントに /* application:MyApp, controller:Posts, action:index */ のような注釈が付きます。",
+      "もとは marginalia gem の機能、Rails 7.1+ で標準化。",
+      "DB ログから『この SQL はどこから呼ばれた』を即特定できる強力な機能。",
+    ],
+    explanation: {
+      summary:
+        "`ActiveRecord::QueryLogs` (Rails 7.1+) で SQL に呼び出し元情報をコメント付与。スロークエリ調査が劇的に楽。",
+      reason:
+        "本番の遅い SQL が見つかっても『どこから呼ばれたか』が分からないと修正できない。QueryLogs で controller/action/job 名がコメントとして付与されるので、DB のスロークエリログから即コードに到達可能。Rails 6 までは marginalia gem を使っていた。",
+      codeExample:
+        "# config/application.rb (Rails 7.1+)\nconfig.active_record.query_log_tags_enabled = true\nconfig.active_record.query_log_tags = [\n  :application, :controller, :action, :job,\n  { request_id: ->(context) { context[:controller]&.request&.request_id } }\n]\n\n# 出力される SQL\n# SELECT \"posts\".* FROM \"posts\"\n# /*application:MyApp,controller:posts,action:index,request_id:abc-123*/\n\n# Rails 6 までは marginalia gem\ngem 'marginalia'",
+    },
+  },
+  {
+    id: "dbg-009",
+    categoryId: "debugging",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "Ruby のオブジェクトを見やすく整形して出力する標準的なデバッグ用メソッドは？",
+    choices: ["pp (pretty-print)", "view", "dump", "fmt"],
+    answerIndex: 0,
+    hints: [
+      "puts よりも構造を保って表示する 2 文字のメソッド。",
+      "Hash や Array をインデント付きで出してくれます。",
+      "標準ライブラリ pp 経由で require 不要 (Kernel 拡張)。",
+    ],
+    explanation: {
+      summary:
+        "`pp` (pretty-print) は Hash / Array / 入れ子オブジェクトをインデント付きで構造的に出力する標準デバッグメソッド。",
+      reason:
+        "`p` は inspect 結果を 1 行で出す。`pp` は構造を解析して複数行に整形。Rails でも `pp params.to_h` のように使う。さらに見やすくしたいなら awesome_print (`ap`) や amazing_print。",
+      codeExample:
+        "h = { user: { name: 'A', tags: %w[a b c] }, count: 100 }\n\np h\n# {:user=>{:name=>\"A\", :tags=>[\"a\", \"b\", \"c\"]}, :count=>100}\n\npp h\n# {:user=>{:name=>\"A\", :tags=>[\"a\", \"b\", \"c\"]},\n#  :count=>100}\n\n# Rails console でカラフルに\nrequire 'awesome_print'\nap h",
+    },
+  },
+  {
+    id: "dbg-010",
+    categoryId: "debugging",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "現在の呼び出しスタック (どこから呼ばれたか) を確認する Ruby のメソッドは？",
+    choices: [
+      "caller / caller_locations",
+      "stack / trace",
+      "where / from",
+      "backtrace",
+    ],
+    answerIndex: 0,
+    hints: [
+      "Kernel に定義されているメソッド。",
+      "呼び出し元のファイル名:行数:メソッド名 の配列を返します。",
+      "例外なしでも好きな位置でスタックを取得できます。",
+    ],
+    explanation: {
+      summary:
+        "`caller` は呼び出し元の文字列配列、`caller_locations` は Thread::Backtrace::Location オブジェクトの配列を返す。",
+      reason:
+        "『この処理がいつ・どこから呼ばれた?』のデバッグ。例外を投げなくてもスタック取得可能。`caller_locations(start, length)` でフレーム範囲を絞れる。Rails のソースコードを追う時にも便利。本番のロギングに混ぜると後追い調査が楽 (ただしオーバーヘッド注意)。",
+      codeExample:
+        "def mysterious_method\n  puts caller(1, 5)              # 直前のフレームから 5 つ\n  # /path/to/file.rb:42:in `block in <main>'\n  # /path/to/another.rb:10:in `each'\n\n  loc = caller_locations(1, 1).first\n  puts \"called from #{loc.path}:#{loc.lineno} #{loc.label}\"\nend\n\n# 例外起こさずに backtrace 風\ndef debug_here\n  Rails.logger.debug \"trace:\\n#{caller.first(10).join(\"\\n\")}\"\nend",
+    },
+  },
+  {
+    id: "dbg-011",
+    categoryId: "debugging",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "Ruby アプリの CPU プロファイル (どのメソッドで時間使ってるか) を取得する代表的な gem は？",
+    choices: ["stackprof / vernier", "memory_profiler", "byebug", "rspec"],
+    answerIndex: 0,
+    hints: [
+      "サンプリング型のプロファイラ。低オーバーヘッドで本番計測にも使えます。",
+      "出力はフレームグラフや list 形式で可視化。",
+      "Ruby 公式インフラ的に推奨されてる 2 つの gem 名 (1 つは Stripe 製、もう 1 つは Shopify 製)。",
+    ],
+    explanation: {
+      summary:
+        "`stackprof` (Stripe) と `vernier` (Shopify) が現代の Ruby CPU プロファイラの定番。低オーバーヘッドで詳細解析が可能。",
+      reason:
+        "stackprof は wall/cpu/object モードを選べる定番。vernier は Ruby 3.2+ で公式推奨、より詳細な情報を取得可能。出力は flamegraph で可視化 (speedscope / firefox profiler で閲覧)。本番のサンプリングプロファイリングにも耐えうる性能。",
+      codeExample:
+        "# Gemfile\ngem 'stackprof'\ngem 'vernier'\n\n# 計測 (ブロック)\nrequire 'stackprof'\nresult = StackProf.run(mode: :cpu, raw: true) do\n  expensive_operation\nend\nStackProf::Report.new(result).print_text\n\n# vernier\nrequire 'vernier'\nVernier.profile(out: 'profile.json') do\n  expensive_operation\nend\n# → speedscope や firefox profiler で開く",
+    },
+  },
+  {
+    id: "dbg-012",
+    categoryId: "debugging",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "Rails console の `app` オブジェクトでできることは？",
+    choices: [
+      "HTTP リクエストを送ってルーティング / コントローラの挙動を試す (app.get '/posts')",
+      "Rails アプリを再起動する",
+      "DB を削除する",
+      "テンプレートをコンパイルする",
+    ],
+    answerIndex: 0,
+    hints: [
+      "Rails console から、ブラウザ経由のリクエストをシミュレートできます。",
+      "ルーティングが正しいか、レスポンスの内容を見たい時に便利。",
+      "GET / POST / PUT / DELETE すべて呼べます。",
+    ],
+    explanation: {
+      summary:
+        "`app` は Rails console のセッション。`app.get '/posts'` のように内部リクエストを送れる。helpers / params の検証にも便利。",
+      reason:
+        "console から: `app.get '/'` でリクエスト、`app.response.body` でレスポンス、`app.session` で session 確認、`app.cookies` で cookie。`helper` で view ヘルパー直接呼び出し、`controller` で現在の controller。ブラウザを開かずにルーティング・コントローラの挙動を試せる。",
+      codeExample:
+        "# Rails console\napp.get '/posts'\napp.response.status              #=> 200\napp.response.body                # HTML 本体\n\napp.post '/login', params: { email: 'a@x', password: 'pw' }\napp.cookies                      # 受け取った cookie\n\n# View Helper\nhelper.number_to_currency(12345)\n#=> \"$12,345.00\"\nhelper.link_to('home', '/')\n\n# 現在のコントローラ参照\ncontroller.params\ncontroller.request.headers",
+    },
+  },
+  {
+    id: "dbg-013",
+    categoryId: "debugging",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "Rails 7+ で開発時にプロセス全体 (web + worker + tailwind 等) を起動する標準スクリプトは？",
+    choices: [
+      "bin/dev (foreman / overmind 経由)",
+      "bin/start_all",
+      "bin/launch",
+      "bin/up",
+    ],
+    answerIndex: 0,
+    hints: [
+      "Rails 7 が生成する Procfile.dev を読み込むスクリプト。",
+      "rails s + bin/jobs + tailwindcss --watch などを 1 コマンドで並行起動。",
+      "ファイル名は短く `bin/` 配下に置かれる開発用エントリポイント。",
+    ],
+    explanation: {
+      summary:
+        "Rails 7+ は `bin/dev` で Procfile.dev を読み foreman/overmind 経由で複数プロセス並行起動 (web + jobs + asset watcher 等)。",
+      reason:
+        "従来は `rails s` だけだったが、Hotwire / CSS bundler / ジョブキューと組み合わさり、開発時に複数プロセスが必要に。bin/dev が Procfile.dev を見て foreman で起動。Overmind / Hivemind を入れれば対話的アタッチや個別再起動が可能。",
+      codeExample:
+        "# Procfile.dev (例)\nweb: bin/rails s\nworker: bundle exec sidekiq\ncss: bin/rails tailwindcss:watch\njs: yarn build --watch\n\n# 起動\nbin/dev\n\n# Overmind を使う場合\nbrew install overmind\nOVERMIND_NO_PORT=1 overmind start -f Procfile.dev\n\n# 個別プロセスを再起動\novermind restart worker",
+    },
+  },
+  {
+    id: "dbg-014",
+    categoryId: "debugging",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "Ruby のメモリ統計を取得する標準モジュールのメソッドは？",
+    choices: [
+      "GC.stat / GC.stat_heap",
+      "Memory.info",
+      "Heap.usage",
+      "ObjectSpace.size",
+    ],
+    answerIndex: 0,
+    hints: [
+      "ガベージコレクションモジュール経由で統計が取れます。",
+      "ヒープページ数、major/minor GC 回数、freelist サイズなどが見える。",
+      "stat メソッドが Hash でメトリクスを返します。",
+    ],
+    explanation: {
+      summary:
+        "`GC.stat` は GC とヒープの統計 Hash を返す。アプリの『今のメモリ状況』を直接観察できる。",
+      reason:
+        "本番でメモリ使用量を監視する時の基本。count (GC 回数)、heap_allocated_pages (ヒープページ数)、total_allocated_objects (アプリ起動からの累計) など。差分を取ればリクエスト毎のオブジェクト生成数も見える。`GC.start` で手動 GC、`GC.disable / GC.enable` で一時停止 (パフォーマンスチューニング用)。",
+      codeExample:
+        "# 統計取得\nGC.stat\n#=> { count: 50, heap_allocated_pages: 500,\n#     total_allocated_objects: 1_234_567, ... }\n\n# 差分計測\nbefore = GC.stat[:total_allocated_objects]\nexpensive_operation\nafter  = GC.stat[:total_allocated_objects]\nputs \"objects allocated: #{after - before}\"\n\n# ObjectSpace\nObjectSpace.count_objects\n#=> { TOTAL: 100_000, FREE: 20_000, T_STRING: 30_000, ... }\n\n# プロセス全体のメモリ (RSS)\n`ps -p #{Process.pid} -o rss=`.to_i  # KB",
+    },
+  },
+  {
+    id: "dbg-015",
+    categoryId: "debugging",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "本番で『遅いリクエストの中身を Rails が自動で吐く詳細ログ』をどう取る？",
+    choices: [
+      "config.active_support.report_deprecations / 0.5 秒以上は INFO に出る + APM の slow trace を組み合わせる",
+      "puts でログ出力",
+      "DB を再起動",
+      "Rails console で再現",
+    ],
+    answerIndex: 0,
+    hints: [
+      "Rails 自体には『遅いリクエストだけ詳細を出す』組込み機能は弱い。",
+      "現代は APM (New Relic / Skylight / Datadog) で slow transaction trace を見るのが主流。",
+      "ログだけで頑張ろうとすると追えないので APM 必須。",
+    ],
+    explanation: {
+      summary:
+        "Rails 単体での『遅いリクエストだけ詳細ログ』は限定的。本番は APM の slow transaction trace + lograge + Sentry の組合せが王道。",
+      reason:
+        "Rails ログは全リクエストに対して同じレベルしか出せない (全部 DEBUG にすると本番では出力過剰)。APM は SQL/外部API/Ruby メソッドの所要時間を自動計測し、遅い trace だけ詳細表示。Skylight (シンプル)、New Relic (機能豊富)、Datadog (インフラ含む)、Scout (Rails 特化) など選択肢あり。",
+      codeExample:
+        "# Skylight (代表例)\ngem 'skylight'\n\n# Skylight に独自計測を追加\nclass MyService\n  include Skylight::Helpers\n\n  instrument_method\n  def slow_operation\n    # ここの時間が自動で計測される\n  end\nend\n\n# Sentry でパフォーマンス計測\nSentry.init do |config|\n  config.traces_sample_rate = 0.1   # 10% サンプル\nend\n\n# Sentry の transaction span\nSentry.with_scope do |scope|\n  scope.set_transaction_name('UserSignup')\n  Sentry.start_transaction(name: 'signup', op: 'background.job')\nend",
+    },
+  },
+
+  // ===========================================================================
+  // 🐧 Linux & CLI 追加 (8問: alias, cron, screen/tmux, curl, ss, scp 等)
+  // ===========================================================================
+  {
+    id: "cli-009",
+    categoryId: "linux-cli",
+    difficulty: "beginner",
+    type: "choice",
+    question:
+      "シェルに『よく使うコマンドの短縮形』を定義する宣言は？",
+    choices: [
+      "alias gs='git status'",
+      "shortcut gs='git status'",
+      "define gs='git status'",
+      "macro gs='git status'",
+    ],
+    answerIndex: 0,
+    hints: [
+      "5 文字の英単語、シェルの組み込みコマンド。",
+      "~/.bashrc や ~/.zshrc に書いて永続化するのが定番。",
+      "英語で『別名』を意味する単語そのまま。",
+    ],
+    explanation: {
+      summary:
+        "`alias name='command'` で短縮形を定義。~/.bashrc / ~/.zshrc に書くと永続化。",
+      reason:
+        "毎回打つコマンドは alias で短縮 → タイプミス減 + 作業速度アップ。複雑なら function を定義する。`unalias` で解除、`alias` 単体で一覧。Rails 開発者の定番: gs/ga/gc/gp、be (bundle exec)、rs (rails server)、rc (rails console)。",
+      codeExample:
+        "# ~/.zshrc に追加\nalias gs='git status'\nalias gc='git commit'\nalias gp='git push'\nalias gl='git log --oneline -20'\nalias be='bundle exec'\nalias rs='bin/rails server'\nalias rc='bin/rails console'\nalias rt='bundle exec rspec'\n\n# 関数 (引数を取りたい時)\nfunction mkcd() {\n  mkdir -p \"$1\" && cd \"$1\"\n}\n\n# 反映\nsource ~/.zshrc\n# または新しいシェルを起動",
+    },
+  },
+  {
+    id: "cli-010",
+    categoryId: "linux-cli",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "Linux で定期実行を設定する伝統的なツールは？",
+    choices: [
+      "cron / crontab",
+      "schedule / scheduletab",
+      "timer / timertab",
+      "loop / looptab",
+    ],
+    answerIndex: 0,
+    hints: [
+      "古くから Unix 系に標準搭載されている定期実行デーモン。",
+      "crontab -e で編集、`分 時 日 月 曜 コマンド` の 5 フィールド形式。",
+      "現代は systemd-timer も同等機能だが、伝統的なのは 4 文字の名前のツール。",
+    ],
+    explanation: {
+      summary:
+        "`cron` (デーモン) + `crontab` (設定編集コマンド) で定期実行を設定。`分 時 日 月 曜 コマンド` の書式。",
+      reason:
+        "`crontab -e` で個人ユーザーの cron 編集。`* * * * * cmd` は毎分、`0 3 * * *` は毎日 3 時、`*/5 * * * *` は 5 分毎。Rails では whenever gem で Ruby DSL から crontab を生成可能。systemd-timer はモダンな代替。",
+      codeExample:
+        "# 編集\ncrontab -e\n\n# 例: 毎日 3 時にバックアップ\n0 3 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1\n\n# 5 分ごと\n*/5 * * * * curl -s https://example.com/heartbeat\n\n# 確認\ncrontab -l\n\n# Rails の whenever gem (Gemfile)\ngem 'whenever', require: false\n\n# config/schedule.rb\nevery 1.day, at: '3:00 am' do\n  rake 'cleanup:old_records'\nend",
+    },
+  },
+  {
+    id: "cli-011",
+    categoryId: "linux-cli",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "SSH 接続を切ってもバックグラウンドで処理を続けたい時のターミナル多重化ツールは？",
+    choices: [
+      "tmux / screen",
+      "ssh-keep / bg-runner",
+      "nohup-only",
+      "remote-exec",
+    ],
+    answerIndex: 0,
+    hints: [
+      "1 つのターミナルセッションに複数のウィンドウ / 分割を持てます。",
+      "切断しても detach 状態で生存、後で再 attach 可能。",
+      "Vim ユーザーや開発者に人気の 2 つのツール (新しい方と古い方)。",
+    ],
+    explanation: {
+      summary:
+        "`tmux` (推奨) / `screen` (古典的) はターミナル多重化ツール。detach/attach で SSH 切断後も処理が継続。",
+      reason:
+        "本番サーバで長時間処理 (デプロイ、データ移行、データ取得) を走らせる時、SSH 切断で停止しないように使う。tmux: `tmux new -s session_name` で開始、`Ctrl-b d` で detach、`tmux attach -t session_name` で再接続。screen も同等機能。`nohup cmd &` は単発バックグラウンド実行で多重化機能はない。",
+      codeExample:
+        "# tmux\ntmux new -s deploy             # 新規セッション開始\ntmux ls                        # セッション一覧\ntmux attach -t deploy          # 再接続\n# Ctrl-b d  → detach (中断せず抜ける)\n# Ctrl-b %  → 縦分割\n# Ctrl-b \"  → 横分割\n# Ctrl-b c  → 新ウィンドウ\n# Ctrl-b ,  → ウィンドウ名変更\n\n# screen\nscreen -S deploy               # 新規\nscreen -r deploy               # 再接続\n# Ctrl-a d  → detach\n\n# 一回限りのバックグラウンド実行\nnohup ./long_running.sh &\ndisown                         # 親シェル終了でも継続",
+    },
+  },
+  {
+    id: "cli-012",
+    categoryId: "linux-cli",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "API を JSON POST でテストする `curl` のオプション組み合わせは？",
+    code: '# /users に { "name": "Alice" } を POST したい',
+    choices: [
+      "curl -X POST -H 'Content-Type: application/json' -d '{\"name\":\"Alice\"}' http://localhost:3000/users",
+      "curl POST http://localhost:3000/users name=Alice",
+      "curl -file users.json",
+      "curl -auto -post users",
+    ],
+    answerIndex: 0,
+    hints: [
+      "-X で HTTP メソッド、-H でヘッダ、-d でボディ指定が curl の基本。",
+      "JSON を送るには Content-Type ヘッダを明示しないとサーバーで認識されません。",
+      "API 動作確認・スクリプト・CI で頻出の組み合わせ。",
+    ],
+    explanation: {
+      summary:
+        "`curl -X POST -H 'Content-Type: application/json' -d '{...}' URL` が JSON POST の定型。",
+      reason:
+        "`-X METHOD` (POST/PUT/DELETE)、`-H 'Header: value'` 複数指定可、`-d` でボディ (or `--data-raw`)、`-i` でレスポンスヘッダも、`-v` で詳細、`-s` でプログレス非表示、`-w '%{http_code}'` でステータスコード抽出。jq と組み合わせると最強。",
+      codeExample:
+        '# JSON POST\ncurl -X POST -H \'Content-Type: application/json\' \\\n  -d \'{"name":"Alice","email":"a@x"}\' \\\n  http://localhost:3000/users\n\n# Authorization ヘッダ追加\ncurl -X GET -H \'Authorization: Bearer abc123\' \\\n  https://api.example.com/me\n\n# レスポンス + ステータスコード\ncurl -s -o /dev/null -w \'%{http_code}\\n\' https://example.com\n\n# JSON ファイル送信\ncurl -X POST -H \'Content-Type: application/json\' \\\n  --data @payload.json \\\n  http://localhost:3000/users\n\n# jq でレスポンス整形\ncurl -s https://api.example.com/users | jq \'.[] | .name\'',
+    },
+  },
+  {
+    id: "cli-013",
+    categoryId: "linux-cli",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "現在 LISTEN しているポート一覧を表示する現代的なコマンドは？",
+    choices: [
+      "ss -tlnp",
+      "ps -listen",
+      "netstat -tlnp (古い)",
+      "lsof / ss どちらも使える",
+    ],
+    answerIndex: 3,
+    hints: [
+      "netstat は古く、現代は ss が推奨されますが両方使えます。",
+      "lsof -i:PORT もポート別に強力。",
+      "全てのオプションが正しい選択肢が最後にあります。",
+    ],
+    explanation: {
+      summary:
+        "現代は `ss -tlnp` (Sys Vinfra)、ポート単位なら `lsof -i:PORT`。netstat は古いが現役。",
+      reason:
+        "`ss -tlnp`: t=TCP、l=Listen、n=数値表示、p=プロセス情報。`-u` で UDP、`-a` で全状態。`lsof -i:3000` でそのポートを使うプロセス特定。`netstat -tlnp` は古いが多くの環境に残る。`ss -s` でソケットサマリ。",
+      codeExample:
+        "# ss (推奨)\nss -tlnp                       # TCP listen 一覧 + プロセス\nss -tlnp | grep 3000           # ポート 3000\nss -ulnp                       # UDP\nss -s                          # サマリ\n\n# lsof (ポート別)\nlsof -i:3000                   # ポート 3000 を使うプロセス\nlsof -i tcp:3000               # TCP のみ\nlsof -i -P -n | grep LISTEN    # 全 listen ポート\n\n# netstat (古いが現役)\nnetstat -tlnp                  # ss と同等\nnetstat -tulnp | grep nginx",
+    },
+  },
+  {
+    id: "cli-014",
+    categoryId: "linux-cli",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "ローカルファイルをリモートサーバに転送するコマンドは？",
+    choices: [
+      "scp local.tar user@host:/path/",
+      "ftp -upload local.tar",
+      "cp -remote local.tar",
+      "ssh-copy local.tar",
+    ],
+    answerIndex: 0,
+    hints: [
+      "ssh + cp の合成的なコマンド名で 3 文字。",
+      "SSH 認証を使うので鍵があれば自動。",
+      "ディレクトリは -r で再帰コピー。",
+    ],
+    explanation: {
+      summary:
+        "`scp` (Secure Copy) は SSH 経由でファイルを安全に転送するコマンド。`scp local user@host:remote` の形式。",
+      reason:
+        "rsync より単純、SSH 鍵で認証。`-r` 再帰、`-P` ポート、`-i` 鍵指定。大量ファイル / 差分転送には `rsync` が高速 (再開可能 + 差分のみ)。クラウドストレージなら `aws s3 cp` / `gsutil cp` が定番。",
+      codeExample:
+        "# ローカル → リモート\nscp local.tar.gz user@host:/tmp/\nscp -r ./mydir user@host:/var/www/\n\n# リモート → ローカル\nscp user@host:/etc/nginx/nginx.conf ./\n\n# ポート指定\nscp -P 2222 file user@host:~/\n\n# 鍵指定\nscp -i ~/.ssh/prod_key file user@host:~/\n\n# rsync (差分転送、推奨)\nrsync -avz ./mydir user@host:/var/www/\nrsync -avz --exclude='.git' ./ user@host:/var/www/myapp/\n\n# AWS S3\naws s3 cp local.tar.gz s3://my-bucket/backups/\naws s3 sync ./mydir s3://my-bucket/myapp/",
+    },
+  },
+  {
+    id: "cli-015",
+    categoryId: "linux-cli",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "ファイル / ディレクトリの違いを見やすく比較する CLI は？",
+    choices: [
+      "diff -u (or colordiff)",
+      "compare -file",
+      "match -files",
+      "delta -compare",
+    ],
+    answerIndex: 0,
+    hints: [
+      "標準ツールで unified diff 形式 (+/-) を出します。",
+      "色付けには colordiff や diff-so-fancy / delta を組み合わせる。",
+      "patch コマンドで適用可能な形式 (パッチファイル) を生成します。",
+    ],
+    explanation: {
+      summary:
+        "`diff -u file1 file2` (unified) でパッチ可能な差分。色付けは `colordiff` / `delta` を組み合わせる。",
+      reason:
+        "プログラマ標準。`-u` unified、`-r` ディレクトリ再帰比較。生成した差分は `patch` で適用可能。Git の diff はこれの拡張。`delta` (Rust 製) を入れると git diff の見た目が一気に良くなる。",
+      codeExample:
+        "# 基本\ndiff file1 file2                # 標準形式\ndiff -u file1 file2             # unified (パッチ可)\ndiff -r dir1 dir2               # ディレクトリ再帰\n\n# 色付き\ncolordiff -u file1 file2\ndiff -u file1 file2 | delta\n\n# パッチ作成 + 適用\ndiff -u original.rb new.rb > my.patch\npatch original.rb < my.patch\n\n# Git の delta 設定\n# ~/.gitconfig\n[core]\n    pager = delta\n[delta]\n    syntax-theme = Monokai Extended\n    line-numbers = true",
+    },
+  },
+  {
+    id: "cli-016",
+    categoryId: "linux-cli",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "本番サーバの『ネットワーク疎通だけ』を最速で確認する基本コマンド組み合わせは？",
+    choices: [
+      "ping (ICMP) + curl/telnet/nc でポート疎通 + dig/nslookup で名前解決",
+      "Rails console で確認",
+      "GUI でリモートデスクトップ",
+      "Slack で同僚に聞く",
+    ],
+    answerIndex: 0,
+    hints: [
+      "3 つの異なるレイヤー (ネットワーク到達 / ポート / DNS) を別々に検証するのが定石。",
+      "それぞれが正常で初めて『接続できる』と言える。",
+      "障害切り分けの基本 (Layer 3 → 4 → 7 と上に上がる)。",
+    ],
+    explanation: {
+      summary:
+        "ネットワーク調査の三種の神器: ping (到達)、curl/nc (ポート/HTTP)、dig (DNS)。レイヤーを切り分けて原因特定。",
+      reason:
+        "『繋がらない』には複数原因: (1) ネットワーク不通 (ping 失敗)、(2) ファイアウォール / ポート閉 (ping 通るが curl 失敗)、(3) DNS 解決失敗 (IP 直接なら通るがドメイン名で失敗)、(4) アプリ不調 (HTTP 5xx)、(5) 証明書 (HTTPS 失敗)。順に切り分けることで原因特定が早い。",
+      codeExample:
+        "# 1. 到達性 (ICMP)\nping -c 4 example.com\n\n# 2. ポート疎通 (TCP)\nnc -zv example.com 443         # netcat\ntelnet example.com 443         # 古典的\ncurl -v https://example.com    # アプリレイヤー\n\n# 3. DNS\ndig example.com                # 詳細\ndig +short example.com         # IP のみ\nnslookup example.com           # シンプル\nhost example.com\n\n# 4. ルート追跡\ntraceroute example.com         # 経路\nmtr example.com                # 連続監視\n\n# 5. HTTPS 証明書\nopenssl s_client -connect example.com:443 -servername example.com",
+    },
+  },
 ];
