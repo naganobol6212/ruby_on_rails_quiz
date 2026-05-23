@@ -11,6 +11,7 @@ import {
   findEntry,
   updateEntry,
 } from "@/lib/journal";
+import { Modal } from "./Modal";
 
 type Props = {
   template: Template;
@@ -231,55 +232,80 @@ export function JournalEditor({ template, existingId }: Props) {
             </p>
             <button
               type="button"
-              onClick={() => setShowRationale((s) => !s)}
-              className="mt-2 inline-flex items-center gap-1 text-[11px] text-rose-600 hover:underline dark:text-rose-300"
+              onClick={() => setShowRationale(true)}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 transition hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-950/60"
             >
-              <span>{showRationale ? "▼" : "▶"}</span>
+              <span>💡</span>
               <span>使い方・コツ・記入例を見る</span>
             </button>
-            {showRationale && (
-              <div className="mt-3 space-y-3 rounded-lg bg-rose-50/60 p-3 text-xs dark:bg-rose-950/30">
-                <div>
-                  <p className="mb-1 font-semibold text-rose-700 dark:text-rose-300">
-                    🧠 この型式で鍛えられること
-                  </p>
-                  <p className="leading-relaxed text-rose-900/90 dark:text-rose-100/90">
-                    {template.rationale}
-                  </p>
-                </div>
-                <div>
-                  <p className="mb-1 font-semibold text-rose-700 dark:text-rose-300">
-                    🎯 こんな場面で使う
-                  </p>
-                  <p className="leading-relaxed text-rose-900/90 dark:text-rose-100/90">
-                    {template.useCase}
-                  </p>
-                </div>
-                <div>
-                  <p className="mb-1 font-semibold text-rose-700 dark:text-rose-300">
-                    💡 うまく書くコツ
-                  </p>
-                  <ul className="ml-4 list-disc space-y-0.5 leading-relaxed text-rose-900/90 dark:text-rose-100/90">
-                    {template.tips.map((tip, i) => (
-                      <li key={i}>{tip}</li>
-                    ))}
-                  </ul>
-                </div>
-                {template.examples[0] && (
-                  <div>
-                    <p className="mb-1 font-semibold text-rose-700 dark:text-rose-300">
-                      📖 記入例: {template.examples[0].title}
+          </div>
+        </div>
+      </section>
+
+      {/* テンプレート詳細モーダル */}
+      <Modal
+        open={showRationale}
+        onClose={() => setShowRationale(false)}
+        title={`${template.emoji}  ${template.name}`}
+        size="xl"
+      >
+        <div className="space-y-5 text-sm">
+          <p className="text-zinc-600 dark:text-zinc-400">{template.description}</p>
+
+          <ModalSection icon="🧠" title="この型式で鍛えられること">
+            <p className="leading-relaxed text-zinc-700 dark:text-zinc-300">
+              {template.rationale}
+            </p>
+          </ModalSection>
+
+          <ModalSection icon="🎯" title="どんな場面で使う？">
+            <p className="leading-relaxed text-zinc-700 dark:text-zinc-300">
+              {template.useCase}
+            </p>
+          </ModalSection>
+
+          <ModalSection icon="💪" title="鍛えられるスキル">
+            <ul className="ml-4 list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
+              {template.skills.map((s, i) => (
+                <li key={i}>{s}</li>
+              ))}
+            </ul>
+          </ModalSection>
+
+          <ModalSection icon="💡" title="うまく書くコツ">
+            <ul className="ml-4 list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
+              {template.tips.map((tip, i) => (
+                <li key={i}>{tip}</li>
+              ))}
+            </ul>
+          </ModalSection>
+
+          {template.examples.length > 0 && (
+            <ModalSection icon="📖" title="記入例">
+              <div className="space-y-4">
+                {template.examples.map((ex, i) => (
+                  <div
+                    key={i}
+                    className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-800/40"
+                  >
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                      {ex.title}
                     </p>
-                    <div className="space-y-1.5 rounded border border-rose-200 bg-white/60 p-2 dark:border-rose-500/20 dark:bg-rose-950/20">
+                    {ex.context && (
+                      <p className="mt-0.5 text-[11px] italic text-zinc-500 dark:text-zinc-400">
+                        {ex.context}
+                      </p>
+                    )}
+                    <div className="mt-3 space-y-3">
                       {template.fields.map((f) => {
-                        const v = template.examples[0].content[f.key];
+                        const v = ex.content[f.key];
                         if (!v) return null;
                         return (
                           <div key={f.key}>
-                            <p className="text-[10px] font-semibold text-rose-600 dark:text-rose-300">
+                            <p className="mb-1 text-[11px] font-semibold text-rose-600 dark:text-rose-300">
                               {f.label}
                             </p>
-                            <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-zinc-700 dark:text-zinc-300">
+                            <p className="whitespace-pre-wrap text-xs leading-relaxed text-zinc-700 dark:text-zinc-300">
                               {v}
                             </p>
                           </div>
@@ -287,12 +313,12 @@ export function JournalEditor({ template, existingId }: Props) {
                       })}
                     </div>
                   </div>
-                )}
+                ))}
               </div>
-            )}
-          </div>
+            </ModalSection>
+          )}
         </div>
-      </section>
+      </Modal>
 
       {/* タイトル */}
       <section>
@@ -404,5 +430,25 @@ export function JournalEditor({ template, existingId }: Props) {
         </button>
       </section>
     </div>
+  );
+}
+
+function ModalSection({
+  icon,
+  title,
+  children,
+}: {
+  icon: string;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section>
+      <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+        <span>{icon}</span>
+        <span>{title}</span>
+      </h4>
+      <div className="text-sm">{children}</div>
+    </section>
   );
 }

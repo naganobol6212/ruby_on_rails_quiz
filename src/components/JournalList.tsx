@@ -5,16 +5,18 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   type JournalEntry,
+  type Template,
   deleteEntry,
   findTemplate,
   loadEntries,
   templates,
 } from "@/lib/journal";
+import { Modal } from "./Modal";
 
 export function JournalList() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [filter, setFilter] = useState<"all" | string>("all");
-  const [expandedTemplate, setExpandedTemplate] = useState<string | null>(null);
+  const [modalTemplate, setModalTemplate] = useState<Template | null>(null);
 
   useEffect(() => {
     const refresh = () => setEntries(loadEntries());
@@ -37,7 +39,7 @@ export function JournalList() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* ヘッダー */}
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">
@@ -47,161 +49,79 @@ export function JournalList() {
           学習ジャーナル
         </h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-          学びや経験を 6 種類のテンプレートで構造化して記録。
-          <strong className="text-zinc-800 dark:text-zinc-200">毎日 5 分続ける</strong>
-          だけで、説明力・報告力・課題発見力が階段状に伸びます。
+          学びや経験を 6 種類のテンプレートで構造化して記録。毎日 5 分続けるだけで、
+          説明力・報告力・課題発見力が階段状に伸びます。
           記録はあなたのブラウザにのみ保存されます。
         </p>
       </div>
 
-      {/* テンプレート選択 (新規作成) */}
+      {/* テンプレート選択 (カード全体クリック + 詳細はモーダル) */}
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          📝 新しい振り返りを書く
+        <h2 className="mb-4 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+          📝 テンプレートを選んで書き始める
         </h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          {templates.map((t) => {
-            const isExpanded = expandedTemplate === t.id;
-            return (
-              <div
-                key={t.id}
-                className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition dark:border-zinc-800 dark:bg-zinc-900/40"
+          {templates.map((t) => (
+            <Link
+              key={t.id}
+              href={`/journal/new?template=${t.id}`}
+              className="group relative flex flex-col rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/40 dark:hover:border-rose-400/50 dark:hover:bg-zinc-900/60"
+            >
+              {/* 詳細ボタン (絶対配置、カードクリックを止める) */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setModalTemplate(t);
+                }}
+                title="使い方・記入例を見る"
+                aria-label="使い方・記入例を見る"
+                className="absolute right-3 top-3 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full border border-zinc-200 bg-white text-xs text-zinc-500 transition hover:border-rose-400 hover:bg-rose-50 hover:text-rose-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-rose-400/50 dark:hover:bg-rose-950/30 dark:hover:text-rose-300"
               >
-                <div className="flex flex-col p-4">
-                  <div className="mb-2 flex items-center gap-2">
-                    <span className="text-2xl">{t.emoji}</span>
-                    <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
-                      {t.name}
-                    </h3>
-                  </div>
-                  <p className="text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
-                    {t.description}
-                  </p>
+                ?
+              </button>
 
-                  {/* 鍛えられるスキル */}
-                  <div className="mt-3 flex flex-wrap gap-1">
-                    {t.skills.slice(0, 3).map((s, i) => (
-                      <span
-                        key={i}
-                        className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                      >
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-3 flex items-center gap-2">
-                    <Link
-                      href={`/journal/new?template=${t.id}`}
-                      className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-rose-500 to-fuchsia-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:from-rose-400 hover:to-fuchsia-400"
-                    >
-                      <span>書き始める</span>
-                      <span>→</span>
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setExpandedTemplate(isExpanded ? null : t.id)
-                      }
-                      className="text-[11px] text-zinc-500 hover:text-rose-600 hover:underline dark:text-zinc-400 dark:hover:text-rose-300"
-                    >
-                      {isExpanded ? "▲ 閉じる" : "▼ 使い方・例を見る"}
-                    </button>
-                  </div>
-                </div>
-
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.18 }}
-                      className="overflow-hidden border-t border-zinc-200 bg-zinc-50/60 dark:border-zinc-800 dark:bg-zinc-900/30"
-                    >
-                      <div className="space-y-4 p-4 text-xs">
-                        <Section title="この型式で何が鍛えられる？" icon="🧠">
-                          <p className="leading-relaxed text-zinc-700 dark:text-zinc-300">
-                            {t.rationale}
-                          </p>
-                        </Section>
-                        <Section title="どんな場面で使う？" icon="🎯">
-                          <p className="leading-relaxed text-zinc-700 dark:text-zinc-300">
-                            {t.useCase}
-                          </p>
-                        </Section>
-                        <Section title="鍛えられるスキル" icon="💪">
-                          <ul className="ml-4 list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
-                            {t.skills.map((s, i) => (
-                              <li key={i}>{s}</li>
-                            ))}
-                          </ul>
-                        </Section>
-                        <Section title="うまく書くコツ" icon="💡">
-                          <ul className="ml-4 list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
-                            {t.tips.map((tip, i) => (
-                              <li key={i}>{tip}</li>
-                            ))}
-                          </ul>
-                        </Section>
-                        {t.examples.length > 0 && (
-                          <Section title="記入例" icon="📖">
-                            <div className="space-y-3">
-                              {t.examples.map((ex, i) => (
-                                <div
-                                  key={i}
-                                  className="rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800/50"
-                                >
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200">
-                                    {ex.title}
-                                  </p>
-                                  {ex.context && (
-                                    <p className="mt-0.5 text-[10px] italic text-zinc-500 dark:text-zinc-400">
-                                      {ex.context}
-                                    </p>
-                                  )}
-                                  <div className="mt-2 space-y-1.5">
-                                    {t.fields.map((f) => {
-                                      const v = ex.content[f.key];
-                                      if (!v) return null;
-                                      return (
-                                        <div key={f.key}>
-                                          <p className="text-[10px] font-semibold text-rose-600 dark:text-rose-300">
-                                            {f.label}
-                                          </p>
-                                          <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-zinc-700 dark:text-zinc-300">
-                                            {v}
-                                          </p>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </Section>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+              <div className="mb-2 flex items-center gap-2">
+                <span className="text-2xl">{t.emoji}</span>
+                <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  {t.name}
+                </h3>
               </div>
-            );
-          })}
+              <p className="line-clamp-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+                {t.description}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-1">
+                {t.skills.slice(0, 3).map((s, i) => (
+                  <span
+                    key={i}
+                    className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-4 flex items-center text-[11px] font-medium text-zinc-500 transition-colors group-hover:text-rose-600 dark:text-zinc-400 dark:group-hover:text-rose-300">
+                <span>クリックして書き始める</span>
+                <span className="ml-1 transition-transform group-hover:translate-x-0.5">
+                  →
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
       {/* 履歴 */}
       <section>
-        <div className="mb-3 flex items-end justify-between">
+        <div className="mb-4 flex items-end justify-between">
           <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
             📚 過去の記録 ({entries.length})
           </h2>
         </div>
 
-        {/* テンプレートフィルタ */}
         {entries.length > 0 && (
-          <div className="mb-3 flex flex-wrap gap-2">
+          <div className="mb-4 flex flex-wrap gap-2">
             <FilterChip
               active={filter === "all"}
               onClick={() => setFilter("all")}
@@ -225,58 +145,29 @@ export function JournalList() {
         )}
 
         {filtered.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-zinc-300 bg-white/40 p-8 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/30 dark:text-zinc-400">
-            {entries.length === 0
-              ? "まだ記録がありません。上のテンプレートから書き始めましょう。"
-              : "このフィルタに該当する記録はありません。"}
+          <div className="rounded-xl border border-dashed border-zinc-300 bg-white/40 p-10 text-center dark:border-zinc-700 dark:bg-zinc-900/30">
+            <p className="text-2xl">📝</p>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+              {entries.length === 0
+                ? "まだ記録がありません"
+                : "このフィルタに該当する記録はありません"}
+            </p>
+            {entries.length === 0 && (
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                上のテンプレートをクリックして書き始めましょう
+              </p>
+            )}
           </div>
         ) : (
           <ul className="space-y-2">
             <AnimatePresence>
-              {filtered.map((entry) => {
-                const tpl = findTemplate(entry.templateId);
-                return (
-                  <motion.li
-                    key={entry.id}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
-                    <Link
-                      href={`/journal/${entry.id}`}
-                      className="group flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 transition hover:border-rose-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900/40 dark:hover:border-rose-400/40"
-                    >
-                      <span className="text-lg">{tpl?.emoji ?? "📝"}</span>
-                      <div className="min-w-0 flex-1">
-                        <p className="line-clamp-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                          {entry.title}
-                        </p>
-                        <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                          {tpl?.name ?? "不明"} ·{" "}
-                          {new Date(entry.createdAt).toLocaleString("ja-JP", {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleDelete(entry.id);
-                        }}
-                        title="削除"
-                        className="rounded p-1.5 text-zinc-400 transition hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-500/20 dark:hover:text-rose-300"
-                      >
-                        🗑
-                      </button>
-                    </Link>
-                  </motion.li>
-                );
-              })}
+              {filtered.map((entry) => (
+                <JournalEntryRow
+                  key={entry.id}
+                  entry={entry}
+                  onDelete={handleDelete}
+                />
+              ))}
             </AnimatePresence>
           </ul>
         )}
@@ -289,7 +180,8 @@ export function JournalList() {
         </h3>
         <ul className="ml-4 list-disc space-y-1.5 text-xs leading-relaxed text-sky-900/90 dark:text-sky-100/90">
           <li>
-            <strong>毎日同じ時間に書く</strong> (1 日 5 分でOK)。継続が型を体に染み込ませる
+            <strong>毎日同じ時間に書く</strong>{" "}
+            (1 日 5 分でOK)。継続が型を体に染み込ませる
           </li>
           <li>
             <strong>結論ファースト</strong>。最初に「〜である」と言い切ってから理由を書く
@@ -299,7 +191,8 @@ export function JournalList() {
             「〜と思う」「〜だった」を意識して使い分け
           </li>
           <li>
-            <strong>数字を 1 個以上入れる</strong> (時間・件数・% など)。曖昧さが消える
+            <strong>数字を 1 個以上入れる</strong>{" "}
+            (時間・件数・% など)。曖昧さが消える
           </li>
           <li>
             <strong>1 週間に 1 度、過去の記録を見返す</strong>。
@@ -307,7 +200,102 @@ export function JournalList() {
           </li>
         </ul>
       </section>
+
+      {/* テンプレート詳細モーダル */}
+      <Modal
+        open={modalTemplate !== null}
+        onClose={() => setModalTemplate(null)}
+        title={modalTemplate ? `${modalTemplate.emoji}  ${modalTemplate.name}` : ""}
+        size="xl"
+      >
+        {modalTemplate && <TemplateDetail template={modalTemplate} />}
+      </Modal>
     </div>
+  );
+}
+
+function JournalEntryRow({
+  entry,
+  onDelete,
+}: {
+  entry: JournalEntry;
+  onDelete: (id: string) => void;
+}) {
+  const tpl = findTemplate(entry.templateId);
+
+  // プレビュー: 主要フィールドの先頭
+  const preview = (() => {
+    if (!tpl) return "";
+    for (const f of tpl.fields) {
+      const v = entry.content[f.key]?.trim();
+      if (v) return v.slice(0, 80);
+    }
+    return "";
+  })();
+
+  const charCount = Object.values(entry.content)
+    .reduce((sum, v) => sum + (v ?? "").length, 0);
+
+  return (
+    <motion.li
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+    >
+      <Link
+        href={`/journal/${entry.id}`}
+        className="group block rounded-xl border border-zinc-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/40 dark:hover:border-rose-400/40 dark:hover:bg-zinc-900/60"
+      >
+        <div className="flex items-start gap-3">
+          <span className="text-xl">{tpl?.emoji ?? "📝"}</span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <p className="line-clamp-1 flex-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                {entry.title}
+              </p>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onDelete(entry.id);
+                }}
+                title="削除"
+                className="shrink-0 rounded p-1 text-zinc-400 opacity-0 transition hover:bg-rose-100 hover:text-rose-600 group-hover:opacity-100 dark:hover:bg-rose-950 dark:hover:text-rose-300"
+              >
+                🗑
+              </button>
+            </div>
+            {preview && (
+              <p className="mt-1 line-clamp-1 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+                {preview}
+              </p>
+            )}
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-zinc-500 dark:text-zinc-400">
+              <span className="font-medium">{tpl?.name ?? "不明"}</span>
+              <span>·</span>
+              <time className="tabular-nums">
+                {new Date(entry.createdAt).toLocaleString("ja-JP", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </time>
+              <span>·</span>
+              <span className="tabular-nums">{charCount} 字</span>
+              {entry.updatedAt !== entry.createdAt && (
+                <>
+                  <span>·</span>
+                  <span className="italic">編集済</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </Link>
+    </motion.li>
   );
 }
 
@@ -346,22 +334,110 @@ function FilterChip({
   );
 }
 
-function Section({
-  title,
+// テンプレートの詳細 (モーダル本体)
+function TemplateDetail({ template }: { template: Template }) {
+  return (
+    <div className="space-y-5">
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        {template.description}
+      </p>
+
+      <ModalSection icon="🧠" title="この型式で何が鍛えられる？">
+        <p className="leading-relaxed text-zinc-700 dark:text-zinc-300">
+          {template.rationale}
+        </p>
+      </ModalSection>
+
+      <ModalSection icon="🎯" title="どんな場面で使う？">
+        <p className="leading-relaxed text-zinc-700 dark:text-zinc-300">
+          {template.useCase}
+        </p>
+      </ModalSection>
+
+      <ModalSection icon="💪" title="鍛えられるスキル">
+        <ul className="ml-4 list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
+          {template.skills.map((s, i) => (
+            <li key={i}>{s}</li>
+          ))}
+        </ul>
+      </ModalSection>
+
+      <ModalSection icon="💡" title="うまく書くコツ">
+        <ul className="ml-4 list-disc space-y-1 text-zinc-700 dark:text-zinc-300">
+          {template.tips.map((tip, i) => (
+            <li key={i}>{tip}</li>
+          ))}
+        </ul>
+      </ModalSection>
+
+      {template.examples.length > 0 && (
+        <ModalSection icon="📖" title="記入例">
+          <div className="space-y-4">
+            {template.examples.map((ex, i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-800/40"
+              >
+                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  {ex.title}
+                </p>
+                {ex.context && (
+                  <p className="mt-0.5 text-[11px] italic text-zinc-500 dark:text-zinc-400">
+                    {ex.context}
+                  </p>
+                )}
+                <div className="mt-3 space-y-3">
+                  {template.fields.map((f) => {
+                    const v = ex.content[f.key];
+                    if (!v) return null;
+                    return (
+                      <div key={f.key}>
+                        <p className="mb-1 text-[11px] font-semibold text-rose-600 dark:text-rose-300">
+                          {f.label}
+                        </p>
+                        <p className="whitespace-pre-wrap text-xs leading-relaxed text-zinc-700 dark:text-zinc-300">
+                          {v}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </ModalSection>
+      )}
+
+      <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
+        <Link
+          href={`/journal/new?template=${template.id}`}
+          className="inline-flex items-center gap-2 rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-600"
+        >
+          <span>{template.emoji}</span>
+          <span>このテンプレートで書き始める</span>
+          <span>→</span>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function ModalSection({
   icon,
+  title,
   children,
 }: {
-  title: string;
   icon: string;
+  title: string;
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <h4 className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+    <section>
+      <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
         <span>{icon}</span>
         <span>{title}</span>
       </h4>
-      {children}
-    </div>
+      <div className="text-sm">{children}</div>
+    </section>
   );
 }

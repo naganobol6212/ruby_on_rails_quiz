@@ -12,17 +12,12 @@ export default function Home() {
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-500 dark:bg-rose-400" />
           <span>{questions.length} 問の Ruby/Rails 知識を凝縮</span>
         </div>
-        <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-          <span className="bg-gradient-to-br from-rose-500 via-fuchsia-500 to-violet-500 bg-clip-text text-transparent dark:from-rose-300 dark:via-fuchsia-300 dark:to-violet-300">
-            Ruby Dojo
-          </span>
+        <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-6xl">
+          Ruby<span className="text-rose-600 dark:text-rose-400">Dojo</span>
         </h1>
-        <p className="mt-3 text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-3xl">
+        <p className="mt-3 text-xl font-semibold tracking-tight text-zinc-700 dark:text-zinc-200 sm:text-2xl">
           Ruby on Rails を、
-          <span className="shimmer-text-light dark:hidden">クイズで極める</span>
-          <span className="hidden shimmer-text-dark dark:inline">
-            クイズで極める
-          </span>
+          <span className="text-rose-600 dark:text-rose-400">クイズで極める</span>
         </p>
         <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-base">
           文法から ActiveRecord、コードリーディング、メタプログラミング、

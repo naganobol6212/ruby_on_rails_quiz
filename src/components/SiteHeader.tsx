@@ -10,7 +10,6 @@ type NavLink = { href: string; label: string; icon: string };
 
 const links: NavLink[] = [
   { href: "/", label: "ホーム", icon: "🏠" },
-  { href: "/#categories", label: "カテゴリ", icon: "📚" },
   { href: "/journal", label: "ジャーナル", icon: "📝" },
 ];
 
@@ -53,13 +52,13 @@ export function SiteHeader() {
         {/* ロゴ */}
         <Link
           href="/"
-          className="group inline-flex items-center gap-2 font-bold tracking-tight"
+          className="group inline-flex items-center gap-2.5 font-bold tracking-tight"
         >
-          <span className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 via-fuchsia-500 to-violet-500 text-sm shadow-lg shadow-rose-500/30 transition-transform group-hover:scale-105 dark:shadow-rose-500/20">
-            <span className="text-white">💎</span>
+          <span className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-rose-200/80 bg-gradient-to-br from-rose-50 to-white text-sm transition-transform group-hover:scale-105 dark:border-rose-500/30 dark:from-rose-950/70 dark:to-zinc-900">
+            <span>💎</span>
           </span>
-          <span className="bg-gradient-to-br from-rose-500 via-fuchsia-500 to-violet-500 bg-clip-text text-base text-transparent dark:from-rose-300 dark:via-fuchsia-300 dark:to-violet-300">
-            RubyDojo
+          <span className="text-base text-zinc-900 dark:text-zinc-100">
+            Ruby<span className="text-rose-600 dark:text-rose-400">Dojo</span>
           </span>
         </Link>
 
