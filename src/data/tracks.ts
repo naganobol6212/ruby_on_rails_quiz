@@ -1,0 +1,77 @@
+import type { Track } from "@/lib/types";
+
+export const tracks: Track[] = [
+  {
+    id: "ruby",
+    name: "Ruby on Rails",
+    short: "Ruby/Rails",
+    emoji: "💎",
+    description:
+      "Ruby 言語の基礎から ActiveRecord、メタプログラミング、実践課題まで",
+    accentClass: "from-rose-500/20 to-red-500/5",
+    ringClass: "hover:ring-rose-500/40",
+    status: "available",
+  },
+  {
+    id: "javascript",
+    name: "JavaScript",
+    short: "JS",
+    emoji: "🟨",
+    description: "ES2015+ 構文・関数・非同期・モダン JavaScript",
+    accentClass: "from-yellow-500/20 to-amber-500/5",
+    ringClass: "hover:ring-yellow-500/40",
+    status: "available",
+  },
+  {
+    id: "typescript",
+    name: "TypeScript",
+    short: "TS",
+    emoji: "🔷",
+    description: "型システム・ジェネリクス・実用パターン",
+    accentClass: "from-sky-500/20 to-blue-500/5",
+    ringClass: "hover:ring-sky-500/40",
+    status: "available",
+  },
+  {
+    id: "react",
+    name: "React",
+    short: "React",
+    emoji: "⚛️",
+    description: "JSX, Hooks, 状態管理, パフォーマンス最適化",
+    accentClass: "from-cyan-500/20 to-blue-500/5",
+    ringClass: "hover:ring-cyan-500/40",
+    status: "available",
+  },
+  {
+    id: "nextjs",
+    name: "Next.js",
+    short: "Next",
+    emoji: "▲",
+    description: "App Router, Server Components, ルーティング, データ取得",
+    accentClass: "from-zinc-500/20 to-slate-500/5",
+    ringClass: "hover:ring-zinc-500/40",
+    status: "available",
+  },
+  {
+    id: "nuxt",
+    name: "Nuxt",
+    short: "Nuxt",
+    emoji: "💚",
+    description: "Vue ベースの Nuxt 3 / Composition API / 自動ルーティング",
+    accentClass: "from-emerald-500/20 to-green-500/5",
+    ringClass: "hover:ring-emerald-500/40",
+    status: "coming-soon",
+  },
+  {
+    id: "python",
+    name: "Python",
+    short: "Python",
+    emoji: "🐍",
+    description: "基礎構文、コレクション、内包表記、デコレータ",
+    accentClass: "from-blue-500/20 to-indigo-500/5",
+    ringClass: "hover:ring-blue-500/40",
+    status: "coming-soon",
+  },
+];
+
+export const findTrack = (id: string) => tracks.find((t) => t.id === id);

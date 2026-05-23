@@ -1,8 +1,12 @@
 import type { Category } from "@/lib/types";
 
 export const categories: Category[] = [
+  // ===========================================================================
+  // Track: Ruby / Rails
+  // ===========================================================================
   {
     id: "ruby-basics",
+    trackId: "ruby",
     name: "Ruby 基礎",
     description: "変数・型・nil・真偽値・メソッド定義・標準入出力",
     emoji: "💎",
@@ -11,6 +15,7 @@ export const categories: Category[] = [
   },
   {
     id: "collections",
+    trackId: "ruby",
     name: "コレクション",
     description: "Array, Hash, Enumerable, Range, ブロック処理",
     emoji: "📦",
@@ -19,6 +24,7 @@ export const categories: Category[] = [
   },
   {
     id: "ruby-oop",
+    trackId: "ruby",
     name: "クラスとモジュール",
     description: "クラス定義、継承、Module/Mixin、attr_accessor",
     emoji: "🧱",
@@ -27,6 +33,7 @@ export const categories: Category[] = [
   },
   {
     id: "ruby-advanced",
+    trackId: "ruby",
     name: "Ruby 上級",
     description: "ブロック・Proc・Lambda・例外処理・メタプログラミング",
     emoji: "⚡",
@@ -35,6 +42,7 @@ export const categories: Category[] = [
   },
   {
     id: "code-reading",
+    trackId: "ruby",
     name: "コードリーディング",
     description: "複数行のコードを読んで出力・挙動を予測する読解問題",
     emoji: "🔎",
@@ -43,6 +51,7 @@ export const categories: Category[] = [
   },
   {
     id: "rails-convention",
+    trackId: "ruby",
     name: "Rails 規約",
     description: "命名規則・MVC・CoC・ディレクトリ構成",
     emoji: "🛤️",
@@ -51,6 +60,7 @@ export const categories: Category[] = [
   },
   {
     id: "routing-controller",
+    trackId: "ruby",
     name: "ルーティング & コントローラ",
     description: "routes.rb, RESTful, before_action, params, Strong Parameters",
     emoji: "🔀",
@@ -59,6 +69,7 @@ export const categories: Category[] = [
   },
   {
     id: "active-record",
+    trackId: "ruby",
     name: "ActiveRecord",
     description: "モデル、関連、スコープ、クエリ、マイグレーション",
     emoji: "🗄️",
@@ -67,6 +78,7 @@ export const categories: Category[] = [
   },
   {
     id: "rspec",
+    trackId: "ruby",
     name: "RSpec テスト",
     description: "describe/it/expect, matcher, factory_bot, モック/スタブ",
     emoji: "🧪",
@@ -75,6 +87,7 @@ export const categories: Category[] = [
   },
   {
     id: "logs",
+    trackId: "ruby",
     name: "ログ調査・運用",
     description: "Rails ログ、エラー追跡、tail/grep/journalctl、デバッグの型",
     emoji: "📜",
@@ -83,6 +96,7 @@ export const categories: Category[] = [
   },
   {
     id: "git-github",
+    trackId: "ruby",
     name: "Git & GitHub",
     description: "branch 戦略、PR、rebase/merge、conflict 解決、gh CLI",
     emoji: "🔧",
@@ -91,6 +105,7 @@ export const categories: Category[] = [
   },
   {
     id: "security",
+    trackId: "ruby",
     name: "セキュリティ (OWASP)",
     description: "CSRF/XSS/SQLi, Strong Params, secret 管理, セッション",
     emoji: "🛡️",
@@ -99,6 +114,7 @@ export const categories: Category[] = [
   },
   {
     id: "debugging",
+    trackId: "ruby",
     name: "デバッグ & パフォーマンス",
     description: "binding.pry, EXPLAIN, slow query, profiling, APM",
     emoji: "🔬",
@@ -107,6 +123,7 @@ export const categories: Category[] = [
   },
   {
     id: "linux-cli",
+    trackId: "ruby",
     name: "Linux & CLI",
     description: "find/grep/sed/awk, パイプ, ssh, パーミッション, プロセス",
     emoji: "🐧",
@@ -115,13 +132,87 @@ export const categories: Category[] = [
   },
   {
     id: "practical",
+    trackId: "ruby",
     name: "実践課題",
     description: "実務想定タスク。要件→自分で実装→サンプル解答で答え合わせ",
     emoji: "🛠️",
     accentClass: "from-orange-500/20 to-amber-500/5",
     ringClass: "hover:ring-orange-500/40",
   },
+
+  // ===========================================================================
+  // Track: JavaScript
+  // ===========================================================================
+  {
+    id: "js-basics",
+    trackId: "javascript",
+    name: "JS 基礎",
+    description: "変数・型・スコープ・演算子・制御構文・モダン ES",
+    emoji: "🟨",
+    accentClass: "from-yellow-500/20 to-amber-500/5",
+    ringClass: "hover:ring-yellow-500/40",
+  },
+  {
+    id: "js-functions",
+    trackId: "javascript",
+    name: "JS 関数",
+    description: "クロージャ・アロー・this・bind/call/apply・高階関数",
+    emoji: "𝑓",
+    accentClass: "from-amber-500/20 to-yellow-500/5",
+    ringClass: "hover:ring-amber-500/40",
+  },
+  {
+    id: "js-async",
+    trackId: "javascript",
+    name: "JS 非同期",
+    description: "Promise / async-await / fetch / Event Loop / try-catch",
+    emoji: "⏳",
+    accentClass: "from-orange-500/20 to-yellow-500/5",
+    ringClass: "hover:ring-orange-500/40",
+  },
+
+  // ===========================================================================
+  // Track: TypeScript
+  // ===========================================================================
+  {
+    id: "ts-basics",
+    trackId: "typescript",
+    name: "TS 基礎",
+    description: "型注釈・interface vs type・union・narrowing・generics",
+    emoji: "🔷",
+    accentClass: "from-sky-500/20 to-blue-500/5",
+    ringClass: "hover:ring-sky-500/40",
+  },
+
+  // ===========================================================================
+  // Track: React
+  // ===========================================================================
+  {
+    id: "react-fundamentals",
+    trackId: "react",
+    name: "React 基礎",
+    description: "JSX, props, state, hooks (useState/useEffect/useMemo)",
+    emoji: "⚛️",
+    accentClass: "from-cyan-500/20 to-blue-500/5",
+    ringClass: "hover:ring-cyan-500/40",
+  },
+
+  // ===========================================================================
+  // Track: Next.js
+  // ===========================================================================
+  {
+    id: "nextjs-basics",
+    trackId: "nextjs",
+    name: "Next.js 基礎",
+    description: "App Router, Server Components, ルーティング, データ取得",
+    emoji: "▲",
+    accentClass: "from-zinc-500/20 to-slate-500/5",
+    ringClass: "hover:ring-zinc-500/40",
+  },
 ];
 
 export const findCategory = (id: string) =>
   categories.find((c) => c.id === id);
+
+export const categoriesByTrack = (trackId: string) =>
+  categories.filter((c) => c.trackId === trackId);
