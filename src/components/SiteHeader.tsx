@@ -58,7 +58,7 @@ export function SiteHeader() {
             <span>💎</span>
           </span>
           <span className="text-base text-zinc-900 dark:text-zinc-100">
-            Ruby<span className="text-rose-600 dark:text-rose-400">Dojo</span>
+            Code<span className="text-rose-600 dark:text-rose-400">Dojo</span>
           </span>
         </Link>
 

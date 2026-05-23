@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RubyDojo — Ruby on Rails をクイズで極める",
+  title: "CodeDojo — 複数の言語/FW をクイズで横断学習",
   description:
-    "初学者から上級者まで。Ruby と Rails の本質をクイズで学べる学習プラットフォーム。",
+    "Ruby/Rails・JavaScript・TypeScript・React・Next.js などをクイズで学べる学習プラットフォーム。構造化ジャーナル機能付き。",
 };
 
 const themeInitScript = `(function(){try{var t=localStorage.getItem('rrq_theme');var root=document.documentElement;if(t==='dark'){root.classList.add('dark');root.style.colorScheme='dark';}else{root.style.colorScheme='light';}}catch(e){}})();`;

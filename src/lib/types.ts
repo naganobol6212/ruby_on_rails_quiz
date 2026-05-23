@@ -1,6 +1,33 @@
 export type Difficulty = "beginner" | "intermediate" | "advanced";
 
+// ===========================================================================
+// Track (上位: 言語/フレームワーク軸)
+// ===========================================================================
+export type TrackId =
+  | "ruby"
+  | "javascript"
+  | "typescript"
+  | "react"
+  | "nextjs"
+  | "nuxt"
+  | "python";
+
+export type Track = {
+  id: TrackId;
+  name: string;
+  short: string;
+  emoji: string;
+  description: string;
+  accentClass: string;
+  ringClass: string;
+  status: "available" | "coming-soon";
+};
+
+// ===========================================================================
+// Category
+// ===========================================================================
 export type CategoryId =
+  // Ruby/Rails (既存)
   | "ruby-basics"
   | "collections"
   | "ruby-oop"
@@ -15,10 +42,22 @@ export type CategoryId =
   | "security"
   | "debugging"
   | "linux-cli"
-  | "practical";
+  | "practical"
+  // JavaScript / TypeScript
+  | "js-basics"
+  | "js-functions"
+  | "js-async"
+  | "ts-basics"
+  // React / Next.js / Nuxt
+  | "react-fundamentals"
+  | "nextjs-basics"
+  | "nuxt-basics"
+  // Python
+  | "python-basics";
 
 export type Category = {
   id: CategoryId;
+  trackId: TrackId;
   name: string;
   description: string;
   emoji: string;
@@ -26,6 +65,9 @@ export type Category = {
   ringClass: string;
 };
 
+// ===========================================================================
+// Question
+// ===========================================================================
 export type Explanation = {
   summary: string;
   reason: string;
@@ -64,6 +106,9 @@ export type PracticalQuestion = BaseQuestion & {
 
 export type Question = ChoiceQuestion | TextQuestion | PracticalQuestion;
 
+// ===========================================================================
+// Progress
+// ===========================================================================
 export type ReviewMark = "mastered" | "review" | null;
 
 export type QuestionAttempt = {
