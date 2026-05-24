@@ -17,6 +17,19 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-26-b",
+    date: "2026-05-26",
+    title: "🛠️ CRUD 実践課題を 3 つ追加 (認証 / アップロード / API)",
+    badge: "feat",
+    highlights: [
+      "🔐 認証付きブログ — Devise + Pundit で『所有者だけ編集可能』と認可の境界を体験 (6 steps / 120 分)",
+      "🖼️ フォトギャラリー — Active Storage で画像アップロード、variant、複数添付、本番 S3 (6 steps / 100 分)",
+      "🔌 JSON API + RSpec — API モード + Bearer 認証 + Request Spec で全シナリオカバー (6 steps / 120 分)",
+      "既存の Rails ToDo CRUD と合わせて 計 4 課題、推奨順は学習ロードマップで案内",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-26-a",
     date: "2026-05-26",
     title: "🗺️ 学習ロードマップ + 🔍 横断検索 (Cmd+K)",
