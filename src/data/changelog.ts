@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-24-u",
+    date: "2026-05-24",
+    title: "Ruby OOP カテゴリの解説拡充スタート (oop-001〜005)",
+    badge: "content",
+    highlights: [
+      "oop-001 (attr_accessor) / oop-002 (initialize) / oop-003 (継承構文 `<`) / oop-004 (super の 3 パターン) / oop-005 (Module の用途)",
+      "Ruby のオブジェクト指向の基礎と他言語との対比を整理",
+      "進捗: 83/149 問 (56%)",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-24-t",
     date: "2026-05-24",
     title: "🎉 Routing/Controller カテゴリ完走 — rt-011〜012 (Phase 3)",

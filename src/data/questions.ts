@@ -1400,6 +1400,12 @@ export const questions: Question[] = [
       "property :name",
     ],
     answerIndex: 2,
+    choiceExplanations: [
+      "`attr_reader` は getter (取得用) のみ生成。`user.name` は読めるが `user.name = ...` の代入はできない。",
+      "`attr_writer` は setter (代入用) のみ生成。`user.name = ...` は書けるが `user.name` で読めない。",
+      "正解。`attr_accessor` は getter + setter の両方を一括生成する。読み書き両方したいときの定番。",
+      "`property` は Ruby には存在しない。Java や C# の感覚で書くとハマる。",
+    ],
     hints: [
       "reader = 取得のみ、writer = 設定のみ。",
       "両方欲しい時に使うのは accessor。",
@@ -1410,10 +1416,28 @@ export const questions: Question[] = [
         "`attr_accessor` は getter + setter を一括で定義する糖衣構文。",
       reason:
         "Ruby ではインスタンス変数 `@name` は外部から直接読めません。`attr_*` は getter/setter メソッドを自動生成するマクロです。",
+      beginnerExplanation:
+        "Ruby のインスタンス変数 `@name` は **外部から直接アクセスできません**。必ずメソッド経由でないと読み書きできない仕様です (カプセル化を強制)。\n\n**素朴に書くと**:\n```ruby\nclass User\n  def name; @name; end          # getter\n  def name=(v); @name = v; end  # setter\nend\n```\n\n**`attr_*` で簡潔に**:\n```ruby\nclass User\n  attr_accessor :name           # getter + setter\n  attr_reader   :id             # getter のみ\n  attr_writer   :password       # setter のみ\nend\n```\n\n**3 つの違い**:\n- `attr_reader` → 読み込み専用 (`obj.name` で取得)\n- `attr_writer` → 書き込み専用 (`obj.name = 'x'` で代入)\n- `attr_accessor` → 両方\n\n**使い分け**: 不要に `attr_accessor` を使うとカプセル化が崩れる。**外から変更してほしくない属性は `attr_reader` だけ** にして、変更は専用メソッド (例: `update_password(new)`) を通す方が安全。\n\n**例**:\n```ruby\nclass BankAccount\n  attr_reader :balance          # 残高は読めるだけ\n  def deposit(amount); @balance += amount; end\nend\n# 外から account.balance = 999999 はできない (代入メソッドがない)\n```",
+      modelSelfExplanation: {
+        conclusion:
+          "正解は `attr_accessor :name`。Ruby のインスタンス変数は外部直接アクセス不可なので、getter / setter メソッドを生成するクラスマクロ (`attr_*` 系) を使う。両方欲しいときは `attr_accessor`、読み込み専用なら `attr_reader`、書き込み専用なら `attr_writer`。",
+        reason:
+          "Ruby はカプセル化を強制する設計で、`@instance_variable` は外部から見えない。クラス利用者と内部実装の境界を明示するため、必ずメソッド経由 (getter / setter) でアクセスする。`attr_accessor` は『getter と setter のペアを生成する』ためのシンタックスシュガーで、定型的なボイラープレートを 1 行で済ませる。Java の private フィールド + public getter/setter と同じ思想だが、Ruby では DSL でさらに簡潔。",
+        example:
+          "DTO 的なクラス (User, Product, etc.) で外部に晒したいプロパティを `attr_accessor :name, :email` で宣言。逆にバリデーション後にしか変更を許したくないなら `attr_reader :password` だけにして変更メソッド `change_password(old, new)` を作る。Rails の ActiveRecord は内部で attribute メソッドを自動生成するため attr_* を書かないが、これは Rails 独自の仕組み。",
+        pitfall:
+          "`attr_accessor` を反射的に書くと、本来カプセル化したい内部状態まで外から変更可能になる (例: `bank_account.balance = 999999`)。設計時に『この属性は外から書き換えていいか』を検討して必要最小限の `attr_*` だけ生やすのが堅牢。さらに setter を override したいなら attr_accessor の後に明示的に `def name=(v); ...; end` を定義する。",
+      },
       codeExample:
         'class User\n  attr_accessor :name           # getter + setter\n  attr_reader   :id             # getter のみ\n  attr_writer   :password       # setter のみ\nend\n\n# 自動展開されるイメージ\nclass User\n  def name; @name; end\n  def name=(v); @name = v; end\nend\n\nu = User.new\nu.name = "Alice"\nu.name  #=> "Alice"',
       commonMistakes: [
         "`attr_accessor` を使うと全プロパティが書き換え可能になる。書き換えさせたくないなら `attr_reader` のみにする。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Module#attr_accessor",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Module/i/attr_accessor.html",
+        },
       ],
     },
   },
@@ -1426,6 +1450,12 @@ export const questions: Question[] = [
     code: 'class Animal\n  def initialize(name)\n    @name = name\n  end\n  def greet\n    "Hi, I am #{@name}"\n  end\nend\n\nputs Animal.new("Pochi").greet',
     choices: ["Hi, I am @name", "Hi, I am Pochi", "NoMethodError", "nil"],
     answerIndex: 1,
+    choiceExplanations: [
+      "ダブルクォート文字列の `#{...}` は式展開なので `@name` は変数の値に置換される。リテラルのまま表示されない。",
+      "正解。`new('Pochi')` で initialize に 'Pochi' が渡され `@name = 'Pochi'` に。greet で `#{@name}` が 'Pochi' に置換され `Hi, I am Pochi` が出力される。",
+      "コードは構文的に正しく、Animal クラス・new・initialize・greet メソッドすべて定義済みなので例外は起きない。",
+      "puts は文字列を出力するメソッドで、greet は明示的に値を返している (Ruby は最後の式が戻り値)。nil にはならない。",
+    ],
     hints: [
       "`initialize` はコンストラクタ。`new` で呼ばれる。",
       "`@name` はインスタンス変数。",
@@ -1436,10 +1466,29 @@ export const questions: Question[] = [
         "`initialize` が `new` 時に呼ばれ、`@name` でインスタンス変数を持つ。",
       reason:
         "クラスのインスタンス化は `Animal.new(args)` → 内部で `initialize(args)` が呼ばれます。インスタンス変数 `@xxx` は各オブジェクト毎に独立。クラス変数 `@@xxx` は全インスタンスで共有。",
+      beginnerExplanation:
+        "Ruby の **クラス・インスタンス・コンストラクタ** の基本パターンです。\n\n**流れ**:\n1. `Animal.new('Pochi')` でインスタンス生成\n2. 内部で `initialize('Pochi')` が呼ばれる\n3. `@name = 'Pochi'` で **インスタンス変数** に保存\n4. `greet` メソッドで `#{@name}` が `'Pochi'` に展開\n5. `'Hi, I am Pochi'` を返す\n6. `puts` が出力\n\n**変数のスコープ**:\n- `name` (修飾なし) → ローカル変数 (メソッド内のみ)\n- `@name` → **インスタンス変数** (各オブジェクト毎に独立、メソッド間で共有)\n- `@@name` → クラス変数 (全インスタンスで共有、推奨されない)\n- `$name` → グローバル変数 (使わない方が良い)\n- `Name` (大文字始まり) → 定数\n\n**`initialize` のクセ**:\n- 必ず `new` から呼ばれる (直接呼べない)\n- 戻り値は **常に self** (return しても無視される)\n- private メソッドとして定義される\n\n**キーワード引数も使える**:\n```ruby\nclass User\n  def initialize(name:, age: 0)\n    @name, @age = name, age\n  end\nend\nUser.new(name: 'Alice', age: 20)\n```\n\n**JS のクラスとの違い**:\n- JS: `constructor()`\n- Ruby: `initialize`\n- JS: `this.name`\n- Ruby: `@name`\n- JS: `new User()`\n- Ruby: `User.new`",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は `Hi, I am Pochi`。`Animal.new('Pochi')` が initialize に 'Pochi' を渡してインスタンス変数 `@name = 'Pochi'` を設定し、greet メソッドの文字列補間 `#{@name}` でその値に展開される。",
+        reason:
+          "Ruby のクラスインスタンス化は `new` クラスメソッド経由で、内部で initialize インスタンスメソッドを呼んで初期化処理を行う仕組み。インスタンス変数 `@xxx` はそのオブジェクト固有の状態を保持し、同じクラスの他のメソッドからアクセスできる (各オブジェクトで独立)。ダブルクォート文字列の式展開 `#{...}` は実行時に評価されるため、メソッド呼び出し時の `@name` の値で置き換えられる。",
+        example:
+          "Rails の ActiveRecord も裏では initialize で attribute をセットしている。サービスクラスなら `class PostPublisher; def initialize(post); @post = post; end; def call; ...; end; end`、Form Object なら `Form.new(params).save`、ジョブクラスなら `MyJob.perform_later(user_id)` の引数が perform の引数として渡される。",
+        pitfall:
+          "`initialize` の戻り値は無視される (常に self)。`return false` を書いて『失敗を表現したい』と思っても効果なし。失敗を表現したいなら `valid?` メソッドや例外で。さらにキーワード引数を使うと呼び出し時に名前を明示できて可読性が上がるが、Ruby 3.0+ で位置引数とキーワード引数の混在ルールが厳格化されたので注意。",
+      },
       codeExample:
         'class Animal\n  attr_reader :name\n  def initialize(name)\n    @name = name\n  end\nend\n\na = Animal.new("Pochi")\na.name  #=> "Pochi"\n\n# new に渡した引数が initialize に渡る\nclass User\n  def initialize(name:, age: 0)\n    @name, @age = name, age\n  end\nend\nUser.new(name: "Alice", age: 20)',
       commonMistakes: [
         "`initialize` の戻り値は無視される (常に self が返る)。明示的に return しても無意味。",
+        "クラス変数 `@@var` はサブクラス間で共有されるため意図せぬ書き換えが起きやすい。クラスインスタンス変数 `@var` (クラスレベル) や定数を使う方が安全。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Class 定義",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fdef.html#class",
+        },
       ],
     },
   },
@@ -1457,6 +1506,12 @@ export const questions: Question[] = [
       "class Dog inherits Animal",
     ],
     answerIndex: 1,
+    choiceExplanations: [
+      "`extends` は Java / JavaScript の継承構文。Ruby では使えない。",
+      "正解。Ruby の継承は `class Child < Parent` という不等号 `<` を使う独自構文。",
+      "`:` は C# / TypeScript / Python (型ヒント) で使われる構文。Ruby では使わない。",
+      "`inherits` という Ruby のキーワードは存在しない。英語として自然だが Ruby の文法ではない。",
+    ],
     hints: [
       "JavaScript や Java とは違う構文。",
       "`<` 記号を使います。",
@@ -1466,8 +1521,30 @@ export const questions: Question[] = [
       summary: "Ruby の継承は `class Child < Parent`。",
       reason:
         "Ruby は単一継承 (多重継承は Module/Mixin で実現)。`<` の方向は『部分集合』というイメージ。`Object` が全クラスのルート (BasicObject が真のルート)。",
+      beginnerExplanation:
+        "Ruby の継承は **`class Child < Parent`** という独特の構文で書きます。\n\n```ruby\nclass Animal\n  def greet; 'Hi'; end\nend\n\nclass Dog < Animal\n  def greet\n    super + ' wan!'    # 親のメソッドを呼ぶ\n  end\nend\n\nDog.new.greet         # => 'Hi wan!'\n```\n\n**`<` の意味**: 数学の『部分集合 (Dog は Animal の部分集合)』に近いイメージ。Dog は Animal の特殊化 (Liskov 置換原則の精神)。\n\n**継承階層の確認**:\n```ruby\nDog.ancestors\n# => [Dog, Animal, Object, Kernel, BasicObject]\n```\n上から優先順位順。Object が全クラスのルート、その上に Kernel と BasicObject (本当のルート)。\n\n**Ruby は単一継承**: 1 つのクラスは 1 つの親クラスしか持てない。多重継承相当は **Module / Mixin** で実現する (`include`)。\n\n**他言語との対比**:\n- Ruby: `class Dog < Animal`\n- Java: `class Dog extends Animal`\n- JavaScript: `class Dog extends Animal`\n- Python: `class Dog(Animal):`\n- C#: `class Dog : Animal`\n- C++: `class Dog : public Animal`\n\n**継承を使うべき場面 (is-a)**:\n- `Admin < User` (管理者は ユーザの一種)\n- `BlogPost < Post` (記事の特殊型)\n\n**継承を使うべきでない場面 (has-a)**:\n- 機能の流用だけが目的 → Module で Mixin する\n- 『たまたまメソッドが似てる』だけ → composition over inheritance",
+      modelSelfExplanation: {
+        conclusion:
+          "Ruby の継承構文は `class Dog < Animal`。不等号 `<` を使う独自記法で、これにより Dog が Animal を継承し、Animal のメソッドとインスタンス変数を引き継ぐ。",
+        reason:
+          "Ruby は独自の DSL 的な構文設計を採用しており、継承は『Child は Parent の部分集合』という数学的な発想で `<` を用いる。これは Liskov 置換原則 (LSP) の『子は親の場所で使える』という関係性を構文に反映している。Ruby は単一継承 (多重継承は Module の include で実現) で、すべてのクラスは最終的に Object (より厳密には BasicObject) を継承する単一のクラス階層を形成する。",
+        example:
+          "Rails の `class PostsController < ApplicationController` がまさにこの構文。STI (Single Table Inheritance) で `class FeaturedPost < Post; end` のように DB 1 テーブルで複数のサブクラスを表現することも可能 (type カラムでサブクラスを判別)。例外クラスの自作も `class PaymentFailedError < StandardError; end` で 1 行。",
+        pitfall:
+          "他言語経験者は `extends` / `:` を反射的に書きがち。Ruby のクラス階層は深くしすぎない (3 階層以上は Mixin や Composition を検討)。STI は便利だが共通テーブルにカラムを追加し続けると太りやすく、結局別テーブルに分割するリファクタリングが必要になる。`is-a` ではなく `has-a` の関係 (機能の流用) で継承を使うと、無関係な責務が混ざるアンチパターンになる。",
+      },
       codeExample:
         'class Animal\n  def greet; "Hi"; end\nend\n\nclass Dog < Animal\n  def greet\n    super + " wan!"   # 親のメソッドを呼ぶ\n  end\nend\n\nDog.new.greet      #=> "Hi wan!"\nDog.ancestors      #=> [Dog, Animal, Object, ..., BasicObject]',
+      commonMistakes: [
+        "継承階層を深くしすぎる (3 階層以上)。Mixin や Composition で平坦化する。",
+        "機能流用だけが目的の継承。is-a でないなら Module / Composition を使う。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: クラス継承",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fdef.html#inherit",
+        },
+      ],
     },
   },
   {
@@ -1479,6 +1556,12 @@ export const questions: Question[] = [
       "親クラスの同名メソッドを呼び出す Ruby のキーワードは？",
     choices: ["parent", "super", "this.super", "base"],
     answerIndex: 1,
+    choiceExplanations: [
+      "`parent` は Ruby のキーワードではない。",
+      "正解。`super` は Java / JavaScript と同様、親クラスの同名メソッドを呼ぶ Ruby のキーワード。",
+      "`this.super` は JavaScript のクラス内で `super.method()` のように書く構文。Ruby では `super` 1 語だけで OK。",
+      "`base` は C# / F# などの構文。Ruby では使わない。",
+    ],
     hints: [
       "1単語のキーワード。",
       "メソッド内で `super` と書くだけで親の同名メソッドを呼びます。",
@@ -1488,10 +1571,29 @@ export const questions: Question[] = [
       summary: "`super` は親クラスの同名メソッドを呼ぶ。",
       reason:
         "`super` (引数省略) は現在のメソッドに渡された引数をそのまま渡す。`super()` (空括弧) は明示的に引数なし。`super(a, b)` は指定引数で呼ぶ。",
+      beginnerExplanation:
+        "**`super`** は親クラスの同名メソッドを呼ぶキーワードです。**Ruby 独特の罠** が 3 つあるので順に押さえましょう。\n\n**基本**:\n```ruby\nclass Animal\n  def initialize(name)\n    @name = name\n  end\nend\n\nclass Dog < Animal\n  def initialize(name, breed)\n    super(name)        # 親の initialize に name だけ渡す\n    @breed = breed\n  end\nend\n```\n\n**3 つの super の書き方** — **超重要**:\n```ruby\nclass B < A\n  def m(x)\n    super       # ① 現在のメソッドの引数 (x) をそのまま渡す\n    super(x)    # ② 明示的に x を渡す (①と同じ結果)\n    super()     # ③ 引数なしで呼ぶ (明示的に空)\n  end\nend\n```\n\n- `super` (括弧なし) は **暗黙的に現在の引数を引き継ぐ**\n- `super()` (空括弧) は **明示的に引数なし**\n\nこの違いは混乱の元なので、明示的に `super(x)` か `super()` を書くのが安全。\n\n**例 (落とし穴)**:\n```ruby\nclass A\n  def m; puts 'A'; end\nend\nclass B < A\n  def m(x)\n    super    # x を引き継ごうとして A#m に x を渡す → ArgumentError (A#m は引数なし)\n  end\nend\n```\n\n**`method_missing` との関係**: super を method_missing 経由で呼ぶ場合は `super(*args, **kwargs, &block)` のように明示する必要がある (Ruby 3+ で特に厳格)。\n\n**Object Inheritance + Module の優先順位**:\n```ruby\nmodule M\n  def m; 'M'; end\nend\nclass A; def m; 'A'; end; end\nclass B < A; include M; end\n# B.ancestors => [B, M, A, Object, ...]\nB.new.m  # => 'M' (M が A より優先)\n```\n\n**Tips**:\n- `super` を使うクラスの設計は『親のメソッドを呼びつつ独自処理を追加』という拡張パターン (テンプレートメソッドパターン)\n- 親のロジックを完全に置き換えたいなら super 不要\n- Devise や Pundit などの gem を継承する時に super で親の振る舞いをカスタマイズするのが頻出",
+      modelSelfExplanation: {
+        conclusion:
+          "親クラスの同名メソッドを呼び出すキーワードは `super`。`super` (括弧なし) は現在のメソッドの引数をそのまま親に渡し、`super()` (空括弧) は明示的に引数なし、`super(x)` は指定引数で呼ぶ、と 3 パターンの挙動を持つ。",
+        reason:
+          "オブジェクト指向の継承で『親のメソッドを呼びつつ追加処理を行う』というテンプレートメソッドパターンを実現するために super キーワードが用意されている。Ruby の super の独自仕様として『括弧なしは引数を暗黙的に引き継ぐ』があり、これが Java / Python とは異なるため、他言語経験者がハマりやすい。明示的に super(arg) か super() を書く方が意図が明確で安全。",
+        example:
+          "Rails の `class ApplicationController < ActionController::Base` で `before_action :authenticate_user!` を override する際、`def authenticate_user!; super; record_login_time; end` のように super で親の認証 + 独自処理。Devise の SessionsController を継承して create を super 経由でカスタマイズするのも頻出パターン。STI で `class FeaturedPost < Post` の publish! を super 経由で再利用しつつ追加処理。",
+        pitfall:
+          "`super` (括弧なし) と `super()` (空括弧) を取り違えると、親メソッドの引数仕様が変わったときに突然 ArgumentError が出る。明示的に super(arg) か super() を書く習慣を付ける。さらに Ruby 3.0+ ではキーワード引数の扱いが厳格化されたため、`def foo(**kwargs); super; end` のような委譲は `super(**kwargs)` と明示する必要がある場面が増えた。`method_missing` 内の super も `super(*args, **kwargs, &block)` で完全委譲が定石。",
+      },
       codeExample:
         'class Animal\n  def initialize(name)\n    @name = name\n  end\nend\n\nclass Dog < Animal\n  def initialize(name, breed)\n    super(name)        # name だけ渡す\n    @breed = breed\n  end\nend\n\n# super と super() の違い\nclass A\n  def m(x); puts "A: #{x}"; end\nend\nclass B < A\n  def m(x)\n    super       # x をそのまま渡す ⇒ "A: 1"\n    super()     # 引数なし ⇒ ArgumentError\n  end\nend',
       commonMistakes: [
         "`super` (括弧なし) と `super()` (空括弧) は別物。前者は現在の引数を引き継ぐ。",
+        "Ruby 3.0+ ではキーワード引数の super は `super(**kwargs)` と明示が必要な場面が増えた。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: super",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fcall.html#super",
+        },
       ],
     },
   },
@@ -1509,6 +1611,12 @@ export const questions: Question[] = [
       "new でインスタンス化する",
     ],
     answerIndex: 3,
+    choiceExplanations: [
+      "Module の正規の用途 1: Mixin。`include Module名` で複数クラスにメソッドを混ぜ込む。",
+      "Module の正規の用途 2: 名前空間。`module MyApp; class User; end; end` で `MyApp::User` のような階層化。",
+      "Module の正規の用途 3: 定数群。`Math::PI`, `Float::INFINITY` のように定数の集まりを提供。",
+      "正解。Module は `new` でインスタンス化できない。インスタンス化できるのは Class だけ。これが Module と Class の本質的な違い。",
+    ],
     hints: [
       "Module はクラスとは違ってインスタンス化できません。",
       "Mixin, 名前空間, 定数群はすべて Module の役割。",
@@ -1518,8 +1626,30 @@ export const questions: Question[] = [
       summary: "Module は new できない。Mixin / 名前空間 / 定数群が役割。",
       reason:
         "Module は Class の親クラス (`Class < Module`)。Class は new でインスタンス化できる Module、と考えると整理しやすい。include / prepend / extend で他クラスにメソッドを混ぜ込む (Mixin) のが主用途。",
+      beginnerExplanation:
+        "**Module** は Ruby の **多重継承の代わり** に使う柔軟な仕組みです。Class と似ているが、**インスタンス化できない** のが本質的な違いです。\n\n**Module の 3 つの正規用途**:\n\n**1. Mixin (メソッド共有)**\n```ruby\nmodule Greetable\n  def greet\n    \"Hello, #{name}\"\n  end\nend\n\nclass User\n  include Greetable        # インスタンスメソッドとして取り込み\n  attr_reader :name\n  def initialize(name); @name = name; end\nend\n\nUser.new('Alice').greet    # => 'Hello, Alice'\n```\nMixin により『単一継承を壊さずに機能を組み合わせる』ことができる。Comparable, Enumerable などの標準ライブラリも Mixin。\n\n**2. 名前空間 (Namespace)**\n```ruby\nmodule MyApp\n  class User; end        # MyApp::User として参照\n  class Post; end        # MyApp::Post\nend\n\nMyApp::User.new           # 他の User クラスと衝突しない\n```\nRails の `ActiveRecord::Base`, `ActiveSupport::Concern` などはこのパターン。\n\n**3. 定数の集まり**\n```ruby\nmodule Color\n  RED  = '#f00'\n  BLUE = '#00f'\nend\nColor::RED  # => '#f00'\n```\n標準ライブラリの `Math::PI`, `Float::INFINITY` などもこれ。\n\n**Class と Module の関係**:\n```ruby\nClass.superclass  # => Module\n```\nつまり **Class は Module の特殊化** で、Module に『new でインスタンス化できる機能』を加えたもの。両者の違いは以下:\n\n| | Module | Class |\n|---|---|---|\n| インスタンス化 (`new`) | ✗ | ✓ |\n| 継承 (`< Parent`) | ✗ | ✓ |\n| Mixin (`include`) される | ✓ | ✗ (普通は) |\n| 名前空間 | ✓ | ✓ |\n\n**include vs extend vs prepend**:\n- `include` → インスタンスメソッドとして取り込み\n- `extend` → クラスメソッド (特異メソッド) として取り込み\n- `prepend` → include の逆順 (継承チェーンの上に挿入、メソッドを override 可能)",
+      modelSelfExplanation: {
+        conclusion:
+          "Module は『Mixin (include で他クラスに機能追加)』『名前空間 (`MyApp::User`)』『定数群 (`Math::PI`)』が主用途で、`new` でインスタンス化することはできない。インスタンス化は Class でのみ可能。",
+        reason:
+          "Ruby は単一継承を採用しているため『多重継承』が直接できない代わりに、Module を Mixin することで機能を組み合わせる設計になっている。`Class < Module` の関係 (Class は Module の特殊化) で、Class は Module に『new によるインスタンス化』『継承による特殊化』を加えたもの。Module 自体はインスタンスを持たず、メソッド集合 / 定数集合 / 名前空間の 3 つの役割を担う。include / extend / prepend で他クラスに機能を流し込み、ActiveRecord や Comparable など標準・非標準を問わず広く活用されている。",
+        example:
+          "標準ライブラリの Comparable Module を include すると `<=>` を実装するだけで `<`, `<=`, `==`, `>=`, `>`, `between?` が無料で手に入る。Enumerable は each さえあれば map / select / reduce / find などが全部使えるようになる。Rails の concern (`include ActiveSupport::Concern`) や Devise の認証機能も Module の Mixin で実装されている。名前空間として `Admin::UsersController` のように module 階層を使えば、`UsersController` との名前衝突を避けられる。",
+        pitfall:
+          "Module を Mixin すると『どのメソッドがどこから来たか』が見えにくくなる (`Class.ancestors` で確認できるが、3 つ以上の Module を include すると追跡が大変)。さらに同じメソッド名を持つ Module を 2 つ include すると後勝ち、prepend を使うとさらに優先順位が変わるなど、メソッド解決順序 (MRO) を理解しないとデバッグ困難。Class と Module を取り違えるとそもそも `Foo.new` が NoMethodError になる。",
+      },
       codeExample:
         'module Greetable\n  def greet\n    "Hello, #{name}"\n  end\nend\n\nclass User\n  include Greetable    # インスタンスメソッドとして取り込み\n  attr_reader :name\n  def initialize(name); @name = name; end\nend\n\nUser.new("Alice").greet  #=> "Hello, Alice"\n\n# 名前空間\nmodule MyApp\n  class User; end       # MyApp::User\nend\n\n# 定数の集まり\nmodule Color\n  RED   = "#f00"\n  BLUE  = "#00f"\nend\nColor::RED  #=> "#f00"',
+      commonMistakes: [
+        "Module を `new` しようとして NoMethodError。Class と取り違えない。",
+        "複数 Module の include で『どのメソッドがどこから来たか』追えなくなる。ancestors で確認、Mixin は最小限に。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Module クラス",
+          url: "https://docs.ruby-lang.org/ja/latest/class/Module.html",
+        },
+      ],
     },
   },
   {
