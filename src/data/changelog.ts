@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-24-w",
+    date: "2026-05-24",
+    title: "🎉 Ruby OOP カテゴリ完走 — oop-011〜012 (Phase 3)",
+    badge: "content",
+    highlights: [
+      "oop-011 (self の文脈別意味) / oop-012 (attr_accessor vs Struct の使い分け)",
+      "ruby-oop カテゴリ全 12 問の解説拡充が完了",
+      "進捗: 90/149 問 (60%)",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-24-v",
     date: "2026-05-24",
     title: "Ruby OOP oop-006〜010 の解説拡充 (Phase 2)",

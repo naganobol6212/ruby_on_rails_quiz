@@ -1941,8 +1941,29 @@ export const questions: Question[] = [
         "`self` は文脈で意味が変わる: メソッド内ではインスタンス、クラス本体ではクラス自身、def self.foo ではクラス自身。",
       reason:
         "Ruby の `self` は『今コードを実行している主体』。`puts self` の出力で常に確認できる。クラス本体 (`class Foo; ... end`) の直下では Foo クラス自身を指している。",
+      beginnerExplanation:
+        "**`self`** は『**今このコードを実行している主体**』を指す Ruby の擬似変数です。**文脈によって指すものが変わる** のがミソ。\n\n**3 つの文脈**:\n\n**1. クラス本体の直下 → クラス自身**\n```ruby\nclass User\n  puts self      # User (クラス自身)\nend\n```\n\n**2. インスタンスメソッド内 → 現在のインスタンス**\n```ruby\nclass User\n  def instance_method\n    self         # User のインスタンス (例えば user1)\n  end\nend\n```\n\n**3. クラスメソッド内 → クラス自身**\n```ruby\nclass User\n  def self.class_method\n    self         # User クラス\n  end\nend\n```\n\n**確認の仕方**: `puts self` を埋めて実行してみるのが一番早い。\n\n**`self` を使う場面**:\n- `self.attribute = value` (private setter を明示呼び出し)\n- `self.class.find(...)` (現在のインスタンスのクラスメソッドを呼ぶ)\n- `def self.foo` (クラスメソッド定義)\n- `class << self` (特異クラスを開く)\n\n**省略**: 多くの場面で省略可能 (`name` と書くと暗黙的に `self.name` と解釈される)。だが setter (`name=`) は省略すると単なるローカル変数代入になってしまうので明示が必要:\n```ruby\nclass User\n  attr_accessor :name\n  def update_name(new)\n    name = new        # ❌ ローカル変数 name を作るだけ!\n    self.name = new   # ✅ setter を呼ぶ\n  end\nend\n```\n\n**他言語との対比**:\n- Ruby: `self`\n- JS / Java / C#: `this`\n- Python: `self` (引数として明示)",
+      modelSelfExplanation: {
+        conclusion:
+          "現在のクラス自身 (またはインスタンス) を参照するキーワードは `self`。文脈によって指すものが変わり、クラス本体やクラスメソッド内ではクラス自身、インスタンスメソッド内ではインスタンスを指す。",
+        reason:
+          "Ruby はすべてオブジェクトという設計で、コードを実行する主体 (= レシーバ) を常に明示できるよう `self` を提供する。文脈で意味が変わるのは『今この場所での主体』を一貫して指すためで、`def self.foo` (クラスメソッド) や `class << self` (特異クラス) など Ruby のメタプログラミングの基礎となる。setter の呼び出しでは self を省略すると単なるローカル変数代入になってしまうため、明示が必要な数少ない場面の 1 つ。",
+        example:
+          "Rails のモデルで `def self.find_by_email(email); where(email: email).first; end` でクラスメソッド定義、`def normalize; self.email = email.downcase; end` で setter 明示呼び出し、`class << self; def factory_method; ...; end; end` で複数のクラスメソッドをまとめて宣言、など随所に登場。`self.class.find(id)` で自分のクラスを動的に取得して別インスタンスを探すパターンも頻出。",
+        pitfall:
+          "setter (`name=`) で self を省略すると、name= メソッドが呼ばれずローカル変数 `name` への代入になる。これが Ruby 初学者最大級の罠の 1 つ。一方 getter は省略しても自動で self.name と解釈されるので、setter のときだけ要注意。`class << self` で特異クラスを開いている内側で `self` は『特異クラス』を指すため、メタプログラミングを書くときは self の意味が普段と変わることを意識する。",
+      },
       codeExample:
         'class User\n  puts self     # User\n\n  def instance_method\n    self        # User のインスタンス\n  end\n\n  def self.class_method\n    self        # User クラス\n  end\nend',
+      commonMistakes: [
+        "setter で `self.` を省略すると、メソッド呼び出しではなくローカル変数代入になる。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: self",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fvariables.html#pseudo",
+        },
+      ],
     },
   },
   {
@@ -1959,6 +1980,12 @@ export const questions: Question[] = [
       "attr_accessor は遅いので Struct を使うべき",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。ロジックを多く持つクラスは普通の class + attr_accessor、軽量な値入れ物は Struct / Data.define が使い分けの定石。",
+      "両者は等価ではない。Struct は ==/hash/to_a が自動定義され値オブジェクト寄り、attr_accessor は普通の class のヘルパー。",
+      "Struct は廃止予定ではなく現役。さらに Ruby 3.2 で Data.define が追加され、Struct ファミリーは拡張されている。",
+      "性能差で選ぶものではない。設計上の役割で住み分ける。",
+    ],
     hints: [
       "Struct は ==, hash, inspect, to_a などが自動。",
       "ロジックを書くクラスは attr_accessor で普通に書いた方が見やすい。",
@@ -1969,8 +1996,30 @@ export const questions: Question[] = [
         "ロジック中心 → class + attr_accessor、純粋な値の入れ物 → Struct / Data.define。",
       reason:
         "Struct は値の比較 (==) や hash がデフォルトで実装されるなど『値オブジェクト』として使いやすい設計。一方ビジネスロジックを書きたいクラスは普通に class で書くのが見通しが良い。",
+      beginnerExplanation:
+        "**`attr_accessor` と `Struct` の住み分け** は『**どんなクラスを作りたいか**』で決まります。\n\n**`attr_accessor` (普通のクラス)** 向きの場面:\n- ビジネスロジックを多く持つ (`admin?`, `discount_price`, `publishable?`)\n- 振る舞いが中心 (Service Object, Form Object)\n- 属性の更新に副作用や validation を絡めたい\n\n```ruby\nclass User\n  attr_accessor :name, :email\n  def initialize(name:, email:)\n    @name, @email = name, email\n  end\n  def admin?; email.end_with?('@company.com'); end\n  def normalize_email; self.email = email.strip.downcase; end\nend\n```\n\n**`Struct` (または `Data.define`)** 向きの場面:\n- 単純なデータの入れ物 (DTO, 値オブジェクト)\n- 属性が 2〜5 個程度\n- 値ベースの比較・Hash 化したい\n\n```ruby\nMoney = Struct.new(:amount, :currency)\nMoney.new(100, 'JPY') == Money.new(100, 'JPY')  # => true (値で比較)\n\n# Ruby 3.2+ のイミュータブル版\nPoint = Data.define(:x, :y)\n```\n\n**判断基準**:\n| | attr_accessor + class | Struct |\n|---|---|---|\n| ビジネスロジック多い | ✓ | △ (書けるが冗長) |\n| 値の入れ物だけ | △ (冗長) | ✓ |\n| `==` を値ベースに | 自分で定義 | 自動 |\n| イミュータブル | freeze | `Data.define` で完璧 |\n| 属性追加が多い | ✓ | × (互換性壊れる) |\n\n**実務でよく見るパターン**:\n- **Model (Rails)**: ロジック多い → 普通の class (ActiveRecord)\n- **API レスポンス DTO**: 値だけ → Struct or Data\n- **Service の戻り値**: 結果ステータスとデータの組 → Struct (`Result = Struct.new(:success, :data, :error)`)\n- **設定オブジェクト**: イミュータブル → Data.define\n\n**Tip**: 迷ったら **まず Struct で始めて、ロジックが増えてきたら class に昇格** するリファクタリングが現実的。",
+      modelSelfExplanation: {
+        conclusion:
+          "属性数が多くロジックも持つクラスは `attr_accessor` を使った普通の class、属性が少なく純粋な値の入れ物 (DTO・値オブジェクト) は `Struct` (またはイミュータブル版の `Data.define`) で書き分けるのが定石。",
+        reason:
+          "両者はどちらも『属性付きクラスを作る』機能を持つが、設計思想が違う。普通の class は『ロジックを持つドメインオブジェクト』向けで、validation や副作用付き setter、複数のメソッドを自然に書ける。Struct は『値オブジェクト』向けで、`==` / `hash` / `to_a` / `to_h` などが自動定義されて Hash キーや配列比較で『値が同じなら同じ』として扱える。Ruby 3.2+ の Data.define はイミュータブル版で、関数型スタイルや並行処理での安全性に寄与する。",
+        example:
+          "Rails の User モデル (ActiveRecord) はロジック多めなので普通の class。サービスの戻り値で『成功か失敗かと結果データ』を表す `Result = Struct.new(:success?, :data, :error)` で使い捨ての DTO を作る、座標計算で `Point = Struct.new(:x, :y)`、API クライアントのレスポンス型で `WeatherInfo = Data.define(:temperature, :humidity)` でイミュータブルな値を返す、など。",
+        pitfall:
+          "Struct をロジックの母体として育てすぎると、後で attr_accessor の class に書き直すコストが発生する。逆に attr_accessor の class に値オブジェクト的な責務を持たせると、== や hash を手書きするボイラープレートが増える。役割を最初に明確にする、または『値オブジェクトはイミュータブル』を徹底するなら最初から Data.define を選ぶのが安全。",
+      },
       codeExample:
         '# ロジック付きクラス\nclass User\n  attr_accessor :name, :email\n  def initialize(name:, email:)\n    @name, @email = name, email\n  end\n\n  def admin?; email.end_with?("@company.com"); end\nend\n\n# 値オブジェクト\nMoney = Struct.new(:amount, :currency)\nm1 = Money.new(100, "JPY")\nm2 = Money.new(100, "JPY")\nm1 == m2  #=> true',
+      commonMistakes: [
+        "Struct をロジック多めの class として育てる → 後で普通の class へリファクタが必要。",
+        "Hash で済むデータをすべて Struct 化 → 過剰設計。型として意味があるときだけ Struct。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Struct と Data",
+          url: "https://docs.ruby-lang.org/ja/latest/class/Data.html",
+        },
+      ],
     },
   },
 
