@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { setSelfExplanation, getAttempt } from "@/lib/storage";
 
@@ -63,6 +64,7 @@ function selfCheck(text: string): CheckResult[] {
 export function SelfExplanationBox({ questionId, sampleSummary }: Props) {
   const [text, setText] = useState("");
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [justSaved, setJustSaved] = useState(false);
   const [showSample, setShowSample] = useState(false);
   const [reviewed, setReviewed] = useState(false);
 
@@ -72,12 +74,19 @@ export function SelfExplanationBox({ questionId, sampleSummary }: Props) {
     if (a?.selfExplanation) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setText(a.selfExplanation);
+      if (a.selfExplanationUpdatedAt) {
+        setSavedAt(
+          new Date(a.selfExplanationUpdatedAt).toLocaleString("ja-JP"),
+        );
+      }
     }
   }, [questionId]);
 
   const handleSave = () => {
     setSelfExplanation(questionId, text);
-    setSavedAt(new Date().toLocaleTimeString("ja-JP"));
+    setSavedAt(new Date().toLocaleString("ja-JP"));
+    setJustSaved(true);
+    window.setTimeout(() => setJustSaved(false), 2500);
   };
 
   const checks = selfCheck(text);
@@ -96,9 +105,9 @@ export function SelfExplanationBox({ questionId, sampleSummary }: Props) {
               {okCount} / {checks.length}
             </span>
           </div>
-          {savedAt && (
-            <span className="font-mono text-[10px] text-emerald-600 dark:text-emerald-400">
-              ✓ 保存 {savedAt}
+          {savedAt && !justSaved && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 font-mono text-[10px] font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200">
+              💾 保存済 · {savedAt}
             </span>
           )}
         </div>
@@ -156,10 +165,14 @@ export function SelfExplanationBox({ questionId, sampleSummary }: Props) {
             type="button"
             onClick={handleSave}
             disabled={text.trim().length === 0}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-50 ${
+              justSaved
+                ? "scale-105 bg-emerald-500 shadow-emerald-500/30"
+                : "bg-sky-500 hover:bg-sky-600"
+            }`}
           >
-            <span>💾</span>
-            <span>保存</span>
+            <span>{justSaved ? "✅" : "💾"}</span>
+            <span>{justSaved ? "保存しました!" : "保存"}</span>
           </button>
           <button
             type="button"
@@ -205,6 +218,18 @@ export function SelfExplanationBox({ questionId, sampleSummary }: Props) {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* 一覧への動線 */}
+        <p className="rounded-md bg-zinc-50 px-3 py-2 text-[11px] text-zinc-600 dark:bg-white/[0.03] dark:text-zinc-400">
+          📂 保存した自分の説明は{" "}
+          <Link
+            href="/explanations"
+            className="font-semibold text-sky-700 underline-offset-2 hover:underline dark:text-sky-300"
+          >
+            自己説明一覧
+          </Link>{" "}
+          でまとめて見返せます。
+        </p>
       </div>
     </div>
   );

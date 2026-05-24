@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThemeToggle } from "./ThemeToggle";
+import { ChangelogBadge } from "./ChangelogBadge";
 
 type NavLink = { href: string; label: string; icon: string };
 
@@ -91,11 +92,13 @@ export function SiteHeader() {
             );
           })}
           <div className="mx-1 h-5 w-px bg-zinc-200 dark:bg-white/10" />
+          <ChangelogBadge />
           <ThemeToggle />
         </nav>
 
         {/* モバイルナビ */}
         <div className="flex items-center gap-2 sm:hidden">
+          <ChangelogBadge />
           <ThemeToggle />
           <button
             type="button"

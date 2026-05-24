@@ -53,6 +53,14 @@ export function JournalList() {
           説明力・報告力・課題発見力が階段状に伸びます。
           記録はあなたのブラウザにのみ保存されます。
         </p>
+        <div className="mt-4">
+          <Link
+            href="/explanations"
+            className="inline-flex items-center gap-1.5 rounded-full border border-sky-300 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 transition hover:border-sky-500 hover:bg-sky-100 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:border-sky-400/60 dark:hover:bg-sky-500/15"
+          >
+            🗣️ クイズで書いた自己説明 一覧へ
+          </Link>
+        </div>
       </div>
 
       {/* テンプレート選択 (カード全体クリック + 詳細はモーダル) */}
