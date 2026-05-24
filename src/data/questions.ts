@@ -820,6 +820,12 @@ export const questions: Question[] = [
       "`equal?` は Ruby に存在しない",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。`==` は『値が等しいか』(各クラスが意味を定義)、`equal?` は『object_id が一致するか』(同一オブジェクト性)。",
+      "役割が逆。記号 `==` が値比較、メソッド名 `equal?` が同一性比較。他言語経験者がハマりやすい。",
+      "Object#== の標準実装は equal? と同じ (同一性) だが、String や Integer などほとんどのクラスで == は値比較に override されているので動作は異なる。",
+      "`equal?` は Object クラスに定義された実在のメソッドで、object_id 比較を行う。",
+    ],
     hints: [
       "`equal?` は object_id 比較。",
       "`==` はオブジェクトの定義に従う (Object 標準は equal? と同じだが多くのクラスで override)。",
@@ -830,10 +836,37 @@ export const questions: Question[] = [
         "`==` は『値の等価性』、`equal?` は『同一オブジェクト性』(object_id 比較)。",
       reason:
         "Ruby には 3 段階の等価判定があります: `equal?` (同一)、`eql?` (型も含めた厳密等価、Hash で使用)、`==` (緩い等価、各クラスで定義)。多くのケースで使うのは `==`。`equal?` はあまり override すべきではありません。",
+      beginnerExplanation:
+        "Ruby の等価判定には実は **3 段階** あります。混乱しがちですが、用途が違うので一度整理すれば迷いません。\n\n1. **`equal?`** — 「同じオブジェクトか?」を判定 (内部的に object_id を比較)。たとえ中身が同じでも、別のオブジェクトなら false。Object クラスで実装されていて、ほぼ override すべきではない。\n2. **`==`** — 「値として等しいか?」を判定。各クラスが意味を決める。String なら文字列内容、Array なら要素列、ユーザー定義クラスなら自分で定義可能。普段の比較はこれ。\n3. **`eql?`** — 「型も含めて厳密に等しいか?」。Hash のキー比較で使われる。`1` と `1.0` は `==` だと true だが `eql?` では false。\n\n名前と役割が直感に反するのが落とし穴です: 短い記号 `==` が緩い値比較、明示的なメソッド名 `equal?` が厳密な同一性比較。Java や C# の `==` と `equals()` の関係に近いですが、Ruby はメソッド名がさらに 1 つ多いと覚えてください。\n\n普段のコードで使うのはほぼ常に `==` です。`equal?` は「これとこれは本当に同じインスタンス?」を確かめたいデバッグ的な場面でのみ使います。",
+      modelSelfExplanation: {
+        conclusion:
+          "Ruby では `==` が『値の等価性』(各クラスが定義)、`equal?` が『同一オブジェクト性』(object_id 比較) を意味する。普段使うのは `==`。",
+        reason:
+          "Ruby は 3 段階の等価判定を提供する: `equal?` (同一性、object_id 比較、override 非推奨) / `==` (緩い値比較、各クラスで定義) / `eql?` (厳密な型一致を含む値比較、Hash キー検索で使用)。これにより『値として等しいか』『型まで含めて等しいか』『そもそも同じ物か』を別々のメソッドで尋ねられ、用途に応じて使い分けられる。Object#== の既定実装は equal? と同じだが、String / Numeric / Array / Hash など主要クラスで == は値比較に上書きされている。",
+        example:
+          "Rails の test で `assert_equal expected, actual` は内部で `==` を使う。Hash のキーで Integer と Float を区別したい場合は eql? の挙動を意識する必要があり、たとえば `{ 1 => 'a' }[1.0]` は nil を返す (1 と 1.0 は ==-true だが eql?-false なので別キー扱い)。ActiveRecord でも `user1 == user2` は ID 一致で値比較、`user1.equal?(user2)` は同じインスタンスかどうかを判定する。",
+        pitfall:
+          "ユーザー定義クラスで `==` を override したら、ハッシュキーとして使うために `eql?` と `hash` メソッドもセットで実装しないと Hash や Set が誤動作する。また `equal?` を override するのは原則禁止 (object_id 比較が壊れると Ruby の挙動全般が予測不能になる)。",
+      },
       codeExample:
         '"abc" == "abc"      #=> true   (値が同じ)\n"abc".equal?("abc") #=> false  (別オブジェクト)\n\n1 == 1.0            #=> true   (数値として等価)\n1.eql?(1.0)         #=> false  (型が違う)\n1.equal?(1)         #=> true   (Integer はキャッシュ)\n\n# Hash のキー比較は eql?\n{ 1 => "a" }[1.0]   #=> nil    (eql? で違うので)',
       commonMistakes: [
         "Hash のキーは `eql?` と `hash` で比較されるため、`1` と `1.0` は別キーとして扱われる。",
+        "`==` を override したクラスを Hash キーに使うなら `eql?` と `hash` も合わせて実装する。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Object#==",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Object/i/=3d=3d.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: Object#equal?",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Object/i/equal=3f.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: Object#eql?",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Object/i/eql=3f.html",
+        },
       ],
     },
   },
@@ -854,8 +887,33 @@ export const questions: Question[] = [
       summary: "`tap` はレシーバを返すブロック付きメソッド。デバッグに便利。",
       reason:
         "メソッドチェーンの途中で値を覗き見たり、初期化中のオブジェクトに対する設定処理をまとめたいときに使います。`then` (旧 `yield_self`) はブロックの戻り値を返すので逆のユースケース。",
+      beginnerExplanation:
+        "`tap` はとても便利な小さなメソッドです。役割を一言で言うと **「ブロックで何か処理しつつ、戻り値はレシーバそのまま」**。\n\n具体的に何が嬉しいかというと:\n\n**1. メソッドチェーンの途中で覗き見できる**\n`[1,2,3].map { ... }.select { ... }.sort` のようなチェーンの途中で中間結果を確認したいとき、`.tap { |x| p x }` を挟むだけで pp 出力できます。チェーンを分解しなくて済む。\n\n**2. 初期化処理をまとめられる**\n```ruby\nuser = User.new.tap do |u|\n  u.name = \"Alice\"\n  u.age  = 20\nend\n```\n`User.new` を返しつつ、ブロック内で設定もできる。3 行が 1 つの『user 初期化ブロック』に視覚的にまとまる。\n\n**3. ログを挟める**\n`return value.tap { |v| logger.info \"returning #{v}\" }` のように、return 直前にログを残せる。\n\n対義語的な存在として `then` (旧 `yield_self`) があります。tap は『副作用だけしてレシーバを返す』、then は『ブロックの結果に変換して返す』。チェーンを **覗くだけ → tap、変換 → then** と覚えると整理しやすいです。",
+      modelSelfExplanation: {
+        conclusion:
+          "メソッド名は `tap`。ブロックにレシーバを渡して実行しつつ、戻り値はレシーバ自身を返す Object のインスタンスメソッド。",
+        reason:
+          "Ruby 1.9 で導入された `Object#tap` は『副作用を伴うチェーン途中の処理』を表現するためのメソッドで、ブロックの戻り値ではなくレシーバを返す点が `then` (旧 yield_self、ブロックの戻り値を返す) と対になる。これにより、メソッドチェーンを切らずにデバッグ出力・ロギング・初期化のためのブロックを挿入でき、コードの流れが視覚的に保たれる。",
+        example:
+          "Rails のコントローラで `@user = User.new.tap { |u| u.set_default_settings }` のように初期化と設定をまとめる。サービス層で `result.tap { |r| Rails.logger.info(\"computed: #{r.inspect}\") }` のように return 直前のログ。テストデータ生成で `posts.tap { |arr| arr << featured_post unless arr.include?(featured_post) }` のような後付け処理。",
+        pitfall:
+          "tap の中で意図せずレシーバを破壊的に変更すると、呼び出し元の値も変わってしまう。tap は『副作用ありで OK』なメソッドだが、書き換えるつもりなのか覗くだけなのかコメントなどで明示しないと、読み手が困る。また、変換が目的なら必ず then を使い、tap で `obj.tap { |o| o.transform }` のようにレシーバを書き換えるのは避けるのが定石。",
+      },
       codeExample:
         '[1,2,3].tap { |a| puts "middle: #{a}" }.map { |x| x*2 }\n# middle: [1, 2, 3]\n#=> [2, 4, 6]\n\n# 初期化\nUser.new.tap do |u|\n  u.name = "Alice"\n  u.age  = 20\nend\n\n# then は変換用\n[1,2,3].then { |a| a.sum }   #=> 6',
+      commonMistakes: [
+        "変換が目的なら `then` (旧 yield_self) を使う。tap でレシーバを書き換えて変換代わりにすると読み手が混乱する。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Object#tap",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Object/i/tap.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: Object#then (yield_self)",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Object/i/then.html",
+        },
+      ],
     },
   },
   {
@@ -867,6 +925,12 @@ export const questions: Question[] = [
     code: 'a = "abc"\nb = a.dup\nc = a.clone\nputs a.equal?(b)\nputs a.equal?(c)',
     choices: ["true / true", "true / false", "false / false", "false / true"],
     answerIndex: 2,
+    choiceExplanations: [
+      "true になるのは同じオブジェクト同士の equal? 比較のみ。dup と clone はどちらも別オブジェクトを返すので true にはならない。",
+      "dup は別オブジェクトなので equal? は false。順番に true が来ることはない。",
+      "正解。dup と clone はどちらも『新しい別オブジェクト』を返すので、object_id を比較する equal? は両方とも false。",
+      "clone も dup と同じく別オブジェクトを返すので equal? は false。違いは凍結や特異メソッドのコピー方針であって object_id は別。",
+    ],
     hints: [
       "`dup` と `clone` はどちらもオブジェクトの複製を作ります。",
       "`equal?` は object_id 比較。",
@@ -877,10 +941,32 @@ export const questions: Question[] = [
         "dup も clone も新しいオブジェクトを返すので、equal? は両方とも false。",
       reason:
         "違いは: `clone` は frozen 状態と特異メソッドもコピーするのに対し、`dup` はコピーしません。通常は `dup` で十分。`equal?` は object_id 比較なので、複製したらどちらも別オブジェクト = false。",
+      beginnerExplanation:
+        "Ruby でオブジェクトを複製する方法は 2 つあります: **`dup`** と **`clone`**。両方とも『中身が同じ別オブジェクト』を作る点では共通ですが、コピーする情報の範囲が違います。\n\n- **`dup`** = 軽量コピー。中身 (インスタンス変数) はコピーするが、**frozen 状態と特異メソッドはコピーしない**。複製はミュータブルな普通のオブジェクトとして生まれる。\n- **`clone`** = 完全コピー。中身に加えて **frozen 状態も特異メソッドも維持** する。元が凍結されていたら複製も凍結されている。\n\n今回のコードでは:\n- `a = \"abc\"` → 元の文字列。\n- `b = a.dup` → a と同じ \"abc\" を持つ別オブジェクト (object_id は別)。\n- `c = a.clone` → 同じく a と同じ \"abc\" を持つ別オブジェクト (object_id は別)。\n\n`equal?` は **object_id を比較** するメソッドなので、a と b、a と c はどちらも別オブジェクト = false です。違いが現れるのは `frozen?` を比べたときで、`\"abc\".freeze` を元にしていたら dup は false、clone は true になります。\n\n**普段使うのはほぼ `dup`** で十分です。`clone` は『凍結された設定オブジェクトを書き換えたコピーが欲しい』のような特殊な場面でしか使いません。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は両方とも `false`。dup も clone もそれぞれ新しい別オブジェクトを返すので、object_id を比較する `equal?` はどちらも false になる。",
+        reason:
+          "`dup` と `clone` はオブジェクトの浅い複製を作るメソッドで、結果として返るのは元と内容が同じだが別 ID を持つ新オブジェクト。両者の違いは『コピーする付加情報の範囲』で、clone は frozen 状態と特異メソッドまでコピーし、dup はクラスとインスタンス変数のみコピーする。`equal?` は object_id の同一性しか見ないので、複製である以上どちらも false。\n\nなお、これらは『浅い (shallow) コピー』で、内部の配列や Hash はコピー元と共有される。深い複製が必要なら `Marshal.load(Marshal.dump(obj))` などを使う。",
+        example:
+          "Rails の設定オブジェクトで『デフォルト設定を凍結しておき、必要なときだけ複製して書き換える』場合は `clone` を使うと凍結が解けて安心 (実は `clone(freeze: false)` でも明示できる)。逆に普通のデータコピーは `dup` で十分。テストで『元のオブジェクトを変えたくないけど操作したい』場合に `obj.dup.tap { |o| o.transform! }` のように書く。",
+        pitfall:
+          "`dup` / `clone` は **shallow copy** で、内部の配列・Hash・他オブジェクトはコピー先と共有される。`a = { list: [1,2] }; b = a.dup; b[:list] << 3` をすると a[:list] も [1,2,3] になる。本当に独立した複製が欲しければ `Marshal.load(Marshal.dump(obj))` で深いコピーを取るか、各属性を個別に dup する必要がある。",
+      },
       codeExample:
         'a = "abc".freeze\nb = a.dup     # 凍結解除される\nc = a.clone   # 凍結も維持\n\nb.frozen?  #=> false\nc.frozen?  #=> true\n\n# どちらも別オブジェクト\na.equal?(b)  #=> false\na.equal?(c)  #=> false',
       commonMistakes: [
         "dup / clone は「浅いコピー (shallow copy)」。中の配列や Hash までは複製しないので注意。深いコピーが欲しければ `Marshal.load(Marshal.dump(obj))`。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Object#dup",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Object/i/dup.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: Object#clone",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Object/i/clone.html",
+        },
       ],
     },
   },
@@ -3417,6 +3503,12 @@ export const questions: Question[] = [
     code: '"hello world" =~ /o(.)/\nputs $~[1]\nputs $1',
     choices: [" / ", "o / o", "rl / rl", "nil / nil"],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。`/o(.)/` は最初の 'o' (hello の o) にマッチし、続く 1 文字 ' ' (hello の後のスペース) がキャプチャされる。$~[1] と $1 はどちらも同じ最初のキャプチャを参照する。",
+      "'o' になるのはキャプチャの外側 (マッチ全体の一部) 自体を指しているわけではない。()で囲んだ中だけがキャプチャされる。",
+      "'rl' は 'world' の o の次の 2 文字。`/o(.)/` は 1 文字キャプチャなので 'rl' ではなく ' ' (スペース 1 文字)。",
+      "マッチは成功するので nil にはならない。マッチ失敗時は $~ も $1 も nil になるが、ここでは hello の o が見つかる。",
+    ],
     hints: [
       "`=~` は正規表現マッチ。マッチ位置を返す。",
       "`$~` は最後のマッチ全体の MatchData。`$1` は最初のキャプチャグループ。",
@@ -3427,10 +3519,32 @@ export const questions: Question[] = [
         "`$~[1]` と `$1` は同じ意味で、1番目のキャプチャグループを返す。",
       reason:
         "'hello world' に対し `/o(.)/` は最初の 'o' (hello の o) にマッチ。次の文字 ' ' (スペース) がキャプチャされる。`$~` (Regexp.last_match) は最後のマッチ情報、`$1`〜`$9` は対応するキャプチャ。",
+      beginnerExplanation:
+        "正規表現マッチで使う **特殊なグローバル変数** の話です。\n\n`'hello world' =~ /o(.)/` を実行すると、Ruby は文字列を左から走査して最初の 'o' を見つけます (hello の 'o')。次に `(.)` で 1 文字キャプチャしようとして、'o' の隣のスペース ' ' を捕まえます。\n\n**マッチの結果はいくつかの『特殊変数』に自動で入ります**:\n- `$~` (\"$tilde\") — 最後のマッチの **MatchData オブジェクト全体**。マッチ全体や全てのキャプチャを含む。`Regexp.last_match` と同じもの。\n- `$~[0]` — マッチした文字列全体 (今回は \"o \")\n- `$~[1]` — 1 番目のキャプチャグループ (今回は \" \")\n- `$1`, `$2`, ... — それぞれ `$~[1]`, `$~[2]`, ... の **省略記法**\n\nだから `$~[1]` と `$1` は **同じものを違う書き方で参照** しています。両方とも \" \" (スペース 1 文字) を返し、puts するとそれぞれスペースが 1 行ずつ出ます。\n\n**注意**: これらの `$` 変数はマッチが起きるたびに上書きされる『使い捨て』なので、結果を後で使いたい場合は変数に保存しておくのが安全です: `m = 'hello world'.match(/o(.)/); m[1]`",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は両方とも ' ' (スペース 1 文字)。`$~[1]` と `$1` は同じ最初のキャプチャグループを参照する別記法。",
+        reason:
+          "Ruby の正規表現マッチ (=~) は副作用として複数の特殊変数を更新する: `$~` には最後のマッチを表す MatchData が、`$1` `$2` ... には対応するキャプチャグループの文字列が、`$&` にはマッチ全体が入る。`$~[n]` は MatchData をインデックスアクセスする書き方で、結果として `$n` と同じ値を返す。今回 `/o(.)/` は文字 'o' とその直後の任意 1 文字にマッチし、'hello' の 'o' とそれに続くスペースをキャプチャするので両者とも ' ' を返す。",
+        example:
+          "正規表現で日付やキー=値を抽出する場面で頻出: `'2024-01-15' =~ /(\\d{4})-(\\d{2})/` のあと $1 が '2024'、$2 が '01'。ただし最近のスタイルガイドでは可読性のために `'2024-01-15'.match(/(\\d{4})-(\\d{2})/) { |m| [m[1], m[2]] }` のように MatchData を明示的に受け取って使う書き方が推奨される。",
+        pitfall:
+          "`$1` 等のグローバル変数は **マッチが起きるたびに上書き** されるので、複数の場所でマッチを併用すると意図せず値が変わる。マルチスレッドではさらに危険。安全策は `m = str.match(re); m[1]` のように MatchData を変数に受け取ること。また、マッチ失敗時は $~ も $1 も nil になるので、参照前にマッチ成否を確認する。",
+      },
       codeExample:
         '"hello world" =~ /o(.)/    # マッチ位置 4 を返す\n$~              #=> #<MatchData "o " 1:" ">\n$~[0]           #=> "o " (マッチ全体)\n$~[1]           #=> " " (1番目のキャプチャ)\n$1              #=> " " (同じ)\n\n# 名前付きキャプチャ\n"2024-01-15" =~ /(?<year>\\d+)-(?<month>\\d+)/\n$~[:year]       #=> "2024"',
       commonMistakes: [
         "`$1` などのグローバル変数は使い捨て。マルチスレッドや別マッチで上書きされるので、安全な MatchData オブジェクトを変数で受けるのが良い。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: 正規表現 (特殊変数 $~ / $1)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fregexp.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: MatchData クラス",
+          url: "https://docs.ruby-lang.org/ja/latest/class/MatchData.html",
+        },
       ],
     },
   },
@@ -3453,13 +3567,44 @@ export const questions: Question[] = [
       "`/\\d+/` は連続する数字。",
       "`+` は 1 文字以上の繰り返しを 1 つのマッチとして扱うので、結果配列の要素は 3 つではなく 1 つになります。",
     ],
+    choiceExplanations: [
+      "正解。`\\d+` は『連続する数字を可能な限り長く』マッチさせる量指定子なので、'123' 全体が 1 つのマッチとなり配列に 1 要素入る。",
+      "1 文字ずつ分割されるのは `\\d` (量指定なし) を `scan` した場合 (`'123'.scan(/\\d/)` → `['1','2','3']`)。`\\d+` は連続を 1 つにまとめる。",
+      "`\\d+` は数字にマッチするので、英字 'abc' や 'xyz' は対象外。英字を抜きたいなら `/[a-z]+/`。",
+      "scan はマッチが無いと空配列 `[]` を返す (`nil` ではない)。今回はマッチがあるのでさらに該当なし。",
+    ],
     explanation: {
       summary:
         "`String#scan(regexp)` はマッチした部分文字列を配列で返す。",
       reason:
         "`match` は最初のマッチ 1 件、`scan` は全マッチを配列で。キャプチャグループがあるとキャプチャごとに配列の配列を返す: `scan(/(\\w+)=(\\w+)/) #=> [[\"a\",\"1\"], ...]`。",
+      beginnerExplanation:
+        "`String#scan` は **「正規表現にマッチする部分を全部抜き出して配列にする」** メソッドです。1 行で『文字列からパターンに合うものを全部回収』できる便利な道具です。\n\n仕組みを順を追って見ましょう。\n\n1. 文字列 `'abc-123-xyz'` を左から走査。\n2. パターン `/\\d+/` (= 数字 1 文字以上の連続) を探す。\n3. 'a', 'b', 'c', '-' はマッチしない。'1', '2', '3' で連続マッチして '123' を 1 つのマッチとして確定。\n4. 続けて 'x', 'y', 'z' はマッチせず、文字列末尾に到達。\n5. 結果として **マッチした文字列の配列** `['123']` を返す。\n\n**ポイント**: `+` の量指定子は『可能な限り長く』マッチを伸ばすので、'123' は 1 文字ずつではなくまとめて 1 つのマッチになります。もし `/\\d/` (量指定なし) なら 1 文字ずつ別マッチになって `['1','2','3']` になります。\n\nさらに、**キャプチャグループがあるパターンを scan に渡すと『キャプチャの配列の配列』** を返します:\n```ruby\n'name=alice&age=20'.scan(/(\\w+)=(\\w+)/)\n#=> [['name', 'alice'], ['age', '20']]\n```\nこれを `to_h` すると一気にハッシュにできるので、URL クエリパーサや簡易設定ファイル解析でよく使います。",
+      modelSelfExplanation: {
+        conclusion:
+          "結果は `['123']`。`String#scan(regexp)` は文字列内でパターンにマッチした全部分を配列にして返し、`\\d+` は連続する数字をひとまとまりにマッチさせるため、'abc-123-xyz' から数字部分 '123' が 1 要素として抽出される。",
+        reason:
+          "`scan` は内部で正規表現を繰り返し適用し、マッチが取れる限り左から右へ進めて全マッチを配列に集める。量指定子 `+` (1 回以上の繰り返し) は『可能な限り長く取る』ため、123 は 3 つではなく 1 つのマッチになる。scan の戻り値の構造は『パターンにキャプチャグループが無ければ String の配列、あれば各マッチのキャプチャを配列にしたものの配列』というルール。\n\n対比として `match` / `match?` は最初のマッチだけを扱い、`gsub` は置換、`split` は区切りで分解、と用途が異なる。",
+        example:
+          "ログから IP アドレスを全部取り出す `log.scan(/\\d+\\.\\d+\\.\\d+\\.\\d+/)`、URL クエリを Hash 化する `query.scan(/(\\w+)=([^&]+)/).to_h`、HTML から `<img src=\"...\">` をすべて拾う `html.scan(/<img\\s+src=\"([^\"]+)\"/)` など、テキストからパターンに合うデータを一括収集する場面で頻出。",
+        pitfall:
+          "キャプチャグループの有無で戻り値の構造が変わるのが落とし穴。`(\\d+)` (キャプチャあり) と `\\d+` (キャプチャなし) では、前者が `[['123']]` (要素は配列)、後者が `['123']` (要素は文字列) を返す。さらに括弧でグループ化するだけの場合 (非キャプチャ `(?:...)`) も覚えておくと、意図せず配列のネストが深くなる事故を避けられる。",
+      },
       codeExample:
         '"abc-123-xyz".scan(/\\d+/)        #=> ["123"]\n"a1b2c3".scan(/[a-z](\\d)/)        #=> [["1"], ["2"], ["3"]]\n"name=alice&age=20".scan(/(\\w+)=(\\w+)/)\n#=> [["name","alice"], ["age","20"]]\n\n# Hash 化\n"name=alice&age=20".scan(/(\\w+)=(\\w+)/).to_h\n#=> {"name"=>"alice", "age"=>"20"}',
+      commonMistakes: [
+        "キャプチャグループの有無で戻り値の構造が変わる。非キャプチャグループ `(?:...)` でグループ化だけしたい場面では `(?:` を使う。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: String#scan",
+          url: "https://docs.ruby-lang.org/ja/latest/method/String/i/scan.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: 正規表現 (量指定子・グループ化)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fregexp.html",
+        },
+      ],
     },
   },
   {
