@@ -2964,6 +2964,12 @@ export const questions: Question[] = [
       "has_and_belongs :posts",
     ],
     answerIndex: 2,
+    choiceExplanations: [
+      "`has_one` は『1 対 1 で 1 つだけ持つ』関係 (例: User has_one :profile)。引数も単数形にすべき。複数持つ関係には使わない。",
+      "`belongs_to` は子側 (外部キーを持つ側) で使う宣言。User → Post の親側で使うのは誤り。さらに引数も単数形で書く。",
+      "正解。1 対多で『複数を持つ親側』が `has_many`、引数は複数形のシンボル `:posts`。",
+      "`has_and_belongs_to_many` (HABTM) は中間テーブルを使う多対多の関係。1 対多ではない上、メソッド名も短縮形は存在しない。",
+    ],
     hints: [
       "1対多の関係です。",
       "`has_*` の系統。",
@@ -2973,8 +2979,30 @@ export const questions: Question[] = [
       summary: "1対多は親 `has_many`、子 `belongs_to`。",
       reason:
         "子側 (posts テーブル) に `user_id` 外部キーが必要。`belongs_to` は Rails 5+ で必須デフォルト (nil 不可)。`optional: true` で null 許容。",
+      beginnerExplanation:
+        "ActiveRecord の関連付け (associations) の基本パターンです。\n\n**1 対多** は最もよく使う関係です。例: 1 人の User が複数の Post を持つ。\n\n親側 (User) → `has_many :posts`\n子側 (Post) → `belongs_to :user`\n\n**ポイント**:\n- 親側のメソッド名は **複数形** (`:posts`)\n- 子側のメソッド名は **単数形** (`:user`)\n- **外部キー (user_id) は『多』側 (Post 側)** のテーブルに置く\n\nマイグレーションでは:\n```ruby\nt.references :user, null: false, foreign_key: true\n# → user_id INTEGER NOT NULL + 外部キー制約\n```\n\n**使い方**:\n```ruby\nuser.posts                      # SELECT * FROM posts WHERE user_id = 1\nuser.posts.create!(title: 'Hi') # user_id を自動でセット\npost.user                       # SELECT * FROM users WHERE id = post.user_id\n```\n\n**Rails 5 以降**、`belongs_to` はデフォルトで **必須 (NOT NULL 相当)**。`user_id` が nil のままだと validation エラーになります。null を許可したい場合は `belongs_to :category, optional: true` のように明示します。\n\n**親が消えたら子も消したい** なら `has_many :posts, dependent: :destroy` (またはより高速な `dependent: :delete_all`、関連は残したい場合は `:nullify`)。\n\n**関連の種類**: 1対1 (`has_one` + `belongs_to`)、多対多 (`has_many :through` 推奨、HABTM は中間モデル不要だが拡張性に劣る)、ポリモーフィック関連 (`belongs_to :commentable, polymorphic: true`) など。",
+      modelSelfExplanation: {
+        conclusion:
+          "正しい宣言は `has_many :posts`。1 対多の関係で『複数を持つ親側』が has_many、子側が belongs_to、外部キー (user_id) は子テーブル (posts) に置く。",
+        reason:
+          "ActiveRecord の関連付けは DSL で宣言するだけで、対応する getter / setter / クエリメソッドが自動生成される。has_many は『この親は対応する複数の子レコードを持つ』ことを表し、引数は対応する子モデルの複数形シンボル。Rails は内部でこの宣言を見て user.posts のクエリを posts WHERE user_id = ? に変換する。外部キーは必ず多側に置くのが RDB の原則で、has_many の側ではなく belongs_to の側 (Post) のテーブルに user_id カラムを作る。",
+        example:
+          "ブログアプリで User has_many :posts, dependent: :destroy / Post belongs_to :user とすれば、user.posts.create!(title: 'hi') で user_id 自動セット、user.destroy で関連 posts も削除される。さらに `has_many :comments, through: :posts` のように through 経由で多段の関連も簡単に書ける。",
+        pitfall:
+          "Rails 5+ では belongs_to がデフォルトで required (nil 不可) なので、optional: true を付け忘れると既存データの保存時に validation エラー。さらに dependent: :destroy は『子レコードごとに callback 起動』するため大量データだと遅く、純粋削除なら :delete_all が高速。逆に N+1 を生まないために has_many 経由でアクセスする場合は includes でプリロードする。",
+      },
       codeExample:
         'class User < ApplicationRecord\n  has_many :posts, dependent: :destroy\nend\n\nclass Post < ApplicationRecord\n  belongs_to :user                  # user_id NOT NULL\n  belongs_to :category, optional: true  # null OK\nend\n\n# 使い方\nuser = User.find(1)\nuser.posts             # User の Post 一覧\nuser.posts.create!(title: "Hi")\npost.user              # Post の User\n\n# マイグレーション\nt.references :user, null: false, foreign_key: true',
+      commonMistakes: [
+        "Rails 5+ で belongs_to の optional 指定を忘れると、null が許される設計のはずがバリデーションエラーになる。",
+        "dependent: :destroy は callback 起動で遅い。純粋削除でいいなら :delete_all を検討。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Active Record Associations (公式)",
+          url: "https://guides.rubyonrails.org/association_basics.html",
+        },
+      ],
     },
   },
   {
@@ -2991,6 +3019,12 @@ export const questions: Question[] = [
       "User.get(1)",
     ],
     answerIndex: 1,
+    choiceExplanations: [
+      "`where` は条件にマッチするレコードを Relation (配列ライク) で返す。単一レコードが欲しいなら `.first` を続けるか find を使う。さらに where は『見つからなくても空配列』なので例外にならない。",
+      "正解。`find(id)` は主キー指定で 1 件取得、見つからなければ ActiveRecord::RecordNotFound 例外を投げる。コントローラで使うと自動で 404 ページが返るので RESTful な show アクションでは定番。",
+      "`select` は『SELECT 句のカラムを指定する』メソッドで、ID で絞り込む用途ではない。`User.select(:id, :name)` のように使う。",
+      "ActiveRecord に `get` メソッドは無い。RESTful の HTTP メソッド名と混同しないように。",
+    ],
     hints: [
       "`where` は ActiveRecord::Relation を返します。",
       "1件取得 + 無ければ例外 = ?",
@@ -3001,8 +3035,30 @@ export const questions: Question[] = [
         "`find(id)` は 1 件 + 無ければ RecordNotFound 例外。",
       reason:
         "`find` は主キー指定、無ければ例外 (404 として自動処理されることも)。`find_by(条件)` は条件で 1 件、無ければ nil。`where(id: 1).first` は条件マッチ 1 件、無ければ nil。意図に応じて使い分ける。",
+      beginnerExplanation:
+        "ActiveRecord で『1 件取得する』にはいくつかの選択肢があり、使い分けが重要です。\n\n**`find(id)`** — 主キー指定、無ければ例外\n```ruby\nUser.find(1)    # SELECT * FROM users WHERE id = 1 LIMIT 1\n               # 無ければ ActiveRecord::RecordNotFound\n```\nコントローラの show / edit / update / destroy アクションで使う定番。RecordNotFound は Rails が自動で 404 ページに変換してくれる。\n\n**`find_by(条件)`** — 条件で 1 件、無ければ nil\n```ruby\nUser.find_by(email: 'a@example.com')\n# 無ければ nil (例外なし)\n```\nメールアドレスやユーザー名で検索する場面で使う。nil 判定を自分で書く必要あり。\n\n**`where(条件).first`** — Relation 経由で 1 件、無ければ nil\n```ruby\nUser.where(active: true).first\n```\nさらに絞り込みやチェインが必要なときに。\n\n**使い分けの目安**:\n- ID で 1 件取得 → `find(id)` (404 自動)\n- 任意のカラムで 1 件取得 → `find_by(条件)`\n- 複雑な検索の最初の 1 件 → `where(条件).first`\n\n**複数取得**:\n```ruby\nUser.find([1, 2, 3])       # 配列。1 つでも無いと例外\nUser.where(id: [1, 2, 3])  # 見つかった分だけ。例外なし\n```\n\n**ベストプラクティス**: 『無ければ 404 にしたい』なら find、『無ければ nil でフォールバック』なら find_by を使う。意図がコードから読めるようになる。",
+      modelSelfExplanation: {
+        conclusion:
+          "正解は `User.find(1)`。主キー指定で 1 件取得し、無ければ ActiveRecord::RecordNotFound 例外を投げる ActiveRecord の基本メソッド。",
+        reason:
+          "`find(id)` は『主キー検索 + 必ず 1 件返す』というセマンティクスを持ち、見つからないことが『データ不整合や URL 偽造』を意味するため例外で即座に止める設計。Rails のコントローラでは未捕捉の RecordNotFound が自動で 404 レスポンスに変換されるため、show / edit / update / destroy のような『この ID のレコードが存在する前提』のアクションで使うと簡潔。一方 `find_by` や `where(...).first` は『見つからない可能性が業務上ある』場面 (任意検索) で使い、nil を返してアプリ側で if 分岐する。",
+        example:
+          "PostsController#show なら `@post = Post.find(params[:id])` の 1 行で取得 + 404 自動が完成。一方ログイン処理では `user = User.find_by(email: params[:email])` でメール検索 (見つからない可能性あり)、`if user&.authenticate(params[:password])` で進む。複数取得は `User.where(active: true).where('last_login_at > ?', 1.week.ago)` のように Relation チェインで絞り込む。",
+        pitfall:
+          "`find` を任意検索 (email など) で使うと『見つからない = 想定内のフロー』なのに例外で止まってしまう。逆に `find_by` を ID 検索で使うと 404 を返すために自分で if nil の分岐を書く必要が出る。意図によって使い分けるのが大事。さらに `find(non_existing_id)` の例外をうっかり rescue Exception で握ると 404 が機能しなくなるので注意。",
+      },
       codeExample:
         "User.find(1)              # 例外 ActiveRecord::RecordNotFound\nUser.find_by(id: 1)       # nil\nUser.find_by(email: 'a')  # 条件でも使える\nUser.where(id: 1).first   # nil\n\n# 複数取得\nUser.find([1, 2, 3])      # 例外 (1つでも無いと)\nUser.where(id: [1,2,3])   # 集合",
+      commonMistakes: [
+        "任意検索 (email など) で find を使うと例外で止まる。find_by を使って nil 判定する。",
+        "ID 検索で find_by を使うと 404 自動処理が効かず、自前で nil チェックが必要になる。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Active Record Query Interface (公式)",
+          url: "https://guides.rubyonrails.org/active_record_querying.html",
+        },
+      ],
     },
   },
   {
@@ -3019,6 +3075,12 @@ export const questions: Question[] = [
       "User.in_batches",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。`User.all.each` は SELECT * FROM users で全件メモリにロードする。100 万件あれば数 GB のメモリを使い OOM になり得る。",
+      "`find_each` は内部でデフォルト 1000 件ずつのバッチ処理を行うのでメモリ効率が良い。安全な書き方。",
+      "`limit(10)` で取得件数を制限しているので、最悪でも 10 件しかメモリに載らない。安全。",
+      "`in_batches` はバッチ単位で処理する API。`update_all` などで効率的に一括更新できる。安全。",
+    ],
     hints: [
       "`User.all` は全件メモリにロード。",
       "大量データだとメモリ不足。",
@@ -3029,8 +3091,30 @@ export const questions: Question[] = [
         "`User.all.each` は全件 SELECT してメモリに載せる。大量データで OOM の原因。",
       reason:
         "`find_each` は 1000 件 (デフォルト) ずつ取得しメモリ効率良い。`in_batches` はバッチ自体を渡してくれるのでさらに柔軟。本番でログ集計などするなら必須。",
+      beginnerExplanation:
+        "**ActiveRecord の大量データ処理** で必ず知るべきパターンです。\n\n**危険**: `User.all.each`\n```ruby\nUser.all.each { |u| u.send_email }\n# SELECT * FROM users;  ← 全件メモリにロード!\n```\n開発環境では 100 件しかなくて気付かなくても、本番に 100 万ユーザーいたら数 GB のメモリを消費して **OOM (メモリ不足) でサーバーがクラッシュ** します。\n\n**安全 1**: `User.find_each`\n```ruby\nUser.find_each(batch_size: 1000) { |u| u.send_email }\n# SELECT * FROM users WHERE id > ? ORDER BY id LIMIT 1000;\n# (内部で繰り返し、1000 件ずつ処理)\n```\nデフォルトで 1000 件ずつバッチ処理してくれる。メモリは常に 1000 件分しか使わない。\n\n**安全 2**: `User.in_batches`\n```ruby\nUser.in_batches(of: 1000) do |batch|\n  batch.update_all(active: true)  # バッチ単位で UPDATE\nend\n```\nバッチ自体 (Relation) が渡されるので、一括 UPDATE / DELETE が可能。`update_all` は callback / validation をスキップするので超高速。\n\n**安全 3**: `limit` で件数制限\n```ruby\nUser.order(:created_at).limit(10).each { ... }\n```\n最初の N 件だけ処理する場面で使う。\n\n**実務原則**:\n- 大量データを `.each` で回す → 必ず `find_each` か `in_batches`\n- 一括更新 → `update_all` を活用\n- 開発時に件数が少なくてもクセを付ける\n- 本番監視で『メモリ急増』アラートが出たら大抵 `.all.each` パターンを疑う",
+      modelSelfExplanation: {
+        conclusion:
+          "危険なのは `User.all.each`。`User.all` が全件 SELECT してメモリにロードするため、大量データではメモリ不足 (OOM) を引き起こす。find_each / in_batches / limit を使うのが安全。",
+        reason:
+          "ActiveRecord の `all` や `where` は遅延評価される Relation を返すが、`each` を呼ぶと SELECT が走り全レコードがメモリに展開される。データ件数が小規模なら気にならないが、本番運用で 10 万・100 万件規模になると数百 MB〜数 GB の RAM を一気に使い、Ruby プロセス自体が落ちる原因になる。find_each は内部で『主キーで ORDER + 範囲条件で LIMIT バッチ』を繰り返し、常に一定メモリで処理する設計。in_batches は『バッチ単位の Relation』を渡してくれるので update_all / delete_all のような一括操作と相性が良い。",
+        example:
+          "rake task で『全ユーザーに通知メールを送る』なら `User.find_each(batch_size: 500) { |u| NotifierMailer.notice(u).deliver_later }` が定番。バックグラウンドジョブで『非アクティブユーザー判定』なら `User.where('last_login_at < ?', 1.year.ago).in_batches.update_all(active: false)` で一括 UPDATE が高速。集計レポートで全件処理が必須なら find_each + メモリプロファイラで監視する。",
+        pitfall:
+          "find_each はデフォルトで主キー (id) で ORDER するため、ORDER 句を付けると上書きされて意図しない順序になる。さらに in_batches で update_all を使うと callback / validation がスキップされるため、updated_at の自動更新やイベント通知が走らない (必要なら手動で touch / 個別 save する)。limit を付けた find_each はバージョンによって挙動が違うので注意 (Rails 7+ で改善)。",
+      },
       codeExample:
         "# 危険 (100万件あったらOOM)\nUser.all.each { |u| u.send_email }\n\n# 安全\nUser.find_each(batch_size: 500) { |u| u.send_email }\n\n# バッチ毎に処理\nUser.in_batches(of: 1000) do |batch|\n  batch.update_all(active: true)\nend",
+      commonMistakes: [
+        "find_each に ORDER 句を渡すと上書きされる (内部で id ORDER を使うため)。",
+        "update_all は callback / validation をスキップする。updated_at 自動更新や通知が走らない。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Batch Querying (find_each / in_batches)",
+          url: "https://guides.rubyonrails.org/active_record_querying.html#retrieving-multiple-objects-in-batches",
+        },
+      ],
     },
   },
   {
@@ -3042,6 +3126,12 @@ export const questions: Question[] = [
       "N+1 問題を回避するためのメソッドは？",
     choices: ["preload", "includes", "eager_load", "上記すべて"],
     answerIndex: 3,
+    choiceExplanations: [
+      "正しいが不完全。preload は別クエリ (IN 句) で先読みする方法だが、他にも eager_load (JOIN) と includes (自動選択) がある。",
+      "正しいが不完全。includes は内部で preload か eager_load を自動選択するが、明示的に使い分けたいときに preload / eager_load を直接呼ぶこともある。",
+      "正しいが不完全。eager_load は LEFT JOIN で 1 クエリにまとめる方法。条件 (WHERE) で子テーブル参照したいときに使う。",
+      "正解。preload (別クエリ) / eager_load (JOIN) / includes (自動選択) の 3 つすべてが N+1 対策のための関連プリロード手段。",
+    ],
     hints: [
       "関連レコードを事前にロードします。",
       "それぞれ別クエリ / JOIN / 自動選択。",
@@ -3052,8 +3142,35 @@ export const questions: Question[] = [
         "preload (別クエリ)、eager_load (LEFT JOIN)、includes (自動選択) すべて N+1 対策。",
       reason:
         "preload は SELECT を 2 つに分ける (子テーブル条件 WHERE 不可)。eager_load は LEFT JOIN で 1 クエリ (条件 OK だが結果が膨らむ)。includes は条件無ければ preload、条件あれば eager_load を選ぶ。検出には bullet gem が便利。",
+      beginnerExplanation:
+        "**N+1 問題** は Rails で最もよく見るパフォーマンス問題です。\n\n**症状**:\n```ruby\nposts = Post.all       # SELECT * FROM posts;  (1 クエリ)\nposts.each do |p|\n  puts p.user.name     # SELECT * FROM users WHERE id = N;  (各回ごとに 1 クエリ)\nend\n```\n投稿が 100 件あれば **1 + 100 = 101 クエリ** が走り、DB が窒息します。これが N+1 (= 1 + N) 問題の語源。\n\n**3 つの対策メソッド**:\n\n**1. `preload`** — 別クエリで先読み (IN 句)\n```ruby\nPost.preload(:user).each { |p| puts p.user.name }\n# SELECT * FROM posts;\n# SELECT * FROM users WHERE id IN (1,2,3,...);\n# → 合計 2 クエリ\n```\n\n**2. `eager_load`** — LEFT JOIN で 1 クエリにまとめる\n```ruby\nPost.eager_load(:user).each { |p| puts p.user.name }\n# SELECT posts.*, users.* FROM posts LEFT JOIN users ON ...\n# → 1 クエリだが結果セットが大きくなる\n```\n\n**3. `includes`** — 自動で preload か eager_load を選択\n```ruby\nPost.includes(:user).each { ... }\n# 条件 (WHERE) なし → preload を選ぶ\nPost.includes(:user).where(users: { active: true })\n# 条件 (子テーブル参照) あり → eager_load を選ぶ\n```\n\n**使い分け**:\n- 子テーブルで絞り込みたい (`where(users: ...)`) → `eager_load` か `includes`\n- 関連を表示するだけ → `preload` (シンプル)\n- 迷ったら `includes` (自動選択)\n\n**検出ツール**: `bullet` gem を入れると N+1 が発生したときに開発環境で警告 / ログ出力してくれる。CI でも検出できるので必須レベルのツール。",
+      modelSelfExplanation: {
+        conclusion:
+          "正解は『上記すべて』。preload / eager_load / includes の 3 つすべてが N+1 対策の関連プリロード手段で、それぞれ別クエリ / JOIN / 自動選択というアプローチの違いがある。",
+        reason:
+          "ActiveRecord の関連は遅延ロードがデフォルトのため、繰り返し処理で関連にアクセスすると個別 SELECT が走り N+1 問題になる。これを防ぐために『事前にまとめてロードする』API が 3 種類用意されている: preload は『IN 句で子テーブルを別クエリで取得』(子テーブルの WHERE 条件は使えない、シンプルで意図が読みやすい)、eager_load は『LEFT OUTER JOIN で 1 クエリ』(子テーブルの WHERE が使えるが結果が冗長になりがち)、includes は『WHERE 句の参照を見て自動で preload か eager_load を選ぶ』(便利だが意図がやや不透明)。状況によって最適解が変わるため、開発者が使い分ける。",
+        example:
+          "ブログ一覧で投稿者名を表示するなら `Post.preload(:author).each { |p| puts p.author.name }` で 2 クエリに。アクティブなユーザーの投稿だけ絞り込みたいなら `Post.eager_load(:user).where(users: { active: true })` で 1 クエリの JOIN。複雑な多段の関連 (post.comments.includes(:user)) では includes に任せると自動でいい感じに分かれる。bullet gem を仕込んでおけば N+1 漏れを CI / 開発時に検出できる。",
+        pitfall:
+          "eager_load は LEFT JOIN なので親テーブルの行数が膨らみ、ActiveRecord が distinct を内部で打つことがある。preload は子テーブルの WHERE 条件が使えず (使うと別の WHERE になってしまう)、ハマりやすい。includes は便利だが、where に子テーブル参照を入れているのに preload が選ばれてエラーになる、というケースもあり、明示的に preload / eager_load を使い分けるのが安全な現場もある。さらに ActiveRecord は 4 階層以上の深い preload で n+m+l 問題になることがあり、polymorphic 関連は preload が複雑化する。",
+      },
       codeExample:
         "# N+1 (悪)\nPost.all.each { |p| puts p.user.name }\n# SELECT * FROM posts;\n# SELECT * FROM users WHERE id = 1;\n# SELECT * FROM users WHERE id = 2;  ← N+1\n\n# 対策\nPost.includes(:user).each { |p| puts p.user.name }\n# SELECT * FROM posts;\n# SELECT * FROM users WHERE id IN (1,2,...);\n\n# JOIN したい (条件付き)\nPost.eager_load(:user).where(users: { active: true })",
+      commonMistakes: [
+        "eager_load の LEFT JOIN で結果行が膨らみ、distinct で重複排除が必要になる。",
+        "polymorphic 関連は preload / includes が複雑化する。明示的に :commentable_type ごとに分岐するパターンがある。",
+        "bullet gem を入れずに本番リリース → ユーザー増加で N+1 が一斉に火を吹く。開発初期から入れる。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Eager Loading Associations (公式)",
+          url: "https://guides.rubyonrails.org/active_record_querying.html#eager-loading-associations",
+        },
+        {
+          label: "bullet gem (N+1 検出)",
+          url: "https://github.com/flyerhzm/bullet",
+        },
+      ],
     },
   },
   {
@@ -3079,8 +3196,30 @@ export const questions: Question[] = [
         "`rails g migration AddNameToUsers name:string` でカラム追加マイグレが生成。",
       reason:
         "命名規則 `Add(Columns)To(Table)` / `Remove(Columns)From(Table)` を守ると、Rails が自動でマイグレーションの本体を書いてくれる (型を指定した場合のみ)。`rails db:migrate` で適用、`rails db:rollback` で 1 つ戻る。",
+      beginnerExplanation:
+        "Rails のマイグレーション生成は、**ファイル名の命名規則** を見て自動的に内容を推測してくれます。\n\n**カラム追加の定型**:\n```bash\nrails g migration AddNameToUsers name:string\n```\n生成されるファイル:\n```ruby\nclass AddNameToUsers < ActiveRecord::Migration[7.1]\n  def change\n    add_column :users, :name, :string\n  end\nend\n```\n\n**命名パターン**:\n| ファイル名 | 推測される動作 |\n|---|---|\n| `AddXxxToYyy` | `add_column :yyy, :xxx, ...` |\n| `RemoveXxxFromYyy` | `remove_column :yyy, :xxx, ...` |\n| `CreateYyy` | `create_table :yyy do |t| ... end` |\n| `RenameYyyXxxToZzz` | `rename_column :yyy, :xxx, :zzz` (手動編集要) |\n\n**カラム型** は `name:string` のように `:` 区切りで指定:\n- `string` (短い文字列、デフォルト 255 文字)\n- `text` (長い文字列、ブログ本文など)\n- `integer`, `bigint`, `decimal`\n- `boolean`, `date`, `datetime`, `time`\n- `references` (外部キー、`user:references` → `user_id` + 外部キー制約)\n\n**コマンド一覧**:\n```bash\nrails g migration AddNameToUsers name:string   # 生成\nrails db:migrate                                # 適用\nrails db:rollback                               # 1 つ戻る\nrails db:migrate:status                         # 状況確認\nrails db:migrate VERSION=20240101000000         # 特定バージョンまで\n```\n\n**規約から外れた処理** (rename, データ移行など) は手動でマイグレーションを書きます。`change` メソッドが reverse 不能な操作 (raw SQL など) を含む場合は `up` / `down` を分けて書く必要があります。",
+      modelSelfExplanation: {
+        conclusion:
+          "正解は `AddNameToUsers name:string`。Rails の generator はファイル名 (`Add(Column)To(Table)`) からマイグレーション本体を推測し、`name:string` の型指定でカラム追加コードまで自動生成する。",
+        reason:
+          "Rails のマイグレーション generator は『命名規則 + 引数で型指定』というシンプルな DSL を持ち、命名パターン (`AddXxxToYyy`, `RemoveXxxFromYyy`, `CreateYyy`) を見て対応する Schema 変更コードを生成する。これにより開発者は SQL の DDL を直接書かずに、Ruby DSL で DB 変更を表現でき、git の差分管理・ロールバックも統一的に扱える。型指定 (`name:string`, `user:references`) は ActiveRecord の Column 型システムと対応し、PostgreSQL / MySQL などの差異を吸収する。",
+        example:
+          "実務では『新機能で users に biography カラム追加』なら `rails g migration AddBiographyToUsers biography:text`、『投稿に画像URL追加』なら `rails g migration AddImageUrlToPosts image_url:string`、『リレーション追加』なら `rails g migration AddAuthorRefToPosts author:references` (内部で `add_reference :posts, :author, foreign_key: true` を生成) のように使う。レビュー時には生成ファイルの中身を必ず確認してから db:migrate する。",
+        pitfall:
+          "本番運用中の DB に対するマイグレーションは『無停止 (zero downtime) で実行可能か』を要検討。例えば NOT NULL 制約付きカラムを既存テーブルに追加すると、既存行で NULL になり違反する。対策: ①まず default 値付きで追加 → ②既存データ更新 → ③NOT NULL に変更、と 3 段階に分ける。さらに大規模テーブルの ALTER は数十分〜数時間ロックすることがあるため、強制改名や型変更は時間外実施 + バックアップが基本。",
+      },
       codeExample:
         "# 生成\nrails g migration AddNameToUsers name:string\n\n# 中身 (自動生成される)\nclass AddNameToUsers < ActiveRecord::Migration[7.1]\n  def change\n    add_column :users, :name, :string\n  end\nend\n\n# 関連の追加\nrails g migration AddUserRefToPosts user:references\n# → add_reference :posts, :user, null: false, foreign_key: true\n\nrails db:migrate\nrails db:rollback",
+      commonMistakes: [
+        "本番テーブルに NOT NULL カラムを即追加 → 既存行で違反。default 値経由 / バックフィル経由で段階的に。",
+        "大規模テーブルの ALTER でロックが長時間続く。バックアップと時間外実施で。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Active Record Migrations (公式)",
+          url: "https://guides.rubyonrails.org/active_record_migrations.html",
+        },
+      ],
     },
   },
   {

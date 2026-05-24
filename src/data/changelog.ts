@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-24-m",
+    date: "2026-05-24",
+    title: "ActiveRecord カテゴリの解説拡充スタート (ar-001〜005)",
+    badge: "content",
+    highlights: [
+      "ar-001 (has_many) / ar-002 (find vs find_by) / ar-003 (find_each で OOM 回避) / ar-004 (N+1 と includes/preload/eager_load) / ar-005 (マイグレーション命名)",
+      "Rails 開発の心臓部 ActiveRecord の重要トピックを実例付きで深掘り",
+      "残り 18 問 (ar-006〜023) は順次拡充",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-24-l",
     date: "2026-05-24",
     title: "🎉 Rails 規約カテゴリ完走 — rails-006〜010 (Phase 2)",
