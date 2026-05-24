@@ -17,6 +17,22 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-27-e",
+    date: "2026-05-27",
+    title: "🧩 全カテゴリ 20 問化 — 残り 6 カテゴリに +60 問拡充",
+    badge: "content",
+    highlights: [
+      "🟨 js-basics: 15 → 20 (??/optional chaining/structuredClone/Symbol/typeof null)",
+      "🟨 js-functions: 10 → 20 (arrow this / bind / closure / map-filter-reduce / IIFE / pure / curry-partial 他)",
+      "🟨 js-async: 10 → 20 (Promise.all 系 / 微小マクロタスク / AbortController / top-level await / Worker 他)",
+      "🗃️ sql-basics: 10 → 20 (LIMIT-OFFSET / NULLS LAST / DISTINCT / ILIKE / BETWEEN-IN / CASE / RETURNING / UPSERT / スカラーサブクエリ / NULL の 3 値論理)",
+      "🔗 sql-joins: 8 → 20 (CROSS / SELF / USING-ON / NATURAL の罠 / LATERAL / ANTI / SEMI / UNION-ALL / INTERSECT-EXCEPT / 3 テーブル JOIN / IN vs JOIN / derived table)",
+      "📈 sql-advanced: 7 → 20 (分離レベル / MVCC / FOR UPDATE / デッドロック / EXPLAIN / Seq vs Index vs Bitmap / cost / VACUUM-ANALYZE / HOT / COPY / pg_stat_statements / PgBouncer / Partitioning)",
+      "🎉 これで全 19 カテゴリが 20 問以上に — 問題総数 ~355",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-27-d",
     date: "2026-05-27",
     title: "🧩 既存トラックの問題を +43 問拡充 (累計 ~295 問へ)",
