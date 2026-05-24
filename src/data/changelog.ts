@@ -17,6 +17,20 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-26-d",
+    date: "2026-05-26",
+    title: "🔷 Study Guide に TypeScript を追加 (7 章)",
+    badge: "content",
+    highlights: [
+      "🔷 TypeScript の地図 — 型で守る JavaScript (新規ガイド、7 章 / 約 60 分)",
+      "1. tsconfig と strict / 2. 型システムの基礎 / 3. 関数とジェネリクス / 4. オブジェクト型操作 / 5. 型ガードと Narrowing / 6. 非同期と Promise / 7. React/Next との実践",
+      "Mapped Type / Conditional Type / Template Literal Type / Utility Types を実例で解説",
+      "Server / Client Components の境界と Next.js 15+ の params (Promise) も実例付き",
+      "TS Handbook / Total TypeScript / React TS Cheatsheet などの公式系リンク完備",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-26-c",
     date: "2026-05-26",
     title: "📚 Study Guide を 6 章 → 14 章に拡充 (Ruby 7 + JS 7)",
