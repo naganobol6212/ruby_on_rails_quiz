@@ -291,8 +291,33 @@ export const questions: Question[] = [
       summary: "`String#upcase` は文字列をすべて大文字に変換する。",
       reason:
         "大文字小文字変換系は upcase / downcase / capitalize (先頭だけ大文字) / swapcase (大小入れ替え) の 4 つ。すべて末尾に `!` を付けた破壊版も存在します。",
+      beginnerExplanation:
+        "Ruby の String クラスには、大文字小文字を切り替える便利なメソッドが 4 つそろっています。\n\n- `upcase` → 全部を大文字にする (例: \"Hello\" → \"HELLO\")\n- `downcase` → 全部を小文字にする (例: \"Hello\" → \"hello\")\n- `capitalize` → 先頭だけ大文字、残りは小文字 (例: \"hello world\" → \"Hello world\")\n- `swapcase` → 大文字と小文字を入れ替え (例: \"Hello\" → \"hELLO\")\n\nどれも非破壊的に新しい文字列を返します。元の文字列も変えたいときは末尾に `!` を付けた破壊版 (`upcase!`, `downcase!`, ...) を使います。\n\nメソッド名はそのまま英語の動詞なので「大文字化したい → up + case で upcase」と覚えると忘れません。",
+      modelSelfExplanation: {
+        conclusion:
+          "メソッド名は `upcase`。String の非破壊的メソッドで、新しい大文字版の文字列を返す。",
+        reason:
+          "Ruby の文字列ケース変換は upcase / downcase / capitalize / swapcase の 4 種類で、命名は英語の動詞そのまま。upcase は U+0041〜U+005A の範囲 (アスキー大文字) に加え、Ruby 2.4 以降はマルチバイト文字 (ä → Ä など Unicode 全般) にも対応している。",
+        example:
+          "たとえばユーザーが入力した email を保存前に正規化したいなら `email = params[:email].downcase.strip`。記事タイトルを画面表示で強調したいときは `title.upcase`。先頭だけ大文字にしたい人名表記なら `name.capitalize`。",
+        pitfall:
+          "破壊版 `upcase!` は変更がなかった場合 (元から全部大文字) は nil を返す仕様。`x = str.upcase!; x.length` のように直接チェインすると NoMethodError になる。返り値で判断したいなら非破壊版を使う。",
+      },
       codeExample:
         '"hello".upcase      #=> "HELLO"\n"HELLO".downcase    #=> "hello"\n"hello".capitalize  #=> "Hello"\n"Hello".swapcase    #=> "hELLO"\n\n# 破壊版\ns = "hello"\ns.upcase!  #=> "HELLO"\ns          #=> "HELLO"',
+      commonMistakes: [
+        "破壊版 `upcase!` は変更がなければ nil を返す。チェインしていると NoMethodError の原因になる。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: String#upcase",
+          url: "https://docs.ruby-lang.org/ja/latest/method/String/i/upcase.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: String クラス (大小変換メソッド一覧)",
+          url: "https://docs.ruby-lang.org/ja/latest/class/String.html",
+        },
+      ],
     },
   },
   {
@@ -309,6 +334,12 @@ export const questions: Question[] = [
       "両方ともエラー",
     ],
     answerIndex: 1,
+    choiceExplanations: [
+      "両方で式展開が動くわけではない。シングルクォートは式展開を解釈しないので 2 行目は文字どおり表示される。",
+      "正解。ダブルクォートは式展開と `\\n` などのエスケープを解釈、シングルクォートはリテラル通り (`\\\\` と `\\'` だけは解釈)。",
+      "順序が逆。式展開が動くのはダブルクォートの方なので 1 行目で `Alice` に置換される。",
+      "シングルクォートでも `#{...}` は単なる文字として扱われるだけでエラーにはならない。",
+    ],
     hints: [
       "ダブルクォートとシングルクォートには違いがあります。",
       "式展開 `#{}` が動くのはどちらか？",
@@ -318,10 +349,29 @@ export const questions: Question[] = [
       summary: "ダブルクォートのみ式展開とエスケープシーケンスが有効。",
       reason:
         'シングルクォート文字列はリテラル通り (ほぼ raw string)、ダブルクォート文字列は `#{式}` の式展開と `\\n` などのエスケープシーケンスを解釈します。パフォーマンス差はほぼ無いので「式展開・改行コードを使うか」で選び、なるべくダブルクォート優位で書く流派が多いです。',
+      beginnerExplanation:
+        "Ruby の文字列にはクォート (引用符) が 2 種類あって、見た目は似ていても挙動が違います。\n\n- **ダブルクォート `\"...\"`** は『中身を解釈する』クォート。`#{変数や式}` を書くと、その値で置き換えられます (これを「式展開」または「文字列補間」と呼びます)。また `\\n` (改行)、`\\t` (タブ) のようなエスケープシーケンスも展開します。\n- **シングルクォート `'...'`** は『書いたまま』のクォート。`#{name}` と書いても文字としての \"#{name}\" がそのまま入ります。エスケープも `\\\\` (バックスラッシュ自身) と `\\'` (シングルクォート自身) の 2 種類しか解釈しません。\n\nつまり「変数の値を埋め込みたい」「改行を入れたい」場合はダブルクォート、「`#{}` や `\\n` を文字として残したい (例: 正規表現や JSON の生文字列)」場合はシングルクォート、と使い分けます。\n\nどちらでも作られるオブジェクトはただの String なので、できあがった後は区別がありません。書く側の表現の違いだけです。",
+      modelSelfExplanation: {
+        conclusion:
+          "1 行目は `Hello, Alice!`、2 行目は `Hello, #{name}!` が出力される。ダブルクォートは式展開を解釈し、シングルクォートはリテラル通り扱うから。",
+        reason:
+          "Ruby のパーサはクォートの種類を見て解釈モードを切り替える。ダブルクォートでは `#{}` の中身を Ruby 式として評価して文字列化、さらに `\\n`/`\\t`/`\\\\` などのバックスラッシュ列をエスケープとして解釈する。シングルクォートはほぼ raw string で、`\\'` と `\\\\` の 2 種類だけ解釈する。",
+        example:
+          "たとえばログ出力なら `\"[#{Time.now}] #{level}: #{msg}\"` のようにダブルクォートで変数を埋め込むのが定番。逆に正規表現や Windows パス、サンプルコードを文字列として表示したいときは `'C:\\\\Users\\\\#{name}'` のようにシングルクォートで生のまま書ける。",
+        pitfall:
+          "RuboCop のデフォルト規約 (Style/StringLiterals) は『式展開不要ならシングルクォート』だが、Rails アプリの多くは可読性重視でダブルクォート統一にしている。プロジェクト全体のスタイルに合わせるのが優先。さらに、シングルクォート内で `\\n` を書いても改行にはならず文字列として 2 文字 (`\\` と `n`) になる点もハマりやすい。",
+      },
       codeExample:
         'n = 3\n"#{n} 回"    #=> "3 回"\n\'#{n} 回\'   #=> "#{n} 回"\n\n"a\\nb"   #=> "a\nb" (改行)\n\'a\\nb\'  #=> "a\\\\nb" (バックスラッシュとn)',
       commonMistakes: [
         "Rubocop の Style/StringLiterals は式展開不要ならシングルクォート推奨だが、Rails アプリの多くはダブルクォート統一。プロジェクト規約に合わせる。",
+        "シングルクォート内で `\\n` を書いても改行にはならない (文字としての `\\n`)。改行が欲しいなら必ずダブルクォート。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: 文字列リテラル (式展開・エスケープ)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fliteral.html#string",
+        },
       ],
     },
   },
@@ -334,6 +384,12 @@ export const questions: Question[] = [
     code: "x = 10\nputs x.respond_to?(:even?) ? x.even? : 'no method'",
     choices: ["true", "false", "'no method'", "NoMethodError"],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。Integer は `even?` を持つので三項演算子の条件は true。さらに 10 は偶数なので `10.even?` が true を返す。",
+      "false になるのは 10 が奇数の場合だが、10 は偶数。",
+      "respond_to? の戻り値が false (= メソッドを持たない) の場合に出るが、Integer は標準で even? を持つのでこの分岐には来ない。",
+      "メソッドを持たないオブジェクトに直接 `even?` を呼ぶと出るが、ここでは respond_to? で事前にガードしているので発生しない。",
+    ],
     hints: [
       "`respond_to?` は、そのオブジェクトがメソッドを持っているかを返します。",
       "`Integer#even?` は標準メソッドです。",
@@ -344,10 +400,33 @@ export const questions: Question[] = [
         "Integer は `even?` を持ち、10 は偶数なので true が出力される。",
       reason:
         "`respond_to?(:メソッド名)` はオブジェクトがそのメソッドを呼べるかを返します。動的にメソッド存在をチェックしたいときに使います。Duck Typing と組み合わせて型ではなく振る舞いで分岐できます。",
+      beginnerExplanation:
+        "このコードは「ガード付きメソッド呼び出し」の典型例です。順を追って読みましょう。\n\n1. `x = 10` で x に整数 10 を代入。\n2. `x.respond_to?(:even?)` で「x は `even?` というメソッドを持っているか?」を問い合わせます。Integer クラスには `even?` が定義されているので、これは true を返します。\n3. 三項演算子 `条件 ? A : B` は、条件が真なら A、偽なら B を返す書き方です。今回は条件が真なので A の `x.even?` が評価されます。\n4. `10.even?` は『10 は偶数か?』。偶数なので true が返り、puts で出力されます。\n\nなぜ `x.even?` を直接呼ばずに `respond_to?` でガードするかというと、x が将来 Integer 以外 (例えば文字列や nil) になっても安全だからです。これを **Duck Typing (ダックタイピング)** と言い、『型ではなく振る舞いで分岐する』Ruby らしい書き方です。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は `true`。Integer は標準で `even?` を持つので respond_to? の判定が true となり、その後の `10.even?` も偶数なので true を返すから。",
+        reason:
+          "`respond_to?(:sym)` はオブジェクトがそのメソッドを呼び出せる状態にあるかを問い合わせる仕組み。クラスを直接調べる代わりに『振る舞いを満たすか』で分岐する Duck Typing の核となるメソッド。三項演算子と組み合わせれば、メソッドがあるときだけ呼び、無ければフォールバック値を返す安全なディスパッチが書ける。",
+        example:
+          "実務では、複数の型を受け取る関数で `if obj.respond_to?(:each); obj.each { ... }; end` のように使う。Enumerable をミックスインした自作クラスでも、Array でも、Range でも同じコードで処理できる。Rails の serializer などでも、オブジェクトが特定の表現メソッドを持つかで分岐する場面で頻出。",
+        pitfall:
+          "`respond_to?` はデフォルトでは public メソッドしか検出しない。private メソッドも含めたいなら第 2 引数に true を渡す: `obj.respond_to?(:foo, true)`。また `method_missing` で動的にメソッドを生成しているオブジェクトには嘘の結果を返すことがあるので、その場合は `respond_to_missing?` 側も実装する必要がある。",
+      },
       codeExample:
         "10.respond_to?(:even?)   #=> true\n\"a\".respond_to?(:even?)  #=> false\n10.respond_to?(:foo)     #=> false\n\n# Duck Typing\nif obj.respond_to?(:each)\n  obj.each { |x| puts x }\nend",
       commonMistakes: [
         "`respond_to?` はプライベートメソッドを検出しない。第2引数に true を渡すと検出する: `obj.respond_to?(:foo, true)`",
+        "`method_missing` で動的にメソッドを定義する場合、対になる `respond_to_missing?` も実装しないと respond_to? が嘘を返す。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Object#respond_to?",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Object/i/respond_to=3f.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: Integer#even?",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Integer/i/even=3f.html",
+        },
       ],
     },
   },
@@ -368,10 +447,33 @@ export const questions: Question[] = [
       summary: "`to_s` は to string の略。",
       reason:
         "Ruby の型変換は `to_s` (文字列)、`to_i` (整数)、`to_f` (浮動小数)、`to_a` (配列)、`to_h` (ハッシュ) など短縮形で統一されています。`to_str` のような末尾フル名は「暗黙の変換」を意味し、内部用です。",
+      beginnerExplanation:
+        "Ruby の型変換メソッドは `to_` + クラスを表す短い文字で統一されています。一度覚えれば全クラスで通用するルールです。\n\n- `to_s` → 文字列 (String) へ。例: `123.to_s` → `\"123\"`\n- `to_i` → 整数 (Integer) へ。例: `\"42\".to_i` → `42`\n- `to_f` → 浮動小数 (Float) へ。例: `\"3.14\".to_f` → `3.14`\n- `to_a` → 配列 (Array) へ。例: `(1..3).to_a` → `[1, 2, 3]`\n- `to_h` → ハッシュ (Hash) へ。例: `[[:a, 1]].to_h` → `{a: 1}`\n- `to_sym` → シンボル (Symbol) へ。例: `\"hello\".to_sym` → `:hello`\n\n書きながら覚えるなら **to_ + クラスの頭文字 1 文字 (Symbol だけは sym と 3 文字)** と憶えるとシンプルです。`to_string` や `to_integer` のような長い名前ではない、というのが他の言語からの移行でつまずきやすいポイントです。\n\n表示や文字列補間 (`\"#{x}\"`) では自動的に to_s が呼ばれるので、明示的に書かなくても文字列化されることが多いですが、型を確実に揃えたいときには手動で `to_s` を付けます。",
+      modelSelfExplanation: {
+        conclusion:
+          "メソッド名は `to_s` (to string の略)。整数 123 に対して呼ぶと文字列 `\"123\"` を返す。",
+        reason:
+          "Ruby は明示的な型変換メソッドを `to_` + 短い接尾辞で統一している (to_s / to_i / to_f / to_a / to_h / to_sym)。すべてのクラスでこの命名が一貫しているため、組み込み型でもユーザー定義クラスでもメソッド名を覚え直す必要がない。文字列補間や `puts` の出力時には自動で to_s が呼ばれるので、自作クラスに `def to_s` を実装すれば見栄えのいい文字列化を提供できる。",
+        example:
+          "たとえばログ出力で `\"User ##{user_id}\"` と書くと、user_id が Integer なら自動的に to_s が呼ばれて文字列に埋め込まれる。HTTP リクエストの URL 組み立てでも `\"/users/#{id}.json\"` のように整数を文字列に混ぜる場面で必須。自分で URL を組み立てる Rails のコントローラなどで頻繁に登場。",
+        pitfall:
+          "`to_s` は失敗しない (どんな値も何らかの文字列を返す) が、対になる `to_i` は失敗時に 0 を返す仕様で、入力エラーに気付けない。厳密にしたいなら Kernel の `Integer(\"abc\")` を使うと ArgumentError で例外が出る。また `to_str` は別物で、Ruby 内部の『暗黙の型変換』に使う特別なメソッドなので一般コードでは呼ばない。",
+      },
       codeExample:
         '123.to_s        #=> "123"\n"123".to_i      #=> 123\n"abc".to_i      #=> 0 (失敗時)\nInteger("abc")  #=> ArgumentError (厳格版)\n\n3.14.to_i       #=> 3 (切り捨て)\n"3.14".to_f     #=> 3.14',
       commonMistakes: [
         "`to_i` は失敗時に 0 を返す。エラーで気付きたい時は Kernel の `Integer(\"abc\")` を使う。",
+        "`to_s` と `to_str` は別物。to_str は Ruby 内部の暗黙変換用で、一般コードで呼ぶことはほぼない。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Object#to_s",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Object/i/to_s.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: Kernel.#Integer (厳格な変換)",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Kernel/m/Integer.html",
+        },
       ],
     },
   },
@@ -389,6 +491,12 @@ export const questions: Question[] = [
       "hello, world / hello, world",
     ],
     answerIndex: 1,
+    choiceExplanations: [
+      "引数を省略した時に空文字になるのは Python の `def f(x=None)` などの場合。Ruby ではデフォルト値 `\"world\"` が使われるので空にはならない。",
+      "正解。1 回目は引数省略でデフォルトの `\"world\"`、2 回目は明示的に渡した `\"Ruby\"` が name に入る。",
+      "デフォルト引数があるため引数なしでも ArgumentError にはならない。エラーになるのはデフォルトのない必須引数を省略した時だけ。",
+      "2 回目は明示的に \"Ruby\" を渡しているので、デフォルト値ではなくその値が name に入る。明示指定はデフォルトより優先される。",
+    ],
     hints: [
       "デフォルト引数が定義されています。",
       "引数なしで呼ぶと、デフォルト値が使われます。",
@@ -398,10 +506,29 @@ export const questions: Question[] = [
       summary: "デフォルト引数は呼び出し時に引数省略するとその値が使われる。",
       reason:
         "Ruby のメソッドは `def name(arg = デフォルト値)` でデフォルト引数を設定できます。デフォルト値は呼び出し毎に評価されるので、`Time.now` のような動的な値も使えます。",
+      beginnerExplanation:
+        "メソッド定義の `def greet(name = \"world\")` は『引数 name のデフォルト値は \"world\" ですよ』という意味です。\n\n- `greet` (引数なし) で呼ぶと、name には \"world\" が入って `\"hello, world\"` が返ります。\n- `greet(\"Ruby\")` で呼ぶと、name には \"Ruby\" が入って `\"hello, Ruby\"` が返ります。\n\n**ポイント**: Ruby のデフォルト値は『呼び出し時に評価される』という性質があります。これは Python と違うところで、Python では `def f(x=[])` のように書くとリスト [] が定義時に 1 度だけ作られて使い回されてしまう (有名な落とし穴) ですが、Ruby では呼び出すたびに右辺が評価されるので毎回新しい値が使われます。\n\nそのため `def log(msg, time = Time.now)` と書けば、`time` は呼び出すたびに最新の時刻になります。動的なデフォルト値が安全に使えます。\n\nなお Ruby にはキーワード引数 (`def f(name:, role: \"user\")`) もあり、引数の意味を呼び出し側で明示できます。引数が増えてきたらキーワード引数にした方が読みやすくなります。",
+      modelSelfExplanation: {
+        conclusion:
+          "1 行目は `hello, world`、2 行目は `hello, Ruby`。デフォルト引数 `name = \"world\"` は引数省略時のフォールバック値で、明示的に値を渡せばその値で上書きされる。",
+        reason:
+          "Ruby はメソッド定義で `仮引数 = 式` の形でデフォルト値を指定でき、呼び出し時に対応する位置の引数が省略されたら式を評価して使う。式は呼び出しごとに毎回評価されるため、Time.now や [] のような動的な値も毎回新規に作られて使われる。これは Python のように『定義時に 1 度だけ評価して使い回す』タイプの言語との重要な違い。",
+        example:
+          "実務では Rails のコントローラで `def index(page: params[:page] || 1)` のように使ったり、ユーティリティで `def http_client(adapter: Faraday.default_adapter)` のように差し替え可能なデフォルトを書く。ロガーの実装で `def log(msg, level: :info, at: Time.now)` のように複数の動的デフォルトを組み合わせるのも定番。",
+        pitfall:
+          "デフォルト値は呼び出しごとに毎回評価されるので、重い処理 (DB 問い合わせなど) をデフォルト値に書くと意外なコストになる。また、デフォルト引数の後ろに必須引数を置くと ArgumentError の原因になりやすいので、必須を前 / デフォルト付きを後ろに並べるのが原則 (キーワード引数を使うとこの制約から解放される)。",
+      },
       codeExample:
         'def log(msg, time = Time.now)\n  puts "[#{time}] #{msg}"\nend\n\nlog("起動")  # 毎回 Time.now が評価される\n\n# キーワード引数も可\ndef create(name:, role: "user")\n  { name: name, role: role }\nend\ncreate(name: "Alice")  #=> {name: "Alice", role: "user"}',
       commonMistakes: [
         "デフォルトに `Time.now` を入れた場合、メソッド呼び出し毎に評価される (Python と違って定義時には評価されない)。これは Python と Ruby の重要な差。",
+        "デフォルト引数の後ろに必須引数を置くと読みにくく ArgumentError の原因になる。順番は『必須 → デフォルト付き → *args → キーワード → &block』が定石。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: メソッド定義 (デフォルト引数 / キーワード引数)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fdef.html",
+        },
       ],
     },
   },
