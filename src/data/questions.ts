@@ -2361,6 +2361,12 @@ export const questions: Question[] = [
       "上記いずれも一般的な選択肢",
     ],
     answerIndex: 3,
+    choiceExplanations: [
+      "正しい配置の 1 つだが他にも選択肢がある。Service Object パターン用。複雑な処理を 1 つの『動詞』クラスに切り出す。",
+      "正しい配置の 1 つだが他にも選択肢がある。汎用ユーティリティや拡張ロジックを置く `app/lib/` (または `lib/` 直下)。",
+      "正しい配置の 1 つだが他にも選択肢がある。Concern (Module による振る舞いの共有) 用で、複数モデルで共通処理を mixin する場面で使う。",
+      "正解。Rails は意図的に正解の Service レイヤを規定していないため、上記すべてが現場で広く採用される定番パターン。",
+    ],
     hints: [
       "Rails には『正解』が無いが、複数のパターンが定着しています。",
       "Service Object, Concerns, lib それぞれ用途が異なる。",
@@ -2371,8 +2377,30 @@ export const questions: Question[] = [
         "Service Object 用に `app/services/`、Mixin 用に `concerns/`、汎用は `app/lib/` が定番。",
       reason:
         "Rails は意図的に Service レイヤを定義していないため、コミュニティで複数パターンが発達: (1) Service Object (`app/services/`), (2) Concern (Module で振る舞いを共有), (3) Form Object, Query Object, Decorator など。Rails 5+ では `app/` 直下のサブディレクトリは自動的に autoload される。",
+      beginnerExplanation:
+        "Rails は **意図的に『MVC 以外のレイヤ』を規定していません**。これは『フレームワークが指図しすぎず、アプリの規模や流派に合わせて選べるようにする』という DHH の方針です。\n\nその結果、コミュニティで複数のパターンが定着しました:\n\n**1. Service Object (`app/services/`)**\n- 1 つの『動詞』を表すクラス。`PostPublisher`, `OrderCheckout` など。\n- メソッドは大抵 `call` 1 つだけ。`PostPublisher.new(post).call` で実行。\n- Model が肥大化した『複数モデルにまたがる処理』をここに切り出す。\n\n**2. Concern (`app/models/concerns/` や `app/controllers/concerns/`)**\n- Module で振る舞いを共有する仕組み。`include Searchable`, `include SoftDeletable` のように使う。\n- 複数モデルで同じ scope やメソッドを共有したいときに。\n\n**3. lib (`app/lib/` または `lib/` 直下)**\n- 汎用的なユーティリティ。`MyApp::CsvExporter`, `MyApp::Wrapper::SlackClient` など。\n- フレームワーク非依存の純 Ruby コード向き。\n\nさらに **Form Object** (複雑なフォーム用)、**Query Object** (複雑なクエリ用)、**Decorator** (表示ロジック専用) など、用途別の細かいパターンもあります。\n\n**選び方**: 困ったらまず Service Object で始めるのが今のデファクト。Rails 5+ では `app/` 直下に独自ディレクトリを掘れば自動で autoload されるので、`app/services/`, `app/queries/`, `app/forms/` などを必要に応じて作っていけば OK。",
+      modelSelfExplanation: {
+        conclusion:
+          "Rails は意図的に Service レイヤを規定していないため、`app/services/` (Service Object)、`app/models/concerns/` (Module 共有)、`app/lib/` (汎用ユーティリティ) など複数のパターンがすべて『一般的な選択肢』として共存している。",
+        reason:
+          "DHH は『Rails は意見の押し付けが強いフレームワーク (opinionated)』である一方で、アプリの規模や設計流派は多様なため、Service レイヤだけは意図的に空白にして自由に選べるようにした。これによりコミュニティで Service Object / Concern / Form Object / Query Object / Decorator など複数の有名パターンが発達し、それぞれ用途が異なる。Rails 5+ では `app/` 直下のサブディレクトリは autoload されるため、独自レイヤを追加するコストも低い。",
+        example:
+          "実務では: 『記事を公開する処理 (DB 更新 + メール送信 + Slack 通知)』を Service Object `PostPublisher.new(post).call` に集約、複数モデルが持つ『論理削除』を Concern `module SoftDeletable` で共有、CSV エクスポート機能を `app/lib/csv_exporter.rb` で汎用化、複雑な検索画面のパラメータ束ね役を Form Object `PostSearchForm` で表現、というように使い分ける。チームの好みや規模で選択は変わる。",
+        pitfall:
+          "『Service Object に何でも詰め込む』『Concern を mixin しすぎてどのクラスに何があるか分からなくなる』のような乱用が起きやすい。Service は 1 つの動詞 / 1 つの責務に限定 (Single Responsibility)、Concern は 2 つ以上の場所で再利用する場合のみ、と方針を決めておく。チーム内で『どのパターンをどう使うか』のスタイルガイドを早めに合意するのが大切。",
+      },
       codeExample:
         '# app/services/post_publisher.rb\nclass PostPublisher\n  def initialize(post); @post = post; end\n  def call\n    @post.update!(published_at: Time.current)\n    NotifyMailer.published(@post).deliver_later\n  end\nend\n\n# Controller から\nPostPublisher.new(@post).call\n\n# Concern (Module で共有)\n# app/models/concerns/soft_deletable.rb\nmodule SoftDeletable\n  extend ActiveSupport::Concern\n  included do\n    scope :active, -> { where(deleted_at: nil) }\n  end\nend',
+      commonMistakes: [
+        "Service Object に複数の責務を詰め込みすぎる。1 動詞 / 1 クラスを徹底する。",
+        "Concern を多用して『どのモデルに何がある』が分からなくなる。2 か所以上で再利用する場合のみ使う。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Active Support Concern",
+          url: "https://api.rubyonrails.org/classes/ActiveSupport/Concern.html",
+        },
+      ],
     },
   },
   {
@@ -2393,8 +2421,30 @@ export const questions: Question[] = [
         "Rails の environment は development / test / production などの実行環境を表す。",
       reason:
         "`Rails.env` で現在の環境を取得 (`Rails.env.production?` でブール判定可)。環境ごとに `config/environments/development.rb` 等で設定を分離。`RAILS_ENV` 環境変数で切り替える。",
+      beginnerExplanation:
+        "Rails は 1 つのコードベースを **複数の『環境 (environment)』** で動かせるよう設計されています。標準で 3 つの環境が用意されています。\n\n- **development** — 開発中のローカル環境。エラー時に詳細なスタックトレース表示、コード変更で自動リロード。\n- **test** — テスト実行時の環境。DB はテスト専用、ランダムシードや fixtures が動く。\n- **production** — 本番運用の環境。アセットは事前コンパイル、エラーは汎用ページ、ログ最小限。\n\n切り替えは **`RAILS_ENV` 環境変数** で:\n```bash\nRAILS_ENV=production rails server\nRAILS_ENV=test rails test\n```\n\n**コードから現在の環境を取る**: `Rails.env`\n```ruby\nRails.env             # => 'development' などの文字列\nRails.env.production? # => true/false の便利メソッド\nif Rails.env.production?\n  send_real_email\nelse\n  Rails.logger.info 'skipped (non-prod)'\nend\n```\n\n**環境ごとの設定** は `config/environments/{development,test,production}.rb` に書きます。例えば本番だけ `config.cache_classes = true` (起動高速化、コード自動リロード無効) のように切り替えます。\n\n**追加の環境** も自由に作れます。`staging` 環境を作るなら `config/environments/staging.rb` を追加し、`RAILS_ENV=staging` で起動。クラウドの本番手前環境を分けたい場面で頻出です。",
+      modelSelfExplanation: {
+        conclusion:
+          "概念名は **environment** (Rails 環境)。development / test / production などの実行モードを表し、`RAILS_ENV` 環境変数や `Rails.env` で参照・切り替えする。",
+        reason:
+          "1 つのコードベースを開発・テスト・本番のように異なる目的で動かす際、設定 (DB 接続先、ログレベル、メール送信先、キャッシュ戦略など) を切り替える必要がある。Rails はこの軸を『environment』として 1 級の概念にし、`config/database.yml` / `config/environments/*.rb` / `Rails.env` API などで一貫して扱える。標準の 3 環境に加え、staging のような独自環境も追加できる柔軟性を持つ。",
+        example:
+          "本番だけ `Stripe.api_key = ENV.fetch('STRIPE_LIVE_KEY')`、開発では `Stripe.api_key = 'sk_test_...'` のように分岐。テスト環境では `config.action_mailer.delivery_method = :test` でメール送信せず ActionMailer::Base.deliveries に貯める。Rails.env.production? でしか実行したくない処理 (Slack 通知など) を if 分岐で守る。",
+        pitfall:
+          "`if Rails.env.production?` を散在させるとテストが書きづらくなる。本来は『ActionMailer の delivery_method 設定』のような形で設定オブジェクト側に環境差を閉じ込め、ビジネスロジックは環境分岐を持たないのが望ましい。さらに RAILS_ENV と RACK_ENV の取り違え、staging を作ったのに `Rails.env.staging?` メソッドが定義されていないなどのハマりも頻発する (`config.eager_load = true` などの環境固有設定を staging.rb で明示する必要)。",
+      },
       codeExample:
         '# config/database.yml\ndevelopment:\n  adapter: postgresql\n  database: myapp_dev\ntest:\n  database: myapp_test\nproduction:\n  url: <%= ENV["DATABASE_URL"] %>\n\n# コード内\nif Rails.env.production?\n  send_email\nelse\n  Rails.logger.info "skipped"\nend',
+      commonMistakes: [
+        "ビジネスロジックに `if Rails.env.production?` を散在させない。設定オブジェクトに閉じ込めるのが望ましい。",
+        "独自環境 (staging 等) を作ったら `Rails.env.staging?` が動くよう `config/environments/staging.rb` を明示。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Configuring Rails Applications (公式)",
+          url: "https://guides.rubyonrails.org/configuring.html",
+        },
+      ],
     },
   },
   {
@@ -2411,6 +2461,12 @@ export const questions: Question[] = [
       "app/models/blogpost.rb → BlogPost",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。snake_case ファイル名 `blog_post.rb` ↔ CamelCase 定数 `BlogPost` が Zeitwerk の規約。ディレクトリが無ければ名前空間も無い。",
+      "`Blog::Post` (名前空間あり) と対応するのは `app/models/blog/post.rb` (ディレクトリで階層を表現)。`blog_post.rb` ではない。",
+      "Zeitwerk はファイル名を snake_case 前提で解釈する。`BlogPost.rb` (CamelCase) は規約違反で読み込まれない。",
+      "`blogpost.rb` のように単語の区切りが無いと『BlogPost』には対応しない (むしろ『Blogpost』として読まれる)。",
+    ],
     hints: [
       "ファイル名は snake_case。",
       "ディレクトリは名前空間 (module) に対応。",
@@ -2421,8 +2477,30 @@ export const questions: Question[] = [
         "ファイル名 snake_case ↔ 定数 CamelCase、ディレクトリ ↔ 名前空間 (module) が Zeitwerk の規約。",
       reason:
         "Rails 6+ は Zeitwerk autoloader を採用。命名規則を厳守する代わりに高速・正確。違反すると `NameError: expected X to define constant Y` のエラー。`zeitwerk:check` で違反を検出可能。",
+      beginnerExplanation:
+        "Rails 6 以降は **Zeitwerk (ツァイトヴェルク)** という autoloader を標準採用しています。これは『定数名とファイル名・パスを 1 対 1 で対応させる』というルールで動きます。\n\n**マッピングルール**:\n```\napp/models/user.rb                                → User\napp/models/blog_post.rb                           → BlogPost\napp/controllers/admin/users_controller.rb         → Admin::UsersController\napp/services/posts/publisher.rb                   → Posts::Publisher\n```\n\n**3 つの規則**:\n1. **ファイル名は snake_case** (`blog_post.rb`)\n2. **定数名は CamelCase** (`BlogPost`)\n3. **ディレクトリは名前空間 (module/class)** (`admin/` → `Admin::`)\n\n**規約違反の例**:\n- `app/models/user.rb` の中で `class Person` を定義 → `expected to define User, but it didn't` エラー\n- `app/models/BlogPost.rb` (CamelCase ファイル名) → ファイルが見つからない\n- `app/services/posts_publisher.rb` で `class Posts::Publisher` を定義 → 階層が違う\n\n**チェック**: `bin/rails zeitwerk:check` を実行すると、autoload 規則違反を一括検出してくれます。CI に組み込むのがおすすめ。\n\n**メリット**: require 文を書く必要なし、起動高速、ホットリロードも正確。**デメリット**: 規約から外れると即エラー、レガシーコードの移行時にハマりやすい (Rails 6 移行ガイドが詳しい)。",
+      modelSelfExplanation: {
+        conclusion:
+          "Zeitwerk の正しい対応は `app/models/blog_post.rb → BlogPost`。snake_case ファイル名と CamelCase 定数、ディレクトリと名前空間 (module/class) が厳密に対応する。",
+        reason:
+          "Zeitwerk は Rails 6 で導入された新世代 autoloader で、『定数名から逆引きでファイルパスを決定する』方針を採用。これにより lazy loading の精度と速度が大幅に向上した。代償として規約違反 (ファイル名と定数名の不一致、ディレクトリ階層と名前空間の不一致) は即エラーになるが、エラーメッセージが親切で『どこをどう直すべきか』が明示される。`bin/rails zeitwerk:check` で起動時に違反を一括検出できる。",
+        example:
+          "Admin 用の Users コントローラーを作るなら `app/controllers/admin/users_controller.rb` に `class Admin::UsersController` (または `module Admin; class UsersController` のネスト構文)。Posts 名前空間下の Publisher サービスなら `app/services/posts/publisher.rb` に `class Posts::Publisher`。STI のサブクラスでも同じく `app/models/post.rb` (Post) → `app/models/featured_post.rb` (FeaturedPost) のように 1 ファイル 1 クラスを徹底する。",
+        pitfall:
+          "Rails 6 への移行で旧 Classic autoloader からの切り替え時、複数定数を 1 ファイルに詰めていたコードが軒並み壊れる。lib/ 配下のコードや acronym 設定 (例: `API`, `JSON` を含む定数) を Inflector に登録し忘れて autoload エラーになる、というハマりも頻発。Zeitwerk のドキュメントと Rails 6 移行ガイドが必読。",
+      },
       codeExample:
         '# 例\napp/models/user.rb                  → User\napp/models/blog_post.rb             → BlogPost\napp/controllers/admin/users_controller.rb\n                                    → Admin::UsersController\napp/services/posts/publisher.rb     → Posts::Publisher\n\n# 規約違反の例 (エラーになる)\n# app/models/user.rb の中で class Person を定義 → NameError',
+      commonMistakes: [
+        "1 ファイルに複数の定数を詰めると Zeitwerk が混乱する。1 ファイル 1 定数を徹底。",
+        "頭文字略語 (API, JSON, HTTP) を含む定数は Inflector の acronym 設定が必要。例: `inflect.acronym 'API'`。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Autoloading and Reloading Constants (Zeitwerk)",
+          url: "https://guides.rubyonrails.org/autoloading_and_reloading_constants.html",
+        },
+      ],
     },
   },
   {
@@ -2439,6 +2517,12 @@ export const questions: Question[] = [
       "rails console -e prod",
     ],
     answerIndex: 1,
+    choiceExplanations: [
+      "`--production` のような独自フラグは存在しない。Rails は環境を `-e` オプションか `RAILS_ENV` 環境変数で指定する。",
+      "正解。Unix シェル流儀で環境変数を先頭に付けて起動する一般的な書き方。`rails c -e production` でも同じ。",
+      "`console:production` のような Rake タスク風サブコマンドは存在しない。",
+      "オプション名は `-e` (短) または `--environment` (長) で値は `production` (完全名)。`-e prod` の略は受け付けない。",
+    ],
     hints: [
       "`RAILS_ENV` 環境変数で環境を指定します。",
       "`-e production` オプションでも可。",
@@ -2449,8 +2533,30 @@ export const questions: Question[] = [
         "`RAILS_ENV=production rails console` (もしくは `rails c -e production`)。",
       reason:
         "本番DBに繋いで調査・対応する時に使う。データを壊さないよう sandbox モード (`rails c --sandbox`) も併用すると、終了時にトランザクションがロールバックされて安全。",
+      beginnerExplanation:
+        "**Rails console** は対話型シェル (IRB ベース) で、Rails アプリの中身を直接触れる強力なツールです。本番環境で障害調査やワンショット修正をするときに使います。\n\n**起動コマンド**:\n```bash\n# 環境変数で指定 (Unix 流儀)\nRAILS_ENV=production rails console\n\n# オプションで指定 (Rails 流儀)\nrails console -e production\nrails c -e production       # 省略形\n```\n\n**本番接続の危険性**: 本番 DB に直接繋がるので、誤って `User.destroy_all` などを実行すると本当にデータが消えます。**最初に必ず sandbox モードを試す** のが鉄則:\n\n```bash\nRAILS_ENV=production rails c --sandbox\n```\n\n`--sandbox` を付けると **コンソール終了時に全変更がロールバック** されます。調査だけで変更しないつもりでも、念のため sandbox で開く習慣を付けるのが安全。\n\n**運用上の慣習**:\n1. 本番コンソール接続は最小限のメンバーに権限を絞る (SSH or kubectl の権限管理)\n2. 操作ログを取る (記録なしの本番変更は禁忌)\n3. 重要な変更は必ずペアでレビュー\n4. 可能なら『Web 管理画面』『専用スクリプト + PR』で行い、コンソール直接操作を避ける\n\n**Rails 7+** ではより安全な仕組みとして web console / interactive debugger が充実してきていますが、本番障害対応では今でも `rails c` が定番です。",
+      modelSelfExplanation: {
+        conclusion:
+          "本番環境で console を起動するなら `RAILS_ENV=production rails console` (または `rails c -e production`)。`--production` のような独自フラグや `:production` 風サブコマンドは存在しない。",
+        reason:
+          "Rails の CLI は POSIX 流儀に従い、環境指定は『環境変数 RAILS_ENV』または『-e / --environment オプション』のいずれかを使う。コンソール起動時に Rails アプリ全体 (eager load) を読み込んでから対話シェルを開くので、本番設定 (production の eager load、ログレベル、DB 接続先など) で動作確認・調査ができる。本番に直結する以上、誤操作のリスクが高いため `--sandbox` の併用で『終了時に全変更ロールバック』する習慣が推奨される。",
+        example:
+          "障害調査で『あるユーザのデータが壊れていないか確認』なら `rails c --sandbox -e production` で起動し、`user = User.find(123); user.posts.count` のように参照だけ。修正が必要な場合は別途 PR にマイグレーションや専用 rake task を書いてレビュー後にデプロイするのが安全。緊急時の一時パッチでも『コンソール操作の前後で必ず DB スナップショット』を取るチームが多い。",
+        pitfall:
+          "本番コンソールでうっかり `User.destroy_all` や `Post.update_all(deleted: true)` を実行すると即座に全レコードが破壊される。`-e production` の打ち間違いで dev 環境のつもりが本番だった、というのも頻発。チームで『本番 console 接続は必ず sandbox から』『破壊系メソッドは禁止』『操作内容は Slack / Notion に残す』などの運用ガイドラインを作る。さらに rails-config_for / paranoia gem 等で『破壊的操作の二重確認』を仕込むのも有効。",
+      },
       codeExample:
         "# 本番接続で起動 (危険なので慎重に)\nRAILS_ENV=production rails console\n# または\nrails console -e production\n\n# サンドボックスモード (終了時に全変更ロールバック)\nrails console --sandbox\nRAILS_ENV=production rails c --sandbox\n\n# Rails 7+ で immutable な調査推奨パターン\nuser = User.find(1)\nuser.attributes  # 確認のみ",
+      commonMistakes: [
+        "本番で素の `rails c` を打ってしまい update / destroy を誤実行。`--sandbox` を習慣化する。",
+        "本番コンソール操作の記録が残らない。Slack / Notion など共有先に必ずログを残す運用ルールを作る。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: The Rails Command Line (公式)",
+          url: "https://guides.rubyonrails.org/command_line.html#bin-rails-console",
+        },
+      ],
     },
   },
   {
@@ -2467,6 +2573,12 @@ export const questions: Question[] = [
       "config/database.yml に直書き",
     ],
     answerIndex: 2,
+    choiceExplanations: [
+      "`.env` は dotenv gem の機能で Rails 標準ではない。平文で OS の環境変数に展開する仕組みで、暗号化はされない。",
+      "`secrets.yml` は Rails 4 で導入された旧来の仕組み (平文 YAML)。Rails 5.2 で credentials に置き換えられ非推奨。",
+      "正解。Rails 5.2 以降の公式機構。`config/credentials.yml.enc` を `master.key` で暗号化保存し、リポジトリに含めても安全。`EDITOR=vim rails credentials:edit` で一時復号して編集できる。",
+      "DB 接続情報を `database.yml` に直書きするのは典型的なアンチパターン。本番接続文字列がリポジトリに混入してセキュリティリスクになる。",
+    ],
     hints: [
       "Rails 5.2 以降で導入された仕組み。",
       "暗号化されたファイルをリポジトリに含め、master.key で復号。",
@@ -2477,8 +2589,30 @@ export const questions: Question[] = [
         "Rails 5.2+ は credentials.yml.enc + master.key で暗号化シークレット管理。",
       reason:
         "`config/master.key` (gitignore 必須) で `credentials.yml.enc` を復号。本番には RAILS_MASTER_KEY 環境変数で渡す。Rails 6 からは環境別 (`config/credentials/production.yml.enc`) も可能。",
+      beginnerExplanation:
+        "**Encrypted Credentials** は Rails 5.2 から導入された **公式の秘密情報管理機構** です。API キーやパスワードのような秘密情報を Git にコミットしても安全に管理できます。\n\n**仕組み**:\n- 平文の秘密情報は `config/credentials.yml.enc` に **暗号化された状態** で保存される\n- 復号には `config/master.key` (32 文字のランダム文字列) が必要\n- `master.key` は `.gitignore` で必ず除外する\n- 本番環境では `RAILS_MASTER_KEY` 環境変数で master key を渡す\n\n**編集 (一時的に復号して $EDITOR で開く)**:\n```bash\nEDITOR=vim rails credentials:edit\n```\nエディタを閉じると自動的に暗号化されて保存される。\n\n**コードから参照**:\n```ruby\nRails.application.credentials.aws[:access_key_id]\nRails.application.credentials.dig(:stripe, :secret_key)\nRails.application.credentials.fetch(:github_token)  # 無ければ KeyError\n```\n\n**Rails 6+ では環境別** にも対応:\n```bash\nEDITOR=vim rails credentials:edit --environment production\n# config/credentials/production.yml.enc が生成される\n```\n\n**従来との比較**:\n- `secrets.yml` (Rails 4) — 平文 YAML、Git に入れたら漏洩リスク → 非推奨\n- `.env` (dotenv) — 平文、Rails 標準ではない → 開発環境では使う場面もあるが本番は credentials 推奨\n- `database.yml` 直書き — アンチパターン、絶対にやらない\n\n**運用ベストプラクティス**:\n- `master.key` は安全な場所 (1Password, AWS Secrets Manager) に複製を保管\n- 本番には `RAILS_MASTER_KEY` 環境変数で注入 (ECS, Heroku, k8s Secret)\n- 万一漏洩したら master.key を rotate (再生成 → 再暗号化 → 全環境に再配布)",
+      modelSelfExplanation: {
+        conclusion:
+          "Rails 5.2 以降の公式機構は **`config/credentials.yml.enc` + `master.key`**。`EDITOR=vim rails credentials:edit` で一時復号して編集する。`.env` や旧 `secrets.yml` は標準ではない / 非推奨。",
+        reason:
+          "従来の Rails では平文 YAML (`secrets.yml`) や OS 環境変数 (`ENV`) で秘密情報を管理していたが、リポジトリに含めると漏洩、含めないと管理が煩雑というジレンマがあった。Rails 5.2 で導入された Encrypted Credentials は『暗号化したファイルをリポジトリに含め、復号鍵 (master.key) だけを安全に配布』することで両方を解決。Rails 6 からは環境別 (development/staging/production) のクレデンシャルも管理できる。",
+        example:
+          "Stripe / AWS / SendGrid / Slack の API キーを `EDITOR=vim rails credentials:edit` で 1 ファイルに集約管理。Rails コードでは `Stripe.api_key = Rails.application.credentials.stripe[:secret_key]` のように参照する。本番デプロイ時には ECS タスク定義や k8s Secret で `RAILS_MASTER_KEY` を環境変数として注入。",
+        pitfall:
+          "`master.key` を Git にコミットしてしまうと、暗号化の意味が無くなり全 credentials が漏洩する。`.gitignore` に必ず登録し、新規参加者には Slack DM / 1Password で個別に共有。さらに『複数人で credentials を編集すると暗号化バイナリのコンフリクトが解消困難』なので、編集はチームで調整するか、staging.yml.enc に分割するなどの工夫が必要。master.key を rotate する手順 (旧キーで復号 → 新キーで再暗号化 → 全環境配布) もドキュメント化しておく。",
+      },
       codeExample:
         '# 編集 (一時的に復号して $EDITOR で開く)\nEDITOR=vim rails credentials:edit\n# または環境別\nEDITOR=vim rails credentials:edit --environment production\n\n# コード内で参照\nRails.application.credentials.aws[:access_key_id]\nRails.application.credentials.dig(:stripe, :secret_key)\n\n# 本番環境変数\nRAILS_MASTER_KEY="abc..." # ECS/Heroku 等で設定',
+      commonMistakes: [
+        "`master.key` を Git にコミットしてしまう。`.gitignore` で除外を徹底し、新規参加者には別途共有。",
+        "credentials の暗号化ファイルでコンフリクトが起きる。チームで編集タイミングを調整するか、環境別ファイルに分割する。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Securing Rails Applications (公式・Custom credentials)",
+          url: "https://guides.rubyonrails.org/security.html#custom-credentials",
+        },
+      ],
     },
   },
 

@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-24-l",
+    date: "2026-05-24",
+    title: "🎉 Rails 規約カテゴリ完走 — rails-006〜010 (Phase 2)",
+    badge: "content",
+    highlights: [
+      "rails-006 (Service Object / Concerns / lib) / rails-007 (Rails.env) / rails-008 (Zeitwerk) / rails-009 (本番 console) / rails-010 (Encrypted Credentials)",
+      "rails-convention カテゴリ全 10 問の拡充が完了",
+      "次は active-record (23 問) または ruby-oop (12 問) に着手予定",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-24-k",
     date: "2026-05-24",
     title: "Rails 規約カテゴリの解説拡充スタート (rails-001〜005)",
