@@ -6406,6 +6406,12 @@ export const questions: Question[] = [
     code: "class Foo\n  def secret\n    'shh'\n  end\n  private :secret\nend\n\nputs Foo.new.send(:secret)",
     choices: ["shh", "NoMethodError", "nil", "secret"],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。`send` は private/protected を無視して呼び出せるため、private メソッド secret も実行され戻り値 'shh' が返る。",
+      "通常 `Foo.new.secret` なら NoMethodError だが、`send` は可視性をバイパスする。",
+      "send は呼び出した結果を返す。secret メソッドは 'shh' を返しているので nil ではない。",
+      "メソッド名 (Symbol) ではなく実行結果が返る。'secret' という文字列にはならない。",
+    ],
     hints: [
       "`send` は private メソッドも呼べる。",
       "`public_send` だと public のみ。",
@@ -6416,8 +6422,30 @@ export const questions: Question[] = [
         "`send` は private/protected も無視して呼べる。public しか呼ばないなら `public_send`。",
       reason:
         "`send` はメタプロ用に強力に設計されており、可視性をバイパスする。意図せずカプセル化を破壊する可能性があるため、外部から呼ぶなら `public_send` を使うのが安全。",
+      beginnerExplanation:
+        "**`send`** と **`public_send`** は **動的にメソッドを呼び出す** メタプログラミング API。重要な違いがあります。\n\n**動作の違い**:\n```ruby\nclass Foo\n  private\n  def secret; 'shh'; end\nend\n\nFoo.new.secret              # NoMethodError (private)\nFoo.new.send(:secret)       # => 'shh' ← 可視性バイパス\nFoo.new.public_send(:secret) # NoMethodError (尊重)\n```\n\n**`send`** — 可視性 (private/protected) を **無視して呼べる**\n**`public_send`** — 可視性を **尊重**、public のみ呼べる\n\n**用途**:\n```ruby\n# 動的にメソッド名を組み立てて呼び出す\nattrs.each do |attr|\n  obj.public_send(\"#{attr}=\", values[attr])\nend\n\n# 設定値で挙動を切り替え\ndef do_action(action)\n  send(\"handle_#{action}\")   # internal なメソッド名構築なので send で OK\nend\n```\n\n**選び方**:\n- 外部入力からメソッド名を作る → 必ず **`public_send`** (private メソッドの不正呼び出し防止)\n- 自分のクラス内の private メソッドを動的に呼ぶ → `send` (意図的)\n- そもそも動的に呼ばない方が良い → 静的なメソッド分岐や Strategy パターンを検討\n\n**🚨 セキュリティ**:\n```ruby\n# ❌ 危険\nuser_input = params[:method_name]\nobj.send(user_input)        # 任意の private メソッドを実行可能!\n\n# ✅ 安全\nobj.public_send(user_input) # private は呼べない\n# さらに ホワイトリストで検証\nallowed = %w[name email age]\nobj.public_send(user_input) if allowed.include?(user_input)\n```\n\nユーザー入力でメソッド名を決める場面では絶対に `send` ではなく `public_send` + ホワイトリストを使う。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は 'shh'。`send` は可視性 (private/protected) を無視してメソッドを呼び出せるため、private に指定された secret メソッドの戻り値 'shh' がそのまま puts で出力される。安全に呼びたければ `public_send` を使う。",
+        reason:
+          "`send` は Ruby のメタプログラミングの基本 API で、メソッド名を Symbol/String で受け取って動的に呼び出す。可視性をバイパスする強力な設計で、テストや内部処理で意図的に private メソッドを呼ぶ用途にも使える。一方で外部入力から呼び出すと、攻撃者が任意の private メソッドを実行できるセキュリティリスクになるため、外部入力では必ず `public_send` を使い、さらにホワイトリストで検証する。",
+        example:
+          "テストで internal なメソッドを直接呼ぶ `expect(service.send(:internal_calc)).to eq(...)` (推奨されないが緊急時)、属性の一括代入 `attrs.each { |k, v| obj.public_send(\"#{k}=\", v) }`、設定で挙動切替 `notifier.public_send(channel, message)`、コマンドパターン `Command.find(name).public_send(:execute)` など。Rails の AR で private メソッドにアクセスする裏ワザにも使われるが、原則は API を整理する方が望ましい。",
+        pitfall:
+          "ユーザー入力で `send(params[:method])` を許すと、任意の private メソッドが呼べてしまうセキュリティ脆弱性 (RCE 相当)。必ず `public_send` + ホワイトリストで防御。さらに send は可視性を破る『カプセル化違反』なので、本番コードで多用するとクラス設計の意味が薄れる。動的呼び出しが必要な場面でも、可能なら Strategy パターンや Hash ルーティングで静的に分岐する方が保守性が高い。",
+      },
       codeExample:
         'class Foo\n  private\n  def secret; "shh"; end\nend\n\nFoo.new.secret              # NoMethodError (private)\nFoo.new.send(:secret)       #=> "shh" (バイパス)\nFoo.new.public_send(:secret) # NoMethodError (尊重)\n\n# 動的にメソッド名を組み立てて呼び出すパターン\nattrs.each do |a|\n  obj.public_send("#{a}=", values[a])\nend',
+      commonMistakes: [
+        "ユーザー入力で `send` を呼ぶとセキュリティリスク。必ず `public_send` + ホワイトリスト。",
+        "send で private を呼ぶのはテスト時の最後の手段。原則 public API を整理する。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Object#send / #public_send",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Object/i/send.html",
+        },
+      ],
     },
   },
   {
@@ -6443,8 +6471,30 @@ export const questions: Question[] = [
         "特異メソッド (Singleton Method) は特定オブジェクトだけに定義されるメソッド。",
       reason:
         "Ruby ではすべてのオブジェクトが暗黙の特異クラス (singleton class) を持つ。`def obj.foo` で定義したメソッドはこの特異クラスに入る。クラスメソッドも実はクラスオブジェクトの特異メソッド。",
+      beginnerExplanation:
+        "**特異メソッド (Singleton Method)** = **『特定のオブジェクトだけに定義されるメソッド』**。クラスに紐付くインスタンスメソッドとは別物。\n\n**定義の仕方**:\n```ruby\nstr = 'hello'\n\n# 方法 1: def obj.method_name\ndef str.shout\n  upcase + '!!'\nend\n\nstr.shout         # => 'HELLO!!'  ← str だけ呼べる\n'other'.shout     # NoMethodError\n```\n\n```ruby\n# 方法 2: define_singleton_method\nstr.define_singleton_method(:greet) { 'hi' }\nstr.greet         # => 'hi'\n```\n\n**仕組み**: Ruby ではすべてのオブジェクトが **暗黙の特異クラス (singleton class)** を持っており、特異メソッドはこの特異クラスに定義される。\n\n```ruby\nstr.singleton_class.instance_methods(false)\n# => [:shout, :greet]\n```\n\n**実は『クラスメソッド』も特異メソッド**:\n```ruby\nclass Foo\n  def self.bar; end   # = Foo クラスオブジェクトの特異メソッド\nend\n\nFoo.singleton_class.instance_methods(false)\n# => [:bar]\n```\n\n**`class << self` ブロック** は特異クラスを開く構文:\n```ruby\nclass Foo\n  class << self        # = Foo.singleton_class を開く\n    def bar; end       # bar は Foo の特異メソッド (= クラスメソッド)\n  end\nend\n```\n\n**用途**:\n- テストで特定のインスタンスだけ振る舞いを差し替え (RSpec の `allow(obj).to receive(...)` の内部)\n- ファクトリーメソッド (Class.method 形式の代替)\n- 特定インスタンスのデバッグ用メソッド\n\n**注意**: 多用すると『どこで定義されたメソッドか』が追えなくなるので、設計時には控えめに。テスト用や DSL 実装時の限定用途で。",
+      modelSelfExplanation: {
+        conclusion:
+          "名称は **特異メソッド (Singleton Method)**。特定のオブジェクトだけに定義されるメソッドで、`def obj.method_name` や `obj.define_singleton_method(:name) { ... }` で定義する。実は Ruby のクラスメソッド (`def self.foo`) も内部的には『クラスオブジェクトの特異メソッド』として実装されている。",
+        reason:
+          "Ruby ではすべてのオブジェクトが暗黙の特異クラス (singleton class) を持ち、そこに定義されたメソッドはそのオブジェクトだけに有効。これにより『1 つのインスタンスだけ特別な振る舞いを持たせる』というメタプログラミングが可能になる。クラスメソッドも『クラスオブジェクト自身の特異メソッド』と捉えると、Ruby のメソッド体系が一貫した『すべてはインスタンス・特異メソッド』の世界観として理解できる。",
+        example:
+          "RSpec の `allow(obj).to receive(:method).and_return(value)` は内部で特異メソッドを定義してモック化、ファクトリパターンで `class << self; def build; ...; end; end` でクラスメソッド一括定義、Rails で特定のリクエストにだけログを仕込むデバッグ手法、各種 DSL の実装、など多くの場面で活用される。",
+        pitfall:
+          "特異メソッドは『どこで定義されたか追跡が難しい』ため、grep や IDE で見つけにくく、新規参加者がコードを理解する障壁になりやすい。テストモックや DSL の実装などの限定用途で使い、本番コードで多用は避ける。さらに `class << obj` で特異クラスを開いた中の `def` も特異メソッド、`class << self` の中の `def` もそのクラスの特異メソッド、と『階層が深くなるとどの self を指すか』混乱しやすい。",
+      },
       codeExample:
         'str = "hello"\ndef str.shout\n  upcase + "!!"\nend\nstr.shout         #=> "HELLO!!"\n"other".shout     # NoMethodError\n\n# 別の書き方\nstr.define_singleton_method(:greet) { "hi" }\n\n# クラスメソッドも特異メソッド\nclass Foo\n  def self.bar; end   # Foo の特異メソッド\nend\nFoo.singleton_class.instance_methods(false)\n#=> [:bar]',
+      commonMistakes: [
+        "特異メソッドの定義箇所が追跡しにくい。本番コードでは控えめに、テストや DSL の限定用途で使う。",
+        "`class << self` の中の private は『そのクラスの特異クラスでの private』であり、通常の private とは挙動が違う。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: 特異メソッド",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fdef.html#singleton_method",
+        },
+      ],
     },
   },
   {
@@ -6461,6 +6511,12 @@ export const questions: Question[] = [
       "included into User",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。`include Loggable` の瞬間に `included(User)` フックが起動し 'included into User' を出力、その中で `base.extend(ClassMethods)` するので User.class_meth が呼べて 'class!' を出力する。2 行になる。",
+      "include のフック (self.included) が動くので 'included into User' も出力される。class! だけにはならない。",
+      "ClassMethods が `base.extend` で User に追加されているので User.class_meth は呼べる。NoMethodError は起きない。",
+      "class_meth も呼ばれて出力されるので 2 行になる。1 行だけにはならない。",
+    ],
     hints: [
       "`self.included(base)` はクラスに include された瞬間に呼ばれるフック。",
       "中で `base.extend(ClassMethods)` してクラスメソッドを追加。",
@@ -6471,8 +6527,30 @@ export const questions: Question[] = [
         "`included` フックで base.extend(ClassMethods) するのが、include だけでクラスメソッドも入れる Rails 流のパターン。",
       reason:
         "Module には include / extend / prepend のフック (`included` / `extended` / `prepended`) が用意されている。Rails の Concern (`extend ActiveSupport::Concern`) はこれを綺麗に書ける糖衣構文を提供する。",
+      beginnerExplanation:
+        "**Module フック** (`self.included` / `self.extended` / `self.prepended`) を使った **Rails の Concern パターン** の核心問題。\n\n**仕組み**:\n```ruby\nmodule Loggable\n  def self.included(base)     # ← include されたら自動で呼ばれるフック\n    puts \"included into #{base}\"\n    base.extend(ClassMethods)  # base に ClassMethods を extend\n  end\n\n  module ClassMethods\n    def class_meth\n      'class!'\n    end\n  end\nend\n\nclass User\n  include Loggable             # ← この瞬間に self.included(User) が呼ばれる\nend\n# 出力: 'included into User'\n\nUser.class_meth                # 'class!'\n```\n\n**この設計の意義**:\n- `include` 1 つで『インスタンスメソッド追加 (include の正規動作)』+『クラスメソッド追加 (フック内で extend)』が両方できる\n- 利用者は `include Loggable` と書くだけで両方ゲットできる\n\n**Rails の `ActiveSupport::Concern`** は更に綺麗に書ける糖衣構文:\n```ruby\nmodule Trackable\n  extend ActiveSupport::Concern\n\n  included do\n    scope :recent, -> { order(created_at: :desc) }   # クラスレベルで実行\n  end\n\n  def track!                       # インスタンスメソッド\n    update(tracked_at: Time.current)\n  end\n\n  class_methods do                 # クラスメソッドをまとめて定義\n    def archived\n      where.not(archived_at: nil)\n    end\n  end\nend\n```\n\nこれは内部的に上のフックパターンを実行している。\n\n**他のフック**:\n- `self.included(base)` — include されたとき\n- `self.extended(base)` — extend されたとき\n- `self.prepended(base)` — prepend されたとき\n- `self.inherited(subclass)` — クラスが継承されたとき\n- `self.method_added(name)` — メソッドが定義されたとき\n\n→ メタプログラミングで『クラスが何かされた時にフック処理を入れたい』場合の基本パターン。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は 'included into User' と 'class!' の 2 行。`self.included(base)` は include された瞬間に呼ばれる Module フックで、その中で `base.extend(ClassMethods)` することで『include だけでクラスメソッドも追加される』Rails Concern パターンが実現できる。",
+        reason:
+          "Ruby の Module には include / extend / prepend に対応するライフサイクルフック (`included` / `extended` / `prepended`) が用意されており、メタプログラミング用途で自動処理を仕込める。include は本来インスタンスメソッドだけを取り込むが、フック内で `base.extend(ClassMethods)` を呼ぶことでクラスメソッドも一緒に追加できる。これが Rails の `ActiveSupport::Concern` の基本的な仕組みで、`included do ... end` や `class_methods do ... end` の DSL は内部でこのフックパターンを使っている。",
+        example:
+          "Rails の Concern モジュール (例: User モデルが include する Authenticatable, Trackable など) はすべてこのパターン。Devise / Pundit / paper_trail などの gem も `include Devise::Models::Authenticatable` 1 行でインスタンスメソッド + クラスメソッド + scope + コールバックを一気に追加する。自作する場合も `extend ActiveSupport::Concern` を使えば簡潔に書ける。",
+        pitfall:
+          "フックパターンは強力だが、何が自動で実行されているかが見えにくく『なぜこのメソッドが生えているか』を新規参加者が追跡しにくい。Rails では `Module#included_modules` や `Class.ancestors` で確認するのが定石。フック内で複雑な処理を書きすぎると、include の副作用が予測不能になるので、フックは最小限の処理 (extend や hook 登録) に留めるのが原則。",
+      },
       codeExample:
         'module Trackable\n  extend ActiveSupport::Concern  # Rails 流\n\n  included do\n    scope :recent, -> { order(created_at: :desc) }  # クラスメソッド扱い\n  end\n\n  def track!                  # インスタンスメソッド\n    update(tracked_at: Time.current)\n  end\n\n  class_methods do\n    def archived\n      where.not(archived_at: nil)\n    end\n  end\nend',
+      commonMistakes: [
+        "Module フックで複雑な処理を書きすぎる。最小限の extend / hook 登録に留める。",
+        "ActiveSupport::Concern を使わずに手動 `self.included` を書くと、依存 Module の同時 include 時に複雑になる。Concern を使えば dependencies の問題が解決。",
+      ],
+      references: [
+        {
+          label: "Rails API: ActiveSupport::Concern",
+          url: "https://api.rubyonrails.org/classes/ActiveSupport/Concern.html",
+        },
+      ],
     },
   },
   {
@@ -6484,6 +6562,12 @@ export const questions: Question[] = [
     code: "case { user: { name: 'Alice', age: 20 }, role: 'admin' }\nin { user: { name: String => n }, role: 'admin' }\n  puts \"admin: #{n}\"\nin { user: { name: String => n } }\n  puts \"user: #{n}\"\nend",
     choices: ["admin: Alice", "user: Alice", "NoMatchingPatternError", "nil"],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。入力 Hash の `role: 'admin'` と最初の節のパターンが一致し、name に 'Alice' が束縛される。出力は 'admin: Alice'。",
+      "2 番目の節は role 不問の汎用版だが、最初の節 (role: 'admin' 指定) が先にマッチするのでそちらが選ばれる。",
+      "上から順に試して最初の節がマッチするので例外は起きない。",
+      "case/in は最後の式の値を返すが、ここでは puts で出力しているので結果は副作用。nil ではなく文字列が表示される。",
+    ],
     hints: [
       "Ruby 3.0+ のパターンマッチング。",
       "ネスト Hash 構造を一気に分解 + 型チェック + 値マッチ。",
@@ -6494,8 +6578,30 @@ export const questions: Question[] = [
         "case/in はネスト Hash の構造分解 + 型チェック + 値マッチが一度に書ける強力構文。",
       reason:
         "Ruby 3.0 で正式導入された Pattern Matching。`String => n` は『String 型なら n に束縛』。`role: 'admin'` は値マッチ。マッチしない場合 `else` 無しだと NoMatchingPatternError。",
+      beginnerExplanation:
+        "**ネスト Hash に対するパターンマッチング** の典型例。case/in の強力さを実感できます。\n\n**入力**:\n```ruby\n{ user: { name: 'Alice', age: 20 }, role: 'admin' }\n```\n\n**最初の節**:\n```ruby\nin { user: { name: String => n }, role: 'admin' }\n```\n読み解く:\n- `user:` キーが存在し、値が Hash で `name:` を持つ\n- name の値が **String 型** で、それを `n` に束縛\n- `role:` キーの値が **'admin' に等しい** (値マッチ)\n\nすべて一致するので **マッチ成功**。`n = 'Alice'` が束縛されて 'admin: Alice' を出力。\n\n**もし最初の節がマッチしなかったら**:\n```ruby\nin { user: { name: String => n } }   # role 不問 (admin 以外でもOK)\n  puts \"user: #{n}\"\n```\n→ こっちにフォールバック。\n\n**`case/in` で書ける主なパターン**:\n```ruby\n# 値マッチ\nin { status: 200 }\n\n# 型 + 束縛\nin { id: Integer => id }\n\n# Range マッチ\nin { age: 18..64 }\n\n# 配列 + spread\nin [first, *rest]\n\n# ガード句\nin { count: n } if n > 10\n\n# 省略形 (キー名 = 束縛変数)\nin { name: }    # = { name: name }、変数 name に束縛\n\n# ワイルドカード\nin _\n```\n\n**実用例 (API レスポンス)**:\n```ruby\ncase response\nin { status: 200..299, body: { id: Integer => id } }\n  store(id)\nin { status: 4.. , body: { error: String => msg } }\n  log_error(msg)\nin { status: }\n  raise \"unknown status: #{status}\"\nend\n```\n\n**Tip**: case/in は **必ずマッチが必要** (else 無しで非マッチ → NoMatchingPatternError)。catch-all として `in _` か `else` を入れるのが安全。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は 'admin: Alice'。case/in の最初の節 `in { user: { name: String => n }, role: 'admin' }` が入力 Hash 全体と一致 (構造一致 + name の型一致 + role の値一致) し、n に 'Alice' が束縛されて文字列補間で出力される。",
+        reason:
+          "Ruby 3.0 で正式導入された Pattern Matching は『ネストした Hash や Array の構造分解 + 型チェック + 値マッチ + ガード句』を 1 つの式で書ける強力な機能。case/in は上から順にパターンを試し、最初にマッチした節を実行する。これにより API レスポンス処理・複雑な状態遷移・設定パース・JSON 解析などで if 分岐の深い入れ子を flat に書ける。",
+        example:
+          "API レスポンスの状態別処理 `case res; in { status: 200..299, body: { items: Array => items } }; render(items); end`、Redux 風 Reducer `case action; in { type: 'add', payload: { user: User => u } }; ...end`、設定ファイル検証 `case yaml; in { db: { host: String, port: 0..65535 } }; ...end`、ID トークン構造分解 `case jwt_payload; in { sub: String => user_id, exp: Integer => exp }; ...end`、など複雑な分岐ロジックで威力を発揮。",
+        pitfall:
+          "パターン unmatch で NoMatchingPatternError 例外を投げる (case/when の else 無しが nil を返すのと違う)。必ず `else` か `in _` のフォールバックを入れる。Hash パターンの `in { name: }` の省略形は『キー存在を要求 + 値を変数 name に束縛』なので、キー存在を期待しすぎるとマッチが失敗しやすい。さらに『ネスト構造が違うがキーは同じ』というケースで思わぬ節にマッチすることがあるので、テストでパターンの境界条件を網羅する。",
+      },
       codeExample:
         'response = { status: 200, body: { id: 1, name: "x" } }\n\ncase response\nin { status: 200..299, body: { id: Integer => id } }\n  puts "OK id=#{id}"\nin { status: 4.. , body: { error: String => msg } }\n  puts "error: #{msg}"\nin { status: }\n  puts "unknown status: #{status}"\nend\n\n# 配列の分解\ncase [1, 2, 3, 4]\nin [first, *rest]\n  [first, rest]   #=> [1, [2,3,4]]\nend',
+      commonMistakes: [
+        "パターン unmatch で NoMatchingPatternError。`else` か `in _` でフォールバック。",
+        "Hash パターンの順序を間違える (上から順に試されるので、より specific な節を先に書く)。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: パターンマッチング",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fpattern_matching.html",
+        },
+      ],
     },
   },
   {
@@ -6512,6 +6618,12 @@ export const questions: Question[] = [
       "クラスを削除する",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。Refinements (`refine` + `using`) は『ファイル / モジュールスコープに限定したモンキーパッチ』を実現する Ruby の機能。標準クラス拡張の副作用を抑える。",
+      "全プロセスに波及するのは通常のオープンクラス (`class String; def x; end; end`)。Refinements はこれを限定スコープに閉じ込めるのが目的。",
+      "クラス動的作成は `Class.new` で行う別機能。Refinements とは無関係。",
+      "クラス削除は `Object.send(:remove_const, :ClassName)` などで行う別操作。Refinements とは無関係。",
+    ],
     hints: [
       "モンキーパッチを限定スコープに閉じ込める。",
       "`refine Class do ... end` で定義、`using Module` で適用。",
@@ -6522,8 +6634,30 @@ export const questions: Question[] = [
         "Refinements (using) はモンキーパッチのスコープを限定する仕組み。",
       reason:
         "通常の `class String; def x; end; end` は全体に影響するが、Refinements は `using` した位置以降のスコープ (ファイル/モジュール) でのみ有効。標準ライブラリ拡張時の副作用を抑える。Gold 試験頻出。",
+      beginnerExplanation:
+        "**Refinements (リファインメント)** は **『モンキーパッチを限定スコープに閉じ込める』** Ruby の機能。\n\n**通常のモンキーパッチ** (グローバル汚染):\n```ruby\nclass String\n  def shout\n    upcase + '!!'\n  end\nend\n\n# どこからでも shout が呼べてしまう\n'hi'.shout         # 'HI!!'\n# 他の gem や標準ライブラリも巻き込む\n```\n\n**Refinements** (限定スコープ):\n```ruby\nmodule StringExt\n  refine String do\n    def shout\n      upcase + '!!'\n    end\n  end\nend\n\nclass MyClass\n  using StringExt    # ← この行以降、このクラス内でのみ有効\n\n  def call\n    'hi'.shout       # OK ('HI!!')\n  end\nend\n\n# クラス外では効かない\n'hi'.shout           # NoMethodError\n```\n\n**スコープ**: `using` を書いた **ファイル末尾 or モジュール定義の末尾** まで有効。他のファイルや他のクラスからは見えない。\n\n**用途**:\n- 標準クラス (String / Integer 等) の拡張を安全に行う\n- ライブラリ内部だけで使う便利メソッドを追加\n- gem の利用者のコードを汚染せずに拡張機能を提供\n\n**比較表**:\n| | モンキーパッチ | Refinements |\n|---|---|---|\n| スコープ | グローバル (プロセス全体) | ファイル / モジュール限定 |\n| 副作用 | 大きい | 小さい |\n| 他 gem との衝突 | 起きやすい | 起きにくい |\n| 適用方法 | 普通に書くだけ | `using Module` 必須 |\n\n**Tip**: Refinements は Ruby 2.0 で実験的に、2.1 で正式導入。Gold 試験頻出。実務での利用例は少ないが、ライブラリ作成時の選択肢として知っておくと安全。\n\n**`prepend` との対比**:\n- `prepend` → グローバルだが super で元メソッドが呼べる (計装に便利)\n- Refinements → スコープ限定 (副作用を抑える)\n\n用途で使い分ける。",
+      modelSelfExplanation: {
+        conclusion:
+          "Refinements (`refine` + `using`) の最大の特徴は『ファイル / モジュールスコープに限定したモンキーパッチ』が書けること。通常のクラス再オープンとは違い、`using` を書いた範囲だけに影響を閉じ込められる。",
+        reason:
+          "Ruby のオープンクラス機能は強力だが、グローバルに影響するため『他の gem の挙動を壊す』『標準ライブラリの動作を予測不能にする』という副作用がある。Refinements はこれを解決するために Ruby 2.0/2.1 で導入された機能で、`refine Class do ... end` で拡張を定義し、`using Module` で適用範囲を明示する。これにより『自分のライブラリ内では使いたいが、利用者のコードを汚さない』という安全な拡張ができる。",
+        example:
+          "ライブラリで Integer に独自の便利メソッドを追加するが、利用者の Integer は汚したくない場合に Refinements を使う。例えば DSL ライブラリで `1.hour.ago` のような書き方をライブラリ内部だけで有効化する。Rails の ActiveSupport は歴史的にグローバルなモンキーパッチを多用しているが、新規 gem では Refinements を選ぶ動きがある。",
+        pitfall:
+          "Refinements はスコープ規則が複雑で、メソッド解決順序にハマりやすい。例えば super で元メソッドを呼ぶときの挙動、Module を using した場合の継承関係への波及、eval / send 経由での呼び出しでは Refinements が効かない場合がある、など細かい制限が多い。Gold 試験対策としては仕様を理解する価値があるが、実務では『本当に必要な場面』は限定的。",
+      },
       codeExample:
         "module StringExt\n  refine String do\n    def shout\n      upcase + \"!!\"\n    end\n  end\nend\n\nclass MyClass\n  using StringExt\n  def call\n    \"hi\".shout   # OK\n  end\nend\n\n\"hi\".shout       # NoMethodError (スコープ外)",
+      commonMistakes: [
+        "Refinements は send / public_send / eval 経由では効かない場合がある (制限あり)。",
+        "本番運用での利用例は少ない。基本はモンキーパッチを避ける設計を優先する。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Refinements",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2frefinements.html",
+        },
+      ],
     },
   },
   {

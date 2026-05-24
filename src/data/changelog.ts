@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-25-d",
+    date: "2026-05-25",
+    title: "Ruby Advanced adv-016〜020 の解説拡充 (Phase 4)",
+    badge: "content",
+    highlights: [
+      "adv-016 (send vs public_send) / adv-017 (特異メソッド) / adv-018 (Concern パターン) / adv-019 (ネスト case/in) / adv-020 (Refinements)",
+      "Ruby メタプログラミングの応用 (DSL・Concern・パターンマッチ・スコープ限定パッチ)",
+      "進捗: 126/149 問 (85%)",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-25-c",
     date: "2026-05-25",
     title: "Ruby Advanced adv-011〜015 の解説拡充 (Phase 3)",
