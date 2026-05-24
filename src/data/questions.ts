@@ -5274,8 +5274,30 @@ export const questions: Question[] = [
         "`has_many :through` で多対多の中間モデルを指定する。",
       reason:
         "`has_many :through` は中間に Model を置く多対多の標準パターン。中間モデルに追加の属性 (role, joined_at など) を持たせられる利点がある。HABTM (`has_and_belongs_to_many`) は中間 Model 不要だが拡張性が低い。",
+      beginnerExplanation:
+        "**`through:`** は **多対多関係** で中間モデルを指定するオプションです。\n\n**使い方**:\n```ruby\nclass User < ApplicationRecord\n  has_many :memberships             # 中間モデル\n  has_many :groups, through: :memberships  # ↑経由でアクセス\nend\n\nclass Membership < ApplicationRecord\n  belongs_to :user\n  belongs_to :group\n  # role, joined_at などの追加属性も持てる\nend\n\nclass Group < ApplicationRecord\n  has_many :memberships\n  has_many :users, through: :memberships\nend\n```\n\n**使う場面**:\n1. **多対多関係** (典型: User ↔ Group, Post ↔ Tag, Recipe ↔ Ingredient)\n2. **多段の has_many** (例: Author → Books → Reviews を `has_many :reviews, through: :books` で 1 hop に圧縮)\n\n**便利な動作**:\n```ruby\nuser.groups          # 中間テーブル経由で Group を取得\nuser.groups << Group.find(1)  # 中間レコードを自動作成 (Membership.create!)\nuser.groups.destroy(group)    # 中間レコードを自動削除\n```\n\n**HABTM との違い** (再掲):\n| | `has_many :through` | `has_and_belongs_to_many` |\n|---|---|---|\n| 中間モデル | あり (Membership クラス) | なし (中間テーブルのみ) |\n| 追加属性 | 持てる (role, joined_at) | 持てない |\n| callback | 中間で書ける | 書けない |\n| 拡張性 | ◎ | × |\n\n**現代の Rails では常に `through` を使うのが推奨** です。\n\n**source オプション**: 中間モデル名と関連名が異なる場合に使う:\n```ruby\nhas_many :followed_users, through: :follows, source: :followed\n```\n（follows テーブル上は `followed_id` だが、Ruby 側では `followed_users` という名前でアクセスしたい場合）",
+      modelSelfExplanation: {
+        conclusion:
+          "オプション名は `through:`。`has_many :tags, through: :tagging` のように書き、中間モデル (Tagging) を経由して多対多関係を表現する。",
+        reason:
+          "Rails の多対多関係は中間モデル経由で表現するのが標準で、`through:` オプションで『どの has_many 関連を経由するか』を宣言する。これにより中間レコードの自動生成・削除、has_many の連鎖 (has_many :through を更に through する)、追加属性へのアクセスなど、関連オブジェクトを 1 つのコレクションのように扱える DSL が手に入る。HABTM は中間モデルがないため拡張性が低く、現代では非推奨気味の扱い。",
+        example:
+          "ブログ記事のタグ機能で Post has_many :taggings / Tagging belongs_to :post, :tag / Tag has_many :taggings + has_many :posts, through: :taggings。記事に `post.tags << Tag.find_by(name: 'ruby')` でタグ付け、`post.tags.where('created_at > ?', 1.day.ago)` で新しいタグだけ取得など、Tag を直接持つかのような自然な API になる。SNS のフォロー機能 (User → Follows → Followed Users) も典型例。",
+        pitfall:
+          "through 関連は内部で JOIN を行うため、N+1 を避けるには `includes(:taggings, :tags)` のように両方プリロードが必要なケースがある。さらに polymorphic な中間モデル (例: Tag は Post / Comment 両方に付く) では source_type の指定が必要になり複雑化する。クラス名と関連名が異なる場合は source: オプションで明示する必要がある。",
+      },
       codeExample:
         'class User < ApplicationRecord\n  has_many :tagging\n  has_many :tags, through: :tagging\nend\n\nclass Tagging < ApplicationRecord\n  belongs_to :user\n  belongs_to :tag\n  # added_at, role などの追加属性が持てる\nend\n\nclass Tag < ApplicationRecord\n  has_many :tagging\n  has_many :users, through: :tagging\nend\n\nuser.tags << Tag.find(1)   # 中間レコードを自動作成',
+      commonMistakes: [
+        "polymorphic 中間モデル (Tag が Post / Comment に共通) では source_type の指定が必要。",
+        "through 経由の関連でも N+1 が起きる。`includes(:taggings, :tags)` で両方プリロード。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: has_many :through (公式)",
+          url: "https://guides.rubyonrails.org/association_basics.html#the-has-many-through-association",
+        },
+      ],
     },
   },
   {
@@ -5292,6 +5314,12 @@ export const questions: Question[] = [
       "再 raise されない",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。transaction は『ブロックを正常に抜ければ COMMIT、内部で例外が出れば ROLLBACK』というシンプルな挙動。整合性が必要な複数 INSERT/UPDATE をまとめる定番。",
+      "save (! なし) が false を返してもそれは例外ではないのでロールバックされない。!  系か `raise ActiveRecord::Rollback` を使う必要がある。",
+      "transaction の効果はブロック内に限定。ブロック外の例外には関与しない。",
+      "ActiveRecord::Rollback は内部で握りつぶされるが、それ以外の例外は外側へ再 raise される。",
+    ],
     hints: [
       "transaction は例外でロールバック、正常で commit。",
       "`save` (`!` なし) で false が返っても例外ではないのでロールバックされない。",
@@ -5302,10 +5330,30 @@ export const questions: Question[] = [
         "transaction は例外で ROLLBACK。save (! なし) は false を返すだけで例外ではないので注意。",
       reason:
         "整合性が必要な複数 INSERT/UPDATE は transaction で囲み、内部では `save!` `create!` `update!` で例外を出して確実にロールバックさせる。`raise ActiveRecord::Rollback` を投げると、例外伝播せずにロールバックだけする。",
+      beginnerExplanation:
+        "**`ActiveRecord::Base.transaction`** は **複数の DB 操作を 1 つの原子的な処理にまとめる** 仕組みです。\n\n**基本ルール**:\n- ブロックを **正常に抜ければ COMMIT** (確定)\n- ブロック内で **例外が出れば ROLLBACK** (取り消し)\n\n**典型的な使い方**:\n```ruby\nActiveRecord::Base.transaction do\n  user.save!                       # 失敗で例外 → 全ロールバック\n  account.save!                    # 同じく\n  payment.charge!                  # 外部 API も含めるなら注意\nend\n# ここを通れば COMMIT\n```\n\n**🚨 罠**: `save` (! なし) は **失敗時に false を返すだけで例外を投げない** ので、ロールバックされません!\n```ruby\n# ❌ 危険\nActiveRecord::Base.transaction do\n  user.save                        # false でも継続\n  account.save                     # user が壊れた状態で account も保存される\nend\n\n# ✅ 正しい\nActiveRecord::Base.transaction do\n  user.save!\n  account.save!                    # どちらか失敗で両方ロールバック\nend\n```\n\n**例外を伝播させずにロールバックだけしたい場合**:\n```ruby\nActiveRecord::Base.transaction do\n  user.do_something\n  raise ActiveRecord::Rollback if condition\n  # この特殊な例外だけは外に伝播しない (ロールバックのみ)\nend\n```\n\n**ネスト (savepoint)**: デフォルトでは『最外側のトランザクションだけ』有効。内部の transaction はネストしない:\n```ruby\nActiveRecord::Base.transaction do\n  user.save!\n  ActiveRecord::Base.transaction(requires_new: true) do\n    inner.save!  # ここだけロールバック可能 (SAVEPOINT)\n  end\nend\n```\n\n**外部 API を含めない**: トランザクション中に外部 API を呼ぶと、API 失敗で DB ロールバック → でも API 側は完了している、という不整合が起きやすい。**API 呼び出しは after_commit で非同期に** するのが安全:\n```ruby\nActiveRecord::Base.transaction do\n  order.update!(status: :paid)\n  # SlackNotifier.send(order) ← ここでは呼ばない!\nend\n# transaction の外で\nSlackNotifyJob.perform_later(order.id)\n```",
+      modelSelfExplanation: {
+        conclusion:
+          "transaction は『ブロック内で例外が出れば ROLLBACK、正常終了で COMMIT』というシンプルな挙動。`save` (! なし) は false を返すだけで例外ではないため、トランザクション内では必ず `!` 系か `raise ActiveRecord::Rollback` を使う。",
+        reason:
+          "transaction はトランザクション境界 (BEGIN / COMMIT / ROLLBACK) を Ruby のブロックで明示する仕組みで、Ruby の例外伝播メカニズムに乗って『ブロック内で例外が出れば DB の ROLLBACK を発行して例外を再 raise する』というシンプルな実装。これにより複数モデル更新の原子性 (all-or-nothing) を保証できる。!  系のメソッド (save!, create!, update!) は失敗時に ActiveRecord::RecordInvalid を投げるので、transaction と組み合わせると意図通りにロールバックが効く。`raise ActiveRecord::Rollback` だけが例外として外に伝播せず内部で握りつぶされる特殊な例外で、『ロールバックしたいが上位に影響を与えたくない』場合に使う。",
+        example:
+          "決済処理で `transaction do; order.update!(status: :paid); inventory.decrement!(qty); payment_record.create!(amount: total); end` のように『DB 更新が全部成功するか全部失敗するか』を保証。失敗時に部分的に payment_record だけ残るような不整合を防ぐ。Stripe API などの外部呼び出しは `after_commit :enqueue_notify` で非同期化し、トランザクション境界の外で実行するのが定石。",
+        pitfall:
+          "transaction 内で `save` (! なし) を使うと、validation 失敗時に false が返るだけでロールバックされず、半端な状態が COMMIT される。さらに、transaction 内で外部 API を呼ぶと『API 完了 → DB ロールバック』で逆方向の不整合が起きる (例: 決済サービスは引き落とし済みなのに DB は未更新)。外部 API は `after_commit` フックで非同期実行する。さらにネストした transaction はデフォルトでは『同じ』として扱われ、内側のロールバックが外側に影響しないので、本当にネストしたければ `requires_new: true` で SAVEPOINT を使う。",
+      },
       codeExample:
         "ActiveRecord::Base.transaction do\n  user.save!                       # 失敗で例外 → ロールバック\n  account.save!\nend\n\n# 例外伝播なしでロールバック\nActiveRecord::Base.transaction do\n  do_something\n  raise ActiveRecord::Rollback if condition\nend\n\n# ネスト (savepoint)\nActiveRecord::Base.transaction do\n  user.save!\n  ActiveRecord::Base.transaction(requires_new: true) do\n    inner.save!\n  end\nend",
       commonMistakes: [
         "transaction 内で `save` (! なし) して if 分岐すると、save が false でもロールバックされない。必ず `!` 系か `raise ActiveRecord::Rollback`。",
+        "transaction 内で外部 API を呼ぶ → API 完了後の DB ロールバックで不整合。after_commit で非同期化。",
+        "ネスト transaction は requires_new: true なしでは内側のロールバックが効かない。",
+      ],
+      references: [
+        {
+          label: "Rails API: ActiveRecord::Transactions (公式)",
+          url: "https://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html",
+        },
       ],
     },
   },
@@ -5323,6 +5371,12 @@ export const questions: Question[] = [
       "SyntaxError",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。joins で INNER JOIN、where で users.active 絞り込み、group で GROUP BY users.id、count で COUNT(*) という集計クエリ。結果は `{user_id => post_count}` の Hash。",
+      "Post の一覧 (Relation) は group + count で集計結果に変換される。AR レコードは返さない。",
+      "User オブジェクトは返さない。group が users.id でグループ化はするが、count は件数の Hash を返す。",
+      "構文的には完全に有効な ActiveRecord メソッドチェーン。SyntaxError は起きない。",
+    ],
     hints: [
       "`joins` で内部結合、`where` で users.active で絞り込み。",
       "`group` でユーザー単位、`count` で件数集計。",
@@ -5333,8 +5387,35 @@ export const questions: Question[] = [
         "joins + group + count は SQL の集計クエリ。ユーザーごとの post 件数集計。",
       reason:
         "`joins(:user)` は INNER JOIN、`group` は GROUP BY、`count` は COUNT(*) 相当。結果は `{グループキー => count}` の Hash。`having` で集計後の条件、`pluck` と組み合わせて配列化も可。`includes` (LEFT OUTER JOIN 別クエリ) と混同しないこと。",
+      beginnerExplanation:
+        "**ActiveRecord の集計クエリ** の典型パターンです。SQL の `JOIN + WHERE + GROUP BY + COUNT` を Ruby DSL で書く方法。\n\n**コードを分解**:\n```ruby\nPost.joins(:user)                          # INNER JOIN users ON posts.user_id = users.id\n    .where(users: { active: true })        # WHERE users.active = true\n    .group('users.id')                     # GROUP BY users.id\n    .count                                 # SELECT COUNT(*) ...\n```\n\n**生成 SQL** (PostgreSQL):\n```sql\nSELECT users.id, COUNT(*)\nFROM posts\nINNER JOIN users ON posts.user_id = users.id\nWHERE users.active = true\nGROUP BY users.id;\n```\n\n**戻り値**: `Hash` で `{user_id => post_count}`\n```ruby\n#=> {1=>5, 2=>3, 7=>12, ...}\n```\n\n**`joins` vs `includes` の違い**:\n| | `joins` | `includes` |\n|---|---|---|\n| SQL | INNER JOIN | LEFT JOIN または 2 クエリ (preload) |\n| 用途 | 絞り込み / 集計 | N+1 回避 (関連オブジェクト読み込み) |\n| AR インスタンス | 親のみ | 親 + 関連も |\n\n**集計後の条件 (HAVING)**:\n```ruby\n# 投稿 10 件以上のユーザだけ\nPost.group(:user_id).having('count(*) > ?', 10).count\n#=> {1=>15, 7=>23, ...}\n```\n\n**User オブジェクト付きで欲しい場合**:\n```ruby\n# UserId 集計を Hash で取得した後で User を引く\ncounts = Post.group(:user_id).count\nUser.where(id: counts.keys).each do |u|\n  puts \"#{u.name}: #{counts[u.id]}\"\nend\n\n# または counter_cache カラムで事前計算 (高速)\nclass Post < ApplicationRecord\n  belongs_to :user, counter_cache: true   # users.posts_count を自動更新\nend\nUser.order(posts_count: :desc).limit(10)\n```\n\n**他の集計メソッド**: `sum`, `average`, `minimum`, `maximum` も group と組み合わせ可能:\n```ruby\nOrder.group(:user_id).sum(:total)\n#=> {1=>15000, 2=>3000, ...}\n```",
+      modelSelfExplanation: {
+        conclusion:
+          "クエリは『user ごとの投稿件数を Hash で返す』集計。joins で INNER JOIN、where で絞り込み、group で GROUP BY、count で COUNT(*) を発行し、結果は `{user_id => post_count}` の Hash。",
+        reason:
+          "ActiveRecord は SQL の集計機能 (JOIN / WHERE / GROUP BY / HAVING / 各種集計関数) を Ruby メソッドチェーンで宣言的に書ける。`group.count` の戻り値は AR レコード一覧ではなく『グループキー → 件数』の Hash になる、というのが集計 API の特徴。これは『Relation のままだとレコード抽出だが、count や sum などの集計関数を呼んだ瞬間に SQL の結果が集計値の Hash に変換される』というルール。",
+        example:
+          "ダッシュボード画面で『アクティブユーザ別の投稿数』を `Post.joins(:user).where(users: { active: true }).group('users.id').count` で算出、『月別売上』を `Order.group(\"date_trunc('month', created_at)\").sum(:total)` で集計、『カテゴリ別の最高価格』を `Product.group(:category).maximum(:price)` で取得。counter_cache カラムを使えば事前計算で高速化可能。",
+        pitfall:
+          "joins は INNER JOIN なので親に対応する子が無いレコードは結果から除外される (LEFT JOIN したいなら left_joins / includes)。group 句に SELECT 句以外のカラムが含まれると PostgreSQL では『must appear in the GROUP BY clause』エラー。`pluck` と組み合わせる際は Arel.sql で生 SQL を安全にラップする (Rails 6.1+ で SQL Injection 対策強化)。さらに大規模テーブルでは GROUP BY が重いので、counter_cache や事前集計テーブルでの最適化を検討する。",
+      },
       codeExample:
         "Post.joins(:user)\n    .where(users: { active: true })\n    .group('users.id')\n    .count\n#=> {1=>5, 2=>3, ...} (user_id => post count)\n\n# user オブジェクト付きで\nresult = User.left_joins(:posts).group('users.id').count('posts.id')\n\n# 集計後の条件\nPost.group(:user_id).having('count(*) > ?', 10).count",
+      commonMistakes: [
+        "joins は INNER JOIN なので子が無い親は除外される。LEFT JOIN したいなら left_joins / includes。",
+        "group 句で SELECT カラムが GROUP BY に含まれないと PostgreSQL エラー。",
+        "大規模テーブルの GROUP BY は重い。counter_cache や materialized view を検討。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Joining Tables (joins / left_joins) 公式",
+          url: "https://guides.rubyonrails.org/active_record_querying.html#joining-tables",
+        },
+        {
+          label: "Rails Guides: Calculations (count / sum / group) 公式",
+          url: "https://guides.rubyonrails.org/active_record_querying.html#calculations",
+        },
+      ],
     },
   },
 
