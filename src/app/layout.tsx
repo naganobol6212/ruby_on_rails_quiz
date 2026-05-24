@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SiteHeader } from "@/components/SiteHeader";
+import { CommandPalette } from "@/components/CommandPalette";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
             <div className="absolute -bottom-40 left-1/3 h-[28rem] w-[28rem] rounded-full bg-fuchsia-300/30 blur-3xl dark:bg-fuchsia-500/10" />
           </div>
           <SiteHeader />
+          <CommandPalette />
           <main>{children}</main>
           <footer className="mt-16 border-t border-zinc-200/70 py-8 text-center text-[11px] text-zinc-500 dark:border-white/5 dark:text-zinc-500">
             <div className="mx-auto max-w-5xl px-6">
