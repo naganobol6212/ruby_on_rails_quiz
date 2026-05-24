@@ -1505,8 +1505,30 @@ export const questions: Question[] = [
       summary: "`zip` は複数配列を要素ごとに結合する。",
       reason:
         "並列処理や `to_h` と組み合わせて辞書化するのに使う。長さが違うと短い側で nil パディング。",
+      beginnerExplanation:
+        "**`zip`** は **複数の配列を要素ごとに『噛み合わせる』** メソッド。ファスナーのジッパーのように要素を組み合わせます。\n\n**基本**:\n```ruby\n[1,2,3].zip([4,5,6])\n# => [[1,4], [2,5], [3,6]]\n```\n\n**長さが違う場合** — 短い方に合わせて nil パディング:\n```ruby\n[1,2,3].zip([4,5])\n# => [[1,4], [2,5], [3,nil]]\n```\n\n**3 つ以上もOK**:\n```ruby\n[1,2].zip([3,4], [5,6])\n# => [[1,3,5], [2,4,6]]\n```\n\n**よく使う組み合わせ**:\n```ruby\n# zip + to_h で Hash 構築\n[:a, :b, :c].zip([1, 2, 3]).to_h\n# => {a: 1, b: 2, c: 3}\n\n# 並列ループ\n[:a, :b, :c].zip([1, 2, 3]) { |k, v| puts \"#{k}=#{v}\" }\n# a=1\n# b=2\n# c=3\n\n# インデックス付きループ (each_with_index の代替)\n['a', 'b', 'c'].zip(0..)\n# => [['a', 0], ['b', 1], ['c', 2]]\n```\n\n**実例 (Rails)**:\n```ruby\n# CSV ヘッダーとデータをペア化\nheaders = ['name', 'age', 'email']\nrow = ['Alice', 30, 'a@x.com']\nheaders.zip(row).to_h\n# => {'name'=>'Alice', 'age'=>30, 'email'=>'a@x.com'}\n```\n\n**Python の zip との違い**:\n- Python: `list(zip([1,2,3], [4,5]))` → `[(1,4), (2,5)]` (短い方で打ち切り)\n- Ruby: `[1,2,3].zip([4,5])` → `[[1,4], [2,5], [3,nil]]` (長い方に合わせて nil パディング)\n\n→ レシーバの長さ基準なので、`a.zip(b)` と `b.zip(a)` で結果が違うことに注意。",
+      modelSelfExplanation: {
+        conclusion:
+          "メソッド名は `zip`。複数の配列を要素ごとに『噛み合わせる』Enumerable メソッドで、`[1,2,3].zip([4,5,6])` で `[[1,4],[2,5],[3,6]]` のような配列の配列を返す。",
+        reason:
+          "並列の配列を要素ごとに対応付ける典型操作で、Hash 構築・並列ループ・データ統合などで頻出する。レシーバ (左側) の長さに合わせ、引数の配列が短い場合は nil で埋める仕様。複数の配列をまとめて zip できるため、N 個のデータ列を要素ごとに結合できる。`to_h` と組み合わせて『キー配列と値配列から Hash を作る』が最頻出パターン。",
+        example:
+          "CSV ヘッダーとデータ行から Hash 化 `headers.zip(row).to_h`、複数集計結果の対応付け `users.map(&:name).zip(users.map(&:score))`、enumerator として `(0..).zip(items)` で添字付きループ (each_with_index の代替)、複数 API レスポンスの並列結合、など。",
+        pitfall:
+          "Python の zip は『短い方に合わせて打ち切り』だが、Ruby は『レシーバの長さに合わせ、引数が短い場合は nil パディング』。レシーバと引数の順序で結果が変わるので注意。引数の方が長い場合は超過分が無視される (`[1,2].zip([3,4,5])` → `[[1,3], [2,4]]`)。",
+      },
       codeExample:
         "[1,2,3].zip([4,5,6])     #=> [[1,4],[2,5],[3,6]]\n[1,2,3].zip([4,5])       #=> [[1,4],[2,5],[3,nil]]\n[:a,:b,:c].zip([1,2,3]).to_h\n#=> {a:1, b:2, c:3}\n\n# 3 配列以上も可\n[1,2].zip([3,4], [5,6])  #=> [[1,3,5], [2,4,6]]",
+      commonMistakes: [
+        "Python と挙動が違う (Ruby はレシーバ基準で nil パディング)。",
+        "レシーバと引数の順序で結果が変わる。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Array#zip",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Array/i/zip.html",
+        },
+      ],
     },
   },
   {
@@ -1518,6 +1540,12 @@ export const questions: Question[] = [
     code: "(1..5).reduce(:+)",
     choices: ["15", "[1,2,3,4,5]", "1..5", "ArgumentError"],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。Range も Enumerable なので reduce が使え、`:+` シンボルで全要素を加算。1+2+3+4+5=15。",
+      "Range を `to_a` で配列化すると `[1,2,3,4,5]` になるが、reduce は畳み込み結果 (15) を返す。配列ではない。",
+      "Range のままにはならない。reduce はブロック (または Symbol) で要素を畳み込んで単一の値を返す。",
+      "Range は Enumerable なので reduce が使える。エラーにはならない。",
+    ],
     hints: [
       "`(1..5)` は Range オブジェクトで Enumerable。",
       "`reduce(:+)` は累積で全要素を加算。",
@@ -1527,8 +1555,30 @@ export const questions: Question[] = [
       summary: "Range も Enumerable なので reduce が使える。",
       reason:
         "Range は始点..終点を表すオブジェクトで、Enumerable をインクルードしているので map, select, reduce, sum などが使える。reduce(:+) はシンボル渡しの省略記法。",
+      beginnerExplanation:
+        "**Range** は `(1..5)` のように **『始点と終点を持つ範囲』** を表す Ruby のクラスです。Enumerable をインクルードしているので **Array と同じメソッドが使える**。\n\n**基本**:\n```ruby\n(1..5).to_a       # => [1, 2, 3, 4, 5]\n(1..5).sum        # => 15\n(1..5).reduce(:+) # => 15\n(1..5).map { |n| n * 2 }   # => [2, 4, 6, 8, 10]\n```\n\n**`..` vs `...`** (終点除外):\n```ruby\n(1..5).to_a       # => [1, 2, 3, 4, 5]  (5 を含む)\n(1...5).to_a      # => [1, 2, 3, 4]      (5 を含まない)\n```\n\n**文字列の Range** も可能:\n```ruby\n('a'..'e').to_a   # => ['a', 'b', 'c', 'd', 'e']\n('aa'..'cc').to_a # => ['aa', 'ab', 'ac', ..., 'cc']\n```\n\n**endless / beginless range** (Ruby 2.6+ / 2.7+):\n```ruby\narr[2..]          # 配列の 2 番目以降全部\narr[..3]          # 配列の先頭から 3 番目まで\n(1..).take(5)     # 無限 Range から 5 件\n```\n\n**実用例**:\n```ruby\n# 配列スライス\n[10,20,30,40,50][1..3]  # => [20, 30, 40]\n\n# 条件マッチ (case/when)\nage = 25\ncase age\nwhen 0..17  then 'minor'\nwhen 18..64 then 'adult'\nwhen 65..   then 'senior'\nend\n\n# 日付の Range\n(Date.today..Date.today + 7).each { |d| puts d }\n```\n\n**Range の効率**: `(1..1_000_000).sum` は内部で等差数列の公式を使う高速計算 (O(1))。`(1..1_000_000).to_a.sum` は配列化して O(N) なので使わない。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は 15。`(1..5)` は Range オブジェクトで Enumerable をインクルードしており、`reduce(:+)` で 1〜5 を順に加算した結果 15 が返る。",
+        reason:
+          "Range は始点・終点を表す Ruby の基本オブジェクトで、Enumerable Module をインクルードすることで Array と同じイテレーション API (each / map / select / reduce / sum など) を提供する。これにより `(1..5).map { ... }` や `(1..5).reduce(:+)` のように配列のような操作を Range のまま行え、メモリ効率も良い (実体としては配列化されない)。`reduce(:+)` は Symbol to Proc で `reduce { |a, b| a + b }` の省略形。",
+        example:
+          "等差数列の合計 `(1..100).sum` で 5050、ID リストの生成 `(1..page_count).to_a` でページネーション、case 文の範囲条件 `case age; when 18..64; ...end`、配列スライス `arr[2..5]`、endless range `arr[3..]` で 4 番目以降、`(1..)` の無限 Range と take で遅延評価、など。Range は『配列化せずに直接イテレートできる』点がメモリ効率上重要。",
+        pitfall:
+          "Range の終点除外を間違えやすい (`..` は含む、`...` は含まない)。`each_index` のような『Array 専用』メソッドは Range では使えない (Enumerable に無いため)。さらに巨大な Range を `to_a` で配列化すると OOM (`(1..10_000_000).to_a` で 80MB 以上)、`each` や `step` でストリーム処理する。",
+      },
       codeExample:
         "(1..5).to_a       #=> [1, 2, 3, 4, 5]\n(1..5).sum        #=> 15\n(1..5).reduce(:+) #=> 15\n(1...5).to_a      #=> [1, 2, 3, 4]  (... は終点除外)\n\n('a'..'e').to_a   #=> [\"a\",\"b\",\"c\",\"d\",\"e\"]",
+      commonMistakes: [
+        "`..` (含む) と `...` (含まない) を取り違える。",
+        "巨大 Range の to_a で OOM。each / step でストリーム処理。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Range クラス",
+          url: "https://docs.ruby-lang.org/ja/latest/class/Range.html",
+        },
+      ],
     },
   },
   {
@@ -1545,6 +1595,12 @@ export const questions: Question[] = [
       '{"a"=>1, "b"=>1, "c"=>1}',
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。`Hash.new(0)` でデフォルト値 0 を設定したので `h['a'] += 1` が `0 + 1` から始まる。a が 3 回、b が 2 回、c が 1 回出現。",
+      "デフォルト値 0 で初期化されているので、each で必ず値が設定される。空 Hash にはならない。",
+      "`Hash.new(0)` のおかげで未定義キーアクセスでも 0 が返るので例外にならない (通常 Hash の `h[:undefined] + 1` は nil + 1 で TypeError)。",
+      "+= で累積するので、a/b/c がそれぞれ複数回出現すれば加算される。1 回ずつとは限らない。",
+    ],
     hints: [
       "`Hash.new(0)` は存在しないキーアクセス時のデフォルト値を 0 にします。",
       "ループで各単語のカウントを +1 しています。",
@@ -1555,10 +1611,33 @@ export const questions: Question[] = [
         "`Hash.new(0)` でデフォルト値 0 を設定すると、カウントが簡潔に書ける。",
       reason:
         "通常 `h[\"a\"]` は無いキーなら nil。`Hash.new(0)` を使うと 0 が返るので `+= 1` がそのまま書ける。Ruby 2.7+ なら `tally` の方が短い。",
+      beginnerExplanation:
+        "**`Hash.new(default)`** で **デフォルト値を設定** して『頻度カウント』を簡潔に書くイディオムです。\n\n**普通の Hash**:\n```ruby\nh = {}\nh['a']        # => nil  (キーが無いので)\nh['a'] += 1   # nil + 1 = TypeError\n```\n\n**`Hash.new(0)`** — 未定義キーのデフォルト値を 0 に:\n```ruby\nh = Hash.new(0)\nh['a']        # => 0   (キー無くてもデフォルト 0)\nh['a'] += 1   # 0 + 1 = 1\nh['a'] += 1   # 1 + 1 = 2\n```\n\n**カウント実装**:\n```ruby\nh = Hash.new(0)\n%w[a b a c a b].each { |w| h[w] += 1 }\n# => {'a'=>3, 'b'=>2, 'c'=>1}\n```\n\n**Ruby 2.7+ なら `tally` が更に簡潔**:\n```ruby\n%w[a b a c a b].tally\n# => {'a'=>3, 'b'=>2, 'c'=>1}\n```\n\n**`group_by` 経由** (古い書き方):\n```ruby\n%w[a b a].group_by(&:itself).transform_values(&:count)\n```\n\n**🚨 落とし穴**: mutable オブジェクトをデフォルトにすると **共有される**!\n```ruby\nh = Hash.new([])   # ❌ 危険!\nh['a'] << 1\nh['b'] << 2\nh['a']  # => [1, 2]  ← 全キーが同じ配列を共有!!\n```\n\n**正しいやり方** (ブロック版):\n```ruby\nh = Hash.new { |hash, key| hash[key] = [] }\nh['a'] << 1\nh['b'] << 2\nh['a']  # => [1]\nh['b']  # => [2]\n```\nブロック付き `Hash.new` は『キーアクセス時に毎回ブロックが実行され、結果がキャッシュされる』。これで各キーが独立した配列を持つ。\n\n**よくある用途**:\n- 頻度カウント (`Hash.new(0)`)\n- グループ化 (`Hash.new { |h, k| h[k] = [] }`)\n- ネスト Hash (`Hash.new { |h, k| h[k] = {} }`)",
+      modelSelfExplanation: {
+        conclusion:
+          "結果は `{'a'=>3, 'b'=>2, 'c'=>1}`。`Hash.new(0)` で未定義キーのデフォルト値を 0 に設定し、each で各単語にカウンター +1 を加算する『頻度カウント』の定番イディオム。",
+        reason:
+          "通常の Hash は未定義キーアクセスで nil を返すため `h[k] += 1` (= `h[k] = h[k] + 1`) が nil + 1 で TypeError になる。`Hash.new(0)` を使うと『未定義キーアクセス時に 0 を返す』ようになり、`+= 1` がそのまま書ける。Ruby 2.7+ では同じ処理を `tally` で 1 行で書けるが、Hash.new(0) の仕組みを知っておくと『デフォルト値付き Hash』の他の用途 (各キーごとの配列構築、累積集計) にも応用できる。",
+        example:
+          "アクセスログの URL ごとアクセス数集計 `requests.each_with_object(Hash.new(0)) { |r, h| h[r.url] += 1 }`、商品カテゴリ別売上 `orders.each_with_object(Hash.new(0)) { |o, h| h[o.category] += o.total }`、Word Frequency Counter `text.split.tally` (2.7+)。グループ化なら `Hash.new { |h, k| h[k] = [] }` のブロック版でキーごとに独立した配列。",
+        pitfall:
+          "`Hash.new([])` のように mutable オブジェクトをデフォルトにすると、全キーが**同じインスタンスを共有**してしまい意図せぬ結果に。`h['a'] << 1; h['b'] << 2` で `h['a']` も `h['b']` も `[1, 2]` になる典型的バグ。グループ化したいときは必ずブロック版 `Hash.new { |h, k| h[k] = [] }` を使う。",
+      },
       codeExample:
         '# 手書きカウント\nh = Hash.new(0)\n%w[a b a].each { |w| h[w] += 1 }\nh  #=> {"a"=>2, "b"=>1}\n\n# Ruby 2.7+\n%w[a b a].tally   #=> {"a"=>2, "b"=>1}\n\n# group_by 経由\n%w[a b a].group_by(&:itself).transform_values(&:count)\n#=> {"a"=>2, "b"=>1}',
       commonMistakes: [
         "`Hash.new([])` のように mutable オブジェクトを default にすると全キーが同じ配列を共有してしまう。`Hash.new { |h, k| h[k] = [] }` を使う。",
+        "Ruby 2.7+ なら `tally` で 1 行。古いコードを見直す機会。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Hash.new",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Hash/s/new.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: Enumerable#tally",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Enumerable/i/tally.html",
+        },
       ],
     },
   },
@@ -1571,6 +1650,12 @@ export const questions: Question[] = [
     code: "users = [\n  {name: 'Alice', age: 30},\n  {name: 'Bob',   age: 25},\n  {name: 'Carol', age: 35}\n]\nusers.sort_by { |u| u[:age] }.first[:name]",
     choices: ["Alice", "Bob", "Carol", "nil"],
     answerIndex: 1,
+    choiceExplanations: [
+      "Alice は 30 歳で、Bob (25) より年上。ソート後の先頭 (最年少) は Bob。",
+      "正解。age 順にソートすると Bob(25) → Alice(30) → Carol(35)。先頭の Bob の name を取得。",
+      "Carol は 35 歳で最年長。ソート後は末尾になる。`.last[:name]` なら Carol。",
+      "users 配列は空ではないので nil にはならない。`first` は要素を返す。",
+    ],
     hints: [
       "`sort_by` で age 順にソート。",
       "最年少が先頭に来ます。",
@@ -1581,10 +1666,29 @@ export const questions: Question[] = [
         "`sort_by { |x| キー }` でキーごとにソート。`sort` より速くて読みやすい。",
       reason:
         "`sort` は `<=>` でブロックを毎回比較に使うので n log n 回の評価。`sort_by` は各要素のキーを 1 回だけ計算してキャッシュ (Schwartzian transform) するので、複雑なキーで効率的。",
+      beginnerExplanation:
+        "**`sort_by`** は **『キー関数でソートする』** Enumerable メソッド。普通の `sort` より高速で読みやすい。\n\n**基本**:\n```ruby\nusers.sort_by { |u| u[:age] }\n# => age 順にソート\n```\n\n**`sort` との違い**:\n```ruby\n# sort: <=> でブロックを毎回比較に使う (n log n 回呼ばれる)\nusers.sort { |a, b| a[:age] <=> b[:age] }\n\n# sort_by: キーを 1 回だけ計算してキャッシュ (Schwartzian Transform)\nusers.sort_by { |u| u[:age] }    # こっちが速い & 短い\n```\n\nブロック内で重い処理 (例: API 呼び出し、複雑な計算) をするときは特に `sort_by` が有利。\n\n**よく使うパターン**:\n```ruby\n# 降順 (2 通り)\nusers.sort_by { |u| -u[:age] }              # マイナスで反転\nusers.sort_by { |u| u[:age] }.reverse        # ソート後 reverse\n\n# 複数キー (タプル比較)\nusers.sort_by { |u| [u[:role], u[:age]] }   # まず role、次に age\n\n# 文字列を数値化してソート\nfilenames.sort_by { |f| f.scan(/\\d+/).first.to_i }\n\n# Symbol to Proc\nusers.sort_by(&:age)         # u.age 用 (オブジェクトの場合)\n```\n\n**最小値・最大値だけ欲しいなら `min_by` / `max_by`** (sort より速い):\n```ruby\nusers.min_by { |u| u[:age] }    # => Bob (最年少)\nusers.max_by { |u| u[:age] }    # => Carol (最年長)\n```\n\n**Rails の AR では DB でソート**:\n```ruby\nUser.order(:age)             # SQL の ORDER BY (高速)\nUser.order(age: :desc, name: :asc)  # 複数キー\n```\n\n大量データはメモリ上の sort_by より DB レベルが断然速い。",
+      modelSelfExplanation: {
+        conclusion:
+          "結果は 'Bob'。`sort_by { |u| u[:age] }` で age 順にソートすると Bob(25) → Alice(30) → Carol(35) の順になり、`first[:name]` で先頭の Bob の name を取得する。",
+        reason:
+          "`sort_by` は『各要素にキー関数を 1 回だけ適用してキャッシュし、そのキーで比較ソートする』Schwartzian Transform を内部で実装している。これにより、ブロックの呼び出し回数が `sort` (n log n 回) より少なく (n 回)、特にブロック内で重い処理 (DB 呼び出し、複雑計算) をする場合に劇的に速い。書き味も `sort` (`{ |a, b| a.x <=> b.x }`) より `sort_by` (`{ |u| u.x }`) の方が短くて読みやすい。",
+        example:
+          "ユーザーを登録日順 `users.sort_by(&:created_at)`、ファイルを名前内の数字でソート `files.sort_by { |f| f.scan(/\\d+/).first.to_i }`、複数キー `users.sort_by { |u| [u.role, -u.score] }` で role 昇順 + score 降順、最年少だけ `users.min_by(&:age)`、など。Rails では `User.order(:age)` で DB レベルソート (大量データ時は必須)。",
+        pitfall:
+          "メモリ上の sort_by は全件を読み込んでからソートするため、大量データには使えない (OOM)。DB データなら `order` で SQL レベルソート。降順は `-u[:age]` のマイナス符号か `.reverse` で対応 (Float / Integer 以外では使えないので Date / DateTime などには `<=>` の反転や sort 使用)。さらに sort と sort_by の使い分けを意識せず常に sort で書くと、性能が落ちる場面で気付けない。",
+      },
       codeExample:
         "users.sort_by { |u| u[:age] }\n#=> Bob(25), Alice(30), Carol(35)\n\n# 逆順\nusers.sort_by { |u| -u[:age] }\n# または\nusers.sort_by { |u| u[:age] }.reverse\n\n# 複数キー\nusers.sort_by { |u| [u[:age], u[:name]] }\n\n# Rails の AR では DB でソート\nUser.order(:age)",
       commonMistakes: [
         "`sort { |a,b| a[:age] <=> b[:age] }` でも書けるが冗長。`sort_by` を優先。",
+        "大量データのメモリ上 sort_by は OOM。DB データなら `order` で SQL レベル。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Enumerable#sort_by",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Enumerable/i/sort_by.html",
+        },
       ],
     },
   },
@@ -1605,8 +1709,30 @@ export const questions: Question[] = [
       summary: "`Array#flatten` は入れ子配列を平坦化する。",
       reason:
         "引数で何段まで展開するかを指定できる。`flatten(1)` で 1 段だけ。`flat_map` は map + flatten(1) のショートカット。",
+      beginnerExplanation:
+        "**`flatten`** は **ネストした配列を 1 次元の配列に平坦化** するメソッド。\n\n**基本** (デフォルトは全展開):\n```ruby\n[1, [2, [3, [4]]]].flatten\n# => [1, 2, 3, 4]   (深さ無制限で展開)\n```\n\n**深さ指定**:\n```ruby\n[1, [2, [3, [4]]]].flatten(1)\n# => [1, 2, [3, [4]]]   (1 段だけ展開)\n\n[1, [2, [3, [4]]]].flatten(2)\n# => [1, 2, 3, [4]]    (2 段)\n```\n\n**破壊版 `flatten!`** もあり (元の配列を変更)。\n\n**`flat_map` (= `collect_concat`)** — map + flatten(1) を 1 ステップで:\n```ruby\n# 旧来の書き方 (2 ステップ)\n[[1,2], [3,4]].map { |a| a.map { |n| n*2 } }.flatten(1)\n# => [2, 4, 6, 8]\n\n# flat_map で 1 ステップ\n[[1,2], [3,4]].flat_map { |a| a.map { |n| n*2 } }\n# => [2, 4, 6, 8]\n```\n\n**典型的な用途**:\n```ruby\n# ネストされたタグを集約\nposts.flat_map(&:tags)              # 各記事の tag 配列を 1 つにまとめる\n\n# CSV 行 (Hash の配列) からすべての値を取得\nrows.flat_map(&:values)\n\n# 多次元配列の要素を全部抜き出す\nmatrix = [[1,2,3], [4,5,6]]\nmatrix.flatten                       # => [1, 2, 3, 4, 5, 6]\n```\n\n**🚨 注意**: `flatten` は **要素が配列以外でも到達できる範囲を再帰展開** する。Hash や Set のような『配列ではない collection』には触れない。\n\n```ruby\n[1, [2, [Hash.new]]].flatten   # => [1, 2, {}]  (Hash は展開されない)\n```\n\n**仲間**:\n- `flatten` — N 次元 → 1 次元\n- `flat_map` — map + flatten(1)\n- `compact` — nil を除去 (flatten とよく一緒に使う)\n- `each_with_object` — 累積構築",
+      modelSelfExplanation: {
+        conclusion:
+          "メソッド名は `flatten`。`Array#flatten` はネストした配列を再帰的に展開して 1 次元配列に平坦化する。引数で深さも制御でき、`flatten(1)` なら 1 段だけ。`flat_map` は map + flatten(1) のショートカット。",
+        reason:
+          "多次元配列を扱うとき『中身を全部取り出して 1 つの配列にしたい』場面で必須のメソッド。デフォルトでは深さ無制限で再帰展開し、引数で『何段まで展開するか』を制御できる。これにより『1 段だけ展開して構造を保ちたい』『完全に平坦化したい』を使い分けられる。`flat_map` は map で配列を返してそれを 1 段平坦化する典型パターンを 1 メソッドに集約したもので、可読性とメモリ効率の両面でメリットがある。",
+        example:
+          "投稿の全タグを集約 `posts.flat_map(&:tags).uniq`、ネストカテゴリの全 ID 抽出 `categories.flat_map(&:children_ids)`、複数 API レスポンスの統合 `responses.flat_map { |r| r['items'] }`、多次元配列の合計 `matrix.flatten.sum`、CSV 全セル値 `csv_rows.flatten`、など。Rails では `User.all.flat_map(&:posts)` よりも `Post.joins(:user)` の方が DB で完結し効率的。",
+        pitfall:
+          "`flatten` は深さ指定なしだと無限展開なので、巨大ネストや循環参照配列 (普通は無いが) で時間がかかる。明示的に `flatten(1)` で深さを制御するのが安全。さらに `Array#flatten` は引数 nil を渡すと再帰展開、`flat_map` は map 部分でブロックが配列を返す前提なのでスカラを返すと flatten が効かない。`compact` (nil 除去) と組み合わせる `flat_map { ... }.compact` も頻出。",
+      },
       codeExample:
         "[1, [2, [3, [4]]]].flatten     #=> [1, 2, 3, 4]\n[1, [2, [3, [4]]]].flatten(1)  #=> [1, 2, [3, [4]]]\n\n# flat_map (= collect_concat)\n[[1,2], [3,4]].flat_map { |a| a.map { |n| n*2 } }\n#=> [2, 4, 6, 8]\n# 同等\n[[1,2], [3,4]].map { |a| a.map { |n| n*2 } }.flatten(1)",
+      commonMistakes: [
+        "深さ指定なしの flatten で意図せず深い構造まで展開してしまう。1 段なら `flatten(1)`。",
+        "map で配列が返るパターンは flat_map に置き換えると効率的。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Array#flatten / Enumerable#flat_map",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Array/i/flatten.html",
+        },
+      ],
     },
   },
   {
@@ -1623,6 +1749,12 @@ export const questions: Question[] = [
       "each_with_object は Hash には使えない",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。each_with_object は『最初に渡した object をブロックで破壊変更し、最後にその object を返す』、inject は『ブロックの戻り値が次の acc になり、最後の戻り値を返す』。",
+      "ブロック引数の順序が逆 (each_with_object は要素, object / inject は acc, 要素) で、戻り値ルールも違う。完全に同じではない。",
+      "inject はブロックの戻り値を累積する仕組み (非破壊的とも言える)、each_with_object は object を破壊変更する。逆の説明。",
+      "each_with_object は Hash を含めあらゆる Enumerable で使える。Hash 構築の定番イディオム。",
+    ],
     hints: [
       "両方とも累積処理に使えます。",
       "`each_with_object` のブロック引数は (要素, object) の順。",
@@ -1633,10 +1765,29 @@ export const questions: Question[] = [
         "each_with_object は object を渡し続けて最後に object を返す。inject はブロック戻り値が次の acc。",
       reason:
         "可変オブジェクト (Array, Hash) を構築するなら `each_with_object` の方が安全。inject は戻り値を間違えると acc が壊れる落とし穴がある。",
+      beginnerExplanation:
+        "**`each_with_object` と `inject` (reduce)** はどちらも累積処理に使えますが、**設計が違う** ので使い分けが大事。\n\n**`each_with_object(初期 object)`** — object を渡し続けて最後に object を返す\n```ruby\nresult = [1, 2, 3].each_with_object({}) do |n, h|\n  h[n] = n * 2     # h を破壊的に変更\nend\n# => {1=>2, 2=>4, 3=>6}\n```\n\nブロック引数の順序: **(要素, object)**。ブロックの戻り値は無視され、object が次の呼び出しにも渡される。最終的に object 自身が返る。\n\n**`inject(初期値)`** — ブロックの戻り値が次の acc になる\n```ruby\nresult = [1, 2, 3].inject({}) do |h, n|\n  h[n] = n * 2\n  h   # ← これを忘れると nil が次の h に渡る!\nend\n# => {1=>2, 2=>4, 3=>6}\n```\n\nブロック引数の順序: **(acc, 要素)** ← each_with_object と逆!  \nブロックの戻り値が次の acc になるので、**最後に必ず acc を返す必要がある**。\n\n**使い分け**:\n| 用途 | 推奨 |\n|---|---|\n| Hash / Array を破壊的に構築 | `each_with_object` (戻り値忘れバグなし) |\n| 数値の累積 (合計、最大、etc) | `inject` |\n| 関数型スタイルで書きたい | `inject` |\n\n**よくあるアンチパターン**:\n```ruby\n# ❌ inject で Hash 構築 (戻り値の `h` を忘れがち)\n[1,2,3].inject({}) { |h, n| h[n] = n * 2 }   # 各イテレーションで n*2 (= acc) が次の h に!\n# 結果: 6 (3 * 2)、Hash ではない、意味不明な挙動\n\n# ✅ each_with_object なら戻り値忘れの心配なし\n[1,2,3].each_with_object({}) { |n, h| h[n] = n * 2 }\n# => {1=>2, 2=>4, 3=>6}\n```\n\n**まとめ**: **可変オブジェクトの構築は `each_with_object`**、純粋な畳み込みは `inject` を使うのが安全。",
+      modelSelfExplanation: {
+        conclusion:
+          "`each_with_object` は最初に渡した object を破壊変更しながら使い回し、最後にその object を返す。`inject` (reduce) はブロックの戻り値が次の acc になり、最後の戻り値を返す。前者はブロック引数が (要素, object)、後者は (acc, 要素) で順序も違う。",
+        reason:
+          "両者は累積処理という意味で似ているが、メソッドの『使い方の認知負荷』が違う。each_with_object はブロック内で object を破壊変更する明示的な前提があり、戻り値を意識しなくて良いので Hash / Array 構築のミスが起きにくい。inject は関数型スタイルで『前の結果を次に渡す』純粋な畳み込みで、数値の合計や複雑な変換に向くが、ブロックの戻り値を間違えると acc が壊れる典型バグがある。Hash 構築のような場面では each_with_object の方が安全。",
+        example:
+          "Hash 構築なら `array.each_with_object({}) { |x, h| h[x.key] = x.value }`、CSV を Hash の配列に `lines.each_with_object([]) { |l, arr| arr << parse(l) }`、数値の合計なら `nums.inject(:+)` や `nums.sum`、複雑な変換 (パイプライン的) は inject、グループ化 + 構造変換は each_with_object、というのが現代の Ruby のイディオム。",
+        pitfall:
+          "inject で Hash 構築するときに最後の acc を返し忘れる (`h[k] = v` だけだと v が次の h に渡される) のがよくあるバグ。each_with_object なら戻り値が無視されるためこのバグが起きない。さらに引数順が逆 (each_with_object は (要素, object)、inject は (acc, 要素)) なので、書き間違えるとブロック内のロジックが壊れる。書き分けを意識する。",
+      },
       codeExample:
         '# each_with_object: object を渡しながら破壊変更\nresult = [1,2,3].each_with_object({}) do |n, h|\n  h[n] = n * 2\nend\n#=> {1=>2, 2=>4, 3=>6}\n\n# inject だと戻り値を必ず返す必要がある\nresult = [1,2,3].inject({}) do |h, n|\n  h[n] = n * 2\n  h   # ← これを忘れると nil で壊れる！\nend',
       commonMistakes: [
         "inject で Hash 構築する時に最後の `h` を書き忘れて nil が次に渡る。each_with_object なら起きない。",
+        "ブロック引数の順序を取り違える (each_with_object は (要素, object)、inject は (acc, 要素))。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Enumerable#each_with_object",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Enumerable/i/each_with_object.html",
+        },
       ],
     },
   },
