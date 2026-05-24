@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-24-h",
+    date: "2026-05-24",
+    title: "Ruby 基礎 rb-016〜020 の解説拡充 (Phase 4)",
+    badge: "content",
+    highlights: [
+      "rb-016 (== vs equal?) / rb-017 (tap) / rb-018 (dup vs clone) / rb-019 (正規表現 $~ と $1) / rb-020 (String#scan)",
+      "Ruby の等価判定 3 段階・複製の浅さ深さ・正規表現の特殊変数まで踏み込んだ解説",
+      "残り 10 問 (rb-021〜rb-030) は次の PR から順次拡充",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-24-g",
     date: "2026-05-24",
     title: "Ruby 基礎 rb-011〜015 の解説拡充 (Phase 3)",
