@@ -7707,9 +7707,27 @@ export const questions: Question[] = [
         "scope は再利用可能なクエリ片。lambda で定義してチェーン可能にする。",
       reason:
         "scope は通常のクラスメソッドでも書けるが、宣言的に書ける利点がある。lambda で書く理由は『毎回評価』のため (定数だと初期化時の値で固定される)。チェーンしても 1 つの SQL にまとめられるのが ActiveRecord の強み。",
+      beginnerExplanation:
+        "**Rails の scope** で再利用可能な共通クエリを定義する実装問題。scope は ActiveRecord の DSL で、`where` / `order` / `joins` などを組み合わせた『よく使うクエリ』に名前を付けられます。\n\n**基本構文**:\n```ruby\nscope :name, -> { クエリ }\nscope :name, ->(arg) { クエリ }   # 引数付き\n```\n\n**解答コード**:\n```ruby\nclass Post < ApplicationRecord\n  belongs_to :user\n\n  scope :published, -> { where.not(published_at: nil) }\n  scope :recent,    -> { order(created_at: :desc) }\n  scope :by_author, ->(name) { joins(:user).where(users: { name: name }) }\nend\n```\n\n**使用例 (チェーン可能)**:\n```ruby\nPost.published.recent.by_author('Alice')\n# 1 つの SQL にまとめられる:\n# SELECT posts.* FROM posts\n# INNER JOIN users ON users.id = posts.user_id\n# WHERE posts.published_at IS NOT NULL\n#   AND users.name = 'Alice'\n# ORDER BY posts.created_at DESC\n```\n\n**scope のポイント**:\n- **`-> { ... }` (lambda) 必須**: 毎回評価するため。`scope :recent, { ... }` だと初期化時の値で固定。\n- **戻り値は ActiveRecord::Relation**: チェーン可能。\n- **引数付き scope** は `->(arg) { ... }`。複数引数も OK。\n- **関連テーブルの条件** は `joins(:user).where(users: { name: name })` の Hash 形式で。SQL Injection 対策も自動。\n\n**scope vs クラスメソッド**:\n```ruby\n# scope (短い、宣言的)\nscope :recent, -> { order(created_at: :desc) }\n\n# 同等のクラスメソッド (複雑なロジック向き)\ndef self.recent\n  order(created_at: :desc)\nend\n```\nどちらも動くが、scope は『単純なクエリ』、クラスメソッドは『分岐や複雑な処理』に使い分ける。",
+      modelSelfExplanation: {
+        conclusion:
+          "Rails の scope は `scope :name, -> { クエリ }` で定義し、チェーン可能な再利用クエリを作る。引数付きなら `->(arg) { ... }`、関連テーブルの条件は `joins(:user).where(users: { ... })` の Hash 形式が安全。",
+        reason:
+          "scope は ActiveRecord の DSL で、where / order / joins などを組み合わせたクエリ片を宣言的に書ける機能。lambda 必須なのは『呼び出し時に評価』するためで、`1.day.ago` のような動的な値を毎回最新に評価できる。チェーン (`Post.published.recent.by_author('Alice')`) しても 1 つの SQL にまとめられるのが ActiveRecord Relation の強力なところで、Method Chaining による宣言的なクエリ構築が可能。",
+        example:
+          "ブログの公開状態 scope (`published`)、新着順 (`recent`)、特定ユーザ絞り込み (`by_user`)、期間絞り込み (`in_range(start, end)`)、ステータス別 scope (`active`, `archived`) など、ほぼすべてのモデルで scope を活用する。Rails コミュニティの慣習。",
+        pitfall:
+          "lambda を使わずに `scope :recent, order(created_at: :desc)` と書くと、クラス定義時に 1 回だけ評価されてしまい、`Time.current` のような動的値が固定される。さらに引数付き scope は ActiveRecord::Relation を返さないと意図しない (例えば nil を返したら scope chain が壊れる)。条件付きで早期 return する scope は注意が必要 (`return all if arg.blank?` のようにフォールバック)。",
+      },
       commonMistakes: [
         "scope を `-> { Time.current }` で書くと毎回評価される (= 期待通り)。Proc.new だと、引数の数チェックが緩い。",
         "`includes` を含む scope は join 戦略に注意。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Active Record Query — Scopes",
+          url: "https://guides.rubyonrails.org/active_record_querying.html#scopes",
+        },
       ],
     },
   },
@@ -7747,9 +7765,27 @@ export const questions: Question[] = [
         "RESTful コントローラのテンプレ。Strong Parameters と Turbo 互換ステータスが現代の必須項目。",
       reason:
         "Rails 7+ の Turbo 環境では HTTP ステータスコードがフォームの再表示挙動に影響する。`:unprocessable_entity` (422) で再描画、`:see_other` (303) で DELETE 後のリダイレクト。これらを忘れると Turbo が期待通り動かない。",
+      beginnerExplanation:
+        "**Rails の標準 CRUD コントローラ** の現代的なテンプレ。**Strong Parameters** と **Turbo 対応 HTTP ステータス** が必須項目。\n\n**コントローラの 4 つの責務**:\n1. **before_action で共通処理** (set_post)\n2. **Strong Parameters でセキュリティ** (post_params)\n3. **適切な HTTP ステータス** (Turbo 互換)\n4. **N+1 対策** (includes)\n\n**Turbo 対応の HTTP ステータス**:\n- フォーム失敗時 → `status: :unprocessable_entity` (422)\n- destroy 後 → `status: :see_other` (303)\n- 成功時のリダイレクト → デフォルト 302 で OK\n\n**Strong Parameters**:\n```ruby\ndef post_params\n  params.require(:post).permit(:title, :body)\nend\n```\n- `require(:post)` で親キー必須化 (無ければ ParameterMissing 例外)\n- `permit(:title, :body)` で許可属性を明示 (Mass Assignment 対策)\n\n**before_action で DRY**:\n```ruby\nbefore_action :set_post, only: %i[show edit update destroy]\n# 4 つのアクション (show/edit/update/destroy) で @post = Post.find(params[:id]) を共通化\n```\n\n**typical なフロー**:\n```\nrequest → routes → controller#action → set_post (before_action)\n  → model アクセス → render or redirect_to\n```\n\nRails 7 では `bin/rails g scaffold Post title:string body:text` を実行すると、今回のような RESTful コントローラが自動生成される。",
+      modelSelfExplanation: {
+        conclusion:
+          "RESTful コントローラのテンプレは『before_action で共通処理 + Strong Parameters でセキュリティ + Turbo 互換 HTTP ステータス + N+1 対策』の 4 点セット。Rails 7 では `rails g scaffold` で同等のものが自動生成されるが、各要素の意味を理解しているかが現場では重要。",
+        reason:
+          "Rails の RESTful 設計は『URL とアクションの対応』『Strong Parameters によるセキュリティ』『HTTP ステータスでのフレームワーク連携 (Turbo)』『パフォーマンス (N+1)』を統一的に扱うことで、保守性とセキュリティを両立する。before_action は DRY のための仕組み、Strong Parameters は Mass Assignment 脆弱性 (GitHub 事件など) を防ぐ歴史的に重要な機能。Turbo 互換ステータスは Rails 7+ で必須となった新ルール。",
+        example:
+          "ブログアプリ、SNS、CMS、EC サイトの管理画面、admin パネルなど、ほぼすべての CRUD 機能で同じテンプレを使う。Rails の慣習に従えば新規参加者でもすぐ理解できる。Devise / Pundit などの認証・認可 gem も同じ before_action パターンで認証チェックを差し込む。",
+        pitfall:
+          "`render :new` の status を忘れると Rails 7+ Turbo 環境でフォームが消える致命的 UX バグ。`destroy` の `status: :see_other` を忘れると DELETE リクエストのループになる。Strong Parameters で permit を間違えると Mass Assignment 脆弱性 (例: admin フラグを permit してしまう)。new コントローラを書くたびに『rails g scaffold で生成されるテンプレ』をベースにすると安全。",
+      },
       commonMistakes: [
         "render :new で status を付け忘れると 200 で返り Turbo がリダイレクト扱いしてしまう。",
         "destroy 後のリダイレクトが 302 だと Turbo がフェッチを GET ではなく DELETE で行ってループになる。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Action Controller Overview",
+          url: "https://guides.rubyonrails.org/action_controller_overview.html",
+        },
       ],
     },
   },
@@ -7788,9 +7824,27 @@ export const questions: Question[] = [
         "Service Object は controller/model が肥大化したロジックを切り出す定番パターン。transaction + 例外 + Struct 戻り値が定石。",
       reason:
         "Controller は HTTP 層、Model は DB ロジックに集中させ、複数 Model にまたがる業務ロジックは Service に切り出す。テスタブル・再利用可。Rails 公式では推奨されていないが、コミュニティで広く採用。dry-rb の dry-monads や Trailblazer Operation などの拡張パターンもある。",
+      beginnerExplanation:
+        "**Service Object パターン** は **複数モデルにまたがる業務ロジック** を切り出す Rails の定番設計パターン。Controller / Model のどちらにも属さない『業務ロジック』を集約する場所。\n\n**4 つの設計ポイント**:\n\n**1. クラス構造**: 動詞名 + `call` メソッド\n```ruby\nclass SignUpUser\n  def initialize(params); @params = params; end\n  def call; ...; end\nend\n\n# 使用\nSignUpUser.new(params).call\n```\n\n**2. transaction で全体をラップ**:\n複数モデル更新の整合性を保証するため、ActiveRecord::Base.transaction で囲む。失敗時に全 ROLLBACK。\n\n**3. `create!` (! 付き) で例外駆動**:\nsave (! なし) だと失敗で false を返すだけで transaction がロールバックされない。`!` 付きで例外を発火させる。\n\n**4. 戻り値は Struct/独自クラス**:\n```ruby\nResult = Struct.new(:success?, :user, :errors, keyword_init: true)\n# 呼び出し側で result.success? でハンドリング\n```\n\n**外部 API は transaction 外で**:\nメール送信などはトランザクションの外で行う。失敗時にメールだけ送られる事故を防ぐ。\n```ruby\nActiveRecord::Base.transaction do\n  user = User.create!(...)\n  user.projects.create!(...)\nend\n\nWelcomeMailer.greet(user).deliver_later   # ← transaction の外\n```\n\n**メリット**:\n- Controller / Model がスリムに\n- テストが書きやすい (Service クラス単位で)\n- 再利用可能 (Web / API / Job から同じ Service を呼べる)\n\n**派生パターン**:\n- dry-monads (`Success / Failure` モナド)\n- Trailblazer Operation\n- Interactor gem\n\n初期は Plain Old Ruby Object (PORO) で十分。複雑化したら gem 検討。",
+      modelSelfExplanation: {
+        conclusion:
+          "Service Object は『動詞名のクラス + call メソッド + transaction + 例外駆動 (create! 等) + Struct 戻り値』の 4 点セットで実装する。複数モデルにまたがる業務ロジックを切り出して controller / model のスリム化、テスタビリティ、再利用性を実現する Rails コミュニティの定番パターン。",
+        reason:
+          "Rails MVC は単純な CRUD では十分だが、『複数モデル更新 + 外部 API + 通知メール』のような複合的な業務処理では Controller か Model のどちらかが肥大化する。Service Object はこれを別クラスに切り出すパターンで、SRP (Single Responsibility Principle) に沿った設計。transaction + 例外駆動でデータ整合性、外部 I/O の transaction 外実行で副作用の安全性、Struct 戻り値で呼び出し側の判定容易性を保証する。",
+        example:
+          "ユーザ登録 (User 作成 + 初期データセットアップ + 歓迎メール)、決済 (注文 + 在庫減算 + 課金 API)、退会処理 (関連削除 + データ匿名化 + 通知)、データ移行ジョブ、レポート生成、など『複数の作業を 1 アトミックに実行したい』場面で必須。",
+        pitfall:
+          "transaction 内で `deliver_later` するとロールバック後も Job が enqueue されたまま実行されメールが送られる。`after_commit` フックか transaction 外で deliver する。`save` (! なし) を使うと validation 失敗で false が返るが transaction はロールバックされない (例外じゃないので)。必ず `!` 系を使う。さらに Service Object を肥大化させすぎると今度は Service が God Object 化するので、500 行を超えたら更に分割を検討。",
+      },
       commonMistakes: [
         "transaction 内で deliver_later するとロールバックされても enqueue だけは残り、メールが送られる。",
         "save (! なし) を使うと例外が出ず transaction がロールバックされない。",
+      ],
+      references: [
+        {
+          label: "Service Objects in Rails (Thoughtbot 記事)",
+          url: "https://thoughtbot.com/blog/services-need-not-be-objects",
+        },
       ],
     },
   },
@@ -7831,10 +7885,28 @@ export const questions: Question[] = [
         "RESTful API は URL/コントローラ階層・ページネーション・N+1 対策・標準ヘッダーの 4 点セットを意識。",
       reason:
         "実務 API は (1) versioning (v1, v2), (2) ページネーション, (3) 認証 (今回は省略), (4) パフォーマンス (N+1, インデックス) が重要。CORS 設定 (config/initializers/cors.rb) も別途必要。OpenAPI で API 仕様を文書化するとフロント連携が楽。",
+      beginnerExplanation:
+        "**JSON API エンドポイント** の実装で押さえるべき **4 つの要素**:\n\n**1. URL/コントローラ階層化** (versioning):\n```ruby\nnamespace :api do\n  namespace :v1 do\n    resources :posts, only: %i[index show]\n  end\nend\n# → /api/v1/posts → Api::V1::PostsController\n```\n将来 v2 を出すときに既存 v1 を壊さず追加できる。\n\n**2. ページネーション** (kaminari / pagy):\n```ruby\nscope = Post.published.recent\n@posts = scope.page(params[:page]).per(params[:per] || 20)\n```\nページネーションなしだと 1 リクエストで全件返って DB / メモリが爆発。**必須**。\n\n**3. レスポンスヘッダーで総件数**:\n```ruby\nresponse.headers['X-Total-Count'] = scope.count.to_s\n```\nフロントエンドが『全何ページあるか』を計算するために必要。\n\n**4. N+1 対策**:\n```ruby\nscope = Post.includes(:user).published.recent\n# 各 post の user 取得を 1 クエリにまとめる\n```\n\n**JSON シリアライズ**:\n```ruby\nrender json: @posts.map { |p|\n  {\n    id: p.id,\n    title: p.title,\n    body: p.body,\n    author_name: p.user.name,\n    published_at: p.published_at&.iso8601,   # ISO 8601 形式が標準\n  }\n}\n```\n\n複雑な API では **jbuilder** や **ActiveModel::Serializers** や **alba** で構造化:\n```ruby\n# app/views/api/v1/posts/index.json.jbuilder\njson.array! @posts do |post|\n  json.id post.id\n  json.title post.title\n  json.author_name post.user.name\nend\n```\n\n**本番では追加で**:\n- **認証** (JWT / API Key)\n- **CORS 設定** (`config/initializers/cors.rb`)\n- **OpenAPI 仕様書** (rswag / committee)\n- **Rate Limiting** (rack-attack)",
+      modelSelfExplanation: {
+        conclusion:
+          "RESTful API は『URL 階層化 (namespace)・ページネーション・N+1 対策・Total-Count ヘッダー』の 4 点セットが基本。Rails では `namespace :api do; namespace :v1 do; resources; end; end` で URL とモジュール構造を統一する。",
+        reason:
+          "Web API は『複数バージョンの共存』『大量データの分割取得』『パフォーマンス』『フロントエンドとの契約 (件数情報)』の 4 つを満たす必要がある。Rails の namespace でこれらを構造化し、kaminari / pagy などのページネーション gem で N 件ずつ取得、includes で関連先取りで N+1 解消、レスポンスヘッダーで件数情報を渡す、というのが定型パターン。OpenAPI / Swagger で API 仕様を機械可読にすればフロント開発との連携も滑らか。",
+        example:
+          "ブログ API、SNS のタイムライン API、EC サイトの商品一覧 API、ダッシュボードのデータフィード、モバイルアプリのバックエンド、サードパーティ統合用 API など、JSON を返すすべての場面で同じパターン。Rails の API モード (`rails new --api`) で View 層を省略してさらにシンプルに。",
+        pitfall:
+          "ページネーション忘れは大量データ環境での致命傷 (1 リクエストで OOM)。総件数ヘッダー忘れはフロント側のページ遷移実装ができなくなる。namespace でモジュール階層を作るが Concern 化したい共通処理 (認証など) は Api::BaseController で集約。CORS 設定忘れで本番でブラウザから叩けない事故も頻発。",
+      },
       commonMistakes: [
         "ページネーションを忘れると 1 リクエストで全件返って爆発する。",
         "総件数を返さないとフロントが『次ページがあるか』判定できない。",
         "認証が必要な本番では JWT や API Key を導入。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Using Rails for API-only Applications",
+          url: "https://guides.rubyonrails.org/api_app.html",
+        },
       ],
     },
   },
@@ -7872,9 +7944,31 @@ export const questions: Question[] = [
         "ActiveJob はキューアダプタ抽象化。引数は ID 渡し、retry_on/discard_on で適切なリトライ戦略。",
       reason:
         "メール送信や統計記録など『失敗してもいい/再試行可』の処理はバックグラウンドへ。リトライ戦略は (1) ネットワーク系は数回リトライ、(2) ロジックバグはリトライしないで失敗通知、と切り分ける。Sidekiq の場合は perform_in / perform_at で遅延実行もできる。",
+      beginnerExplanation:
+        "**ActiveJob** で非同期処理を実装する標準パターン。**Sidekiq / GoodJob / SolidQueue** などのキューバックエンドを抽象化する Rails 標準機能。\n\n**Job の構造**:\n```ruby\nclass WelcomeJob < ApplicationJob\n  queue_as :default                # キュー名指定\n  \n  retry_on Net::OpenTimeout, wait: :polynomially_longer, attempts: 3  # 一時的エラーで自動リトライ\n  discard_on ActiveRecord::RecordNotFound                              # 永続エラーで破棄\n  \n  def perform(user_id)\n    user = User.find(user_id)\n    WelcomeMailer.greet(user).deliver_now\n    UserSignupStats.record!(user)\n  end\nend\n```\n\n**呼び出し**:\n```ruby\nWelcomeJob.perform_later(user.id)        # 非同期 (キュー投入)\nWelcomeJob.perform_now(user.id)          # 同期 (テスト用)\nWelcomeJob.set(wait: 1.hour).perform_later(user.id)   # 遅延実行\n```\n\n**🚨 重要原則**:\n\n**1. 引数は ID 渡し** (AR インスタンス直渡しは罠):\n```ruby\n# ❌ 危険\nWelcomeJob.perform_later(user)\n# Job 実行時に user がDB から消えていると ActiveJob::DeserializationError\n\n# ✅ 安全\nWelcomeJob.perform_later(user.id)\n# Job 内で find して、無ければ discard_on で破棄\n```\n\n**2. リトライ戦略**:\n- `retry_on Net::OpenTimeout, attempts: 3` — ネットワーク系一時エラー\n- `discard_on ActiveRecord::RecordNotFound` — レコード消失は再試行無意味\n- `retry_on StandardError` (汎用) は避ける (バグまでリトライしてしまう)\n\n**3. transaction 内の `perform_later` は罠**:\n```ruby\n# ❌ 危険\nActiveRecord::Base.transaction do\n  user = User.create!\n  WelcomeJob.perform_later(user.id)   # commit 前に Job 実行されるとレコードが見えない\nend\n\n# ✅ 安全\nuser = User.create!\nWelcomeJob.perform_later(user.id)     # transaction 外\n\n# または\nclass User\n  after_create_commit -> { WelcomeJob.perform_later(id) }   # commit 後フック\nend\n```\n\n**本番では Sidekiq が定番** (高速・Redis ベース):\n```ruby\n# Gemfile\ngem 'sidekiq'\n\n# config/application.rb\nconfig.active_job.queue_adapter = :sidekiq\n```",
+      modelSelfExplanation: {
+        conclusion:
+          "ActiveJob は Rails の非同期処理抽象化レイヤ。Job クラスで `perform` を定義し、`retry_on` / `discard_on` でリトライ戦略を設定する。引数は AR インスタンスではなく ID で渡し、Job 内で find するのが安全パターン。本番では Sidekiq / GoodJob / SolidQueue などのキューバックエンドと組み合わせる。",
+        reason:
+          "Web リクエストは『ユーザーへのレスポンス』が最優先なので、メール送信・統計記録・外部 API 呼び出しなど時間がかかる処理は非同期にする。ActiveJob はキューアダプタを抽象化することで、開発時は async (インライン)、本番は Sidekiq / GoodJob と切り替えられる。リトライ戦略は『一時的エラー (Net::Timeout 等) は retry_on で自動リトライ、永続的エラー (RecordNotFound 等) は discard_on で破棄』と切り分けるのが定型。引数 ID 渡しは GlobalID シリアライズの罠回避のため。",
+        example:
+          "Welcome メール送信、Slack 通知、外部 API への同期 (Stripe / Segment 等)、画像リサイズ (Active Storage と連携)、定期バッチ処理、CSV エクスポート (大量データを Job で生成して S3 に置く)、PDF 生成、レコメンデーション再計算など、Web レスポンス内で待ちたくない処理全般。",
+        pitfall:
+          "AR インスタンス直渡しは GlobalID シリアライズで Job 実行時に DeserializationError の温床。transaction 内 perform_later は commit タイミングのレースコンディションで Job がレコード見つけられない。after_commit や after_create_commit でフックするのが安全。さらに retry_on を広く設定しすぎると論理バグまでリトライされて『同じエラーが何度もアラート』状態になる。例外を狭く指定する。",
+      },
       commonMistakes: [
         "AR インスタンスを直接 perform_later すると、シリアライズで GlobalID 経由になり、Job 実行時にレコードが消えていると ActiveJob::DeserializationError。ID 渡しが安全。",
         "transaction 内で perform_later すると、コミット前に Job が走ってレコードが見えない場合がある。after_commit や after_create_commit を使う。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Active Job Basics",
+          url: "https://guides.rubyonrails.org/active_job_basics.html",
+        },
+        {
+          label: "Sidekiq (本番定番のキューバックエンド)",
+          url: "https://github.com/sidekiq/sidekiq",
+        },
       ],
     },
   },
@@ -7912,10 +8006,32 @@ export const questions: Question[] = [
         "API 認証の基本: Bearer トークンを抽出 → DB 照合 → 失敗時 401。シンプルな token 認証から始めて要件次第で JWT 等へ。",
       reason:
         "HTTP 401 は認証 (誰か分からない)、403 は認可 (誰かは分かるが権限なし) を意味するので区別する。トークンは ActiveSupport::SecurityUtils.secure_compare でタイミング攻撃対策をするとさらに良い。",
+      beginnerExplanation:
+        "**API 認証の基本パターン**: Bearer トークン → DB 照合 → 失敗時 401 を返す。\n\n**Bearer トークンの仕組み**:\n```\nAuthorization: Bearer abc123xyz...\n```\nクライアントが HTTP ヘッダーにトークンを乗せて送信。サーバが検証して User を特定。\n\n**実装の流れ**:\n```ruby\nclass ApplicationController < ActionController::API\n  private\n\n  def authenticate_api_user!\n    token = bearer_token\n    @current_api_user = User.find_by(api_token: token) if token\n    return if @current_api_user\n\n    render json: { error: 'unauthorized' }, status: :unauthorized\n  end\n\n  def current_api_user\n    @current_api_user\n  end\n\n  def bearer_token\n    auth = request.headers['Authorization']\n    return nil unless auth.present?\n    match = auth.match(/\\ABearer\\s+(.+)\\z/)\n    match && match[1]\n  end\nend\n```\n\n**コントローラで使用**:\n```ruby\nclass Api::V1::PostsController < ApplicationController\n  before_action :authenticate_api_user!\n\n  def index\n    @posts = current_api_user.posts\n    render json: @posts\n  end\nend\n```\n\n**HTTP ステータスの使い分け**:\n- **401 Unauthorized** → 認証失敗 (誰か分からない、トークンが無効)\n- **403 Forbidden** → 認可失敗 (誰かは分かるが権限なし)\n- **404 Not Found** → リソースが存在しない (認可情報の漏洩を避けるため、未認証ユーザに 404 を返す手法も)\n\n**🚨 セキュリティ注意点**:\n\n**1. nil トークン照合の罠**:\n```ruby\n# ❌ 危険\nUser.find_by(api_token: nil)\n# api_token カラムが NULL の User がヒット\n\n# ✅ 安全\nreturn unless token   # 事前 nil チェック\n```\n\n**2. タイミング攻撃対策**:\n```ruby\n# ❌ 危険 (時間差で文字数を推測される)\nuser.api_token == params[:token]\n\n# ✅ 安全 (定時間比較)\nActiveSupport::SecurityUtils.secure_compare(user.api_token, params[:token])\n```\n\n**3. ログにトークン残さない** (`config/initializers/filter_parameter_logging.rb`):\n```ruby\nRails.application.config.filter_parameters += [:api_token, :authorization]\n```\n\n**本格運用**:\n- **JWT** (`jwt` gem) — 有効期限・refresh token サポート\n- **OAuth** (`doorkeeper` gem) — 3rd party 連携\n- **Devise + Devise Token Auth** — Rails 統合認証\n\n初期は今回のような **シンプルなトークン認証** で開始し、要件に応じて JWT へ移行が現実的。",
+      modelSelfExplanation: {
+        conclusion:
+          "API 認証は `Authorization: Bearer <token>` ヘッダーからトークンを抽出 → DB の `api_token` カラムと照合 → 失敗時に 401 を返す、というシンプルなパターンが基本。`current_api_user` ヘルパーで認証済みユーザにアクセス可能にし、`before_action :authenticate_api_user!` で各アクションを保護する。",
+        reason:
+          "API 認証は Web のセッションベース認証と違い、状態を持たない (stateless) のが原則。各リクエストにトークンを乗せて毎回検証する。Bearer 形式は OAuth 2.0 で標準化されたフォーマットで、`Authorization: Bearer <token>` という HTTP ヘッダーに統一されている。シンプルな token 認証はランダム生成した文字列を DB に保存して照合するだけだが、要件に応じて JWT (有効期限付き、refresh token) や OAuth (3rd party 連携) に拡張できる。",
+        example:
+          "モバイルアプリのバックエンド API (iOS / Android アプリから REST/GraphQL API)、SaaS の管理用 API (顧客企業が自社システムから叩く)、microservice 間の通信、ChatBot / Slack 統合などの API キー認証、3rd party サービスから受け取る Webhook の認証、など API を持つアプリすべてで必須。",
+        pitfall:
+          "`User.find_by(api_token: nil)` が api_token NULL のユーザーにヒットする典型バグ → 事前 nil チェック必須。文字列比較を `==` ですると **タイミング攻撃** の温床 → `ActiveSupport::SecurityUtils.secure_compare` を使う。トークンをログに残すと漏洩リスク → `filter_parameters` で除外。実装簡単に見えて、セキュリティの落とし穴が多いので慎重に。本格運用は jwt gem / doorkeeper / devise_token_auth など実績のある gem に任せる。",
+      },
       commonMistakes: [
         "User.find_by に nil トークンが渡ると全ユーザーの中の nil トークン User がヒットしてしまう。事前 nil チェック必須。",
         "トークンを == で比較するとタイミング攻撃の余地。`ActiveSupport::SecurityUtils.secure_compare` を使う。",
         "本番でトークンをログに出さない (filter_parameters 設定)。",
+      ],
+      references: [
+        {
+          label: "OWASP: Authentication Cheat Sheet",
+          url: "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html",
+        },
+        {
+          label: "Rails Security Guide",
+          url: "https://guides.rubyonrails.org/security.html",
+        },
       ],
     },
   },
@@ -7953,9 +8069,31 @@ export const questions: Question[] = [
         "include + ClassMethods + define_method はメタプロの基本イディオム。Rails Concern も同じパターンの糖衣構文。",
       reason:
         "Module の `self.included(base)` フックで base.extend(ClassMethods) するパターンは Rails 全体で頻出。define_method はクロージャを作るので def では到達できない動的定義ができる。Gold 試験対策にも最適。",
+      beginnerExplanation:
+        "**メタプログラミング応用** — `include` + `ClassMethods` パターン + `define_method` でカスタム DSL を作る、Ruby/Rails の典型的なテクニック。\n\n**設計**:\n```ruby\nmodule AttrHashable\n  def self.included(base)                # ← include フック\n    base.extend(ClassMethods)             # ← ClassMethods を特異クラスに\n  end\n\n  module ClassMethods\n    def define_attrs(*names)              # クラスマクロ\n      attr_accessor(*names)               # getter/setter 量産\n\n      # to_h を動的定義 (クロージャで names を捕捉)\n      define_method(:to_h) do\n        names.each_with_object({}) do |n, h|\n          h[n] = instance_variable_get(\"@#{n}\")\n        end\n      end\n\n      define_singleton_method(:__attrs__) { names }   # メタ情報\n    end\n  end\nend\n\nclass User\n  include AttrHashable\n  define_attrs :name, :age\nend\n\nu = User.new\nu.name = 'Alice'\nu.age = 20\nu.to_h            # => {name: 'Alice', age: 20}\nUser.__attrs__    # => [:name, :age]\n```\n\n**鍵となるイディオム** (3 つ):\n\n**1. `self.included(base)` + `base.extend(ClassMethods)`**\ninclude されたとき自動で ClassMethods をクラスメソッドとして追加するフックパターン。\n\n**2. `define_method` のクロージャ**\n```ruby\ndefine_method(:to_h) do\n  names.each_with_object({}) { ... }   # names は define_method のスコープから捕捉\nend\n# ↑ def を使うとこれが動かない (def はスコープゲートで names が見えない)\n```\n\n**3. `instance_variable_get`** で動的に属性取得:\n```ruby\ninstance_variable_get(\"@#{name}\")   # @name の値を取得\ninstance_variable_set(\"@#{name}\", value)   # @name に value を設定\n```\n\n**Rails の `ActiveSupport::Concern`** はこのパターンを糖衣構文化:\n```ruby\nmodule AttrHashable\n  extend ActiveSupport::Concern\n\n  class_methods do\n    def define_attrs(*names)\n      # 同じ実装\n    end\n  end\nend\n```\n→ `self.included(base)` フックや `module ClassMethods` の宣言が不要に。\n\n**用途**:\n- Rails の concern (`has_paper_trail`, `acts_as_taggable_on` 等)\n- DSL ライブラリ (Sinatra, RSpec の matcher)\n- 設定可能な機能の動的追加",
+      modelSelfExplanation: {
+        conclusion:
+          "メタプログラミングで DSL を作るには『Module include + `self.included` フック + `module ClassMethods` + `define_method` でのクロージャ動的定義』の組み合わせを使う。Rails の `ActiveSupport::Concern` はこのパターンを糖衣構文化したもの。",
+        reason:
+          "Ruby の Module は include されたときフック (`self.included(base)`) が呼ばれ、ここで `base.extend(ClassMethods)` することで『include しただけでクラスメソッドも追加される』ようにできる。`define_method` は `def` と違ってブロック内のローカル変数を捕捉するクロージャを作るため、引数 (names) を保持した動的メソッド定義が可能。これらを組み合わせることで `define_attrs :name, :age` のような宣言的 DSL が実装できる。Rails の has_many / validates / scope などすべて同じ仕組み。",
+        example:
+          "Rails の Concern (has_paper_trail, acts_as_taggable_on, devise の認証メソッド注入)、フォーム DSL (`form_for do |f| ... end`)、ルーティング DSL (`resources :posts`)、設定 DSL (`config.foo = ...`) など、Rails / Sinatra / RSpec のあらゆる DSL がこの仕組みで実装されている。理解すれば自作 gem やライブラリ設計の幅が広がる。",
+        pitfall:
+          "`def` でメソッド定義すると新しいスコープが作られ、`names` などの外側のローカル変数が見えなくなる。`define_method` はクロージャを作るのでこれを回避できる。さらに `instance_variable_get` の引数は `\"@name\"` のように `@` 必須 (省略すると IndexError)。動的メソッドは grep で追跡しにくいので、内部 API の名前空間を `__attrs__` のようにアンダースコアで隔離し、ドキュメントで明示するのが運用上重要。",
+      },
       commonMistakes: [
         "def メソッド名 ... end で書くと names が見えないため動かない (def はスコープゲート)。define_method がクロージャを作るのが鍵。",
         "instance_variable_get の引数は :@name または '@name' (@ 必須)。",
+      ],
+      references: [
+        {
+          label: "Rails API: ActiveSupport::Concern",
+          url: "https://api.rubyonrails.org/classes/ActiveSupport/Concern.html",
+        },
+        {
+          label: "Metaprogramming Ruby (Paolo Perrotta) - 名著",
+          url: "https://pragprog.com/titles/ppmetr2/metaprogramming-ruby-2/",
+        },
       ],
     },
   },

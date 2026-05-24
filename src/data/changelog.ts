@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-25-j",
+    date: "2026-05-25",
+    title: "🎊 全 149 問の解説拡充が完了 — Practical pr-006〜012 (最終 PR)",
+    badge: "content",
+    highlights: [
+      "pr-006 (scope) / pr-007 (RESTful Controller) / pr-008 (Service Object) / pr-009 (JSON API) / pr-010 (ActiveJob) / pr-011 (API 認証) / pr-012 (メタプロ DSL)",
+      "practical カテゴリ完走 + 全 149 問の解説拡充プロジェクトが完了 🎉🎉🎉",
+      "ruby-basics 30 / rails-convention 10 / active-record 23 / routing-controller 12 / ruby-oop 12 / collections 16 / ruby-advanced 22 / code-reading 12 / practical 12 = 149/149 (100%)",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-25-i",
     date: "2026-05-25",
     title: "Practical カテゴリの解説拡充スタート (pr-001〜005)",
