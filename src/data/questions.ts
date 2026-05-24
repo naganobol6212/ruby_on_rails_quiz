@@ -2906,6 +2906,12 @@ export const questions: Question[] = [
       "/posts/:id/comments/:id",
     ],
     answerIndex: 1,
+    choiceExplanations: [
+      "ネストしている以上、親 ID がパスに必ず含まれる。`/comments` だけになるのは `shallow` ネストの show/edit/update/destroy のみ。",
+      "正解。ネストリソースの URL は `/parent/:parent_id/child` の形式。親 ID は `:post_id` のように親リソース名 (単数形) + `_id` で渡される。",
+      "順序が違う。先に親リソース、次にその id、その下に子リソースが並ぶ。",
+      "id が 2 つあると区別不可能。Rails は親側を `:post_id`、子側を `:id` として明確に区別する命名にする。",
+    ],
     hints: [
       "ネストリソースは親 ID をパスに含めます。",
       "`/posts/:post_id/comments` の形になります。",
@@ -2916,8 +2922,30 @@ export const questions: Question[] = [
         "ネストリソースは `/parent/:parent_id/child` の URL になる。",
       reason:
         "親子関係を URL に表現できる。ただし深くネストすると URL が長くなり保守性が落ちるので、ネストは 1 段までに留めるのが定石 (shallow ネストオプションで深いネストを浅くできる)。",
+      beginnerExplanation:
+        "**ネストリソース** は親子関係を URL に表現する書き方です。\n\n**基本**:\n```ruby\nresources :posts do\n  resources :comments\nend\n```\n生成 URL:\n```\nGET    /posts/:post_id/comments         (index)\nPOST   /posts/:post_id/comments         (create)\nGET    /posts/:post_id/comments/:id     (show)\n...\n```\n\nコントローラからは:\n```ruby\nclass CommentsController < ApplicationController\n  def create\n    @post = Post.find(params[:post_id])       # 親 ID\n    @comment = @post.comments.create!(comment_params)\n  end\nend\n```\n\n**深いネストは避ける** (Rails Way): URL が `/users/:user_id/posts/:post_id/comments/:id` のように長くなり、URL ヘルパーも `user_post_comment_path(@user, @post, @comment)` で煩雑になる。\n\n**`shallow:` オプション** で浅くする (推奨):\n```ruby\nresources :posts do\n  resources :comments, shallow: true\nend\n```\n生成:\n```\nGET    /posts/:post_id/comments    (index)    親付き\nPOST   /posts/:post_id/comments    (create)   親付き\nGET    /comments/:id               (show)     親なし!\nGET    /comments/:id/edit          (edit)     親なし!\n```\n親が必要なアクション (index / new / create) だけ親付き、それ以外は子 ID だけで識別。URL が短くなり、コントローラの責務も明確になります。\n\n**ベストプラクティス**:\n- ネストは **最大 1 段** に抑える\n- show/edit/update/destroy には親 ID 不要 → shallow を使う\n- 親が不要な集計や検索は別リソースに切り出す\n- ルート確認は `bin/rails routes -g comments`",
+      modelSelfExplanation: {
+        conclusion:
+          "ネストした `resources :comments` の URL は `/posts/:post_id/comments`。親リソースの id は『単数形 + _id』(post_id) でパスパラメータとして渡され、子リソースはその下にぶら下がる。",
+        reason:
+          "親子関係を URL に表現することで RESTful な構造 (リソースの階層) を保てる。コントローラでは `params[:post_id]` で親を、`params[:id]` で子を取得して `@post.comments` 経由でアクセスすれば、関連性を保ったままセキュアに操作できる (ユーザー X が他人の post の comment にアクセスできないよう、親経由で取ることで自然に絞り込める)。深いネストは可読性と URL の冗長化を招くため shallow オプションで親が必要なアクションだけネストするのが現代的な定石。",
+        example:
+          "ブログコメント機能で `resources :posts do; resources :comments, shallow: true; end` とすれば `/posts/:post_id/comments` (一覧・新規)、`/comments/:id` (表示・編集・削除) の組み合わせ。コントローラで `@post = Post.find(params[:post_id])` → `@comment = @post.comments.find(params[:id])` の流れで、他人の post のコメントを誤って表示することを構造的に防げる。",
+        pitfall:
+          "深いネスト (3 段以上) は URL ヘルパー名が `user_post_comment_reply_path(@user, @post, @comment, @reply)` のように爆発する。さらに API モードで JSON を返す場合は親 ID を毎回パスに含めるのが冗長で、API URL の設計と Web URL の設計を別物として考えた方が良いケースもある。shallow を使うと show 系の URL が `/comments/:id` になるため、Rails アプリ内のユーザの境界 (他人のコメントが見えないか) は仕組みではなく Pundit などの認可で守る必要がある。",
+      },
       codeExample:
         "resources :posts do\n  resources :comments\nend\n# GET    /posts/:post_id/comments\n# POST   /posts/:post_id/comments\n# GET    /comments/:id   ← 出ない (出すには shallow)\n\n# shallow ネスト (推奨)\nresources :posts do\n  resources :comments, shallow: true\nend\n# index/create だけ親付き、その他は /comments/:id\n\n# コントローラ\nclass CommentsController < ApplicationController\n  def create\n    @post = Post.find(params[:post_id])\n    @comment = @post.comments.create!(comment_params)\n  end\nend",
+      commonMistakes: [
+        "深いネスト (3 段以上) は URL ヘルパー名が爆発する。1 段で済ませる。",
+        "shallow の show / edit / update / destroy は親 ID なしなので、認可ロジックで他人のリソースに触れないよう守る。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Routing — Nested Resources (公式)",
+          url: "https://guides.rubyonrails.org/routing.html#nested-resources",
+        },
+      ],
     },
   },
   {
@@ -2934,6 +2962,12 @@ export const questions: Question[] = [
       "上記すべて使える",
     ],
     answerIndex: 3,
+    choiceExplanations: [
+      "正しい URL ヘルパーの 1 つ。`_url` はホスト込みの絶対 URL (`http://example.com/posts`)。リダイレクトやメール本文で使う。",
+      "正しい使い方。`url_for` は Hash でコントローラ・アクション・パラメータを指定して URL を生成する汎用関数。",
+      "正しい使い方。`post_path(post)` はモデルインスタンスから自動的に ID を取り出して `/posts/1` を生成する慣用句。",
+      "正解。`_url` / `_path` / `url_for` どれも有効。場面に応じて使い分ける。",
+    ],
     hints: [
       "`resources :posts` を書くと自動でヘルパーが生成されます。",
       "`_path` (相対) と `_url` (絶対) の 2 種類。",
@@ -2944,8 +2978,31 @@ export const questions: Question[] = [
         "URL Helper は resources から自動生成。_path (相対) / _url (絶対) の両方。",
       reason:
         "`resources :posts` で `posts_path` `post_path(post)` `new_post_path` `edit_post_path(post)` などが生成。引数にモデルインスタンスを渡せば `post_path(post)` のように書ける。",
+      beginnerExplanation:
+        "**URL Helper** は `resources :posts` を書くだけで自動生成される **URL 生成メソッド** です。\n\n**生成されるヘルパー** (`resources :posts` の場合):\n```ruby\nposts_path              # \"/posts\"             (index)\npost_path(@post)        # \"/posts/1\"           (show)\nnew_post_path           # \"/posts/new\"         (new)\nedit_post_path(@post)   # \"/posts/1/edit\"      (edit)\n\nposts_url               # \"http://example.com/posts\"  (絶対 URL)\n```\n\n**`_path` vs `_url`**:\n- `_path` → 相対パス (`/posts`)。**View や Controller 内のリンク** で使う\n- `_url` → 絶対 URL (`http://example.com/posts`)。**リダイレクト・メール本文・JSON API** で使う\n\n**便利な省略形**:\n```ruby\nlink_to '詳細', @post    # post_path(@post) と同じ\nredirect_to @post        # post_path(@post) へリダイレクト\n```\nモデルインスタンスを直接渡せば、Rails が自動で適切な URL を選んでくれます。\n\n**ネストリソース** のヘルパー:\n```ruby\nresources :posts do\n  resources :comments\nend\n# post_comments_path(@post)            # /posts/1/comments\n# post_comment_path(@post, @comment)   # /posts/1/comments/5\n```\n\n**`url_for`** は汎用版 (Hash 指定):\n```ruby\nurl_for(controller: 'posts', action: 'show', id: 1)\n#=> \"/posts/1\"\n\n# 名前付きパラメータ\nurl_for(@post)           # ポリモーフィック URL 生成 (post_path(@post))\n```\n\n**メリット**:\n- URL を変えても (ルート編集だけで) ヘルパー名で参照しているコードは全て自動追従\n- 文字列で `/posts/1` を直接書くより安全 (タイポ防止、リファクタリング容易)\n- `bin/rails routes` で名前一覧確認可能",
+      modelSelfExplanation: {
+        conclusion:
+          "URL Helper は `_path` (相対) と `_url` (絶対) の両方が `resources` から自動生成され、`url_for` で Hash 指定もできる。`posts_url` / `url_for(controller: 'posts')` / `post_path(post)` すべて有効な使い方。",
+        reason:
+          "Rails のルーティングは『URL とコントローラ#アクションの双方向マッピング』を提供しており、resources DSL で 7 アクション分の URL を生成すると同時に、対応する URL ヘルパー (posts_path, post_path 等) も自動生成される。これにより View / Controller でハードコードされた URL 文字列を書く必要がなくなり、ルート変更時にも 1 箇所 (routes.rb) の修正だけで全コードが追従する。`_path` は相対パス (link_to や form_for で使う)、`_url` は絶対 URL (リダイレクトやメール本文で使う)、`url_for` は Hash 指定の汎用関数、モデルインスタンスを直接渡す省略形も用意されている柔軟な API。",
+        example:
+          "View で `<%= link_to '詳細', @post %>` (= `post_path(@post)`)、コントローラで `redirect_to @post`、メーラーで `posts_url(host: 'example.com')`、API のレスポンスで `post_url(post)`。ネストなら `post_comment_path(@post, @comment)` で `/posts/1/comments/5`。URL を `/posts/:id` から `/articles/:id` に変えたいときは routes.rb の 1 行を `resources :articles` に変えるだけで全 URL ヘルパーが連動。",
+        pitfall:
+          "メーラーや JSON API では `_url` (絶対 URL) を使わないと URL が `/posts/1` だけになり、メールクライアントやモバイルアプリで開けない。逆に View 内で `_url` を使うとサーバホスト名がレスポンスに混入して保守性が下がる (環境別の絶対 URL 生成は config.action_mailer.default_url_options で集約)。`url_for(@post)` のポリモーフィック呼び出しは便利だが、@post のクラスが想定外だと NoMethodError なので明示的に `post_path(@post)` を使う方が安全な場面もある。",
+      },
       codeExample:
         '# routes\nresources :posts\n\n# 生成される helpers\nposts_path              # "/posts"\npost_path(@post)        # "/posts/1"\nnew_post_path           # "/posts/new"\nedit_post_path(@post)   # "/posts/1/edit"\n\n# _url は host 込み\nposts_url               # "http://example.com/posts"\n\n# link_to などでよく使う\n<%= link_to "詳細", post_path(@post) %>\n<%= link_to "詳細", @post %>           # ←モデル渡しでもOK',
+      commonMistakes: [
+        "メーラーで `_path` を使うとリンクが開けない。必ず `_url` を使う。",
+        "View で `_url` を使うとホスト名が露出。`_path` を使う。",
+        "URL を文字列でハードコード (`'/posts/' + @post.id`) するとルート変更で壊れる。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Routing — Path and URL Helpers (公式)",
+          url: "https://guides.rubyonrails.org/routing.html#path-and-url-helpers",
+        },
+      ],
     },
   },
   {
@@ -2962,6 +3019,12 @@ export const questions: Question[] = [
       "/admin/users → UsersController",
     ],
     answerIndex: 1,
+    choiceExplanations: [
+      "`namespace` は URL とコントローラ両方に prefix を付ける。URL も `/admin/users` になるので `/users` ではない。",
+      "正解。`namespace :admin` は URL prefix (`/admin/`) と module スコープ (`Admin::`) の両方を適用する。",
+      "URL も `/admin/users` になる。`namespace` は URL prefix も同時に付けるため、URL は `/users` にならない。",
+      "コントローラも `Admin::UsersController` になる。`namespace` は両方に効くため、コントローラだけ通常クラスにはならない。",
+    ],
     hints: [
       "`namespace` は URL とコントローラ両方に prefix を付ける。",
       "URL: `/admin/users`、コントローラ: `Admin::UsersController`。",
@@ -2972,8 +3035,30 @@ export const questions: Question[] = [
         "`namespace` は URL prefix + module スコープ。`/admin/users` ↔ `Admin::UsersController`。",
       reason:
         "管理画面など、URL もコントローラも別空間にしたい時に使う。URL だけ prefix したい (コントローラはそのまま) なら `scope '/admin'`、コントローラだけ namespace したいなら `scope module: 'admin'`。",
+      beginnerExplanation:
+        "**`namespace`** は **URL prefix とコントローラの module スコープを同時に付ける** Rails ルーティング DSL です。\n\n**3 つのパターン** の使い分け:\n\n**1. `namespace :admin`** — URL も Controller も両方 prefix\n```ruby\nnamespace :admin do\n  resources :users\nend\n# /admin/users → Admin::UsersController\n# ファイル: app/controllers/admin/users_controller.rb\n```\n管理画面など『URL とコードを完全に分離したい』場面で使う。\n\n**2. `scope '/admin'`** — URL だけ prefix\n```ruby\nscope '/admin' do\n  resources :users\nend\n# /admin/users → UsersController (一般と同じクラス)\n```\nURL を変えるけど、コントローラは共有したい場合。\n\n**3. `scope module: 'admin'`** — Controller だけ namespace\n```ruby\nscope module: 'admin' do\n  resources :users\nend\n# /users → Admin::UsersController\n```\nURL は普通だけど、内部実装を別 module に分けたい場合。\n\n**実務での使い分け**:\n| | URL prefix | Controller module | 用途 |\n|---|---|---|---|\n| `namespace :admin` | ✓ | ✓ | 管理画面 (一般 UI と完全分離) |\n| `scope '/admin'` | ✓ | ✗ | URL だけ階層化 |\n| `scope module: 'admin'` | ✗ | ✓ | 内部実装を整理 |\n\n**API バージョニング** にも使えます:\n```ruby\nnamespace :api do\n  namespace :v1 do\n    resources :users\n  end\nend\n# /api/v1/users → Api::V1::UsersController\n# ファイル: app/controllers/api/v1/users_controller.rb\n```\n\n**注意**: namespace を使うと URL ヘルパーも自動で prefix される (`admin_users_path` → `/admin/users`)。",
+      modelSelfExplanation: {
+        conclusion:
+          "`namespace :admin do; resources :users; end` は `/admin/users` の URL と `Admin::UsersController` の対応を作る。URL prefix とコントローラの module スコープを同時に適用するのが namespace の特徴。",
+        reason:
+          "Rails は『管理画面』『API』『専用 UI』など、機能領域ごとに URL とコードを階層化したいニーズに対応するため、namespace DSL を提供している。`namespace :admin do ... end` は内部で『URL prefix /admin/』『コントローラ module Admin::』『ファイルパス app/controllers/admin/』『URL ヘルパー admin_*』をまとめて宣言するシンタックスシュガー。これにより routes.rb 1 箇所の変更で全要素が整合する。`scope '/admin'` (URL のみ) や `scope module: 'admin'` (Controller のみ) は部分的に使いたい場合の別 DSL。",
+        example:
+          "管理画面で `namespace :admin do; resources :users, :posts; end` として `/admin/users`, `/admin/posts` を Admin::UsersController, Admin::PostsController に分離。API なら `namespace :api do; namespace :v1 do; resources :users; end; end` で `/api/v1/users` を `Api::V1::UsersController` に。これによりバージョン管理やコード分離が綺麗にできる。",
+        pitfall:
+          "Admin::UsersController は ApplicationController を継承するだけだと一般画面と同じ挙動になるので、`class AdminController < ApplicationController` のような共通親を作って認証・レイアウトを統一すると DRY。さらに URL ヘルパー名も自動で prefix されるため (`admin_users_path`)、コード中で `users_path` を使い続けると 404 になる。namespace 切替時のリファクタは grep / find で全 URL ヘルパー参照を確認する必要がある。",
+      },
       codeExample:
         "namespace :admin do\n  resources :users\nend\n# /admin/users → Admin::UsersController\n# ファイル: app/controllers/admin/users_controller.rb\n\n# URL だけ /admin、コントローラは普通の UsersController\nscope '/admin' do\n  resources :users\nend\n# /admin/users → UsersController\n\n# コントローラだけ Admin::、URL は普通\nscope module: 'admin' do\n  resources :users\nend\n# /users → Admin::UsersController",
+      commonMistakes: [
+        "namespace 化したら URL ヘルパー名も prefix される。`users_path` → `admin_users_path` への置換忘れで 404。",
+        "Admin::UsersController で認証共通化していないと、各コントローラに認証を書くハメに。共通親クラス (`AdminController`) で集約する。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Routing — Namespacing (公式)",
+          url: "https://guides.rubyonrails.org/routing.html#controller-namespaces-and-routing",
+        },
+      ],
     },
   },
   {
@@ -2998,8 +3083,30 @@ export const questions: Question[] = [
       summary: "`rails routes` で全ルート一覧表示。",
       reason:
         "URL Helper, HTTP メソッド, URL, コントローラ#アクションが一覧表示される。膨大な場合は `-c コントローラ名` で絞り込み、`-g キーワード` で grep。ブラウザでは `/rails/info/routes` でも見られる (開発環境)。",
+      beginnerExplanation:
+        "**`rails routes`** は **routes.rb の効果を一覧で見る** ためのコマンドです。\n\n**出力例**:\n```\n   Prefix Verb   URI Pattern              Controller#Action\n    posts GET    /posts(.:format)         posts#index\n          POST   /posts(.:format)         posts#create\n new_post GET    /posts/new(.:format)     posts#new\nedit_post GET    /posts/:id/edit(.:format) posts#edit\n     post GET    /posts/:id(.:format)     posts#show\n          PATCH  /posts/:id(.:format)     posts#update\n          PUT    /posts/:id(.:format)     posts#update\n          DELETE /posts/:id(.:format)     posts#destroy\n```\n\n**読み方**:\n- **Prefix**: 対応する URL ヘルパー名 (`posts_path`, `posts_url`)\n- **Verb**: HTTP メソッド\n- **URI Pattern**: URL パターン (`:id` などのパラメータ含む)\n- **Controller#Action**: ディスパッチ先\n\n**便利なオプション**:\n```bash\n# 特定コントローラだけ\nbin/rails routes -c posts\n\n# キーワードで grep\nbin/rails routes -g admin\n\n# JSON 形式 (Rails 7+)\nbin/rails routes --json\n```\n\n**バージョン差**:\n- Rails 4 まで: `rake routes`\n- Rails 5+: `rails routes` (推奨、bin/rails routes も同じ)\n- どちらでも動くが新しい記法 `rails routes` に統一すべし\n\n**ブラウザでも確認可能** (開発環境のみ):\n```\nhttp://localhost:3000/rails/info/routes\n```\nグラフィカルに表示され、URL でフィルタもできて見やすいです。\n\n**routes.rb のデバッグ時に必須**:\n- 期待した URL がない → routes.rb の書き方が間違ってる\n- 期待した URL がある → コントローラやアクションがない\n- routes が大量にある → ルートの整理を検討 (resources の only/except)",
+      modelSelfExplanation: {
+        conclusion:
+          "コマンドは `rails routes` (または `bin/rails routes`)。routes.rb の宣言から生成される全 URL ルートを『URL ヘルパー名 / HTTP メソッド / URL パターン / Controller#Action』の表形式で出力する。",
+        reason:
+          "Rails のルーティングは DSL で書かれているため、最終的にどんな URL が生成されるかは routes.rb を読むだけでは把握しにくい。`rails routes` は内部のルーティングテーブルをそのまま表示することで『DSL の宣言と実際の URL の対応』を可視化するデバッグツール。Rails 5+ で `rake routes` から `rails routes` に統合された。-c (controller フィルタ) や -g (キーワード grep) で大規模アプリでも目的のルートを素早く探せる。",
+        example:
+          "新しい機能追加後に『URL ヘルパー名が分からない』『なぜか NoMethodError: undefined method `xxx_path`』と困ったら、まず `bin/rails routes -g xxx` で確認するのが定石。本番アプリで API バージョン整理時に `bin/rails routes -g api/v2` で v2 系だけ抽出して移行漏れチェック、Devise などの gem が追加するルートを `bin/rails routes -g devise` で確認、なども実務頻出。開発環境では `http://localhost:3000/rails/info/routes` のブラウザ UI の方が読みやすい場合もある。",
+        pitfall:
+          "巨大アプリでは `rails routes` の出力が数千行になることがあり、ターミナルで読みにくい。`-c controller_name` や `-g keyword` で絞り込む、`| less -S` でページャに渡す、`rails routes > tmp/routes.txt` でファイル出力、など工夫する。さらに routes.rb の宣言順序によって優先度が変わる (上が優先) ことを意識し、`get '/*path'` のような catch-all は最後に書く、というのも忘れがちな罠。",
+      },
       codeExample:
         '# 全ルート\nrails routes\n\n# 特定コントローラのみ\nrails routes -c posts\n\n# 文字列でフィルタ\nrails routes -g admin\n\n# 例: 出力\n# Prefix Verb   URI Pattern        Controller#Action\n#  posts GET    /posts(.:format)   posts#index\n#        POST   /posts(.:format)   posts#create\n#   post GET    /posts/:id         posts#show',
+      commonMistakes: [
+        "巨大アプリで素の `rails routes` を打って数千行が流れる。-c / -g で絞る。",
+        "routes.rb の宣言順序を意識しない。catch-all (`get '/*path'`) は最後に書く。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Inspecting and Testing Routes",
+          url: "https://guides.rubyonrails.org/routing.html#listing-existing-routes",
+        },
+      ],
     },
   },
   {
@@ -3016,6 +3123,12 @@ export const questions: Question[] = [
       "render redirect_to: root_path",
     ],
     answerIndex: 3,
+    choiceExplanations: [
+      "正しい。`render :edit` で edit.html.erb テンプレートを描画。フォーム失敗時の再表示で頻出。",
+      "正しい。`render json: @user` で `@user.to_json` を返す。API でよく使う。",
+      "正しい。`render plain: 'hello'` で `text/plain` のレスポンスを返す。簡単な確認用。",
+      "正解。`render redirect_to:` のようなオプションは存在しない。リダイレクトは別メソッド `redirect_to root_path` を使う。render と redirect_to は別物。",
+    ],
     hints: [
       "`render` はテンプレートやデータを描画。",
       "リダイレクトは `redirect_to` (別メソッド)。",
@@ -3026,8 +3139,30 @@ export const questions: Question[] = [
         "render はレンダリング、redirect_to はリダイレクト。混ぜたオプションは無い。",
       reason:
         "render と redirect_to は別物。render の主なオプション: :template/:partial/:json/:xml/:plain/:html/:status/:layout/:file 等。1 アクションで render と redirect_to を両方書くと `DoubleRenderError`。",
+      beginnerExplanation:
+        "**`render`** メソッドの **豊富なオプション** を整理しておきましょう。\n\n**テンプレート描画**:\n```ruby\nrender :show              # show.html.erb (現在のコントローラ)\nrender 'posts/index'      # posts/index.html.erb (別コントローラ)\nrender template: 'shared/error'\nrender partial: 'post', locals: { post: @post }\n```\n\n**データ形式指定**:\n```ruby\nrender json: @user                          # application/json\nrender json: @user, status: :created        # 201 Created\nrender xml:  @user                          # application/xml\nrender plain: 'OK'                          # text/plain\nrender html: '<b>Hi</b>'.html_safe          # text/html\n```\n\n**HTTP ステータス + レイアウト**:\n```ruby\nrender :new, status: :unprocessable_entity  # 422\nrender :show, layout: false                 # レイアウト無し\nrender :show, layout: 'admin'               # 別レイアウト\n```\n\n**API レスポンスでの定番**:\n```ruby\ndef show\n  render json: @user, only: %i[id name email]\nend\n\ndef create\n  if @user.save\n    render json: @user, status: :created\n  else\n    render json: @user.errors, status: :unprocessable_entity\n  end\nend\n```\n\n**🚨 `render` と `redirect_to` は別物**:\n```ruby\n# ❌ こんなオプションは無い\nrender redirect_to: root_path        # SyntaxError 相当 (オプション無視)\n\n# ✅ 正しい\nredirect_to root_path                # リダイレクトは別メソッド\n```\n\n**DoubleRenderError**: 1 アクションで render を 2 回呼ぶ、または render と redirect_to を両方呼ぶとエラー:\n```ruby\n# ❌ エラー\ndef show\n  render :new if condition\n  redirect_to root_path                # ↑が走ったあとでもう一回\nend\n\n# ✅ 正しい (return で抜ける)\ndef show\n  if condition\n    render :new and return\n  end\n  redirect_to root_path\nend\n```\n\n**Tip**: `render` を明示的に書かなくても、Rails はアクション名と同名のテンプレートを自動描画 (`PostsController#show` → `app/views/posts/show.html.erb`)。明示的な render が必要なのは、別テンプレートを描画したい / 失敗時に再表示したい / JSON を返したい場合です。",
+      modelSelfExplanation: {
+        conclusion:
+          "正しくないのは `render redirect_to: root_path`。`render` と `redirect_to` は別メソッドで、render のオプションに redirect_to を混ぜることはできない。リダイレクトしたいなら独立して `redirect_to root_path` を呼ぶ。",
+        reason:
+          "Rails では『同一レスポンスで描画する (render)』と『別 URL へリダイレクトする (redirect_to)』は完全に異なる責務として分離されている。render のオプション (template / partial / json / xml / plain / html / status / layout / file) はすべて『今このレスポンスで何を返すか』を制御するもので、新リクエストを発生させるリダイレクトとは概念的に混ざらない。1 アクションで render と redirect_to を両方呼ぶと DoubleRenderError になり、Rails が『どちらが正しいのか分からない』と教えてくれる。",
+        example:
+          "create アクションで `if @post.save; redirect_to @post; else; render :new, status: :unprocessable_entity; end` のように分岐。API なら `render json: @post, status: :created` (成功) / `render json: @post.errors, status: :unprocessable_entity` (失敗)。早期 return パターンなら `return render(json: { error: 'invalid' }, status: 422) if @post.invalid?` のように `and return` か `return render(...)` で続行をブロックする。",
+        pitfall:
+          "1 アクションで複数のレスポンス系メソッド (render を 2 回 / render と redirect_to の両方) を呼ぶと `AbstractController::DoubleRenderError`。条件分岐ごとに `and return` を付けるか、明示的な if-else 構造に整える。`render :template` と `render template: ...` は表記揺れで両方使えるが、書き方を揃えると読みやすい。さらに `render html: user_input` のようにユーザー入力をそのまま返すと XSS の温床なので、必ず `.html_safe` を呼ばずに普通の文字列で渡す (Rails が自動エスケープ)。",
+      },
       codeExample:
         "render :show                       # 別テンプレ\nrender 'posts/index'\nrender json: @user                 # JSON\nrender json: @user, status: :created\nrender plain: 'Hello'              # text/plain\nrender html: '<b>Hi</b>'.html_safe # HTML 文字列\nrender file: '/path/to/file'\nrender layout: false               # レイアウト無し\nrender nothing: true, status: 204  # ← Rails 5+ は head :no_content\n\n# レンダリング後は return で抜ける (DoubleRenderError 回避)\nreturn render(json: {error:'x'}, status: 422) if invalid?",
+      commonMistakes: [
+        "render と redirect_to を両方呼ぶと DoubleRenderError。`and return` で続行をブロック。",
+        "ユーザー入力に `.html_safe` を付けて render すると XSS。Rails は自動エスケープに任せる。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Layouts and Rendering — render (公式)",
+          url: "https://guides.rubyonrails.org/layouts_and_rendering.html#using-render",
+        },
+      ],
     },
   },
   {

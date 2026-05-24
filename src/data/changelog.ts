@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-24-s",
+    date: "2026-05-24",
+    title: "Routing/Controller rt-006〜010 の解説拡充 (Phase 2)",
+    badge: "content",
+    highlights: [
+      "rt-006 (ネストリソース + shallow) / rt-007 (URL Helper) / rt-008 (namespace vs scope) / rt-009 (rails routes) / rt-010 (render と DoubleRenderError)",
+      "実務でルーティング設計するときの選択肢と落とし穴を深掘り",
+      "Routing/Controller 進捗 10/12 (残り 2 問で完走)",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-24-r",
     date: "2026-05-24",
     title: "Routing/Controller カテゴリの解説拡充スタート (rt-001〜005)",
