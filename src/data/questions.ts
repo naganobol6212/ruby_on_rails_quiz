@@ -2445,6 +2445,12 @@ export const questions: Question[] = [
     code: "def execute\n  yield 10\nend\n\nresult = execute { |x| x * 3 }\nputs result",
     choices: ["10", "30", "nil", "LocalJumpError"],
     answerIndex: 1,
+    choiceExplanations: [
+      "yield 10 が渡されたブロック `{ |x| x * 3 }` を呼び出すので、計算結果 30 が返る。10 のままにはならない。",
+      "正解。yield 10 でブロックに 10 を渡して実行 → 10 * 3 = 30 が返り、result に代入されて出力される。",
+      "ブロックは正しく渡されており、yield も値を返すので nil にはならない。",
+      "ブロックは渡されているので LocalJumpError は起きない (ブロック無しで yield を呼ぶと発生)。",
+    ],
     hints: [
       "`yield` はブロックを呼び出します。",
       "`yield 10` は渡されたブロックに 10 を渡して実行。",
@@ -2454,10 +2460,29 @@ export const questions: Question[] = [
       summary: "`yield` は渡されたブロックを呼ぶ。最後の式の戻り値が結果。",
       reason:
         "Ruby のメソッドは暗黙的にブロックを受け取れる (`yield` で呼び出し)。`do...end` または `{...}` で渡す。明示的に Proc として受け取りたい時は `&blk` 引数を使う。",
+      beginnerExplanation:
+        "**`yield`** は **メソッドに渡されたブロックを呼び出す** Ruby 独特のキーワードです。Ruby のすべてのメソッドが暗黙的にブロックを受け取れる仕組みの中核。\n\n**動作**:\n```ruby\ndef execute\n  yield 10       # ← 渡されたブロックを呼ぶ (引数 10 を渡して)\nend\n\nexecute { |x| x * 3 }   # => 30\n# 内部で yield 10 → ブロックが |x|=10 で実行 → 10 * 3 = 30\n```\n\nメソッド側は引数として宣言しなくてもブロックを受け取り、`yield` で呼び出せる。\n\n**ブロックの有無チェック**:\n```ruby\ndef safe\n  return 'no block' unless block_given?\n  yield\nend\n\nsafe                  # => 'no block'\nsafe { 'with block' } # => 'with block'\n```\n\n**明示的に Proc として受け取る** (`&blk` 引数):\n```ruby\ndef store(&blk)\n  blk.call             # ブロックを Proc として保存・呼び出し\nend\n\nstore { 'hello' }      # => 'hello'\n```\n\n**ブロックの代表的な用途**:\n- `each / map / select` などの Enumerable\n- リソース管理 (`File.open do |f| ... end`)\n- DSL (`describe '...' do ... end`)\n- コールバック / Strategy パターン\n\n**他言語との対比**:\n- JS の高階関数 + アロー関数\n- Java の Lambda / Functional Interface\n- Python のデコレータや with 文\n\n→ Ruby のブロックはこれらの統一形のような立ち位置。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は 30。`execute` メソッド内の `yield 10` が渡されたブロック `{ |x| x * 3 }` を呼び出し、`10 * 3 = 30` が返って result に代入され puts で出力される。",
+        reason:
+          "Ruby のメソッドは引数宣言なしでブロックを受け取れる『暗黙のブロック』機構を持ち、`yield` で呼び出す。これにより each / map のような高階関数や File.open のリソース管理 DSL を直感的に書ける。明示的にブロックを Proc として保存したい場合は `def m(&blk)` で受け取り、`blk.call` で呼ぶ。",
+        example:
+          "Array#each は内部で `yield element` を全要素に対して実行している。リソース管理パターンは `def with_db; conn = connect; yield conn; ensure; conn.close; end`。テストの DSL `describe 'X' do; it 'works' do; end; end` も全部ブロックで動いている。",
+        pitfall:
+          "ブロックが渡されていないのに `yield` を呼ぶと LocalJumpError。`block_given?` でチェックするか、`yield if block_given?` のように防御する。さらに `&blk` で受け取った Proc を別メソッドに渡すには `other_method(&blk)` のように `&` を付け直す必要がある (Proc のままだと普通の引数になってしまう)。",
+      },
       codeExample:
         'def execute\n  yield 10        # ブロック呼び出し\nend\nexecute { |x| x * 3 }  #=> 30\n\n# ブロックの有無をチェック\ndef safe\n  return "no block" unless block_given?\n  yield\nend\nsafe                   #=> "no block"\nsafe { "with block" }  #=> "with block"\n\n# 明示的に Proc として受け取る\ndef store(&blk)\n  blk.call\nend\nstore { "hello" }',
       commonMistakes: [
         "ブロックが渡されてないのに `yield` すると LocalJumpError。`block_given?` でチェックする。",
+        "`&blk` で受け取った Proc を別メソッドに渡すときは `other_method(&blk)` と `&` を付け直す。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: yield / ブロック",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fcall.html#block",
+        },
       ],
     },
   },
@@ -2474,6 +2499,12 @@ export const questions: Question[] = [
       "Proc と Lambda は完全に同じ",
     ],
     answerIndex: 2,
+    choiceExplanations: [
+      "正しいが不完全。引数チェックの厳密さは違いの 1 つだが、return の挙動の違いもある。",
+      "正しいが不完全。return の挙動も大事な差分だが、引数チェックの差もある。",
+      "正解。Proc と Lambda の主な違いは『引数チェックの厳密さ』と『return の挙動』の 2 つ。両方含む網羅的な説明。",
+      "両者は明確に異なる。Lambda は関数的、Proc はブロック的という設計の違いがある。",
+    ],
     hints: [
       "Lambda の方が「関数らしい」厳密な挙動。",
       "Proc は「ブロックを切り出した」緩い挙動。",
@@ -2484,8 +2515,30 @@ export const questions: Question[] = [
         "Lambda は引数厳密 + return でラムダ脱出、Proc は引数緩い + return で呼び出し元脱出。",
       reason:
         "Proc.new / proc メソッドはブロックの延長で、引数省略は nil で埋め、return は『呼び出し元メソッド』から抜ける (危険)。Lambda は関数オブジェクトで、引数数が違うと ArgumentError、return はラムダから抜けるだけ。",
+      beginnerExplanation:
+        "**Proc と Lambda は『どちらもブロックをオブジェクト化したもの』** ですが、設計思想が違い 2 つの大きな違いがあります。\n\n**1. 引数チェックの厳密さ**\n```ruby\npr = Proc.new   { |a, b| [a, b] }\nla = lambda     { |a, b| [a, b] }\n# 別記法\nla = ->(a, b)   { [a, b] }\n\npr.call(1)        # => [1, nil]      (緩い: 足りない引数は nil)\nla.call(1)        # ArgumentError    (厳密: 引数数違いで例外)\n```\n\n**2. `return` の挙動**\n```ruby\ndef pr_test\n  pr = Proc.new { return 1 }\n  pr.call            # return が pr_test 自体を抜ける!\n  2                  # 到達しない\nend\npr_test  # => 1\n\ndef la_test\n  la = -> { return 1 }\n  la.call            # return はラムダから抜けるだけ\n  2                  # 到達する\nend\nla_test  # => 2\n```\n\n**まとめ**:\n| | Proc | Lambda |\n|---|---|---|\n| 引数チェック | 緩い (足りないと nil) | 厳密 (ArgumentError) |\n| `return` | 呼び出し元メソッドを抜ける ⚠️ | ラムダ内だけ抜ける |\n| 作り方 | `Proc.new {}` / `proc {}` | `lambda {}` / `->() {}` |\n| 判定 | `pr.lambda?` → false | `la.lambda?` → true |\n\n**実務での使い分け**:\n- 普通は **Lambda** を使う (関数的、安全、ArgumentError で間違いを検出)\n- ブロックの延長として柔軟に書きたい場合のみ Proc\n- Rails の callable オブジェクト (Service の `call`) は基本 Lambda の感覚\n\n**`&` でブロックに変換**:\n```ruby\nla = ->(x) { x * 2 }\n[1, 2, 3].map(&la)   # => [2, 4, 6]\n```\n\nLambda 推奨の理由: **return が予測可能**、**引数間違いを早期検出**。",
+      modelSelfExplanation: {
+        conclusion:
+          "Proc と Lambda の違いは『引数チェック』と『return の挙動』の 2 点。Lambda は引数厳密 + return でラムダから抜けるだけ、Proc は引数緩い + return が呼び出し元メソッドを抜ける。",
+        reason:
+          "両者とも『ブロックをオブジェクト化』した callable だが、Proc はブロックの延長 (柔軟、ブロックっぽい)、Lambda は『関数オブジェクト』(厳密、メソッドっぽい) という設計思想の違いがある。Proc の return が呼び出し元メソッドを抜けるのは『ブロックの return と同じ挙動』を保つためで、Proc を別メソッドに渡したときに思わぬ場所で return が発火するハマりやすい挙動を生む。Lambda はこれを修正した『安全な Proc』として導入された。",
+        example:
+          "Service Object の callable パターンは `MyService = ->(arg) { ... }` で lambda、コレクション操作の高階関数渡しも `[1,2,3].map(&->(n) { n*2 })` で lambda、ブロックを保存して後で呼ぶようなコールバックも lambda 推奨。Proc を使うのは『do/end 内の return がメソッド全体から抜けてほしい』という特殊な DSL 設計時のみ。",
+        pitfall:
+          "Proc の return がメソッド全体を抜ける挙動は『callable を引数に渡して使う』典型シナリオで地雷になる。例えば `def map_each(arr, fn); arr.each { |e| fn.call(e) }; end` のような汎用関数で fn に Proc を渡すと、return が map_each 自体を脱出してしまう。Lambda を使えばこの問題は起きない。新規コードは原則 Lambda、Proc は明示的に必要な場面でのみ。",
+      },
       codeExample:
         'pr = Proc.new   { |a, b| [a, b] }\nla = lambda     { |a, b| [a, b] }\n# 別記法\nla = ->(a, b)   { [a, b] }\n\npr.call(1)        #=> [1, nil]    (緩い)\nla.call(1)        # ArgumentError (厳密)\n\n# return の差\ndef pr_test\n  pr = Proc.new { return 1 }\n  pr.call\n  2          # 到達しない (return がメソッドを抜ける)\nend\npr_test  #=> 1\n\ndef la_test\n  la = -> { return 1 }\n  la.call\n  2          # 到達する\nend\nla_test  #=> 2',
+      commonMistakes: [
+        "Proc の return が呼び出し元メソッドを抜けることに気付かず、思わぬ場所で実行が終わる。Lambda 推奨。",
+        "Proc.new / proc / lambda / -> の 4 つの記法を混在させて読みにくくする。プロジェクト内で統一する。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Proc クラス",
+          url: "https://docs.ruby-lang.org/ja/latest/class/Proc.html",
+        },
+      ],
     },
   },
   {
@@ -2497,6 +2550,12 @@ export const questions: Question[] = [
     code: "begin\n  raise 'oops'\nrescue => e\n  puts \"caught: #{e.message}\"\nend",
     choices: ["caught: oops", "oops", "RuntimeError", "何も出力されない"],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。`raise 'oops'` は RuntimeError を投げる短縮形。rescue で e に捕捉され、e.message が 'oops' なので `caught: oops` が出力される。",
+      "puts の文字列リテラル部分 (`caught: `) と式展開 (`#{e.message}`) の両方が出力される。'oops' だけにはならない。",
+      "rescue で捕捉されているのでクラス名は出力されない。e.class でクラス名を取れるが、コードでは e.message しか使っていない。",
+      "rescue ブロックが実行されるので puts は確実に呼ばれる。何も出力されないことはない。",
+    ],
     hints: [
       "`raise 'oops'` は RuntimeError を発生。",
       "`rescue => e` で例外を捕捉して e に格納。",
@@ -2506,10 +2565,29 @@ export const questions: Question[] = [
       summary: "`rescue => e` で例外を捕捉。`e.message` でメッセージ取得。",
       reason:
         "`raise 'メッセージ'` は RuntimeError を投げる短縮形。クラスを指定するなら `raise MyError, 'msg'`。rescue は class を指定しないと StandardError 以下のみ捕捉 (Exception 全体ではない)。",
+      beginnerExplanation:
+        "Ruby の **例外処理** の基本構文。\n\n**基本パターン**:\n```ruby\nbegin\n  # 例外が出るかもしれない処理\n  raise 'oops'\nrescue => e\n  # 例外捕捉 (e に StandardError 系の例外オブジェクト)\n  puts \"caught: #{e.message}\"\nend\n```\n\n**`raise` の書き方**:\n```ruby\nraise 'メッセージ'                  # RuntimeError, 'メッセージ' の短縮形\nraise ArgumentError                # クラスのみ\nraise ArgumentError, 'bad input'   # クラス + メッセージ\nraise MyError.new('msg', detail: x) # 自作クラスのインスタンス\n```\n\n**`rescue` の書き方**:\n```ruby\nbegin\n  ...\nrescue ArgumentError => e   # 特定クラス\n  ...\nrescue StandardError => e   # 親クラスでフォールバック\n  ...\nrescue => e                  # 省略時は StandardError\n  ...\nend\n```\n\n**`ensure` で必ず実行**:\n```ruby\nbegin\n  open_file\nrescue => e\n  log(e)\nensure\n  close_file                 # 例外有無に関わらず実行\nend\n```\n\n**メソッド全体を rescue する短縮形**:\n```ruby\ndef parse(s)\n  Integer(s)\nrescue ArgumentError\n  0\nend\n```\n→ メソッド全体が begin で囲まれた扱いになる。\n\n**`e.message` / `e.backtrace`**:\n```ruby\nrescue => e\n  puts e.class.name      # 'ArgumentError'\n  puts e.message         # 'bad input'\n  puts e.backtrace       # 呼び出しスタック\nend\n```\n\n**🚨 アンチパターン**:\n```ruby\nrescue Exception => e   # ❌ SystemExit / Interrupt まで捕まえる\nrescue => e             # ✅ StandardError のみ (デフォルト)\n```",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は `caught: oops`。`raise 'oops'` で RuntimeError が発生し、`rescue => e` で捕捉されて e.message = 'oops' を文字列補間に組み込んだ結果が puts で出力される。",
+        reason:
+          "Ruby の例外処理は begin/rescue/else/ensure/end の構文で表現する。`raise 文字列` は `raise RuntimeError, 文字列` の短縮形、`rescue => e` (クラス省略) は StandardError とその子クラスを捕捉する。例外オブジェクト e は message / backtrace / class などのメソッドを持ち、エラー情報を取り出してログや表示に使う。`ensure` で『例外有無に関わらず必ず実行』、メソッド全体を begin で囲む短縮形 (メソッド内の rescue) も標準。",
+        example:
+          "ファイル処理で `begin; File.open('x'); rescue Errno::ENOENT; puts 'no file'; end`、Web API で `begin; api.call!; rescue => e; logger.error(e); retry; end` (リトライ)、Service Object で `def call; ...; rescue => e; Rails.logger.error(e); raise; end` (ログして再 raise)、テストで `expect { code }.to raise_error(ArgumentError)`、など現代の Rails アプリで頻出。",
+        pitfall:
+          "`rescue Exception => e` は SystemExit / Interrupt / NoMemoryError まで握りつぶす致命的アンチパターン (Ctrl-C で止まらない、メモリ不足で謎の挙動)。原則は `rescue => e` (= StandardError) で十分。さらに rescue で『すべて握りつぶす』とエラーが見えなくなり、本番障害の調査が困難になる。最低でも logger.error(e) でログを残し、必要なら raise で再送出する。",
+      },
       codeExample:
         'begin\n  raise ArgumentError, "bad input"\nrescue ArgumentError => e\n  puts "ArgumentError: #{e.message}"\nrescue StandardError => e\n  puts "other: #{e.message}"\nensure\n  puts "always runs"   # 例外有無に関わらず実行\nend\n\n# メソッド全体を rescue\ndef parse(s)\n  Integer(s)\nrescue ArgumentError\n  0\nend',
       commonMistakes: [
         "`rescue Exception => e` は SystemExit や Interrupt も捕捉してしまうので絶対避ける。`StandardError` (デフォルト) を使う。",
+        "rescue で握りつぶしてログも残さない。最低限 logger.error(e) は残す。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: 例外処理 (begin/rescue/ensure)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fcontrol.html#begin",
+        },
       ],
     },
   },
@@ -2530,8 +2608,30 @@ export const questions: Question[] = [
       summary: "`ensure` は例外の有無に関わらず必ず実行される。",
       reason:
         "ファイルクローズ、DB接続解放、ロック解除など『絶対やりたい後処理』に使う。例外で抜けた時も ensure は実行されるので安全。",
+      beginnerExplanation:
+        "**`ensure`** は **例外の有無に関わらず必ず実行される** キーワード。他言語の `finally` (Java / JS / Python) に相当。\n\n**基本パターン**:\n```ruby\ndef with_file\n  f = File.open('data.txt')\n  process(f)             # ここで例外が起きても...\nrescue => e\n  log_error(e)\nensure\n  f&.close                # ...ensure は必ず実行される\nend\n```\n\n**ensure の実行タイミング**:\n1. 正常終了 → ensure 実行 → 戻り値返却\n2. 例外発生 → rescue 実行 (あれば) → ensure 実行\n3. 例外発生で rescue なし → ensure 実行 → 例外を上に伝播\n4. return / break / next で抜ける → ensure 実行 → 抜ける\n\n**typical use cases**:\n- ファイルクローズ\n- DB 接続のリリース\n- ロック解除 (Mutex 等)\n- パフォーマンス計測の終了タイマー\n- 外部リソースのクリーンアップ\n\n**現代の Ruby**: 多くの場面で **ブロック付き API** が用意されており、ensure を手書きする必要は減っている:\n```ruby\n# ❌ 手動で ensure\nf = File.open('data.txt')\nbegin\n  process(f)\nensure\n  f.close\nend\n\n# ✅ ブロック付き (内部で ensure)\nFile.open('data.txt') do |f|\n  process(f)\nend\n```\n\nMutex#synchronize、Tempfile.open、DB connection も同じパターン。\n\n**🚨 ensure の落とし穴**:\n```ruby\ndef bad\n  return 1\nensure\n  return 2     # ❌ ensure の return が外の return を上書き\nend\n# bad => 2 (期待は 1)\n```\nensure 内では `return` / `raise` を避け、純粋なクリーンアップのみ書く。",
+      modelSelfExplanation: {
+        conclusion:
+          "キーワードは `ensure`。begin/rescue ブロック内で『例外の有無に関わらず必ず実行する』処理を書くために使い、Java/JS の finally や Python の finally に相当する。リソースのクリーンアップ (ファイルクローズ、DB 接続解放、ロック解除) で必須。",
+        reason:
+          "例外処理では『例外が起きた場合は rescue で処理するが、起きなかった場合や rescue できない例外でも実行したい後片付け』が必要になる。ensure はこのために用意された節で、begin/end の終了パス (正常終了・例外・return・break) すべてで実行が保証される。これにより『リソースを獲得したら必ず解放する』というスコープベースの安全性が確保できる。Ruby ではブロック付き API (`File.open do |f| ... end`) が ensure を内部で隠蔽しており、現代的なコードでは手書きの ensure は減っている。",
+        example:
+          "ファイル操作 `File.open(path).tap { |f| process(f) }.close` の代わりに `File.open(path) { |f| process(f) }` でブロック内 ensure 化、Mutex `mutex.synchronize { critical_section }` で自動ロック解放、計測 `start = Time.now; ...; ensure; puts Time.now - start` で例外時も計測終了、テスト Tempfile の自動削除など、リソース管理全般で頻出。",
+        pitfall:
+          "ensure 内で return / raise / next すると、本来の戻り値や伝播中の例外を上書きしてしまう。例えば `def f; return 1; ensure; return 2; end` は 2 を返す (意図せぬバグ)。ensure は純粋なクリーンアップ (close, unlock など) のみに使い、制御フローを変えるコードは書かないのが原則。さらに ensure 内で例外が起きると元の例外が失われるので、ensure 内のコードは絶対に失敗しない単純なクリーンアップに留める。",
+      },
       codeExample:
         'def with_file\n  f = File.open("data.txt")\n  process(f)\nrescue => e\n  log_error(e)\nensure\n  f&.close   # 例外があっても閉じる\nend\n\n# File.open はブロック付きで使えば ensure 不要\nFile.open("data.txt") do |f|\n  process(f)\nend',
+      commonMistakes: [
+        "ensure 内で return すると外の return を上書きする。ensure は純粋なクリーンアップのみ。",
+        "現代の Ruby ではブロック付き API で ensure を隠蔽できる場面が多い。File.open / Mutex#synchronize など。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: begin/rescue/ensure",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fcontrol.html#begin",
+        },
+      ],
     },
   },
   {
@@ -2548,6 +2648,12 @@ export const questions: Question[] = [
       "[1,2,3].map.to_s",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。`&:to_s` は `Symbol#to_proc` の糖衣構文で、`{ |x| x.to_s }` と等価。短く書ける定番イディオム。",
+      "`&` を付けないと Symbol を Proc 化できない。`map(:to_s)` だと map がブロックを期待しているのに Symbol が渡されてエラー。",
+      "each は配列を返すので、変換結果の配列が欲しい用途には使えない。さらに副作用なしの to_s なので意味も無い。",
+      "`map.to_s` は Enumerator の文字列化で全く別の結果。例: `#<Enumerator: ...>` のような文字列。",
+    ],
     hints: [
       "シンボルにアンパサンド `&` を付けるとブロックに変換できます。",
       "`Symbol#to_proc` の機能。",
@@ -2558,8 +2664,30 @@ export const questions: Question[] = [
         "`&:method_name` は Symbol#to_proc でブロックに変換するイディオム。",
       reason:
         "`&` は引数の前に付けると Proc 化して `yield` 用ブロックとして渡す。Symbol には to_proc が定義されており、`:foo.to_proc` は `->(x) { x.foo }` 相当のラムダを作る。短く書ける定番イディオム。",
+      beginnerExplanation:
+        "**`&:method_name`** は **Symbol#to_proc** という機能を使った Ruby の定番イディオム。**1 引数のメソッドを呼ぶだけのブロック** を超短く書けます。\n\n**仕組み**:\n1. `:to_s` は Symbol\n2. `:to_s.to_proc` → `->(x) { x.to_s }` 相当の Proc を生成\n3. `&proc` で Proc をブロックに変換 (`yield` 用)\n\n結果として `map(&:to_s)` は `map { |x| x.to_s }` と等価になる。\n\n**使用例**:\n```ruby\n[1,2,3].map(&:to_s)            # => ['1','2','3']\n[1,2,3].select(&:odd?)         # => [1, 3]\n['a','b'].map(&:upcase)        # => ['A','B']\nusers.map(&:name)              # 各 user.name を取得\nusers.select(&:active?)        # active? が true のものだけ\n```\n\n**等価なフル形式**:\n```ruby\n[1,2,3].map { |x| x.to_s }\n```\n\n**🚨 使えない場面**:\n```ruby\n# ❌ 引数を取るメソッドには使えない\nusers.map(&:greet, 'Hi')   # SyntaxError\n\n# ✅ フル形式で書く\nusers.map { |u| u.greet('Hi') }\n```\n\n**他の高度な用法**:\n```ruby\n# Method オブジェクトもブロック化\nstr_method = String.method(:new)\n# Lambda もブロック化\ndoubler = ->(n) { n * 2 }\n[1,2,3].map(&doubler)         # => [2, 4, 6]\n```\n\n**仕組みの分解**:\n```ruby\n:to_s.to_proc                  # => #<Proc>\n[1,2,3].map(&:to_s.to_proc)    # 明示的に書くとこれと等価\n[1,2,3].map(&:to_s)            # to_proc は省略可能 (Ruby が自動で呼ぶ)\n```\n\n**実務での頻出度**: トップクラス。Rails の `User.all.pluck(:id)` や `users.map(&:email).uniq` のような書き方が日常的。",
+      modelSelfExplanation: {
+        conclusion:
+          "等価なのは `[1,2,3].map(&:to_s)`。`&:method_name` は Symbol#to_proc を利用したイディオムで、`{ |x| x.to_s }` を最短で書ける Ruby の定番構文。",
+        reason:
+          "`Symbol` クラスには `to_proc` メソッドが定義されており、`:foo.to_proc` は `->(x) { x.foo }` 相当のラムダを生成する。`&` 演算子は引数の前に付けると『Proc をブロックに変換』する役割を持つので、組み合わせて `&:foo` と書くと『各要素に対して foo メソッドを呼ぶブロック』として動く。これにより、引数を取らない単純な変換は `&:method` で簡潔に書け、コードが読みやすくなる。Ruby のメタプログラミング的な仕組みだが、利用側はシンプル。",
+        example:
+          "現場では `users.map(&:name)`、`User.all.pluck(:id)`、`numbers.select(&:positive?)`、`posts.reject(&:draft?)`、`strings.map(&:strip).map(&:downcase)` のように 1 日中見かける。チェーンで使うと『データを順に変換するパイプライン』が宣言的に書ける。",
+        pitfall:
+          "引数を取るメソッド (`users.map(&:greet, 'Hi')` など) には使えない。これが必要なら通常のブロック構文を使う。さらに `&` の付け忘れ (`map(:to_s)`) は『Symbol を引数として渡す』別の意味になり map は無視するので意図と違う結果になる (戻り値が元の配列のまま)。Symbol#to_proc は内部的に毎回 Proc を作るので、超高頻度ループでは性能上 0.1% 程度のオーバーヘッドがあるが、通常は気にしなくて良い。",
+      },
       codeExample:
         '[1,2,3].map(&:to_s)         #=> ["1","2","3"]\n[1,2,3].select(&:odd?)       #=> [1, 3]\n["a","b"].map(&:upcase)      #=> ["A","B"]\n\n# 等価なフル形式\n[1,2,3].map { |x| x.to_s }\n\n# 引数を取るメソッドには使えない\n# users.map(&:greet, "Hi")  ← ダメ\nusers.map { |u| u.greet("Hi") }',
+      commonMistakes: [
+        "引数を取るメソッドには使えない。引数があるならフル形式 (`{ |u| u.greet(...) }`) で。",
+        "`&` を付け忘れた `map(:to_s)` は別の意味 (Symbol を引数として無視) になる。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Symbol#to_proc",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Symbol/i/to_proc.html",
+        },
+      ],
     },
   },
   {
