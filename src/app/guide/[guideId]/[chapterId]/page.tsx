@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { findGuide, guides } from "@/data/guides";
 import { findQuestion } from "@/data/all-questions";
 import { findCategory } from "@/data/categories";
-import { CodeBlock } from "@/components/CodeBlock";
+import { SampleCodeBlock } from "@/components/SampleCodeBlock";
 
 export function generateStaticParams() {
   return guides.flatMap((g) =>
@@ -99,7 +99,11 @@ export default async function ChapterPage({ params }: Props) {
             </p>
             {s.code && (
               <div className="mt-4">
-                <CodeBlock code={s.code} label={s.language ?? "code"} />
+                <SampleCodeBlock
+                  storageKey={`guide:${guide.id}:${chapter.id}:${i}`}
+                  code={s.code}
+                  language={s.language ?? "code"}
+                />
               </div>
             )}
             {s.notes && s.notes.length > 0 && (

@@ -5,6 +5,7 @@ import {
   findCrudChallenge,
 } from "@/data/crud-challenges";
 import { CodeBlock } from "@/components/CodeBlock";
+import { SampleCodeBlock } from "@/components/SampleCodeBlock";
 
 export function generateStaticParams() {
   return crudChallenges.flatMap((c) =>
@@ -113,23 +114,23 @@ export default async function CrudStepPage({ params }: Props) {
       {/* サンプルコード */}
       {step.sampleCode && step.sampleCode.length > 0 && (
         <section className="mb-8 space-y-5">
-          <h2 className="text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-            📝 サンプルコード
-          </h2>
+          <div className="flex items-end justify-between">
+            <h2 className="text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+              📝 サンプルコード
+            </h2>
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-500">
+              ✍️ ボタンで写経モードへ切替
+            </p>
+          </div>
           {step.sampleCode.map((sc, i) => (
-            <div key={i}>
-              <div className="mb-2 flex flex-wrap items-baseline gap-2">
-                <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
-                  {sc.label}
-                </span>
-                {sc.filename && (
-                  <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] text-zinc-600 dark:bg-white/10 dark:text-zinc-300">
-                    {sc.filename}
-                  </code>
-                )}
-              </div>
-              <CodeBlock code={sc.code} label={sc.language} />
-            </div>
+            <SampleCodeBlock
+              key={i}
+              storageKey={`crud:${challenge.id}:${step.id}:${i}`}
+              code={sc.code}
+              language={sc.language}
+              label={sc.label}
+              filename={sc.filename}
+            />
           ))}
         </section>
       )}
