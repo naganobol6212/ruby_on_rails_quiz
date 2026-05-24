@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-25-i",
+    date: "2026-05-25",
+    title: "Practical カテゴリの解説拡充スタート (pr-001〜005)",
+    badge: "content",
+    highlights: [
+      "pr-001 (FizzBuzz) / pr-002 (配列集計 stats) / pr-003 (CSV パーサ) / pr-004 (Rails User-Post モデル設計) / pr-005 (N+1 解消)",
+      "実践的なコーディング演習を解説で深掘り",
+      "進捗: 142/149 問 (95%) — あと 7 問で完走",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-25-h",
     date: "2026-05-25",
     title: "🎉 Code Reading カテゴリ完走 — cr-011〜012 (Phase 3)",

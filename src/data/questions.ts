@@ -7429,8 +7429,27 @@ export const questions: Question[] = [
         "FizzBuzz は条件分岐の練習。15 の倍数チェックを最初に書くのがポイント。",
       reason:
         "FizzBuzz は分岐の評価順序の良い練習問題。% で余りを判定し、最も特殊なケース (15の倍数) から評価する。Ruby 3.0+ なら case/in でも書ける。",
+      beginnerExplanation:
+        "**FizzBuzz** はプログラミング面接でも有名な定番問題。**条件分岐の評価順序** を理解しているかが問われます。\n\n**問題の本質**: 3 と 5 の両方の倍数 (= 15 の倍数) のときの扱い。\n\n**間違った書き方** (3 を先にチェック):\n```ruby\nif n % 3 == 0\n  puts 'Fizz'             # 15 のとき Fizz が出てしまう! ❌\nelsif n % 5 == 0\n  puts 'Buzz'\nelsif n % 15 == 0\n  puts 'FizzBuzz'         # ここに到達しない\nend\n```\n\n**正しい書き方 1** (15 を先にチェック):\n```ruby\n(1..100).each do |n|\n  if n % 15 == 0\n    puts 'FizzBuzz'       # 最初にチェック\n  elsif n % 3 == 0\n    puts 'Fizz'\n  elsif n % 5 == 0\n    puts 'Buzz'\n  else\n    puts n\n  end\nend\n```\n\n**正しい書き方 2** (両方の条件を AND で組み合わせる):\n```ruby\n(1..100).each do |n|\n  if n % 3 == 0 && n % 5 == 0\n    puts 'FizzBuzz'\n  elsif n % 3 == 0\n    puts 'Fizz'\n  elsif n % 5 == 0\n    puts 'Buzz'\n  else\n    puts n\n  end\nend\n```\n\n**Ruby 3.0+ ならパターンマッチング** で簡潔:\n```ruby\n(1..100).each do |n|\n  case [n % 3, n % 5]\n  in [0, 0] then puts 'FizzBuzz'\n  in [0, _] then puts 'Fizz'\n  in [_, 0] then puts 'Buzz'\n  else           puts n\n  end\nend\n```\n\n**学びポイント**:\n- 条件分岐は **specific から general へ** 評価する\n- if/elsif は最初にマッチしたものだけ実行されるので順序が重要\n- modulo 演算子 `%` で割り算の余りを取得\n- Range `(1..100)` は両端含む、`(1...100)` は 100 を含まない",
+      modelSelfExplanation: {
+        conclusion:
+          "FizzBuzz は条件分岐の評価順序を理解しているかが問われる問題。最も specific な条件 (15 の倍数 = 3 と 5 の両方) を最初に書くことで、Fizz / Buzz / FizzBuzz / 数字 の 4 通りの分岐を正しく実装できる。",
+        reason:
+          "if/elsif は **最初にマッチした分岐だけ実行** する性質があり、15 (= 3 と 5 の最小公倍数) の倍数を最後にチェックすると、その前の 'Fizz' (3 の倍数) や 'Buzz' (5 の倍数) で先にマッチしてしまう。これは『条件のオーバーラップがあるとき、より具体的なケースを先に評価する』というロジック設計の基本原則。Ruby 3.0+ の case/in パターンマッチングでも同様の考え方で書ける。",
+        example:
+          "実務でも『割引対象の判定』(VIP + 新規ユーザー = 二重割引) や『状態遷移の分岐』(エラー + 課金未済 = 特殊扱い) など、複数条件のオーバーラップを正しく処理する場面で同じ思考が必要。FizzBuzz はその思考訓練として価値がある。",
+        pitfall:
+          "順序を間違えると 15 の倍数が常に Fizz になる典型バグ。テストで `expect(fizz_buzz(15)).to eq 'FizzBuzz'` のようなエッジケースを必ず書く。さらに数値を出力する分岐 (`else puts n`) を忘れると 1, 2, 4, 7, 8 などが消えるバグも頻出。",
+      },
       commonMistakes: [
         "3 の倍数 → 5 の倍数 → 15 の倍数 の順で書くと 15 が常に Fizz になってしまう。",
+        "数字そのままを出力する `else` 句を忘れる。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: 制御構造 (if/elsif/else)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fcontrol.html",
+        },
       ],
     },
   },
@@ -7465,9 +7484,27 @@ export const questions: Question[] = [
         "標準 Enumerable メソッドを使えば短く書ける。エッジケース (空配列) のハンドリングが重要。",
       reason:
         "実務でデータを集計する処理の最小ケース。空配列など『データが無いとき』の挙動を明示するのが重要 (nil を返すか、0 を返すか、例外を投げるかは要件次第)。to_f を忘れると整数除算で誤差。",
+      beginnerExplanation:
+        "**配列の集計** を Enumerable メソッドで簡潔に書く実装問題。**整数除算の罠** と **空配列のエッジケース** がポイント。\n\n**基本実装**:\n```ruby\ndef stats(arr)\n  return { sum: nil, avg: nil, max: nil, min: nil } if arr.empty?\n\n  {\n    sum: arr.sum,\n    avg: arr.sum.to_f / arr.length,   # to_f 必須\n    max: arr.max,\n    min: arr.min,\n  }\nend\n```\n\n**重要ポイント**:\n\n**1. 空配列のエッジケース**:\n- `arr.sum` → 0 を返す (例外なし)\n- `arr.max` / `arr.min` → nil を返す\n- `arr.sum / arr.length` → **ZeroDivisionError** !!\n\nだから空配列のチェックを最初に書いて早期 return が安全。\n\n**2. 整数除算の罠**:\n```ruby\n10 / 3      # => 3 (整数除算、小数切り捨て)\n10.0 / 3    # => 3.333... (Float になる)\n10 / 3.0    # => 3.333...\n```\n→ 平均で `arr.sum / arr.length` だと意図しない切り捨て。`.to_f` で Float 化して回避。\n\n**3. Enumerable の標準メソッド**:\n- `sum` (Ruby 2.4+) — 合計\n- `max` / `min` — 最大 / 最小\n- `minmax` — `[min, max]` のペア\n\n**動作例**:\n```ruby\nstats([1, 2, 3, 4, 5])\n# => {sum: 15, avg: 3.0, max: 5, min: 1}\n\nstats([])\n# => {sum: nil, avg: nil, max: nil, min: nil}\n```\n\n**Tip**: Ruby 2.7+ なら `Hash#transform_values` も活用できますが、この問題は基本ケースなので普通の Hash リテラルが読みやすい。",
+      modelSelfExplanation: {
+        conclusion:
+          "標準 Enumerable メソッド (sum / max / min) を活用すれば短く書ける。空配列で `arr.sum / arr.length` が ZeroDivisionError になることと、整数除算で精度が落ちることの 2 つを早期 return + `.to_f` で対処する。",
+        reason:
+          "集計処理は Enumerable に強力な標準メソッドが揃っており、自前ループを書く必要はない。Ruby 2.4+ で sum が追加されてからは `inject(:+)` の必要もなくなった。エッジケース (空配列) は『要件次第で nil/0/例外のどれを返すか』が変わるため、要件定義時に明示するのが大事。整数除算は計算系で頻出するバグの 1 つなので、`.to_f` か Rational の使用を習慣化する。",
+        example:
+          "実務でレスポンスタイムの統計 (`stats(times)`)、テストスコアの集計 (`stats(scores)`)、月別売上の分析、ABテストの結果分析、ログ解析でレイテンシー集計、など至るところで似た構造が登場。Rails では AR の `User.average(:age)` のような DB レベル集計も同じ概念。",
+        pitfall:
+          "整数除算 (`10 / 3 = 3`) は数値計算でハマる典型。平均計算では必ず `to_f` を入れる。`arr.sum / arr.length.to_f` でも `arr.sum.to_f / arr.length` でも結果は同じ (片方が Float ならもう片方も自動で Float になる)。さらに大量データの集計はメモリ上で計算するよりも DB レベルで AVG / SUM を発行する方が桁違いに速い (例: `User.average(:age)`)。",
+      },
       commonMistakes: [
         "`arr.sum / arr.length` だと整数除算で 3 (本来は 3.0) になる。",
         "空配列で `[].max` は nil だが `[].sum / 0` は ZeroDivisionError。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Enumerable (sum/max/min)",
+          url: "https://docs.ruby-lang.org/ja/latest/class/Enumerable.html",
+        },
       ],
     },
   },
@@ -7503,9 +7540,27 @@ export const questions: Question[] = [
         "split + zip + to_h は Ruby らしいイディオム。実運用は標準ライブラリ csv を推奨。",
       reason:
         "簡易 CSV パースは split で書けるが、ダブルクォート囲み、エスケープ、改行を含む値などのエッジケースに弱い。本番では `CSV.parse` を使うこと。練習としては手書きでイディオムを身につけるとよい。",
+      beginnerExplanation:
+        "**CSV パース** を Ruby らしい **split + zip + to_h** で実装する練習。実運用では標準ライブラリ csv を使うべきだが、イディオムの理解として価値があります。\n\n**解法**:\n```ruby\ndef parse_csv(text)\n  lines = text.split(\"\\n\")                       # 行に分解\n  headers = lines.shift.split(',').map(&:to_sym)   # 1 行目をヘッダーに、シンボル化\n  lines.map do |line|\n    values = line.split(',')                       # データ行をカンマ分解\n    headers.zip(values).to_h                       # ヘッダー + 値で Hash 化\n  end\nend\n```\n\n**ステップ別動作**:\n```\ninput: \"name,age\\nAlice,20\\nBob,30\"\n\nStep 1: split(\"\\n\")\n  → [\"name,age\", \"Alice,20\", \"Bob,30\"]\n\nStep 2: shift で 'name,age' を取り出し、headers にする\n  → headers = [:name, :age]\n  → lines = [\"Alice,20\", \"Bob,30\"]\n\nStep 3: 各行を split + zip + to_h\n  → \"Alice,20\".split(',')   → [\"Alice\", \"20\"]\n  → [:name, :age].zip([\"Alice\", \"20\"]) → [[:name, \"Alice\"], [:age, \"20\"]]\n  → to_h → {name: \"Alice\", age: \"20\"}\n\n最終結果: [{name: \"Alice\", age: \"20\"}, {name: \"Bob\", age: \"30\"}]\n```\n\n**実運用は標準ライブラリ csv**:\n```ruby\nrequire 'csv'\n\nCSV.parse(text, headers: true, header_converters: :symbol).map(&:to_h)\n# 同じ結果が得られる + クォート対応 + 改行を含む値対応\n```\n\n**🚨 split の限界**:\n- ダブルクォート囲み (`\"hello, world\"`) を正しく扱えない\n- 値内の改行に対応できない\n- BOM 付き UTF-8 CSV に弱い\n\n→ 本番運用では必ず標準ライブラリの csv を使う。\n\n**学びのイディオム**:\n- `headers.zip(values).to_h` は 2 配列から Hash を作る Ruby の定番\n- `string.split(separator)` で文字列を配列に分解\n- `array.shift` で先頭要素を取り出し + 元配列から削除",
+      modelSelfExplanation: {
+        conclusion:
+          "簡易 CSV パースは `split` + `zip` + `to_h` の Ruby イディオムで書ける。1 行目をヘッダー、残りをデータ行として、ヘッダー配列と値配列を zip で組み合わせて Hash 化する。実運用ではダブルクォート囲みや改行を含む値の対応が必要なので標準ライブラリ csv を使う。",
+        reason:
+          "Ruby は文字列処理メソッドが豊富で、シンプルな構造化データなら split + zip + to_h の 3 ステップで宣言的に書ける。これは Enumerable / Array / Hash のメソッドを組み合わせた『データ変換パイプライン』の典型例で、Ruby らしさを学ぶ良い練習問題。ただし RFC 4180 準拠の CSV はエッジケースが多いので、本番では必ず csv ライブラリを使う。",
+        example:
+          "実務では『API レスポンスの簡易解析』『古いシステムのカスタムテキスト形式の取り込み』『簡易テストデータの読み込み』などで自前パースを書く場面がある。複雑な CSV は CSV.parse、JSON は JSON.parse、YAML は YAML.load、と標準ライブラリで賄うのが原則。zip + to_h のイディオムは API レスポンス整形などでも頻出。",
+        pitfall:
+          "split による簡易パースは『値にカンマや改行が含まれない簡単な CSV』にしか使えない。`\"hello, world\"` のようにクォートで囲まれた値が来ると分解が壊れる。Excel から出力された UTF-8 CSV は BOM (Byte Order Mark) 付きで先頭に余計な文字が入る場合がある。本番環境では必ず `require 'csv'; CSV.parse(text, headers: true)` を使い、自前 split は教育用途に留める。",
+      },
       commonMistakes: [
         "値にカンマが含まれる場合 (\"hello, world\") は split で正しくパースできない。",
         "BOM 付き UTF-8 CSV は最初の文字に注意。CSV ライブラリならオプションで処理可。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: CSV クラス",
+          url: "https://docs.ruby-lang.org/ja/latest/class/CSV.html",
+        },
       ],
     },
   },
@@ -7543,6 +7598,18 @@ export const questions: Question[] = [
         "DB 制約 (NOT NULL, FK) と Model バリデーションを両方設定するのが定石。",
       reason:
         "DB レベルでも Model レベルでも制約をかけることで、(1) DB が最終防衛線、(2) Model が UI 親切なエラーメッセージ。`dependent: :destroy` は孤立レコードを防ぐ。delete_all は速いがコールバックを飛ばすのでファイル添付などがあると不整合のリスク。",
+      beginnerExplanation:
+        "**Rails の Model 設計** の基本構文。**マイグレーション + 関連 + バリデーション** の 3 段構えが定石。\n\n**1. マイグレーション** (DB レベルの制約):\n```ruby\n# db/migrate/xxx_create_users.rb\nclass CreateUsers < ActiveRecord::Migration[7.1]\n  def change\n    create_table :users do |t|\n      t.string :name, null: false   # NOT NULL 制約\n      t.timestamps\n    end\n  end\nend\n\n# db/migrate/xxx_create_posts.rb\nclass CreatePosts < ActiveRecord::Migration[7.1]\n  def change\n    create_table :posts do |t|\n      t.string :title, null: false\n      t.text :body, null: false\n      t.references :user, null: false, foreign_key: true   # FK + NOT NULL\n      t.timestamps\n    end\n  end\nend\n```\n\n**2. 関連** (Model 間の繋がり):\n```ruby\nclass User < ApplicationRecord\n  has_many :posts, dependent: :destroy   # 親削除 → 子も削除\nend\n\nclass Post < ApplicationRecord\n  belongs_to :user                       # デフォルトで required\nend\n```\n\n**3. バリデーション** (Model レベルの制約):\n```ruby\nclass User < ApplicationRecord\n  validates :name, presence: true\nend\n\nclass Post < ApplicationRecord\n  validates :title, presence: true, length: { maximum: 100 }\n  validates :body,  presence: true\nend\n```\n\n**なぜ DB + Model の二重制約?**:\n- **DB**: 最終防衛線。コンソール、別アプリ、SQL 直接実行でも不正データを防ぐ\n- **Model**: UI に親切なエラーメッセージ。バリデーション失敗時に form 再表示可能\n\n**`dependent:` オプション の選び方**:\n- `:destroy` → 子レコードを 1 件ずつ destroy (callback 起動、安全だが遅い)\n- `:delete_all` → DELETE 文 1 発 (高速だが callback スキップ)\n- `:nullify` → 子の外部キーを NULL に (子は残す)\n- `:restrict_with_error` → 子があれば削除を拒否\n\n**実務 Tips**:\n- 関連が深いなら `dependent: :destroy`\n- 大量データなら `:delete_all` か論理削除 (deleted_at カラム)\n- DB の外部キー制約 + ON DELETE CASCADE と組み合わせると二重保険",
+      modelSelfExplanation: {
+        conclusion:
+          "Rails Model 設計の定石は『マイグレーションで DB 制約 (NOT NULL + foreign_key) + Model で関連 (has_many/belongs_to) + バリデーション (validates) の 3 段構え』。DB が最終防衛線、Model がアプリ層の安全網と UX 改善を担当する。",
+        reason:
+          "DB レベルの制約だけでは UI でのエラーメッセージが不親切 (`PG::NotNullViolation` のようなシステムエラーが出る)。Model バリデーションだけでは race condition や別経路 (コンソール、SQL 実行) からの不正データを防げない。両者を組み合わせることで『通常時は親切な UX、異常時は最終防衛線』という堅牢な設計になる。`dependent: :destroy` は親削除時に孤立レコードが残らないようにする標準パターン。",
+        example:
+          "ブログアプリの User has_many :posts、SNS の User has_many :follows、EC サイトの Order has_many :line_items など、ほぼすべての Rails アプリで同じパターン。さらに paper_trail (履歴管理) や Active Storage (ファイル添付) を組み合わせると dependent: :destroy が必須 (delete_all だと関連ファイルが残る)。",
+        pitfall:
+          "validates だけで DB 制約を忘れると、`User.update_columns(name: nil)` (callback / validation スキップ) で不正データが入る。逆に DB 制約だけで validates を忘れると `User.create(name: '')` で `ActiveRecord::NotNullViolation` 例外が出てユーザーには 500 エラーが見える。Strong Migrations gem で『validates だけ』『DB 制約だけ』のマイグレーションを CI で検出するのが現実的。",
+      },
       commonMistakes: [
         "validates だけで DB 制約を入れないと、コンソールや別アプリから不正データが入る。",
         "dependent: :destroy を忘れると、User 削除時に posts が残り orphan になる。",
@@ -7580,9 +7647,31 @@ export const questions: Question[] = [
         "includes が N+1 対策の基本。preload (別クエリ) と eager_load (JOIN) を内部で使い分け。",
       reason:
         "N+1 は Rails アプリの典型的なパフォーマンス問題。テンプレートで関連を参照するだけで発生。bullet gem は dev 環境で自動検出してくれるので必ず入れる。本番では skylight / scout / new relic 等の APM で検出。",
+      beginnerExplanation:
+        "**N+1 問題** は Rails で最も頻繁に遭遇するパフォーマンス問題です。**`includes`** で簡単に解消できます。\n\n**問題のコード**:\n```ruby\nPost.all.each { |p| puts p.user.name }\n# SELECT * FROM posts;                       ← 1 クエリ\n# SELECT * FROM users WHERE id = 1;          ← N クエリ\n# SELECT * FROM users WHERE id = 2;\n# SELECT * FROM users WHERE id = 3;\n# ...                                          ← 合計 1 + N クエリ\n```\n\nPost が 100 件あれば **101 クエリ** が発行され、DB が窒息します。\n\n**解決策**: `includes(:user)` で関連を事前ロード\n```ruby\nPost.includes(:user).each { |p| puts p.user.name }\n# SELECT * FROM posts;                       ← 1 クエリ\n# SELECT * FROM users WHERE id IN (1,2,3,...);  ← 1 クエリ (IN 句)\n# 合計 2 クエリ\n```\n\n**includes / preload / eager_load の違い** (復習):\n- **`preload`** → 別クエリで IN 句 (子テーブル条件不可)\n- **`eager_load`** → LEFT JOIN で 1 クエリ (子テーブル条件可)\n- **`includes`** → 自動選択 (条件無ければ preload、条件あれば eager_load)\n\n**条件付き includes の注意**:\n```ruby\nPost.includes(:user).where(users: { active: true })\n# ↑ where に users テーブル参照があるので eager_load 扱いになる\n# しかし Rails は自動判定でハマる場合もあるので、明示的に references を入れる:\nPost.includes(:user).where(users: { active: true }).references(:user)\n```\n\n**検出ツール `bullet` gem**:\n```ruby\n# Gemfile\ngroup :development do\n  gem 'bullet'\nend\n\n# config/environments/development.rb\nconfig.after_initialize do\n  Bullet.enable = true\n  Bullet.alert = true\n  Bullet.bullet_logger = true\nend\n```\n→ 開発時に N+1 が発生すると警告が出る。**本番リリース前に必ず潰す**。\n\n**実務原則**:\n- View で `@posts.each do |p|; p.user.name; end` のような関連参照があるなら、コントローラで必ず `includes` を入れる\n- bullet gem を CI でも有効化して PR レベルで検出\n- 本番監視 (Skylight / Scout / NewRelic) で見つかった N+1 は最優先で対応",
+      modelSelfExplanation: {
+        conclusion:
+          "N+1 解消の基本は `Post.includes(:user).each { ... }`。includes は内部で preload (別クエリ IN 句) または eager_load (LEFT JOIN) を自動選択し、関連レコードを事前ロードして N+1 クエリを 2 クエリに圧縮する。",
+        reason:
+          "ActiveRecord の関連はデフォルトで lazy load (アクセス時に都度クエリ) なので、ループ中で関連にアクセスすると N+1 になる。`includes` を使うと『最初に関連 ID をまとめて取得 → IN 句で 1 回で関連レコード取得』という最適化が走り、クエリ数が 1+N から 2 に減る。これは Rails パフォーマンスチューニングの最重要パターンで、bullet gem や APM で常に監視する。",
+        example:
+          "ブログの記事一覧で著者名表示 (`@posts.includes(:author).each { ... }`)、SNS のタイムラインで投稿者情報 (`Tweet.includes(:user, :media).recent`)、EC サイトの注文履歴 (`Order.includes(:user, line_items: :product)`) など、テンプレートで関連を参照する場面では必ず includes。多段関連も `Post.includes(comments: :user)` でネスト指定できる。",
+        pitfall:
+          "条件付き includes (`includes(:user).where(users: { active: true })`) は Rails 6+ で自動判定が変わったため、安全のため明示的に `references(:user)` を付ける。さらに `eager_load` の LEFT JOIN は結果行が膨らみ distinct が必要になる場面がある。Rails 7+ では `strict_loading` で『関連プリロードを忘れたら例外』にできるので導入推奨。",
+      },
       commonMistakes: [
         "`includes(:user).where(users: { active: true })` は意外と eager_load 扱いになる。条件付き includes は references も指定する。",
         "joins は preload しないので関連オブジェクトアクセスで N+1 になる。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Eager Loading Associations",
+          url: "https://guides.rubyonrails.org/active_record_querying.html#eager-loading-associations",
+        },
+        {
+          label: "bullet gem",
+          url: "https://github.com/flyerhzm/bullet",
+        },
       ],
     },
   },
