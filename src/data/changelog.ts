@@ -17,6 +17,19 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-26-a",
+    date: "2026-05-26",
+    title: "🗺️ 学習ロードマップ + 🔍 横断検索 (Cmd+K)",
+    badge: "feat",
+    highlights: [
+      "新ページ `/roadmap` — ゼロから Rails 中級者までの 18 ステップ・8 フェーズ推奨学習順",
+      "進捗バー表示 (LocalStorage の正解履歴と連動、ステップ別 + 全体)",
+      "Cmd+K (Mac) / Ctrl+K (Win) で全 149 問 + 参考書 6 章 + CRUD 課題 8 ステップ + カテゴリを横断検索",
+      "ヘッダーに 🔍 検索ボタンと「ロードマップ」ナビを追加",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-25-j",
     date: "2026-05-25",
     title: "🎊 全 149 問の解説拡充が完了 — Practical pr-006〜012 (最終 PR)",
