@@ -416,16 +416,34 @@ export const roadmap: RoadmapPhase[] = [
       {
         id: "13-crud",
         number: 13,
-        title: "Rails ToDo CRUD を最後まで作る",
+        title: "CRUD 実践課題を 4 本走り抜ける",
         emoji: "🛠️",
-        goal: "rails new から CRUD 完成まで。bootstrap → migration → model → controller → view → routes → 仕上げ を順に進める。",
-        estimateMinutes: 90,
+        goal: "ToDo → 認証付きブログ → ファイルアップロード → JSON API + RSpec の順で実装。MVC の足場 → 認証/認可 → ファイル添付 → API 設計とテスト、と実務でほぼ必ず踏むテーマを一周。",
+        estimateMinutes: 430,
         items: [
           {
             kind: "crud-step",
             href: "/crud/rails-todo-crud",
             label: "🛠️ Rails ToDo CRUD",
-            hint: "8 ステップ・約 90 分",
+            hint: "8 ステップ・約 90 分 / 基礎の一周",
+          },
+          {
+            kind: "crud-step",
+            href: "/crud/rails-auth-blog",
+            label: "🔐 認証付きブログ",
+            hint: "6 ステップ・約 120 分 / Devise + Pundit",
+          },
+          {
+            kind: "crud-step",
+            href: "/crud/rails-photo-gallery",
+            label: "🖼️ フォトギャラリー",
+            hint: "6 ステップ・約 100 分 / Active Storage",
+          },
+          {
+            kind: "crud-step",
+            href: "/crud/rails-api-with-tests",
+            label: "🔌 JSON API + RSpec",
+            hint: "6 ステップ・約 120 分 / API モード + 認証 + テスト",
           },
         ],
       },
