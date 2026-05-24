@@ -17,6 +17,21 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-26-i",
+    date: "2026-05-26",
+    title: "💚 Study Guide に Nuxt を追加 (7 章)",
+    badge: "content",
+    highlights: [
+      "💚 Nuxt の地図 — Vue 3 + Nitro でフルスタック (新規ガイド、7 章 / 約 60 分)",
+      "1. ディレクトリ規約と auto-import / 2. Vue 3 + Composition API / 3. ルーティングと layouts / middleware / 4. useFetch と Nitro (server/api) / 5. useState/Pinia/composables / 6. SSR/SPA/SSG/ISR と routeRules / 7. SEO/エラー/runtimeConfig/デプロイ",
+      "Vue 2 / Nuxt 2 経験者向けに、auto-import / Composition API / Nitro / Hybrid Rendering の差分を実例で対比",
+      "Next.js 経験者向けに、App Router との対応表 ('use client' → .client.vue、middleware → middleware/、layout → layouts/)",
+      "ssr: false / routeRules / nitro.preset で Hybrid Rendering と複数デプロイ先 (Node / Vercel / Cloudflare) を網羅",
+      "Guide 総数: 7 → 8 (Ruby / JS / TS / Python / SQL / React / Next.js / Nuxt)、章総数: 49 → 56",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-26-h",
     date: "2026-05-26",
     title: "▲ Study Guide に Next.js を追加 (7 章)",
