@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   type JournalEntry,
@@ -22,7 +21,6 @@ const DRAFT_KEY = (templateId: string, entryId?: string) =>
   `rrq_journal_draft_${templateId}${entryId ? `_${entryId}` : ""}`;
 
 export function JournalEditor({ template, existingId }: Props) {
-  const router = useRouter();
   const [content, setContent] = useState<Record<string, string>>({});
   const [title, setTitle] = useState("");
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -30,6 +28,7 @@ export function JournalEditor({ template, existingId }: Props) {
   const [showRationale, setShowRationale] = useState(false);
   const [existing, setExisting] = useState<JournalEntry | null>(null);
   const [copied, setCopied] = useState(false);
+  const [savedEntry, setSavedEntry] = useState<JournalEntry | null>(null);
 
   // 初期ロード: 既存エントリ or ドラフトから
   useEffect(() => {
@@ -76,10 +75,11 @@ export function JournalEditor({ template, existingId }: Props) {
     setContent((c) => ({ ...c, [key]: val }));
 
   const handleSave = () => {
+    let entry: JournalEntry | null = null;
     if (existing) {
-      updateEntry(existing.id, content, title);
+      entry = updateEntry(existing.id, content, title);
     } else {
-      createEntry(template.id, content, title);
+      entry = createEntry(template.id, content, title);
     }
     // ドラフト削除
     try {
@@ -87,7 +87,13 @@ export function JournalEditor({ template, existingId }: Props) {
     } catch {
       /* noop */
     }
-    router.push("/journal");
+    if (entry) {
+      setSavedEntry(entry);
+      setExisting(entry); // 以後の保存は更新扱いに
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
   };
 
   // 簡易セルフレビュー (ローカル ヒューリスティック、AI 不要)
@@ -218,6 +224,61 @@ export function JournalEditor({ template, existingId }: Props) {
           </span>
         )}
       </div>
+
+      {/* 保存完了カード */}
+      {savedEntry && (
+        <section
+          role="status"
+          aria-live="polite"
+          className="rounded-2xl border-2 border-emerald-300 bg-gradient-to-br from-emerald-50 to-teal-50 p-5 shadow-md dark:border-emerald-500/40 dark:from-emerald-500/[0.12] dark:to-teal-500/[0.08]"
+        >
+          <div className="flex items-start gap-3">
+            <span className="text-3xl" aria-hidden>
+              ✅
+            </span>
+            <div className="flex-1">
+              <h2 className="text-base font-bold text-emerald-700 dark:text-emerald-300">
+                保存しました
+              </h2>
+              <p className="mt-1 text-xs text-emerald-700/80 dark:text-emerald-200/80">
+                ジャーナル一覧やエントリ詳細ページでいつでも見返せます。
+                <span className="ml-1 font-mono text-[10px]">
+                  ({new Date(savedEntry.updatedAt).toLocaleString("ja-JP")})
+                </span>
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link
+                  href={`/journal/${savedEntry.id}`}
+                  className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                >
+                  📖 エントリを開く
+                </Link>
+                <Link
+                  href="/journal"
+                  className="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20"
+                >
+                  📚 一覧へ戻る
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setSavedEntry(null)}
+                  className="inline-flex items-center gap-1 rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-white/20 dark:bg-white/5 dark:text-zinc-200 dark:hover:bg-white/10"
+                >
+                  ✏️ 編集を続ける
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSavedEntry(null)}
+              aria-label="閉じる"
+              className="text-zinc-400 transition hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+            >
+              ✕
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* テンプレートヘッダー */}
       <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/40">

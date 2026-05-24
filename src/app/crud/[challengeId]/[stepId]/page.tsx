@@ -4,7 +4,6 @@ import {
   crudChallenges,
   findCrudChallenge,
 } from "@/data/crud-challenges";
-import { CodeBlock } from "@/components/CodeBlock";
 import { SampleCodeBlock } from "@/components/SampleCodeBlock";
 
 export function generateStaticParams() {
@@ -101,12 +100,19 @@ export default async function CrudStepPage({ params }: Props) {
       {/* コマンド */}
       {step.commandHints && step.commandHints.length > 0 && (
         <section className="mb-8">
-          <h2 className="mb-3 text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-            💻 実行コマンド例
-          </h2>
-          <CodeBlock
+          <div className="mb-3 flex items-end justify-between">
+            <h2 className="text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+              💻 実行コマンド例
+            </h2>
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-500">
+              ✍️ 写経モードでタイプ練習できます
+            </p>
+          </div>
+          <SampleCodeBlock
+            storageKey={`crud:${challenge.id}:${step.id}:cmd`}
             code={step.commandHints.join("\n")}
-            label="bash"
+            language="bash"
+            label="ターミナル"
           />
         </section>
       )}
