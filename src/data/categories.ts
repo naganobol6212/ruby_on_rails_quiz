@@ -266,6 +266,18 @@ export const categories: Category[] = [
     accentClass: "from-purple-500/20 to-fuchsia-500/5",
     ringClass: "hover:ring-purple-500/40",
   },
+  // ===========================================================================
+  // Track: DB 設計
+  // ===========================================================================
+  {
+    id: "db-design",
+    trackId: "db-design",
+    name: "DB 設計 基礎",
+    description: "正規化 / ER モデリング / 主キー・外部キー / 命名 / マイグレーション / アンチパターン",
+    emoji: "🗂️",
+    accentClass: "from-teal-500/20 to-emerald-500/5",
+    ringClass: "hover:ring-teal-500/40",
+  },
 ];
 
 export const findCategory = (id: string) =>

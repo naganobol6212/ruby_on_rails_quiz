@@ -12,6 +12,7 @@ export type TrackId =
   | "nuxt"
   | "python"
   | "sql"
+  | "db-design"
   | "git"
   | "infosec"
   | "linux";
@@ -61,7 +62,9 @@ export type CategoryId =
   // SQL
   | "sql-basics"
   | "sql-joins"
-  | "sql-advanced";
+  | "sql-advanced"
+  // DB 設計
+  | "db-design";
 
 export type Category = {
   id: CategoryId;

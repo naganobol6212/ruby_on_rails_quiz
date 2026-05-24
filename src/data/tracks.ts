@@ -83,6 +83,16 @@ export const tracks: Track[] = [
     status: "available",
   },
   {
+    id: "db-design",
+    name: "DB 設計",
+    short: "DB Design",
+    emoji: "🗂️",
+    description: "正規化 / ER / PK・FK / 命名 / マイグレーション / アンチパターン",
+    accentClass: "from-teal-500/20 to-emerald-500/5",
+    ringClass: "hover:ring-teal-500/40",
+    status: "available",
+  },
+  {
     id: "git",
     name: "Git & GitHub",
     short: "Git",

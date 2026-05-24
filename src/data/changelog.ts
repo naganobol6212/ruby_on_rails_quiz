@@ -17,6 +17,21 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-27-c",
+    date: "2026-05-27",
+    title: "🗂️ DB 設計トラックを追加 — 全 12 トラックに",
+    badge: "content",
+    highlights: [
+      "🗂️ DB 設計 (db-design) を新トラックとして追加",
+      "🧩 クイズ 18 問 (db-001〜018): 正規化 / PK・FK / リレーション / INDEX / マイグレーション / アンチパターン",
+      "📖 Study Guide 『DB 設計の地図』(7 章): ER モデリング → 正規化 → PK/FK → リレーションパターン → INDEX/命名/型 → ZDD マイグレーション → 監査/履歴 → アンチパターン (EAV / 巨大 JSONB)",
+      "🗺️ 学習ロードマップに Phase 5 の最後として『DB 設計を体系的に学ぶ』ステップ追加 (90 分)",
+      "📊 ER 図 + INDEX 比較 + 部分 INDEX の Mermaid 図を 3 つ収録",
+      "🎉 これで全 12 トラック (Ruby / JS / TS / Python / SQL / DB 設計 / React / Next / Nuxt / Git / Linux / InfoSec)",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-27-b",
     date: "2026-05-27",
     title: "📊 Study Guide に Mermaid 図表を追加",

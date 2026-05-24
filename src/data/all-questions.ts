@@ -1,7 +1,8 @@
-// 既存の questions.ts + 新カテゴリ questions-extra.ts + Track 用 questions-tracks.ts を統合
+// 既存の questions.ts + 新カテゴリ questions-extra.ts + Track 用 questions-tracks.ts + DB 設計 questions-db.ts を統合
 import { questions as base } from "./questions";
 import { extraQuestions } from "./questions-extra";
 import { trackQuestions } from "./questions-tracks";
+import { dbQuestions } from "./questions-db";
 import { categories, findCategory } from "./categories";
 import type { Question } from "@/lib/types";
 
@@ -9,6 +10,7 @@ export const allQuestions: Question[] = [
   ...base,
   ...extraQuestions,
   ...trackQuestions,
+  ...dbQuestions,
 ];
 
 export const questionsByCategory = (categoryId: string) =>

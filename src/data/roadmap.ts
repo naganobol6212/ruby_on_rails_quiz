@@ -404,6 +404,32 @@ export const roadmap: RoadmapPhase[] = [
           },
         ],
       },
+      {
+        id: "12b-db-design",
+        number: 13,
+        title: "DB 設計を体系的に学ぶ",
+        emoji: "🗂️",
+        goal: "正規化 / PK・FK / リレーション設計 / INDEX 設計 / ZDD マイグレーション / アンチパターン (EAV / 巨大 JSONB)。SQL を書く側から設計する側へ。",
+        estimateMinutes: 90,
+        items: [
+          {
+            kind: "guide",
+            href: "/guide/db-design-intro",
+            label: "📖 DB 設計の地図 (7 章)",
+            hint: "正規化 → PK/FK → リレーション → INDEX → ZDD → 監査 → アンチパターン",
+          },
+          {
+            kind: "quiz-category",
+            href: "/quiz/db-design",
+            label: "🧩 DB 設計クイズ (18 問)",
+            hint: "db-001〜018",
+            requiredQuestionIds: Array.from(
+              { length: 18 },
+              (_, i) => `db-${String(i + 1).padStart(3, "0")}`,
+            ),
+          },
+        ],
+      },
     ],
   },
   {
@@ -415,7 +441,7 @@ export const roadmap: RoadmapPhase[] = [
     steps: [
       {
         id: "13-crud",
-        number: 13,
+        number: 14,
         title: "CRUD 実践課題を 4 本走り抜ける",
         emoji: "🛠️",
         goal: "ToDo → 認証付きブログ → ファイルアップロード → JSON API + RSpec の順で実装。MVC の足場 → 認証/認可 → ファイル添付 → API 設計とテスト、と実務でほぼ必ず踏むテーマを一周。",
@@ -449,7 +475,7 @@ export const roadmap: RoadmapPhase[] = [
       },
       {
         id: "14-practical",
-        number: 14,
+        number: 15,
         title: "実装パターンを身体に染み込ませる",
         emoji: "🏗️",
         goal: "FizzBuzz / 集計 / CSV パーサ / User-Post 設計 / N+1 / scope / RESTful Controller / Service Object / JSON API / ActiveJob / API 認証 / メタプロ DSL を順番に解く。",
@@ -488,7 +514,7 @@ export const roadmap: RoadmapPhase[] = [
     steps: [
       {
         id: "15-ruby-advanced",
-        number: 15,
+        number: 16,
         title: "Ruby 上級 (メタプロ・Fiber・パターンマッチ)",
         emoji: "🧙",
         goal: "yield / Proc vs Lambda / raise/rescue / ensure / Symbol#to_proc / method_missing / define_method / Enumerator / クロージャ / モンキーパッチ / GC / case/in / instance_eval / send / 特異メソッド / Concern / Refinements / Fiber / エンコーディング。",
@@ -507,7 +533,7 @@ export const roadmap: RoadmapPhase[] = [
       },
       {
         id: "16-code-reading",
-        number: 16,
+        number: 17,
         title: "コード読解力 (トレース演習)",
         emoji: "🔬",
         goal: "他人のコードを 1 行ずつ追って正確に出力を予測できる力。デバッグ・コードレビューの基礎。",
@@ -535,7 +561,7 @@ export const roadmap: RoadmapPhase[] = [
     steps: [
       {
         id: "17-self-explanation",
-        number: 17,
+        number: 18,
         title: "自己説明トレーニング",
         emoji: "🗣️",
         goal: "解いた問題の中から 10 問選び、『結論 → 理由 → 具体例 → 落とし穴』の構造で自分の言葉で書き直す。",
@@ -551,7 +577,7 @@ export const roadmap: RoadmapPhase[] = [
       },
       {
         id: "18-journal",
-        number: 18,
+        number: 19,
         title: "週次振り返り (KPT / PREP)",
         emoji: "📝",
         goal: "学習ジャーナルで KPT (Keep/Problem/Try) または PREP (Point/Reason/Example/Point) で週次振り返り。",
