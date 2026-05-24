@@ -3778,6 +3778,12 @@ export const questions: Question[] = [
       ":destroy は関連を残す",
     ],
     answerIndex: 1,
+    choiceExplanations: [
+      "両者の挙動は異なる。destroy は 1 件ずつ Post#destroy を呼ぶ (callback 起動)、delete_all は単一 DELETE 文。",
+      "正解。:destroy は『Post の destroy callback (before_destroy 等) を 1 件ずつ起動』、:delete_all は『SQL の DELETE 文を 1 発で発行』(callback スキップ)。",
+      "逆。:delete_all の方が高速 (callback なし、1 クエリ)。:destroy は安全だが遅い。",
+      "destroy は関連を消す。残すのは :nullify (外部キーを NULL に)。",
+    ],
     hints: [
       "`:destroy` は 1 件ずつ destroy (コールバック発火)。",
       "`:delete_all` は 1 つの DELETE SQL。",
@@ -3788,8 +3794,30 @@ export const questions: Question[] = [
         "`:destroy` はコールバック発火 (Post の destroy フック実行)、`:delete_all` は SQL 一括削除。",
       reason:
         "Post に `before_destroy` などのフックがある場合、`:delete_all` だとそれが実行されない。代わりに高速。`:nullify` は関連カラムを NULL に、`:restrict_with_error` は子があれば削除を拒否する。",
+      beginnerExplanation:
+        "親レコード削除時に **関連レコードをどうするか** を `dependent:` オプションで指定します。\n\n**主要なオプション**:\n\n| オプション | 挙動 | 速度 | callback |\n|---|---|---|---|\n| `:destroy` | 1 件ずつ Post#destroy を呼ぶ | 遅い | ✓ 起動 |\n| `:delete_all` | DELETE 文 1 発 | 高速 | ✗ スキップ |\n| `:nullify` | posts.user_id を NULL に | 高速 | ✗ |\n| `:restrict_with_error` | 子があれば削除を拒否 (errors に追加) | — | — |\n| `:restrict_with_exception` | 子があれば DeleteRestrictionError 例外 | — | — |\n| (なし) | 関連は無視 (孤児になる) | — | — |\n\n**使い分け**:\n```ruby\n# 子側でも処理を実行したい (例: Active Storage で添付ファイル削除、PaperTrail で履歴記録)\nhas_many :posts, dependent: :destroy\n\n# 単純削除で OK、callback 不要、件数多い\nhas_many :posts, dependent: :delete_all\n\n# 子は残す (例: 退会したユーザーの投稿は残しておきたい)\nhas_many :posts, dependent: :nullify\n\n# 子があったら親を消させない\nhas_many :posts, dependent: :restrict_with_error\n```\n\n**罠**: `:delete_all` は callback をスキップするので、`Active Storage` の添付ファイル削除や `paper_trail` の履歴記録などが実行されません。**それらを使うなら必ず `:destroy`** にする (gem 側のドキュメントに必ず書かれている)。\n\n**DB の外部キー制約 (`on_delete: :cascade` 等)** と組み合わせると、アプリ層と DB 層の両方で挙動を制御できます。たとえば dependent: :destroy + DB の cascade は二重保険になりますが、callback が冪等でない場合は注意。",
+      modelSelfExplanation: {
+        conclusion:
+          "`dependent: :destroy` は子レコード 1 件ずつ Post#destroy を呼んで callback を起動する。`dependent: :delete_all` は SQL の DELETE 文 1 発で一括削除し、callback も validation も全部スキップする。",
+        reason:
+          "親レコード削除時の挙動は『子を消すかどうか』『callback を呼ぶかどうか』『どれくらい高速か』のトレードオフで決まる。:destroy は Ruby 経路を通るので Active Storage の添付削除や paper_trail の履歴記録など、callback に乗った副作用が必要な場面で必須。:delete_all は callback 不要な大量データの単純削除で使うと N クエリが 1 クエリに圧縮されて劇的に高速化する。:nullify や :restrict_* は『子は残す』『子があるときは親削除を禁止』など、用途ごとの選択肢。",
+        example:
+          "ユーザの記事に画像 (Active Storage) や履歴 (paper_trail) が付いている場合、`has_many :posts, dependent: :destroy` で 1 件ずつ削除して関連ファイルや履歴も整合性を保つ。退会ユーザの投稿は残したい SNS なら `:nullify` で user_id を NULL に、グループに最後の管理者がいるなら削除禁止したいときは `:restrict_with_error`、テストデータの大量削除では `:delete_all` で高速処理、というように使い分ける。",
+        pitfall:
+          ":delete_all は callback をスキップするので、Active Storage / paper_trail / cancan のような callback ベースの gem を使っている場合『関連ファイルだけが残る』などの整合性破壊が起きる。さらに :destroy は dependent な関連が多段に絡むと N 倍の N 倍のクエリで遅くなる (1 ユーザ → 100 投稿 → 各投稿に 10 コメント = 1001 クエリ)。大規模データでは事前に soft delete (deleted_at カラム) を検討する。",
+      },
       codeExample:
         "has_many :posts, dependent: :destroy           # 1件ずつ destroy\nhas_many :posts, dependent: :delete_all        # 一括 DELETE\nhas_many :posts, dependent: :nullify           # posts.user_id = NULL\nhas_many :posts, dependent: :restrict_with_error\nhas_many :posts, dependent: :restrict_with_exception\n\n# Active Storage や paper_trail を使うなら :destroy 必須\n# (ファイル削除や履歴記録のため)",
+      commonMistakes: [
+        ":delete_all で Active Storage の添付ファイルだけが残る → :destroy にする。",
+        "多段 dependent: :destroy で N+1 クエリで激遅 → soft delete を検討。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Association — dependent option (公式)",
+          url: "https://guides.rubyonrails.org/association_basics.html#options-for-has-many-dependent",
+        },
+      ],
     },
   },
   {
@@ -3806,6 +3834,12 @@ export const questions: Question[] = [
       "Ruby のコードで重複チェックする",
     ],
     answerIndex: 2,
+    choiceExplanations: [
+      "validation だけだと『validation チェック → INSERT』の間に別プロセスが INSERT すると重複が許される (race condition)。",
+      "DB の UNIQUE 制約だけだと、保存時に RecordNotUnique 例外になり UX が悪い (フォームで親切に教えられない)。",
+      "正解。validation で UX を守り、DB INDEX で並行 INSERT のすり抜けを完全に防ぐ二段構え。さらに `rescue ActiveRecord::RecordNotUnique` で最後の保険を掛ける。",
+      "アプリ層の Ruby チェックも race を防げず、コードも分散して保守性が落ちる。Rails の DSL に任せる。",
+    ],
     hints: [
       "validation だけだと並行リクエストですり抜けることがある。",
       "DB の制約だけだと UX エラーメッセージが出しにくい。",
@@ -3816,8 +3850,30 @@ export const questions: Question[] = [
         "model の uniqueness バリデーション + DB の UNIQUE INDEX を両方設定するのが定石。",
       reason:
         "uniqueness バリデーションは race condition (同時挿入) で重複を許してしまう。DB INDEX があれば DB レベルで防げる。両方あればフォームでも親切なエラー、DB レベルでも確実。",
+      beginnerExplanation:
+        "Rails の **`uniqueness` バリデーション単体は実は race condition で抜ける** ことを知っているかが大事です。\n\n**問題**: uniqueness バリデーションの流れ\n1. SELECT で『同じ値が既に存在しないか』チェック\n2. 存在しなければ INSERT\n\nプロセス A と B が同時に同じ値を保存しようとすると、両方が Step 1 で『存在しない』と判定 → 両方が INSERT 成功 → **重複データが入る**。\n\n**解決**: **validation + DB UNIQUE INDEX の二段構え**\n```ruby\n# migration\nadd_index :likes, [:user_id, :post_id], unique: true\n\n# model\nclass Like < ApplicationRecord\n  belongs_to :user\n  belongs_to :post\n  validates :user_id, uniqueness: { scope: :post_id }\nend\n```\n\n**役割分担**:\n- **validation**: フォーム送信時に親切なエラーメッセージ (\"already taken\") を出す UX のため\n- **DB UNIQUE**: 並行リクエストでも絶対に重複させない真の防御\n\n**さらに保険**: コード側で `RecordNotUnique` を rescue\n```ruby\nbegin\n  Like.create!(user: u, post: p)\nrescue ActiveRecord::RecordNotUnique\n  # 別プロセスが先に作成済み → 既存を再利用するなど\n  Like.find_by(user: u, post: p)\nend\n```\n\n**実装パターン**:\n1. マイグレーションで `add_index ..., unique: true`\n2. モデルで `validates ..., uniqueness: { scope: :other_column }`\n3. 必要に応じて `find_or_create_by` + RecordNotUnique rescue\n\n**まとめ**: 『validation だけ』も『DB だけ』も不完全。**両方を使う** のが Rails の作法です。",
+      modelSelfExplanation: {
+        conclusion:
+          "model の `uniqueness` バリデーション + DB の UNIQUE INDEX を両方設定するのが Rails の定石。validation は UX のため、DB INDEX は並行 INSERT の race condition を防ぐため。",
+        reason:
+          "ActiveRecord の uniqueness バリデーションは『SELECT で存在チェック → INSERT』という 2 段階で動くため、2 プロセスが同時に同じ値を保存しようとすると両方とも『存在しない』と判定して両方 INSERT 成功する race condition の脆弱性がある。DB の UNIQUE 制約は『INSERT 時に DB エンジンが原子的にチェック』するため race を防げるが、Ruby 側から見ると『save が例外で落ちる』だけでフォームに親切なメッセージを返せない。二段構えにすると『通常時は validation で UX、極めて稀な race 時は DB が砦』という役割分担で完璧な防御になる。",
+        example:
+          "SNS の『いいね』は 1 ユーザが 1 投稿に 1 回だけ → `likes` テーブルに `add_index :likes, [:user_id, :post_id], unique: true` + Model で `validates :user_id, uniqueness: { scope: :post_id }`。さらに `Like.create!` を `rescue ActiveRecord::RecordNotUnique` で囲み、競合時は既存レコードを返す。スタンプラリーの一意トークンや、メール認証コードも同じパターンで防御する。",
+        pitfall:
+          "validation だけでは race condition でデータ汚染が起きる。本番リリース後に重複データが見つかってバグレポートで初めて気付く、というのが典型。DB INDEX だけでは UX が悪い (一般ユーザーに 500 エラーが返るとサポート対応が増える)。さらに既存データに重複があると add_index :unique => true が失敗するので、事前に重複データのクリーンアップが必要。マイグレーション時に `disable_ddl_transaction!` + `add_index ... algorithm: :concurrently` で本番無停止 INDEX 追加するテクニックも頻出。",
+      },
       codeExample:
         '# migration\nadd_index :likes, [:user_id, :post_id], unique: true\n\n# model\nclass Like < ApplicationRecord\n  belongs_to :user\n  belongs_to :post\n  validates :user_id, uniqueness: { scope: :post_id }\nend\n\n# それでも race で DB エラーが出ることはあるので rescue\nLike.create(user: u, post: p)\nrescue ActiveRecord::RecordNotUnique\n  # 既に存在\nend',
+      commonMistakes: [
+        "validation だけで防御したつもりが race で重複データができる。必ず DB UNIQUE も。",
+        "既存データに重複があると add_index で失敗。先に DELETE / UPDATE でクリーンアップ。",
+      ],
+      references: [
+        {
+          label: "Rails Guides: Validations — uniqueness (公式)",
+          url: "https://guides.rubyonrails.org/active_record_validations.html#uniqueness",
+        },
+      ],
     },
   },
   {
@@ -3834,6 +3890,12 @@ export const questions: Question[] = [
       "上記すべて要注意",
     ],
     answerIndex: 3,
+    choiceExplanations: [
+      "正しいが不完全。default 値ありの add_column は PG 11+ でメタデータのみ更新 (高速) だが、それ以前は全行更新で長時間ロック。",
+      "正しいが不完全。remove_column 後にアプリが旧カラム参照を続けると落ちる。デプロイ順序の調整が必要。",
+      "正しいが不完全。rename_column は旧名と新名が両方読める時期が無いとデプロイ中にエラー。",
+      "正解。すべての挙動を理解した上で慎重に実施する必要がある。strong_migrations gem で機械的に検出するのが安全。",
+    ],
     hints: [
       "大きなテーブルへの ALTER は長時間ロックを引き起こすことがある。",
       "rename_column はデプロイ中に新旧コード両方が動く時間があり危険。",
@@ -3844,8 +3906,35 @@ export const questions: Question[] = [
         "大規模テーブルの ALTER、rename、default 値付き add_column はゼロダウンタイム的に要注意。",
       reason:
         "PostgreSQL では default 値ありの add_column は 11+ でメタデータのみ更新 (高速) だが、それ以前は全行更新。rename_column は旧コードが落ちる前にカラムが消えるので、二段階デプロイ (両方読める時期を作る) が必要。本番運用では strong_migrations gem で危険な操作を検出すると良い。",
+      beginnerExplanation:
+        "本番運用中の DB に対するマイグレーションは **『無停止 (zero downtime) で実行できるか』** が最重要です。\n\n**よくある危険操作**:\n\n**1. 大規模テーブルへの ALTER (default 値あり add_column)**\n```ruby\nadd_column :users, :biography, :text, default: ''  # 1000万行で 30 分ロック...\n```\nPostgreSQL 11+ ではメタデータのみ更新で一瞬。それ以前 / MySQL ではテーブル書き換えで長時間ロック → サービス停止。\n\n**2. remove_column**\n```ruby\nremove_column :users, :legacy_field\n```\nデプロイ中に『旧コード (legacy_field を参照) + 新マイグレーション (カラム削除済み)』が同時に動く瞬間がある → NoMethodError 多発。\n\n**3. rename_column**\n```ruby\nrename_column :users, :email, :email_address\n```\nこれも同じく、デプロイのタイミングで一瞬コードと DB が不整合になる。\n\n**ゼロダウン運用の定石 (多段デプロイ)**:\n```ruby\n# Step 1: 新カラム追加 (旧も残す)\nadd_column :users, :email_address, :string\n# アプリ側: 書き込み時に両方更新する遷移期間\n\n# Step 2: バックフィル (バッチで既存データ移行)\nUser.in_batches { |b| b.update_all('email_address = email') }\n\n# Step 3: 全コード新カラム参照に切替 + デプロイ\n\n# Step 4: 旧カラム削除\nremove_column :users, :email\n```\n\n**機械的に検出**: **`strong_migrations` gem** を入れると、危険なマイグレーション (NOT NULL 追加、rename、危険な default など) を CI で自動検出してくれます:\n```ruby\n# Gemfile\ngem 'strong_migrations'\n\n# 危険なマイグレーションは即エラー\n# === Dangerous operation detected #strong_migrations ===\n# Adding a column with a default is dangerous in Rails < 5.2...\n```\n\n**運用 Tips**:\n- マイグレーションは **必ず staging で先に試す**\n- 大規模 ALTER は **メンテナンスウィンドウ** で実施\n- PostgreSQL 11+ への upgrade で多くの問題が緩和される\n- `disable_ddl_transaction!` + `algorithm: :concurrently` で並行 INDEX 作成 (PG)\n- `up` / `down` で reverse 可能性を担保",
+      modelSelfExplanation: {
+        conclusion:
+          "本番運用中の DB に対するマイグレーションでは、大規模 ALTER (add_column with default)・remove_column・rename_column のすべてが要注意。長時間ロック・デプロイタイミングでの新旧コード不整合・rollback 困難など複数のリスクがある。",
+        reason:
+          "Rails のマイグレーションは DSL がシンプルなため気軽に書けるが、本番 DB では『テーブルロック中はアクセスが詰まる』『デプロイ中はコードと DB の整合が一瞬崩れる』『一度実行すると元に戻しにくい』などの本質的な難しさがある。特に長時間ロックは『気付かないうちにユーザーリクエストが詰まる → 5xx エラー連発』の典型シナリオ。多段デプロイ (新カラム追加 → バックフィル → コード切替 → 旧カラム削除) で『旧コードと新コードが共存できる時期』を作るのが ゼロダウンタイム運用の鉄則。strong_migrations gem は機械的にこれらの罠を検出する仕組みで、本番運用しているチームでは必須レベル。",
+        example:
+          "本番 1000 万ユーザーのテーブルに NOT NULL カラムを追加する場合: ①default 値で add_column (PG 11+ ならメタデータ更新で高速)、②バックグラウンドジョブで既存行に値をバックフィル、③NOT NULL 制約を別マイグレーションで追加、と 3 段階に分ける。rename_column は ①新カラム追加 ②両方に書く期間 ③バックフィル ④コード新カラム参照に ⑤旧カラム削除、と 5 段階。これらは GitHub やクックパッドなど大規模 Rails サービスでも実践されている王道パターン。",
+        pitfall:
+          "rake task と違って rails db:migrate は **コミット間で他のコネクションをブロックする** ことがある。MySQL では特に大規模テーブルの ALTER で長時間ロック → アプリ全体がレスポンス遅延。さらに rollback (db:rollback) が可能なマイグレーションを書く責任があり、`change` メソッドだけで自動 reverse できない場合は `up` / `down` を明示する。strong_migrations を入れずに本番運用すると、致命的なマイグレーションがデプロイされるまで気付けない。",
+      },
       codeExample:
         '# 危険な例\nrename_column :users, :email, :email_address  # 旧コード壊れる\n\n# ゼロダウン的な対応\n# Step 1: 新カラム追加 + 同期\nadd_column :users, :email_address, :string\n# アプリ側で両方に書き込む期間\n\n# Step 2: バックフィル (バッチ)\nUser.in_batches { |b| b.update_all("email_address = email") }\n\n# Step 3: 旧カラム削除 (全コードが新カラム参照に)\nremove_column :users, :email\n\n# strong_migrations gem で警告\ngem "strong_migrations"',
+      commonMistakes: [
+        "default 値付き add_column を MySQL や PG 10 以下で実行 → 全行更新で長時間ロック。",
+        "rename_column を 1 マイグレーションで実行 → デプロイ中に旧コードが落ちる。",
+        "strong_migrations なしで運用 → 危険な操作が CI で検出できない。",
+      ],
+      references: [
+        {
+          label: "strong_migrations gem",
+          url: "https://github.com/ankane/strong_migrations",
+        },
+        {
+          label: "Rails Guides: Migrations — Cautions",
+          url: "https://guides.rubyonrails.org/active_record_migrations.html",
+        },
+      ],
     },
   },
 
@@ -5061,6 +5150,12 @@ export const questions: Question[] = [
       "select は使えない",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。`pluck` は SQL の SELECT 結果を直接 Ruby の配列に変換 (AR インスタンスを作らない)、`select.map` は AR インスタンスを作ってからメソッドを呼ぶので 2 倍くらい遅い。",
+      "結果として同じ値が取れるが、内部の処理 (AR インスタンス生成の有無) が違うのでパフォーマンスは別物。",
+      "逆。`pluck` の方が速い。AR インスタンスのオーバーヘッドがないため。",
+      "select は使える。普通の Relation メソッドで、SELECT 句を絞るのが本来の用途。",
+    ],
     hints: [
       "`pluck` は SELECT した値を Array で直接返す。",
       "`select` は AR インスタンスを返すのでオブジェクト生成のコスト。",
@@ -5071,10 +5166,29 @@ export const questions: Question[] = [
         "pluck は値配列を直接返すので軽い。select.map は AR オブジェクトを作るので重い。",
       reason:
         "`pluck(:column)` は SQL の SELECT 結果を直接 Array にする。AR インスタンスを作らないので速く、メモリも少ない。複数カラムなら `pluck(:id, :name)` で配列の配列。プレ計算した値が欲しいだけの時に使う。",
+      beginnerExplanation:
+        "**`pluck`** は **『値だけ欲しい』ときの軽量版** メソッドです。\n\n**比較**:\n```ruby\n# ❌ 重い: AR インスタンスを 100 万個作る\nUser.select(:email).map(&:email)\n# 1. SELECT email FROM users\n# 2. 各行から User インスタンス生成 (100 万個)\n# 3. .email で属性を取り出す\n\n# ✅ 軽い: 直接配列\nUser.pluck(:email)\n# SELECT email FROM users\n# → [\"a@x\", \"b@y\", ...]\n```\n\n**速度差**: 大量データで **2〜10 倍** の差が出ます (AR インスタンス生成は意外と重い)。\n\n**使い方バリエーション**:\n```ruby\n# 1 カラム\nUser.pluck(:email)\n#=> ['a@x', 'b@y', ...]\n\n# 複数カラム → 配列の配列\nUser.pluck(:id, :name)\n#=> [[1, 'Alice'], [2, 'Bob'], ...]\n\n# 条件付き\nUser.where(active: true).pluck(:id)\n\n# 重複排除\nUser.distinct.pluck(:role)\n\n# 集計 (Arel.sql で生 SQL も書ける)\nUser.group(:role).pluck(:role, Arel.sql('COUNT(*)'))\n```\n\n**`pluck` を使うべき場面**:\n- ID リストだけ取りたい (`User.pluck(:id)` → 別クエリの WHERE id IN ...)\n- メアドだけ取りたい (`User.pluck(:email)` → メール一斉送信用)\n- 集計結果だけ取りたい\n\n**`pluck` を使ってはいけない場面**:\n- そのモデルのメソッドを呼びたい (`user.full_name`) → AR インスタンスが必要\n- 関連を辿りたい (`user.posts`) → AR インスタンスが必要\n- callback を実行したい\n\n**Tip**: `ids` メソッドは `pluck(:primary_key)` のショートカット:\n```ruby\nUser.where(active: true).ids  # [1, 5, 7, ...]\n```\n\n`Post.where(user_id: User.active.ids)` の代わりに `Post.where(user: User.active)` (サブクエリ) の方が DB 1 往復で済むので、必要に応じて使い分けます。",
+      modelSelfExplanation: {
+        conclusion:
+          "`pluck` は SQL の SELECT 結果を **直接 Ruby の配列** に変換するので軽量・高速。`select.map` は AR インスタンスを 1 行ごとに生成してからメソッドを呼ぶため、オブジェクト生成のオーバーヘッドが大きい。",
+        reason:
+          "ActiveRecord のレコードは『DB の行 → User インスタンス』に変換するため、各属性を ActiveModel::Attributes 経由で型変換し、コールバックや dirty tracking の仕組みを初期化するオブジェクト生成のコストがかかる。大量データではこのオーバーヘッドが支配的になり、AR インスタンス不要 (値だけ欲しい) なら pluck で SQL → Ruby Array に直結する方が桁違いに速い。pluck は単一カラム → 値の配列、複数カラム → 配列の配列、distinct や group との組み合わせも対応する柔軟な API。",
+        example:
+          "メール一斉送信で『全アクティブユーザのメアドだけ』なら `User.active.pluck(:email)` で必要最低限を取得。N+1 を回避するために『関連先の ID 集合』を取りたいときは `Post.where(user_id: User.active.pluck(:id))` ではなく `Post.where(user: User.active)` のサブクエリ化が更に高速。集計レポートで『役割ごとのユーザ数』なら `User.group(:role).count` か `User.group(:role).pluck(:role, Arel.sql('COUNT(*)'))` で 1 クエリで完結。",
+        pitfall:
+          "pluck は AR インスタンスを作らないので、attribute の type cast (例: serialize した hash の復元) や callback がスキップされる。decimal カラムを pluck すると BigDecimal が返るが、`select.map(&:price)` だと Money 型として復元される、というような違いに注意。さらに pluck の結果に対して where 条件を後付けはできない (Array になっているため Relation メソッドが使えない)。大量データの処理では『pluck で ID だけ取得 → find_each で 1 件ずつ処理』のような 2 段構えも有効。",
+      },
       codeExample:
         "User.pluck(:email)\n#=> [\"a@x\", \"b@y\", ...]\n# SELECT \"users\".\"email\" FROM \"users\"\n\nUser.pluck(:id, :name)\n#=> [[1, \"Alice\"], [2, \"Bob\"], ...]\n\n# 重複しない\nUser.distinct.pluck(:role)\n\n# pluck で COUNT などの式も書ける\nUser.group(:role).pluck(:role, Arel.sql('COUNT(*)'))",
       commonMistakes: [
         "pluck は AR コールバックや関連ロードをスキップする。オブジェクトとして扱いたい時は使えない。",
+        "Arel.sql を使わない生 SQL は SQL Injection の温床になる。必ず Arel.sql でラップしてバインド変数を使う。",
+      ],
+      references: [
+        {
+          label: "Rails API: ActiveRecord::Calculations#pluck",
+          url: "https://api.rubyonrails.org/classes/ActiveRecord/Calculations.html#method-i-pluck",
+        },
       ],
     },
   },
@@ -5092,6 +5206,12 @@ export const questions: Question[] = [
       "find_or_initialize_by は廃止",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。`find_or_create_by` は『見つからなければ create (DB INSERT)』、`find_or_initialize_by` は『見つからなければ new (メモリ上のみ、save 未実行)』。",
+      "保存するかしないかの根本的な違いがある。同じではない。",
+      "速度の差ではなく『DB に保存するかしないか』が違い。",
+      "find_or_initialize_by は現役の API。廃止されていない。",
+    ],
     hints: [
       "「初期化のみ」と「保存まで」の違い。",
       "initialize は new と同等で .save が必要。",
@@ -5102,8 +5222,34 @@ export const questions: Question[] = [
         "find_or_create_by は無ければ save、find_or_initialize_by は new するだけ (要 .save)。",
       reason:
         "find_or_create_by は便利だが race condition の可能性あり (DB 制約と組み合わせて RecordNotUnique を rescue するのが安全)。`find_or_create_by!` は失敗時に例外を投げる版。",
+      beginnerExplanation:
+        "**`find_or_*` 系メソッド** は『**取得 or 新規作成**』を 1 行で書ける便利メソッドです。\n\n**`find_or_create_by(条件)`** — 取得 or 保存\n```ruby\nuser = User.find_or_create_by(email: 'a@x.com')\n# 既にあればそれを返す\n# 無ければ User.create(email: 'a@x.com') して返す\n\n# 追加属性を渡したい場合はブロックで\nuser = User.find_or_create_by(email: 'a@x.com') do |u|\n  u.name = 'Alice'   # 新規作成時のみセット (取得時は呼ばれない)\nend\n```\n\n**`find_or_initialize_by(条件)`** — 取得 or メモリ上 new (未保存)\n```ruby\nuser = User.find_or_initialize_by(email: 'a@x.com')\n# 既にあればそれを返す\n# 無ければ User.new(email: 'a@x.com') して返す (まだ DB に保存されていない!)\n\nuser.name = 'Alice'\nuser.save  # 明示的に保存\n```\n\n**使い分け**:\n- すぐ保存したい → `find_or_create_by`\n- 追加情報を設定してから保存したい → `find_or_initialize_by` + `save`\n- 例外で気付きたい → `find_or_create_by!`\n\n**🚨 Race Condition の罠**:\nfind_or_create_by の内部実装は実は:\n1. `SELECT * FROM users WHERE email = 'a@x.com'`\n2. 無ければ `INSERT INTO users ...`\n\nプロセス A と B が同時実行すると、両方とも Step 1 で『無い』と判定 → 両方 INSERT → **重複データ**!\n\n**対策** — DB の UNIQUE 制約 + rescue:\n```ruby\nbegin\n  user = User.find_or_create_by(email: 'a@x.com')\nrescue ActiveRecord::RecordNotUnique\n  # 別プロセスが先に作成済み\n  user = User.find_by(email: 'a@x.com')\nend\n```\n\n**より安全な現代的 API**: Rails 6+ の `upsert`:\n```ruby\nUser.upsert({ email: 'a@x.com', name: 'Alice' }, unique_by: :email)\n# DB の ON CONFLICT を使うので race フリー (PG / MySQL 対応)\n```",
+      modelSelfExplanation: {
+        conclusion:
+          "`find_or_create_by` は『見つからなければ create (DB INSERT)』、`find_or_initialize_by` は『見つからなければ new (メモリ上のみ、save が必要)』。前者はすぐ保存、後者は追加属性をセットしてから明示的に save。",
+        reason:
+          "ActiveRecord の find_or_* シリーズは『取得 or 新規』のイディオムを 1 行で書くための便利メソッド。create 版は内部で create を呼ぶので DB INSERT まで実行し戻り値は永続化済みオブジェクト、initialize 版は new のみで未保存オブジェクトを返すため、その後に validation や属性設定をしてから明示的に save する流れになる。両者とも内部的に『SELECT で検索 → 見つからなければ INSERT/new』という流れで、race condition (並行 INSERT) を防げないことに注意。",
+        example:
+          "ユーザのプロフィール作成で『初回アクセス時のみ作成、それ以降は取得』なら `Profile.find_or_create_by(user: current_user) { |p| p.display_name = current_user.email.split('@').first }` で初期化と作成を 1 行に。複雑な初期化が必要なら `tag = Tag.find_or_initialize_by(name: 'ruby'); tag.color = '#cc0000' if tag.new_record?; tag.save`。race フリーが必要なら Rails 6+ の `upsert` を使う。",
+        pitfall:
+          "**Race condition** が起きやすい (SELECT → INSERT の間に別プロセスが INSERT すると重複が作られる)。DB の UNIQUE 制約とセットで `rescue ActiveRecord::RecordNotUnique` で再 find する、または Rails 6+ の `upsert` (DB の ON CONFLICT を使用) を採用するのが安全。さらに find_or_create_by のブロックは『新規作成時のみ』実行されるので、『取得時にも何かしたい』なら戻り値を受け取った後で if/then 分岐する必要がある。",
+      },
       codeExample:
         "# 取得 or 作成 (保存)\nuser = User.find_or_create_by(email: 'a@x') do |u|\n  u.name = 'Alice'\nend\n\n# 取得 or 初期化のみ (未保存)\nuser = User.find_or_initialize_by(email: 'a@x')\nuser.name = 'Alice'\nuser.save\n\n# race 対策\nuser = User.find_or_create_by(email: 'a@x')\nrescue ActiveRecord::RecordNotUnique\nuser = User.find_by(email: 'a@x')",
+      commonMistakes: [
+        "find_or_create_by は race condition で重複データを作れる。DB の UNIQUE 制約 + rescue で対処。",
+        "Rails 6+ なら `upsert` (DB の ON CONFLICT 利用) の方が race フリーで安全。",
+      ],
+      references: [
+        {
+          label: "Rails API: find_or_create_by / find_or_initialize_by",
+          url: "https://api.rubyonrails.org/classes/ActiveRecord/Relation.html#method-i-find_or_create_by",
+        },
+        {
+          label: "Rails API: upsert (Rails 6+)",
+          url: "https://api.rubyonrails.org/classes/ActiveRecord/Persistence/ClassMethods.html#method-i-upsert",
+        },
+      ],
     },
   },
   {
