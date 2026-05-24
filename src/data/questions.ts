@@ -6674,6 +6674,12 @@ export const questions: Question[] = [
       "GC",
     ],
     answerIndex: 2,
+    choiceExplanations: [
+      "プロセス並列は Process.fork / Process.spawn。Fiber は同一プロセス内の軽量実行単位。",
+      "OS スレッド並列は Thread。Fiber は OS スレッドより軽量で、プリエンプトされず自分で切り替える。",
+      "正解。Fiber は『協調的コルーチン』で、`resume` と `Fiber.yield` で明示的に実行を切り替える。Async gem の基盤、Enumerator の内部実装にも使われる。",
+      "GC は Garbage Collection で別物。Fiber とは無関係。",
+    ],
     hints: [
       "Fiber = 軽量な実行単位。",
       "OS スレッドではなく、自分で `resume` `yield` で切り替える。",
@@ -6684,8 +6690,34 @@ export const questions: Question[] = [
         "Fiber は『手動で切り替える軽量コルーチン』。プリエンプトされず明示的に resume/yield。",
       reason:
         "Thread はプリエンプティブ (OS が自動で切り替える)、Fiber は協調的 (自分で切り替える)。Ruby 3.0+ の Fiber Scheduler により非同期 IO の基盤として活用 (Async gem 等)。",
+      beginnerExplanation:
+        "**Fiber (ファイバー)** は **協調的に切り替える軽量な実行単位** (コルーチン)。Thread と似て非なる仕組み。\n\n**Thread vs Fiber**:\n| | Thread | Fiber |\n|---|---|---|\n| 切り替え | OS が勝手に行う (プリエンプティブ) | 自分で `resume`/`Fiber.yield` |\n| 並行 | 同時実行可能 (GIL あるが概念上) | 同時に 1 つだけ実行 |\n| 重さ | OS スレッド (重い) | 軽量 (数 KB) |\n| 用途 | 並列処理・並行 IO | コルーチン・ジェネレータ・非同期 IO |\n\n**基本動作**:\n```ruby\nfib = Fiber.new do\n  Fiber.yield 1     # 一旦呼び出し元に 1 を返して停止\n  Fiber.yield 2\n  3                 # 最後の式が最終戻り値\nend\n\nfib.resume    # => 1  (Fiber.yield で停止した位置から再開)\nfib.resume    # => 2\nfib.resume    # => 3\nfib.resume    # FiberError: dead\n```\n\n**ジェネレータ的用途** (無限列):\n```ruby\ncounter = Fiber.new do\n  n = 0\n  loop { Fiber.yield(n += 1) }\nend\n\n3.times { puts counter.resume }   # 1, 2, 3\n```\nEnumerator はこの Fiber の仕組みを使って外部イテレータを実装している。\n\n**Ruby 3.0+ の Fiber Scheduler**: 非同期 IO の基盤として再注目:\n```ruby\nrequire 'async'\n\nAsync do |task|\n  task.async { fetch_url('https://a.com') }\n  task.async { fetch_url('https://b.com') }\n  task.async { fetch_url('https://c.com') }\nend\n# 3 つの IO を並行実行 (Thread より軽量)\n```\n\n**主な利用例**:\n- **Async gem** — Ruby 3 の非同期処理フレームワーク (Falcon, Async-HTTP)\n- **Enumerator** — 外部イテレータの内部実装\n- **DSL の状態管理** — 状態遷移のステップごとに resume\n- **コルーチンパターン** — 関数間で実行を譲り合う\n\n**注意**: Fiber は CPU バウンドな並列処理には向かない (同時に 1 つしか動かない)。並列なら Ractor (Ruby 3.0+)、並行 IO なら Fiber + Scheduler、と使い分け。",
+      modelSelfExplanation: {
+        conclusion:
+          "Fiber の主な用途は『協調的なコルーチン (明示的に切り替える軽量実行単位)』。OS スレッドや プロセスとは異なり、Fiber は同時に 1 つしか動かず、`resume` と `Fiber.yield` で明示的に実行コンテキストを切り替える。Enumerator の内部実装や Ruby 3 の Async gem の基盤として使われる。",
+        reason:
+          "Thread は OS が自動でプリエンプトする並行実行単位、Fiber は『自分で切り替えタイミングを制御する軽量コルーチン』という別の抽象。コンテキストスイッチのコストが Thread より圧倒的に低く (数 KB のスタック)、数千〜数万の Fiber を同時に持てる。Ruby 3.0+ で Fiber Scheduler が導入され、非同期 IO 処理 (Async gem) の基盤として実用性が高まった。CPU バウンドな並列処理には向かないので、その場合は Ractor を使う。",
+        example:
+          "Async gem で `Async { tasks.each { |t| task.async { do_io(t) } } }` で IO を並行処理、Falcon (Async ベースの Web サーバ) で 1 万同時接続を捌く、Enumerator の `next` で値を 1 件ずつ取り出すジェネレータ、状態遷移マシンの実装で『現在の状態の処理が終わったら次の状態に yield』などで使われる。",
+        pitfall:
+          "Fiber は同時に 1 つしか動かないので CPU バウンドな処理 (並列計算) には不向き。並列なら Ractor (実験的) や Process.fork を使う。さらに Fiber 内の例外は呼び出し元に伝播するが、Fiber.yield 後にエラーで死ぬと再 resume すると FiberError になる。Async gem を本番で使うときは Falcon などの Fiber 対応サーバが必要で、Puma などの Thread ベースサーバとは互換性に注意。",
+      },
       codeExample:
         'fib = Fiber.new do\n  Fiber.yield 1\n  Fiber.yield 2\n  3\nend\n\nfib.resume    #=> 1\nfib.resume    #=> 2\nfib.resume    #=> 3\nfib.resume    # FiberError: dead\n\n# 無限列生成 (lazy みたいに)\ncounter = Fiber.new do\n  n = 0\n  loop { Fiber.yield(n += 1) }\nend\n3.times { puts counter.resume }   # 1, 2, 3',
+      commonMistakes: [
+        "Fiber は並列処理には使えない (同時に 1 つだけ実行)。並列なら Ractor。",
+        "死んだ Fiber を再 resume すると FiberError。状態管理が必要。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Fiber クラス",
+          url: "https://docs.ruby-lang.org/ja/latest/class/Fiber.html",
+        },
+        {
+          label: "Async gem (Ruby 3 の非同期フレームワーク)",
+          url: "https://github.com/socketry/async",
+        },
+      ],
     },
   },
   {
@@ -6702,6 +6734,12 @@ export const questions: Question[] = [
       "UTF-8 / 9 / 9",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。Ruby のデフォルトエンコーディングは UTF-8。ひらがな 1 文字 = 3 バイト × 3 文字 = 9 バイト。length は文字単位で 3。",
+      "ASCII-8BIT はバイナリ扱い。Ruby 1.9+ の文字列リテラルは Source エンコーディング (通常 UTF-8) を持つ。",
+      "bytesize は文字数ではなくバイト数。UTF-8 のひらがなは 3 バイトなので合計 9 バイト。",
+      "length は『文字数』を返す。3 文字なら 3。9 はバイト数。",
+    ],
     hints: [
       "Ruby 文字列のデフォルトエンコーディングは UTF-8。",
       "ひらがな 1 文字は UTF-8 で 3 バイト。",
@@ -6712,8 +6750,31 @@ export const questions: Question[] = [
         "Ruby の String は『文字列 + エンコーディング』のセット。length は文字数、bytesize はバイト数。",
       reason:
         "Ruby M17N: 文字列ごとに encoding を持つ。`force_encoding` で再解釈、`encode` で変換。マルチバイトで `length != bytesize`、`each_char` で文字単位イテレート。",
+      beginnerExplanation:
+        "Ruby の **文字列とエンコーディング** の重要な仕様。マルチバイト文字を扱う際にハマりやすいポイント。\n\n**Ruby M17N (Multilingualization)**:\nRuby 1.9 以降、各文字列は **『バイト列 + エンコーディング情報』** のセットを持ちます。Ruby はこれを認識して文字単位での処理 (length / each_char など) を正しく行えます。\n\n**`length` vs `bytesize`**:\n```ruby\ns = 'あいう'\ns.encoding      # => #<Encoding:UTF-8>  (デフォルト)\ns.length        # => 3   (文字数)\ns.bytesize      # => 9   (バイト数、UTF-8 のひらがな = 3 バイト × 3)\ns.bytes         # => [227, 129, 130, 227, 129, 132, ...]\ns.each_char.to_a # => ['あ', 'い', 'う']\n```\n\n**エンコーディング変換**:\n```ruby\n# 別のエンコーディングに変換 (バイト列が変わる)\nascii = s.encode('Shift_JIS')\nascii.encoding  # => #<Encoding:Shift_JIS>\n\n# エンコーディング情報だけ再解釈 (バイト列はそのまま)\nbin = s.force_encoding('ASCII-8BIT')\nbin.encoding    # => #<Encoding:ASCII-8BIT>\nbin == s        # false (エンコーディングが違う扱い)\n```\n\n**よくあるハマり**:\n- ファイル読み込み時に encoding を指定し忘れて文字化け\n- 異なるエンコーディングの文字列を `+` で結合して Encoding::CompatibilityError\n- バイト単位の処理に length を使って意図しない結果\n\n**実用 Tips**:\n```ruby\n# 文字列のエンコーディングを確認\nstr.encoding\n\n# UTF-8 が正しいかチェック\nstr.valid_encoding?\n\n# 強制的に UTF-8 に再解釈 (バイト列に問題があるなら NG)\nstr.force_encoding('UTF-8')\n\n# 安全な置換\nstr.encode('UTF-8', invalid: :replace, undef: :replace)\n\n# 1 文字ずつ処理\nstr.each_char { |c| ... }\n\n# 1 バイトずつ処理\nstr.each_byte { |b| ... }\n```\n\n**Ruby のソースエンコーディング**: 通常 UTF-8 (Ruby 2.0+ デフォルト)。マジックコメント `# encoding: utf-8` は今は不要。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は『UTF-8 / 9 / 3』。Ruby の文字列は『バイト列 + エンコーディング』のセットで、デフォルトは UTF-8。bytesize はバイト数、length は文字数を返し、マルチバイト文字 (ひらがなは UTF-8 で 3 バイト) では値が異なる。",
+        reason:
+          "Ruby 1.9 で導入された M17N (Multilingualization) 設計により、Ruby はエンコーディング情報を文字列メタデータとして持ち、length / each_char などの文字単位操作と、bytesize / each_byte などのバイト単位操作を区別できる。これにより日本語などのマルチバイト文字列も正しく扱えるが、エンコーディングの違いによる罠 (異なるエンコーディング同士の結合エラーなど) に注意が必要。Ruby 2.0+ ではソースのデフォルトエンコーディングが UTF-8 になり、マジックコメント不要。",
+        example:
+          "国際化対応で『文字数制限』を実装するとき、`text.length > 100` で正しく文字単位カウント (bytesize で 100 を超えるかではなく)。CSV エクスポートで Excel 互換のために `csv.encode('Shift_JIS')` でエンコーディング変換、外部 API から来た文字列を `force_encoding('UTF-8')` で再解釈、URL エンコードで bytes 単位処理、など。Rails アプリでもデータベース・ファイル・HTTP 通信の境界でエンコーディングを意識する場面が頻出。",
+        pitfall:
+          "異なるエンコーディング (UTF-8 + Shift_JIS など) を `+` で結合すると `Encoding::CompatibilityError`。事前に `encode` で揃える。`force_encoding` は『エンコーディング情報だけ書き換える』ので、バイト列が新エンコーディングとして不正だと後で `valid_encoding?` が false になる。さらに `length` (文字単位) と `bytesize` (バイト単位) を取り違えて DB のサイズ制限を超えるバグも多い (DB のカラムサイズは通常バイト数)。",
+      },
       codeExample:
         's = "あいう"\ns.encoding      #=> #<Encoding:UTF-8>\ns.length        #=> 3 (文字数)\ns.bytesize      #=> 9 (バイト数)\ns.bytes         #=> [227,129,130,...]\ns.each_char.to_a #=> ["あ","い","う"]\n\n# エンコーディング変換\ns.encode("Shift_JIS")\ns.force_encoding("ASCII-8BIT")   # 再解釈 (バイト列は変わらず)',
+      commonMistakes: [
+        "length (文字数) と bytesize (バイト数) を取り違える。DB カラムサイズは通常バイト数。",
+        "異なるエンコーディング同士を結合すると `Encoding::CompatibilityError`。事前に encode で揃える。",
+        "force_encoding はバイト列を変えず情報だけ書き換える。不正バイト列で後の処理が壊れる。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Encoding クラス",
+          url: "https://docs.ruby-lang.org/ja/latest/class/Encoding.html",
+        },
+      ],
     },
   },
 

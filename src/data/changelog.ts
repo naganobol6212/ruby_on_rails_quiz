@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-25-e",
+    date: "2026-05-25",
+    title: "🎉 Ruby Advanced カテゴリ完走 — adv-021〜022 (Phase 5)",
+    badge: "content",
+    highlights: [
+      "adv-021 (Fiber と Async) / adv-022 (文字列エンコーディング)",
+      "ruby-advanced カテゴリ全 22 問の解説拡充が完了",
+      "進捗: 128/149 問 (86%)",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-25-d",
     date: "2026-05-25",
     title: "Ruby Advanced adv-016〜020 の解説拡充 (Phase 4)",
