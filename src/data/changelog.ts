@@ -17,6 +17,21 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-26-h",
+    date: "2026-05-26",
+    title: "▲ Study Guide に Next.js を追加 (7 章)",
+    badge: "content",
+    highlights: [
+      "▲ Next.js の地図 — App Router と RSC の世界 (新規ガイド、7 章 / 約 60 分)",
+      "1. App Router ファイル規約 (page/layout/loading/error/route) / 2. Server vs Client Components / 3. データ取得とキャッシング / 4. Server Actions とフォーム / 5. Routing 応用 (Parallel/Intercepting) / 6. Streaming/Suspense と middleware / 7. 本番運用 (Image/Metadata/env/deploy)",
+      "Server/Client 境界の『葉に押し下げる』設計、4 層キャッシュ (Request Memo/Data/Full Route/Router) の全体像、useFormStatus/useActionState/useOptimistic のフォーム連携を実例で",
+      "Parallel Routes (@slot) と Intercepting Routes ((.)) で『同一 URL でも UX を変える』高度ルーティング",
+      "next/image / generateMetadata / NEXT_PUBLIC_ 環境変数 / output: 'standalone' Docker デプロイまで",
+      "Guide 総数: 6 → 7 (Ruby / JS / TS / Python / SQL / React / Next.js)、章総数: 42 → 49",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-26-g",
     date: "2026-05-26",
     title: "⚛️ Study Guide に React を追加 (7 章)",
