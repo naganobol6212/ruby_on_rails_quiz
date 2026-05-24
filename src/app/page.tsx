@@ -2,6 +2,7 @@ import Link from "next/link";
 import { tracks } from "@/data/tracks";
 import { allQuestions as questions } from "@/data/all-questions";
 import { guides } from "@/data/guides";
+import { crudChallenges } from "@/data/crud-challenges";
 import { ProgressSummary } from "@/components/ProgressSummary";
 import { TrackPicker } from "@/components/TrackPicker";
 import { JournalHomeCard } from "@/components/JournalHomeCard";
@@ -37,6 +38,37 @@ export default function Home() {
       <div className="mb-6">
         <JournalHomeCard />
       </div>
+
+      {/* CRUD 課題 CTA */}
+      {crudChallenges.length > 0 && (
+        <div className="mb-6">
+          <Link
+            href="/crud"
+            className="group flex items-start gap-4 rounded-2xl border border-zinc-200 bg-gradient-to-br from-white via-emerald-50/40 to-cyan-50/40 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md dark:border-white/10 dark:from-zinc-900/60 dark:via-emerald-500/5 dark:to-cyan-500/5 dark:hover:border-emerald-500/40"
+          >
+            <span className="text-3xl">🛠️</span>
+            <div className="flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-emerald-700 dark:text-emerald-300">
+                CRUD Challenge
+              </p>
+              <h3 className="mt-0.5 text-base font-bold tracking-tight text-zinc-900 group-hover:text-emerald-700 dark:text-zinc-100 dark:group-hover:text-emerald-300">
+                実践課題で一機能を一周 — シナリオから受け入れテストまで
+              </h3>
+              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                データモデル → API → 段階別実装 → レビュー観点 →
+                発展課題。読みながら手元で動かし、口頭で説明できるまでが完了。
+              </p>
+              <p className="mt-1.5 text-[11px] text-zinc-500 dark:text-zinc-500">
+                {crudChallenges.length} 課題 · 計{" "}
+                {crudChallenges.reduce((s, c) => s + c.steps.length, 0)} ステップ
+              </p>
+            </div>
+            <span className="text-zinc-300 transition group-hover:translate-x-1 group-hover:text-emerald-500 dark:text-zinc-600 dark:group-hover:text-emerald-400">
+              →
+            </span>
+          </Link>
+        </div>
+      )}
 
       {/* 参考書 CTA */}
       {guides.length > 0 && (

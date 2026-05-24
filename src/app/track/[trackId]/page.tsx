@@ -4,6 +4,7 @@ import { findTrack, tracks } from "@/data/tracks";
 import { categoriesByTrack } from "@/data/categories";
 import { questionsByCategory, questionsByTrack } from "@/data/all-questions";
 import { guidesByTrack } from "@/data/guides";
+import { crudChallengesByTrack } from "@/data/crud-challenges";
 import { CategoryCard } from "@/components/CategoryCard";
 
 export function generateStaticParams() {
@@ -22,6 +23,7 @@ export default async function TrackPage({ params }: Props) {
   const trackCategories = categoriesByTrack(track.id);
   const trackQs = questionsByTrack(track.id);
   const trackGuides = guidesByTrack(track.id);
+  const trackChallenges = crudChallengesByTrack(track.id);
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10 sm:py-14">
@@ -96,6 +98,41 @@ export default async function TrackPage({ params }: Props) {
                 </Link>
               );
             })}
+          </div>
+        </section>
+      )}
+
+      {/* CRUD 実践課題 */}
+      {trackChallenges.length > 0 && (
+        <section className="mb-10">
+          <h2 className="mb-4 text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+            🛠️ CRUD 実践課題
+          </h2>
+          <div className="space-y-3">
+            {trackChallenges.map((c) => (
+              <Link
+                key={c.id}
+                href={`/crud/${c.id}`}
+                className="group flex items-start gap-4 rounded-2xl border border-zinc-200 bg-white/70 p-4 transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md dark:border-white/10 dark:bg-zinc-900/60 dark:hover:border-emerald-500/40"
+              >
+                <span className="text-3xl">{c.emoji}</span>
+                <div className="flex-1">
+                  <h3 className="font-bold tracking-tight text-zinc-900 group-hover:text-emerald-700 dark:text-zinc-100 dark:group-hover:text-emerald-300">
+                    {c.title}
+                  </h3>
+                  <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                    {c.subtitle}
+                  </p>
+                  <p className="mt-1.5 text-[11px] text-zinc-500 dark:text-zinc-500">
+                    {c.steps.length} ステップ · 約 {c.estimateMinutes} 分 ·{" "}
+                    {c.difficulty}
+                  </p>
+                </div>
+                <span className="text-zinc-300 transition group-hover:translate-x-1 group-hover:text-emerald-500 dark:text-zinc-600 dark:group-hover:text-emerald-400">
+                  →
+                </span>
+              </Link>
+            ))}
           </div>
         </section>
       )}
