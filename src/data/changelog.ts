@@ -17,6 +17,21 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-26-f",
+    date: "2026-05-26",
+    title: "🗃️ Study Guide に SQL を追加 (7 章)",
+    badge: "content",
+    highlights: [
+      "🗃️ SQL の地図 — 宣言的にデータを問い合わせる (新規ガイド、7 章 / 約 60 分)",
+      "1. SELECT 基礎 / 2. DML とトランザクション / 3. 集計と GROUP BY / 4. JOIN (N+1 解消含む) / 5. サブクエリと CTE (再帰含む) / 6. ウィンドウ関数 / 7. パフォーマンス (INDEX / EXPLAIN)",
+      "PostgreSQL / MySQL / SQLite 共通の標準 SQL を中心に、PG 固有の便利機能 (RETURNING / DATE_TRUNC / 部分 INDEX) も実例付きで解説",
+      "N+1 / 巨大 OFFSET / 関数加工 / 複合 INDEX の順序ルールなど Slow Query の典型対策を網羅",
+      "Use The Index, Luke! / PostgreSQL 公式 / MySQL 8 リファレンスへのリンク完備",
+      "Guide 総数: 4 → 5 (Ruby / JS / TS / Python / SQL)、章総数: 28 → 35",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-26-e",
     date: "2026-05-26",
     title: "🐍 Study Guide に Python を追加 (7 章)",
