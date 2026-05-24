@@ -5372,6 +5372,12 @@ export const questions: Question[] = [
     code: "arr = [1, 2, 3, 4, 5]\nresult = arr.each_with_object([]) do |n, acc|\n  acc << n * 2 if n.odd?\nend\np result",
     choices: ["[2, 6, 10]", "[1, 3, 5]", "[2, 4, 6, 8, 10]", "[]"],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。奇数 (1, 3, 5) を 2 倍して acc に push: 2, 6, 10。`[2, 6, 10]` が返る。",
+      "奇数フィルタの結果そのまま。各要素を 2 倍する処理 (`n * 2`) を見落としている。",
+      "全要素を 2 倍した結果。奇数フィルタ (`if n.odd?`) を見落としている。",
+      "条件によらず acc に push する処理が動くので空配列にはならない。最低でも奇数の数だけ要素が入る。",
+    ],
     hints: [
       "`each_with_object([])` は空配列を畳み込みの容器として渡します。",
       "`if n.odd?` で奇数だけが対象。",
@@ -5382,8 +5388,30 @@ export const questions: Question[] = [
         "奇数だけを 2 倍にして配列に積む処理。each_with_object は『畳み込み容器』を渡しながら累積する。",
       reason:
         "1,2,3,4,5 を順に処理。奇数 (1,3,5) の時のみ acc に 2倍した値を push。偶数はスキップ。最終的に [2, 6, 10] を返す。inject だと『最後の式を必ず返す』必要があるが each_with_object は不要。",
+      beginnerExplanation:
+        "**コードリーディング** の練習。`each_with_object` + 条件付き push パターンを読み解きます。\n\n**コード再掲**:\n```ruby\narr = [1, 2, 3, 4, 5]\nresult = arr.each_with_object([]) do |n, acc|\n  acc << n * 2 if n.odd?\nend\n```\n\n**ステップ別追跡**:\n\n| n | n.odd? | n * 2 | acc 状態 |\n|---|---|---|---|\n| 1 | true | 2 | [2] |\n| 2 | false | - | [2] |\n| 3 | true | 6 | [2, 6] |\n| 4 | false | - | [2, 6] |\n| 5 | true | 10 | [2, 6, 10] |\n\n**結果**: `[2, 6, 10]`\n\n**より簡潔な書き方**:\n```ruby\n# select + map で 2 ステップ\narr.select(&:odd?).map { |n| n * 2 }\n# => [2, 6, 10]\n\n# filter_map (Ruby 2.7+) で 1 ステップ\narr.filter_map { |n| n * 2 if n.odd? }\n# => [2, 6, 10]\n```\n\n**`each_with_object` のメリット**:\n- 任意の容器 (Array / Hash / Set など) を渡せる\n- 戻り値を意識しなくて済む (inject と違って『最後に acc を返す』必要なし)\n- 複雑な構築 (例: ネスト Hash) に向く\n\n**読み方のコツ**: ループ内で何が起きるかを 1 行ずつトレースする。テーブルを作って n / 条件 / acc の状態を追う。",
+      modelSelfExplanation: {
+        conclusion:
+          "結果は `[2, 6, 10]`。`each_with_object([])` で空配列を acc として持ち、各要素を順に評価して奇数のみ 2 倍した値を push する。最終的に奇数 3 つ (1, 3, 5) の 2 倍が並ぶ。",
+        reason:
+          "`each_with_object` は『可変なオブジェクトを引き連れながら each する』Enumerable メソッドで、acc に対する破壊的変更 (push, []= など) を意識せず使える。`inject` だと最後の式を必ず返す必要があるが、`each_with_object` は acc が自動的に戻り値になる。条件付き push (`<< if`) はフィルタ + 変換のパターンで、`select.map` や `filter_map` でも書けるが、複雑な集計 (条件によって変換ロジックが変わる、ネスト構造を組み立てるなど) では each_with_object が読みやすい。",
+        example:
+          "Hash 構築なら `arr.each_with_object({}) { |x, h| h[x.id] = x.name }`、グループ化 `arr.each_with_object(Hash.new { |h, k| h[k] = [] }) { |x, h| h[x.cat] << x }`、複雑な集計で条件によって異なる構造に格納する場合、など。",
+        pitfall:
+          "`each_with_object` のブロック引数の順序が紛らわしい: **(要素, acc)** の順 (each + with_object なので要素が先)。一方 `inject` は (acc, 要素) の順。書き間違えるとロジックが反転して気付かない場合がある。さらに条件で push しないと acc は変わらないので、絶対 push したいケースで条件が間違っていると意図しない結果になる。",
+      },
       codeExample:
         "# 同じ意味で書くなら\narr.select(&:odd?).map { |n| n * 2 }\n#=> [2, 6, 10]\n\n# filter_map (Ruby 2.7+) で 1 行\narr.filter_map { |n| n * 2 if n.odd? }\n#=> [2, 6, 10]",
+      commonMistakes: [
+        "each_with_object のブロック引数順 (要素, acc) と inject (acc, 要素) を取り違える。",
+        "select.map で書けるシンプルなケースまで each_with_object で書く。可読性で判断。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Enumerable#each_with_object",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Enumerable/i/each_with_object.html",
+        },
+      ],
     },
   },
   {
@@ -5400,6 +5428,12 @@ export const questions: Question[] = [
       "nil / Hi, Bob!",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。1 回目はキーワード引数省略で default 'Hello' が使われる。2 回目は明示的に 'Hi' を渡しているのでそれが使われる。",
+      "2 回目で `greeting: 'Hi'` を明示しているので 'Hi' が使われる。'Hello' のままにはならない。",
+      "1 回目の呼び出し方 `greet('Alice')` は name 必須 + キーワード greeting オプションの正しい使い方。ArgumentError にはならない。",
+      "puts は文字列を出力する。nil ではなく実際の挨拶が表示される。",
+    ],
     hints: [
       "`greeting:` はキーワード引数 (デフォルト値あり)。",
       "1回目は省略 → デフォルト 'Hello'。",
@@ -5410,8 +5444,30 @@ export const questions: Question[] = [
         "キーワード引数はデフォルト値が使われ、明示すれば上書きされる。",
       reason:
         "`greeting: 'Hello'` は呼び出し時に省略可能。1 回目は省略 → 'Hello, Alice!'。2 回目は `greeting: 'Hi'` を渡している → 'Hi, Bob!'。Ruby 3.0+ では位置引数とキーワード引数が完全分離されたので、`greet('Bob', 'Hi')` のように位置で渡すと ArgumentError。",
+      beginnerExplanation:
+        "Ruby の **キーワード引数** の使い方の基本パターン。\n\n**定義**:\n```ruby\ndef greet(name, greeting: 'Hello')   # name は位置引数、greeting はキーワード引数 (デフォルト 'Hello')\n  \"#{greeting}, #{name}!\"\nend\n```\n\n**呼び出しパターン**:\n```ruby\ngreet('Alice')                  # キーワード省略 → デフォルト 'Hello' が使われる\n# => 'Hello, Alice!'\n\ngreet('Bob', greeting: 'Hi')    # キーワード明示 → 'Hi' で上書き\n# => 'Hi, Bob!'\n```\n\n**Ruby 3.0+ の厳格化**:\nRuby 3.0 から位置引数とキーワード引数が **完全に分離** されたため、間違った呼び方は例外:\n```ruby\ngreet('Bob', 'Hi')              # ArgumentError (Ruby 3.0+)\n# Hi は位置引数として渡され、greeting キーワードは省略扱い\n```\n\n**必須キーワード引数** (デフォルトなし):\n```ruby\ndef create(name:)\n  # ...\nend\n\ncreate                  # ArgumentError: missing keyword: name\ncreate(name: 'Alice')   # OK\n```\n\n**メリット**:\n- 呼び出し時にどの引数が何かを名前で明示できる\n- 引数の順序を気にしない\n- 後から引数追加しても既存呼び出しを壊さない\n\n**位置引数 vs キーワード引数 の使い分け**:\n- 引数が 1-2 個でその意味が明白 → 位置引数 (`greet(name)`)\n- 引数が 3 個以上、意味が紛らわしい → キーワード引数 (`create(name:, email:, role:)`)",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は 'Hello, Alice!' と 'Hi, Bob!' の 2 行。1 回目はキーワード引数 greeting を省略したのでデフォルト 'Hello'、2 回目は明示的に 'Hi' を指定したのでそれが使われる。",
+        reason:
+          "Ruby のキーワード引数は『引数名と値をペアで渡す』形式で、呼び出し側で引数の意味が明示される。デフォルト値があれば省略可能、なければ必須 (ArgumentError)。Ruby 3.0 で位置引数とキーワード引数が完全に分離されたため、`greet('Bob', 'Hi')` のように位置で渡そうとすると ArgumentError。これにより API が予測しやすくなり、引数追加によるシグネチャ変更にも強くなる。",
+        example:
+          "Rails のコントローラで `def create; @post = Post.new(post_params); ...end` のような短い API では位置引数で十分だが、Service Object では `def call(user:, action:, params: {})` のようにキーワード引数を多用する。検索の Form Object なら `def initialize(query: nil, status: nil, sort: :created_at)` のようにすべてキーワード化することで、引数追加・変更に強い API を作れる。",
+        pitfall:
+          "Ruby 3.0 でハッシュとキーワード引数の自動変換が廃止されたため、古い Ruby 2.x コードを 3.x に上げると `method(hash)` の呼び出しが ArgumentError になることがある。明示的に `method(**hash)` で展開する必要がある。さらに `def foo(opts={})` のような旧来の『オプションハッシュ』パターンは現代的なキーワード引数 (`def foo(opts: {})`) に置き換えるのが推奨。",
+      },
       codeExample:
         '# Ruby 3.0+ では位置引数とキーワード引数が厳格に分離\ngreet("Bob", "Hi")            # ArgumentError\ngreet("Bob", greeting: "Hi")  # OK\n\n# 必須キーワード引数 (デフォルトなし)\ndef create(name:)\n  ...\nend\ncreate           # ArgumentError: missing keyword: name\ncreate(name: "A")',
+      commonMistakes: [
+        "Ruby 3.0+ で位置引数とキーワード引数の自動変換が廃止。`method(hash)` は `method(**hash)` に修正。",
+        "古い Ruby 2.x の opts={} パターンは現代的な キーワード引数に置き換える。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: メソッド定義 (キーワード引数)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fdef.html",
+        },
+      ],
     },
   },
   {
@@ -5423,6 +5479,12 @@ export const questions: Question[] = [
     code: 'h = { a: 1, b: 2, c: 3 }\nresult = h.reduce(0) do |sum, (key, value)|\n  sum + value\nend\nputs result',
     choices: ["6", "[6]", "{a: 1, b: 2, c: 3}", "TypeError"],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。初期値 0 + 各 value (1 + 2 + 3) = 6。Hash の reduce は [key, value] を 1 要素として渡すが、`(key, value)` の分解構文で value だけ取り出せる。",
+      "配列ではなく単一の Integer が返る。reduce は『畳み込み』なので最終 sum 値そのものが結果。",
+      "Hash のままにはならない。reduce で sum (Integer) を構築しているので戻り値は数値。",
+      "型が整合しているので例外にはならない (sum も value も Integer)。",
+    ],
     hints: [
       "Hash の reduce は要素として [key, value] の配列を渡します。",
       "ブロック引数で `(key, value)` のように分解。",
@@ -5433,8 +5495,30 @@ export const questions: Question[] = [
         "Hash の reduce では要素は [key, value] 配列。`(key, value)` で分解できる。",
       reason:
         "Hash#each は [key, value] の配列を yield する。reduce のブロック引数で `(k, v)` と書くと自動分解 (destructuring)。`value` だけ合計したいなら `h.values.sum` のほうがシンプル。",
+      beginnerExplanation:
+        "Ruby の **Hash + reduce** の組み合わせと **destructuring (分解代入)** の理解問題。\n\n**Hash の iteration**:\nHash を each / reduce / map で回すと、要素は `[key, value]` の配列として渡されます。\n```ruby\n{ a: 1, b: 2 }.each { |elem| p elem }\n# [:a, 1]\n# [:b, 2]\n```\n\n**Destructuring (分解代入)**:\nブロック引数を `(k, v)` の形にすると **自動的に [key, value] を分解** できます。\n```ruby\n{ a: 1, b: 2 }.each { |k, v| puts \"#{k}=#{v}\" }   # 通常の書き方\n{ a: 1, b: 2 }.each { |(k, v)| puts \"#{k}=#{v}\" } # 明示的な分解\n# どちらも同じ\n```\n\n**reduce での挙動** (引数が 2 つ: acc と要素):\n```ruby\nh.reduce(0) do |sum, (key, value)|   # sum = acc、(key, value) は [k, v] を分解\n  sum + value\nend\n# 1 回目: sum=0, key=:a, value=1 → return 1\n# 2 回目: sum=1, key=:b, value=2 → return 3\n# 3 回目: sum=3, key=:c, value=3 → return 6\n# 最終: 6\n```\n\n**もっとシンプルな書き方**:\n```ruby\n# 値だけ合計するならこれが一番素直\nh.values.sum   # => 6\nh.sum { |_, v| v }   # => 6 (キーは無視)\n\n# キーと値の両方を使う複雑な集計なら reduce が便利\nh.reduce(0) { |sum, (k, v)| sum + (k == :a ? v * 10 : v) }\n# => 1*10 + 2 + 3 = 15\n```\n\n**読み方のコツ**: Hash の reduce では引数が `|acc, [k, v]|` の形 → `|acc, (k, v)|` で分解。これはイディオムとして覚える。",
+      modelSelfExplanation: {
+        conclusion:
+          "結果は 6。`Hash#reduce(0)` で初期値 0 から始まり、各要素 `[key, value]` をブロック引数 `(key, value)` で分解、value を順に加算 (1 + 2 + 3 = 6)。Hash のキーは加算に使わないので合計は値の和になる。",
+        reason:
+          "Hash#each (および reduce / map / select) は要素を `[key, value]` の配列として yield する。ブロック引数の destructuring 構文 `(k, v)` を使うとこの配列を 2 変数に自動分解できる。これにより Hash の繰り返し処理がスッキリ書ける。同じ処理は `h.values.sum` でもっと簡潔に書けるが、キーと値の両方を使う複雑な集計では reduce + 分解が活きる。",
+        example:
+          "Hash の値だけ合計 `h.values.sum`、キーごとに異なる係数で集計 `h.reduce(0) { |s, (k, v)| s + v * weights[k] }`、ネスト Hash の特定キーだけ抽出 `data.each_with_object([]) { |(k, v), arr| arr << v[:price] }`、CSV 行の列名を Hash で扱う `csv.each { |(name, value)| process(name, value) }`、など現場で頻出。",
+        pitfall:
+          "ブロック引数の `(k, v)` (分解) と `|k, v|` (単純に 2 引数) の違いに注意。`each` / `map` / `reduce` でブロック引数の数を間違えると意図しない結果になる (例: `each { |elem| ... }` で elem が `[key, value]` のままになり、`elem.first` でキー取得など面倒)。各 Enumerable メソッドのブロックの『要素単位』を意識する。",
+      },
       codeExample:
         "# 同じ意味でもっと素直に\nh.values.sum  #=> 6\nh.sum { |_, v| v }  #=> 6\n\n# キーと値の両方を使う場合は reduce が便利\nh.reduce(0) { |sum, (k, v)| sum + (k == :a ? v * 10 : v) }\n#=> 1*10 + 2 + 3 = 15",
+      commonMistakes: [
+        "Hash の each で elem が `[k, v]` の配列で渡されることを忘れる。",
+        "値だけ合計するなら `h.values.sum` の方が簡潔。reduce は複雑集計用。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Hash#each (destructuring)",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Hash/i/each.html",
+        },
+      ],
     },
   },
   {
@@ -5446,6 +5530,12 @@ export const questions: Question[] = [
     code: "class Counter\n  @@count = 0\n  def initialize\n    @@count += 1\n  end\n  def self.count\n    @@count\n  end\nend\n\n3.times { Counter.new }\nputs Counter.count",
     choices: ["0", "1", "3", "NameError"],
     answerIndex: 2,
+    choiceExplanations: [
+      "0 のままになるのは initialize 内の `@@count += 1` が実行されなかった場合。実際は 3 回 new されている。",
+      "1 になるのは 1 回だけ new された場合。`3.times` で 3 回呼ばれているので 3 になる。",
+      "正解。クラス変数 `@@count` は全インスタンスで共有され、initialize 内で +1 されるたびに増える。3 回 new で 3。",
+      "コードは構文的にも論理的にも正しい。NameError は起きない。",
+    ],
     hints: [
       "`@@count` はクラス変数。全インスタンスで共有。",
       "`Counter.new` するたびに +1。",
@@ -5456,10 +5546,29 @@ export const questions: Question[] = [
         "クラス変数 (@@) はクラス + 全インスタンスで共有される。",
       reason:
         "`@@count` はクラスにひも付く 1 つの変数で、`initialize` 内で `+= 1` するたびに全体カウンタが増える。3 回 new したので 3。クラスメソッド `self.count` から参照すると 3 が返る。継承先と共有してしまうので、現代では `class << self; attr_accessor :count; end` のように特異クラスのインスタンス変数にする方が安全。",
+      beginnerExplanation:
+        "**クラス変数 `@@var`** の挙動と落とし穴を理解する問題。\n\n**クラス変数の特徴**:\n- `@@count` のように `@@` プレフィックスで宣言\n- **クラス + 全インスタンス + 継承先 で共有** される単一の変数\n- クラスメソッドからもインスタンスメソッドからもアクセス可能\n\n**コードの動き**:\n```ruby\nclass Counter\n  @@count = 0          # クラス変数を 0 で初期化\n  def initialize\n    @@count += 1       # new するたびに +1\n  end\n  def self.count\n    @@count             # クラスメソッドから @@count を返す\n  end\nend\n\n3.times { Counter.new }   # 3 回 new → @@count が 1 → 2 → 3\nputs Counter.count        # => 3\n```\n\n**🚨 クラス変数の落とし穴 — 継承時の共有**:\n```ruby\nclass Parent\n  @@x = 0\nend\n\nclass Child < Parent\n  def self.set_x(v); @@x = v; end\nend\n\nChild.set_x(99)\nParent.class_variable_get(:@@x)  # => 99 (親も書き換わる!)\n```\n親子間で共有されるため、サブクラスの変更が親に波及。バグの温床になりやすい。\n\n**現代の推奨パターン** — クラスのインスタンス変数 + `class << self` の attr:\n```ruby\nclass Counter\n  class << self\n    attr_accessor :count\n  end\n  self.count = 0\n\n  def initialize\n    self.class.count += 1\n  end\nend\n\n3.times { Counter.new }\nCounter.count   # => 3\n```\nこの書き方なら各サブクラスが独立したカウンタを持つ。\n\n**Rails のシングルトン的な実装** はほぼこのパターン (例: `Rails.application`)。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は 3。クラス変数 `@@count` は Counter クラス全体と全インスタンスで共有される変数で、initialize 内の `+= 1` が new するたびに増加。`3.times { Counter.new }` で 3 回 new されるので最終値は 3。",
+        reason:
+          "Ruby のクラス変数 (`@@`) は『クラスと全インスタンス + 継承先で共有される』スコープを持つ。クラスのインスタンス変数 (`@`) や ローカル変数とは別の概念で、用途としてはクラスレベルのカウンタや設定値の共有に使われる。ただし継承時にサブクラスと親クラスで同じ変数を共有するため、サブクラスでの変更が親にも波及するというハマりやすい性質がある。現代の Ruby/Rails では『クラスのインスタンス変数 + class << self の attr』パターンが推奨される (継承先で独立した値を持てる)。",
+        example:
+          "古典的なカウンタ実装、シングルトン的なフラグ管理、設定値の Singleton 風アクセス。Rails の AR では `class Post < ApplicationRecord; class << self; attr_accessor :default_status; end; end` のようなパターンが多用される。デザインパターンの Singleton も `class << self` + attr ベースで実装される。",
+        pitfall:
+          "クラス変数 `@@x` の継承時共有が最大の落とし穴。Child クラスでの変更が Parent にも波及するため、サブクラス毎に独立した値を持ちたい設計には向かない。現代では『クラスのインスタンス変数』(`class << self; attr_accessor :x; end`) で代替するのが推奨。さらに `@@x` は thread-safe ではないので、並行更新には Mutex が必要。",
+      },
       codeExample:
         "# 推奨される書き方 (クラスのインスタンス変数)\nclass Counter\n  class << self\n    attr_accessor :count\n  end\n  self.count = 0\n  def initialize\n    self.class.count += 1\n  end\nend",
       commonMistakes: [
         "クラス変数 @@count は継承時に親子で共有されて意図しないバグの原因になる。クラスのインスタンス変数 (@count) を class << self で公開する方が安全。",
+        "クラス変数は thread-safe ではない。並行更新には Mutex が必要。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: 変数 (クラス変数)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fvariables.html#class",
+        },
       ],
     },
   },
@@ -5472,6 +5581,12 @@ export const questions: Question[] = [
     code: "def calc(arr)\n  arr.each_with_index.map { |x, i| x * (i + 1) }.sum\nend\n\nputs calc([10, 20, 30])",
     choices: ["60", "140", "100", "180"],
     answerIndex: 1,
+    choiceExplanations: [
+      "60 は単純合計 (10+20+30)。設問は `x * (i+1)` の掛け算が入っているので 60 のままにはならない。",
+      "正解。10*1 + 20*2 + 30*3 = 10 + 40 + 90 = 140。each_with_index で 0 始まりインデックスが渡され、+1 で 1, 2, 3 を掛ける。",
+      "100 は単純な係数の合計ではない。具体的計算: 10*1=10、20*2=40、30*3=90 で合計 140。",
+      "180 は要素数の数だけ違う係数を掛けた場合に偶然出る値ではあるが、(i+1) は 0 始まりではなく 1 始まりなので計算式が違う。",
+    ],
     hints: [
       "`each_with_index` は (要素, インデックス) を渡します。",
       "i は 0,1,2 なので (i+1) は 1,2,3。",
@@ -5482,8 +5597,30 @@ export const questions: Question[] = [
         "各要素に (インデックス+1) を掛けて合計する処理。",
       reason:
         "10×1 + 20×2 + 30×3 = 140。`each_with_index` は要素と 0 始まりのインデックスを yield する Enumerator。`with_index(1)` で 1 始まりにできる。",
+      beginnerExplanation:
+        "**`each_with_index`** で **インデックス付きで処理** する典型コードです。\n\n**コード分解**:\n```ruby\ndef calc(arr)\n  arr.each_with_index           # → Enumerator: (要素, インデックス) のペア\n     .map { |x, i| x * (i + 1) }  # 要素を (index+1) 倍\n     .sum                          # 合計\nend\n```\n\n**ステップ別追跡** (arr = [10, 20, 30]):\n\n| x (要素) | i (index) | (i+1) | x * (i+1) |\n|---|---|---|---|\n| 10 | 0 | 1 | 10 |\n| 20 | 1 | 2 | 40 |\n| 30 | 2 | 3 | 90 |\n\n**合計**: 10 + 40 + 90 = **140**\n\n**ポイント**:\n- `each_with_index` は **0 始まり** でインデックスを渡す\n- 1 始まりにしたい → `each.with_index(1)`\n\n```ruby\n[10, 20, 30].each.with_index(1).map { |x, i| x * i }.sum\n# i=1, 2, 3 なので結果は同じ 140\n```\n\n**他の書き方**:\n```ruby\n# zip + Range で\narr.zip(1..).map { |x, i| x * i }.sum  # => 140\n\n# Enumerable#sum (Ruby 2.4+) で\narr.each_with_index.sum { |x, i| x * (i + 1) }  # => 140\n```\n\n**実用例**:\n- 評価重み付け (古い投稿ほど weight を下げる)\n- 順位ボーナス (1位 +100、2位 +50、3位 +25...)\n- ページネーション (ページ番号で表示位置調整)\n\n**読み方のコツ**: メソッドチェーンを **左から順に** 見て、各ステップで何が起きるかを追う。`each_with_index` → `map` → `sum` の流れを意識する。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は 140。`each_with_index.map { |x, i| x * (i + 1) }.sum` で各要素を (index+1) 倍してから合計する。10*1 + 20*2 + 30*3 = 140。",
+        reason:
+          "`each_with_index` は『要素と 0 始まりのインデックス』のペアを yield する Enumerable メソッド。これに map / sum をチェーンすることで、インデックスに依存した変換と集計を 1 行で書ける。`(i + 1)` で 1 始まりに調整するイディオムは『順位』『ページ番号』『重み付け』などで頻出。`each.with_index(1)` で最初から 1 始まりにする書き方もある。",
+        example:
+          "リストの順位重み付け `posts.each_with_index.sum { |p, i| p.score * (length - i) }` (上位ほど重く)、CSV ファイルの行番号付きエラー報告 `lines.each.with_index(1).each { |l, n| report(n, l) if invalid?(l) }`、検索結果のリレバンススコア計算、表示順序付きリストの並び替え、など。",
+        pitfall:
+          "`each_with_index` は **0 始まり**。表示用に 1 始まりにしたい場合は `(i + 1)` で +1 するか、`each.with_index(1)` を使う。Range を使う `arr.zip(1..)` も同じ結果だが、可読性で `each.with_index(1)` の方が意図が明確。さらに長大なチェーンは中間結果を変数化したり enum 化 (`enum_for(:each_with_index)`) して読みやすくする。",
+      },
       codeExample:
         "# 1始まりにする\n[10, 20, 30].each.with_index(1).map { |x, i| x * i }.sum\n#=> 140\n\n# zip でも書ける\narr.zip(1..).map { |x, i| x * i }.sum",
+      commonMistakes: [
+        "each_with_index は 0 始まり。1 始まりが欲しいなら `each.with_index(1)`。",
+        "長いメソッドチェーンは中間結果を変数化して可読性を保つ。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Enumerable#each_with_index / Enumerator#with_index",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Enumerable/i/each_with_index.html",
+        },
+      ],
     },
   },
   {
