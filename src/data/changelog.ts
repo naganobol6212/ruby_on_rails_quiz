@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-25-g",
+    date: "2026-05-25",
+    title: "Code Reading cr-006〜010 の解説拡充 (Phase 2)",
+    badge: "content",
+    highlights: [
+      "cr-006 (super チェーン) / cr-007 (メソッドチェーン読解) / cr-008 (||= の落とし穴) / cr-009 (sort_by 降順 + Top N) / cr-010 (ネスト each = 直積)",
+      "メソッドチェーン読解と Ruby のイディオム理解を深掘り",
+      "進捗: 135/149 問 (91%)",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-25-f",
     date: "2026-05-25",
     title: "Code Reading カテゴリの解説拡充スタート (cr-001〜005)",

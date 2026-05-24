@@ -5637,6 +5637,12 @@ export const questions: Question[] = [
       "yip",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。Puppy#sound の super → Dog#sound (内部で super → Animal#sound = 'generic') → 'generic + bark' → Puppy で 'generic + bark + yip'。",
+      "Dog の `+ bark` 部分が抜けている。super チェーンが Dog を経由するのを忘れている。",
+      "Animal の 'generic' 部分が抜けている。一番下 (Animal) から super チェーンが始まる。",
+      "Puppy 部分だけにはならない。super チェーンで全階層の値が積み上がる。",
+    ],
     hints: [
       "`super` は親クラスの同名メソッドを呼ぶ。",
       "Puppy#sound → super で Dog#sound → super で Animal#sound。",
@@ -5647,8 +5653,30 @@ export const questions: Question[] = [
         "super チェーンで親→孫の順に評価され、結果が文字列で積み上がる。",
       reason:
         "Puppy#sound が呼ばれ、内部の `super` で Dog#sound が呼ばれる。Dog#sound の中の `super` で Animal#sound → 'generic'。これを使って Dog は 'generic + bark'、それを使って Puppy は 'generic + bark + yip' を返す。",
+      beginnerExplanation:
+        "**super チェーン** の典型的な読解問題。継承階層を上に辿る動きを追跡します。\n\n**継承階層**: Animal ← Dog ← Puppy\n\n**実行の流れ**:\n1. `Puppy.new.sound` が呼ばれる\n2. Puppy#sound 内の `super` が Dog#sound を呼ぶ\n3. Dog#sound 内の `super` が Animal#sound を呼ぶ\n4. Animal#sound は 'generic' を返す ← **ここから戻り始める**\n5. Dog#sound は `'generic' + ' + bark'` = 'generic + bark' を返す\n6. Puppy#sound は `'generic + bark' + ' + yip'` = **'generic + bark + yip'** を返す\n\n**読み方のコツ**: super チェーンは **下に降りて上に戻る** イメージ。最深の祖先 (Animal) からスタートして、戻りながら各クラスの処理が加算される。\n\n**ancestors 確認**:\n```ruby\nPuppy.ancestors\n# => [Puppy, Dog, Animal, Object, Kernel, BasicObject]\n```\n上から順に探索される。super はこの順に親へ。\n\n**super の書き分け** (復習):\n- `super` (括弧なし) → 現在の引数を引き継いで親へ\n- `super()` (空括弧) → 引数なしで親へ\n- `super(a, b)` → 指定引数で親へ\n\n**実用例 (テンプレートメソッドパターン)**:\n```ruby\nclass BaseProcessor\n  def call\n    validate!\n    perform\n    notify\n  end\nend\n\nclass PostProcessor < BaseProcessor\n  def call\n    super              # validate → perform → notify\n    log_completion     # 追加処理\n  end\nend\n```",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は 'generic + bark + yip'。Puppy#sound → super (Dog#sound) → super (Animal#sound = 'generic') と継承チェーンを上に辿り、戻りながら各クラスの処理が文字列に積み上がる。",
+        reason:
+          "Ruby の `super` キーワードは『現在のメソッドと同名の親クラスのメソッドを呼ぶ』機能で、継承階層を辿るテンプレートメソッドパターンを実現する。super チェーンは深く潜って戻ってくる動きで、戻りながら各層の追加処理が反映される。これによりサブクラスは『親の振る舞いを保ちつつ拡張する』という安全な継承拡張を書ける。",
+        example:
+          "Rails の ApplicationController で `before_action :authenticate_user!` を override して `def authenticate_user!; super; record_login_time; end` のように super で親の認証を実行しつつ追加処理。Devise の認証 flow も super チェーンで段階的にカスタマイズ可能。STI で `class FeaturedPost < Post` の `publish!` を super 経由で拡張、など。",
+        pitfall:
+          "super の代わりに `Parent.instance_method(:sound).bind(self).call` のような明示呼び出しもできるが、super の方が読みやすい。super 連鎖が深くなると『どこから何が来ているか』が追えなくなるので、Class.ancestors で継承順を確認するのが大事。さらに super 内で raise すると、その例外は super チェーン全体を上に伝播する (通常の例外処理と同じ)。",
+      },
       codeExample:
         "# ancestors で継承チェーンを確認\nPuppy.ancestors\n#=> [Puppy, Dog, Animal, Object, ...]\n\n# super と super() の違い\n#   super   → 現在のメソッドの引数をそのまま親に渡す\n#   super() → 引数なしで親を呼ぶ",
+      commonMistakes: [
+        "super チェーンが深くなると追跡困難。Class.ancestors で継承順を確認。",
+        "super を書き忘れると親の処理がスキップされる (継承の意味が薄れる)。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: super",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fcall.html#super",
+        },
+      ],
     },
   },
   {
@@ -5660,6 +5688,12 @@ export const questions: Question[] = [
     code: 'arr = ["apple", "banana", "cherry", "avocado"]\n\nresult = arr\n  .select { |w| w.start_with?("a") }\n  .map(&:length)\n  .max\n\nputs result',
     choices: ["7", "5", "6", "nil"],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。'a' で始まる単語は 'apple' (5 文字) と 'avocado' (7 文字)。最大値は 7。",
+      "'apple' の長さ。最大ではない。'avocado' の方が長い (7 文字) ので max は 7。",
+      "6 文字の単語は無い。'banana', 'cherry' (6文字) は 'a' で始まらないので select で除外される。",
+      "select の結果は空配列ではないので nil にはならない。",
+    ],
     hints: [
       "`select` で 'a' で始まる単語 → ['apple', 'avocado']。",
       "`map(&:length)` で長さを取得 → [5, 7]。",
@@ -5670,8 +5704,30 @@ export const questions: Question[] = [
         "'a' で始まる単語の最大文字数を求めるパイプライン。",
       reason:
         "select で apple, avocado を抽出 → map で長さ [5, 7] → max で 7。Rails/Ruby ではこのようなメソッドチェーンが頻出。読みやすさのため改行 + インデントを推奨。",
+      beginnerExplanation:
+        "**メソッドチェーン** の典型的なパイプライン処理。Ruby らしい関数型スタイルのコード読解問題。\n\n**コード分解** (改行 + インデントで読みやすく):\n```ruby\narr = ['apple', 'banana', 'cherry', 'avocado']\n\nresult = arr\n  .select { |w| w.start_with?('a') }   # 'a' 始まりだけ残す → ['apple', 'avocado']\n  .map(&:length)                        # 長さを取る → [5, 7]\n  .max                                  # 最大値 → 7\n```\n\n**ステップ別追跡**:\n\n| ステップ | 結果 |\n|---|---|\n| 初期配列 | `['apple', 'banana', 'cherry', 'avocado']` |\n| select | `['apple', 'avocado']` |\n| map(&:length) | `[5, 7]` |\n| max | `7` |\n\n**メソッドチェーンの読み方**:\n- **左から右** に流れる順で処理を追う\n- 各ステップで何が入力 → 何が出力かを把握\n- **データの形 (Array / Hash / Integer)** がどう変わるか意識\n\n**短い書き方**:\n```ruby\n# filter_map (Ruby 2.7+) で 1 ステップ\narr.filter_map { |w| w.length if w.start_with?('a') }.max\n# => 7\n```\n\n**実用例 (Rails)**:\n```ruby\n# 最近 1 週間のアクティブユーザの投稿数の最大値\nUser.active\n  .where('last_login_at > ?', 1.week.ago)\n  .map { |u| u.posts.count }\n  .max\n```\n大規模データなら DB レベルでやる方が効率的:\n```ruby\nUser.active.where('last_login_at > ?', 1.week.ago)\n  .joins(:posts).group('users.id').maximum('posts.count')\n```\n\n**Tip**: メソッドチェーンは改行 + インデントで書くと読みやすい。`.method` を行頭に持ってくる Rubocop の Style/MultilineMethodCallIndentation の設定もある。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は 7。select で 'a' 始まりの単語を抽出 → map で各単語の length を取得 → max で最大値。`['apple' (5), 'avocado' (7)]` から最大の 7 が返る。",
+        reason:
+          "メソッドチェーンは『データを段階的に変換するパイプライン』として読むのが基本。各 Enumerable メソッドの戻り値が次の入力になり、最終的に求める結果を得る。Ruby ではこの宣言的スタイルが好まれ、ループ + 条件分岐で書くより簡潔。",
+        example:
+          "現場では『最近のアクティブユーザの最大投稿数』のような集計や、『特定タグを持つ記事のうち最新のもの』のような絞り込み + 並び替え + 取得など、複雑なクエリ的処理を Enumerable チェーンで書く。Rails の AR では DB クエリで書く方が効率的だが、メモリ上のデータ処理ではこのパイプライン形が標準。",
+        pitfall:
+          "メソッドチェーンが長くなると可読性が落ちるので、3〜4 ステップを超えたら中間変数で分割するか、別メソッドに抜き出す。さらに select / map / reduce の組み合わせは `filter_map` (Ruby 2.7+) などの専用メソッドで圧縮できる場合がある。AR の Relation チェーンに対して Enumerable メソッドを混ぜると、意図せず全件メモリロードする (`User.all.select { ... }`) ので、DB レベルの絞り込み (where) で済むなら優先する。",
+      },
       codeExample:
         '# 1 行で書くと\narr.select { |w| w.start_with?("a") }.map(&:length).max\n\n# filter_map を使って圧縮 (Ruby 2.7+)\narr.filter_map { |w| w.length if w.start_with?("a") }.max',
+      commonMistakes: [
+        "メソッドチェーンが 4 ステップ以上なら中間変数や別メソッドに分割して可読性を保つ。",
+        "AR の Relation に Enumerable を混ぜると全件メモリロード。DB レベルで絞り込みを完結させる。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Enumerable",
+          url: "https://docs.ruby-lang.org/ja/latest/class/Enumerable.html",
+        },
+      ],
     },
   },
   {
@@ -5688,6 +5744,12 @@ export const questions: Question[] = [
       "default / default / default",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。`||=` は『nil または false なら代入』なので、false も上書きされる。nil → default、false → default、'hi' (truthy) → そのまま。",
+      "false が保持されるためには `.nil?` で明示判定する必要がある。`||=` は false でも発火するので default に上書きされる。",
+      "1 つ目は ||= で 'default' に上書きされるので nil ではない。",
+      "'hi' は truthy なので ||= は発火しない。'hi' のまま。",
+    ],
     hints: [
       "`||=` は『nil または false なら代入』。",
       "false も falsy なので 'default' で上書きされる。",
@@ -5698,10 +5760,29 @@ export const questions: Question[] = [
         "`||=` は nil/false 両方で発火する。false を保持したい時は注意。",
       reason:
         "`a ||= b` は `a = a || b` の糖衣構文。a が nil または false なら b を代入。false を有効な値として保持したいなら `a = b if a.nil?` のように `.nil?` で明示判定する。",
+      beginnerExplanation:
+        "**`||=`** の **意外な挙動** を理解する重要問題。Ruby の真偽判定の本質と合わせて理解。\n\n**`||=` の意味**:\n```ruby\na ||= b\n# は\na = a || b\n# の糖衣構文。a が falsy (nil または false) なら b を代入。\n```\n\n**コードの動き**:\n```ruby\nmaybe_set(nil)      # value = nil → falsy → 'default' に上書き → 'default'\nmaybe_set(false)    # value = false → falsy → 'default' に上書き → 'default'  ⚠️\nmaybe_set('hi')     # value = 'hi' → truthy → 上書きしない → 'hi'\n```\n\n**🚨 落とし穴**: `false` を **『有効な値』として保持したい場面** で `||=` を使うとバグります!\n\n```ruby\ndef configure(enabled:)\n  enabled ||= true   # ❌ 危険\n  # 利用者が enabled: false を渡しても true に上書きされる!\nend\n```\n\n**修正**:\n```ruby\ndef configure(enabled:)\n  enabled = true if enabled.nil?   # ✅ nil のときだけデフォルト\nend\n```\n\n**Hash のデフォルト値の扱い**:\n```ruby\nh = { flag: false }\n\nh[:flag] ||= true           # h[:flag] = true ⚠️ (false が消える)\nh[:flag] = true unless h.key?(:flag)   # OK (キー存在チェック)\nh.fetch(:flag, true)        # => false (キーがあるので default 使わない)\n```\n\n**`||=` を安全に使える場面**:\n- 文字列のデフォルト (nil なら 'default')\n- 配列のデフォルト (nil なら [])\n- メモ化 (nil なら計算)\n```ruby\ndef expensive_calc\n  @cache ||= compute!   # @cache が nil なら計算してキャッシュ\nend\n```\n\n**真偽値 (boolean) には絶対使わない** のが鉄則。`.nil?` で明示的にチェックする。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は 'default / default / hi'。`||=` は左辺が falsy (nil または false) なら右辺を代入する糖衣構文。nil と false の両方で発火するため、false を有効な値として保持したい場面ではバグの温床になる。",
+        reason:
+          "`a ||= b` は `a = a || b` の短縮形で、Ruby の `||` 演算子の挙動 (左辺が truthy なら左辺、falsy なら右辺) に基づく。nil と false の両方が falsy なので、boolean フラグや 0、空文字列を保持したい場面では意図しない上書きが起きる。`.nil?` で明示判定するか、`unless x.nil?` のガードを使うのが安全。",
+        example:
+          "メモ化で `@cache ||= compute!` (nil なら計算、それ以外はキャッシュ)、配列の初期化 `@list ||= []`、文字列のデフォルト `name ||= 'guest'` などは安全。一方、boolean フラグ (`enabled ||= true`)、Hash の値が false かもしれない場面、0 を有効値とする整数フラグなどでは `||=` は使えない。明示的に `if x.nil?` でチェック。",
+        pitfall:
+          "boolean を扱う際の `||=` は典型的なバグ源。`enabled ||= true` のコードがコードレビューで指摘されずにマージされ、本番でフラグが効かないという事故が頻発する。さらに `0 ||= 99` は 0 が truthy なので発火しないが、`nil ||= 99` は 99 になる。挙動が微妙に違うので、nil 判定が必要な場面では `.nil?` で明示するのが堅牢。",
+      },
       codeExample:
         "# false を保持したい場合\nvalue = b if value.nil?\n\n# Hash でデフォルト値 (false も保持)\nh[:key] = default unless h.key?(:key)\nh.fetch(:key, default)\n\n# Hash#fetch なら nil/false も区別可\nh = { flag: false }\nh.fetch(:flag, true)   #=> false (キーが存在するので)\nh[:flag] || true       #=> true (falseだと上書きされてしまう)",
       commonMistakes: [
-        "boolean フラグに `||=` を使うと false が上書きされてバグになる。",
+        "boolean フラグに `||=` を使うと false が上書きされてバグになる。`.nil?` で明示判定。",
+        "Hash の値に `||=` も同じ罠。`fetch` か `key?` チェックで対処。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: 演算子 (||=)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2foperator.html",
+        },
       ],
     },
   },
@@ -5719,6 +5800,12 @@ export const questions: Question[] = [
       "Bob, Alice",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。score 降順: Bob(95) → Dave(88) → Alice(80) → Carol(72)。上位 2 名は Bob と Dave。",
+      "Alice (80) は 3 位。Bob は 1 位だが、2 位は Dave (88)。",
+      "Carol は最下位、Alice は 3 位。降順 ('-u[:score]') の意味を取り違えると上位ではなく下位を取ってしまう。",
+      "Bob は 1 位だが Alice は 3 位。2 位は Dave (88)。",
+    ],
     hints: [
       "`-u[:score]` で降順ソート (大きい方が先頭)。",
       "上位 2 名は Bob (95) と Dave (88)。",
@@ -5729,8 +5816,30 @@ export const questions: Question[] = [
         "スコア降順 → 上位 2 名 → 名前抽出 → カンマ結合のパイプライン。",
       reason:
         "score 降順: Bob(95), Dave(88), Alice(80), Carol(72)。first(2) で Bob と Dave。map で name 取り出し → join で 'Bob, Dave'。`sort_by { -x }` は降順の定番イディオム。`sort_by { x }.reverse` も同じ意味だが計算量は同等。",
+      beginnerExplanation:
+        "**降順ソート + Top N 取得 + 抽出 + 結合** のパイプライン処理。実務でランキング表示などで頻出。\n\n**ステップ別追跡**:\n```ruby\nusers = [Alice(80), Bob(95), Carol(72), Dave(88)]\n\n# Step 1: sort_by { |u| -u[:score] }  ← マイナスで降順\n#   → [Bob(95), Dave(88), Alice(80), Carol(72)]\n\n# Step 2: .first(2)  ← 上位 2 名\n#   → [Bob(95), Dave(88)]\n\n# Step 3: .map { |u| u[:name] }  ← name 抽出\n#   → ['Bob', 'Dave']\n\n# Step 4: .join(', ')  ← カンマ結合\n#   → 'Bob, Dave'\n```\n\n**降順ソートのイディオム**:\n```ruby\n# パターン 1: マイナス符号 (Float / Integer)\nusers.sort_by { |u| -u[:score] }\n\n# パターン 2: sort + reverse (どんな型でも OK)\nusers.sort_by { |u| u[:score] }.reverse\n\n# パターン 3: max_by(N) で sort + first より速い\nusers.max_by(2) { |u| u[:score] }    # => 上位 2\n```\n\n**Rails (DB レベル)**:\n```ruby\nUser.order(score: :desc).limit(2).pluck(:name)\n# SQL: SELECT name FROM users ORDER BY score DESC LIMIT 2\n```\nDB レベルなら全件メモリロード不要で高速。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は 'Bob, Dave'。`sort_by { |u| -u[:score] }` で score 降順 → `first(2)` で上位 2 名 → `map { |u| u[:name] }` で名前抽出 → `join(', ')` でカンマ結合。",
+        reason:
+          "ランキング上位 N 件取得は実務頻出パターン。`sort_by` の引数にマイナスを付けることで降順ソート、`first(N)` で先頭 N 件、`map` で必要な属性だけ抽出、`join` で表示用文字列化、という段階的なパイプラインで宣言的に書ける。データ量が多い場合は `max_by(N)` がより効率的、DB データなら `order().limit().pluck()` で SQL レベル処理が最速。",
+        example:
+          "ダッシュボードの『今月の売上トップ 5 商品』、SNS の『フォロワー数上位 10 アカウント』、ブログの『閲覧数ランキング上位 20 記事』など、ランキング表示で頻出。Rails では DB レベルでの ORDER BY DESC + LIMIT が標準。",
+        pitfall:
+          "メモリ上の sort_by は全件読み込んでからソートするので大量データに不向き。AR では `User.order(score: :desc).limit(2)` で DB レベルソート + LIMIT する。マイナス符号は Float/Integer 限定で、Date/Time/String では使えない (この場合 `sort_by { |u| u[:score] }.reverse` か比較メソッド使用)。",
+      },
       codeExample:
         "# max_by を使うと sort+first より速い\nusers.max_by(2) { |u| u[:score] }.map { |u| u[:name] }\n#=> ['Bob', 'Dave']\n\n# Rails の ActiveRecord ならDBでソート\nUser.order(score: :desc).limit(2).pluck(:name)",
+      commonMistakes: [
+        "メモリ上で sort_by + first(N) するより max_by(N) の方が効率的。",
+        "DB データなら必ず DB レベルで order + limit。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Enumerable#max_by",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Enumerable/i/max_by.html",
+        },
+      ],
     },
   },
   {
@@ -5747,6 +5856,12 @@ export const questions: Question[] = [
       "[60]",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。外側 [1,2,3] × 内側 [10,20] の二重ループで全ペアの積を生成: 1*10=10, 1*20=20, 2*10=20, 2*20=40, 3*10=30, 3*20=60。",
+      "内側ループの最後の値だけ使った場合の結果。実際は内側ループが全要素回る。",
+      "同じインデックス位置だけ掛ける zip 的な処理の結果。ネスト each は直積になるので異なる。",
+      "1 要素だけになるのは最終結果だけ取った場合。実際はループで蓄積されるので 6 要素。",
+    ],
     hints: [
       "二重ループの直積。",
       "i=1: 1*10, 1*20 → 10, 20",
@@ -5757,8 +5872,30 @@ export const questions: Question[] = [
         "ネストした each による直積。1×{10,20}, 2×{10,20}, 3×{10,20}。",
       reason:
         "外側ループの各 i に対して内側ループが回り、ペアを生成。`product` メソッドを使うと同じことが宣言的に書ける。",
+      beginnerExplanation:
+        "**ネストした each (二重ループ)** の典型コード。直積 (Cartesian Product) の理解問題。\n\n**実行トレース**:\n```\ni=1: j=10 → 10、j=20 → 20\ni=2: j=10 → 20、j=20 → 40\ni=3: j=10 → 30、j=20 → 60\n```\n→ `[10, 20, 20, 40, 30, 60]`\n\n**最終配列の要素数** = 外側要素数 × 内側要素数 = 3 × 2 = 6。\n\n**より宣言的な書き方** (`product`):\n```ruby\n[1, 2, 3].product([10, 20]).map { |a, b| a * b }\n# => [10, 20, 20, 40, 30, 60]\n```\n`Array#product(other)` は **全ペア (直積)** を `[[a, b], ...]` の形で返します。\n\n**`flat_map` でも書ける**:\n```ruby\n[1,2,3].flat_map { |i| [10,20].map { |j| i * j } }\n# => [10, 20, 20, 40, 30, 60]\n```\n\n**実用例**:\n- 商品 × カラー全組み合わせ生成\n- 月 × 年で日付組み立て\n- A/B テストの全パターン\n\n**Tip**: 二重ループは O(n*m) の計算量。大量データではパフォーマンスに注意。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は `[10, 20, 20, 40, 30, 60]`。外側 [1,2,3] と内側 [10,20] のネスト each で全ペアの積 (Cartesian Product) が順に配列に積まれる。配列の長さは外側 × 内側 = 6。",
+        reason:
+          "ネストした each は数学的な直積 (Cartesian Product) を生成する典型パターン。各外側要素について内側全要素を回るため、計算量は O(n*m)。同じ処理を Ruby らしく書くなら `Array#product` で全ペアを宣言的に取れる、または `flat_map` で 1 段平坦化する書き方もある。",
+        example:
+          "服のサイズ × カラーの全在庫組み合わせ生成 `sizes.product(colors)`、月 × 年で日付組み立て、A/B テストの全条件マトリクス、Tournament 形式の全対戦組み合わせ、SQL の CROSS JOIN 的な処理など。",
+        pitfall:
+          "ネスト each は O(n*m) で大量データでは爆発する (1000 × 1000 = 100 万件)。さらに 3 重以上のネストはほぼ常にリファクタリング対象 (O(n^3) は実用不可)。`product` で書き直すことで宣言的になり可読性も上がる。Rails の AR ではこういう全組み合わせは DB の CROSS JOIN や別テーブル設計で表現するのが本筋。",
+      },
       codeExample:
         "# product で書き直し\n[1, 2, 3].product([10, 20]).map { |a, b| a * b }\n#=> [10, 20, 20, 40, 30, 60]\n\n# flat_map でも書ける\n[1,2,3].flat_map { |i| [10,20].map { |j| i * j } }",
+      commonMistakes: [
+        "ネスト each は O(n*m) で大規模データには不向き。product で書き直すか、設計を見直す。",
+        "3 重以上のネストはほぼ常にリファクタリング対象。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: Array#product",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Array/i/product.html",
+        },
+      ],
     },
   },
   {
