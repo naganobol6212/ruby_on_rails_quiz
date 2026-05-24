@@ -17,6 +17,20 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-26-j",
+    date: "2026-05-26",
+    title: "🔧 Study Guide に Git を追加 (7 章)",
+    badge: "content",
+    highlights: [
+      "🔧 Git の地図 — 履歴を読む・書く・直す (新規ガイド、7 章 / 約 60 分)",
+      "1. 3 エリア (作業ツリー/インデックス/リポジトリ) / 2. ブランチとマージ戦略 (merge/rebase/squash) / 3. リモートとコラボ (fetch/pull/push) / 4. 履歴の修正と救出 (amend/stash/reset/revert/reflog) / 5. 高度操作 (cherry-pick/bisect/-i rebase/worktree) / 6. GitHub と PR (gh CLI / Branch Protection / Conventional Commits) / 7. GitHub Actions と運用 (matrix/secrets/OIDC/ブランチ戦略)",
+      "git-001 〜 git-016 の全 16 問と相互リンク",
+      "force-with-lease、reflog 救出、interactive rebase、worktree など『中級者の壁』を実例で解説",
+      "Guide 総数: 8 → 9、章総数: 56 → 63",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-26-i",
     date: "2026-05-26",
     title: "💚 Study Guide に Nuxt を追加 (7 章)",
