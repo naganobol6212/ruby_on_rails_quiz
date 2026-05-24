@@ -17,6 +17,21 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-26-g",
+    date: "2026-05-26",
+    title: "⚛️ Study Guide に React を追加 (7 章)",
+    badge: "content",
+    highlights: [
+      "⚛️ React の地図 — 宣言的 UI と Hooks の世界 (新規ガイド、7 章 / 約 60 分)",
+      "1. JSX とコンポーネント / 2. useState と useReducer / 3. useEffect と You Might Not Need an Effect / 4. Context / Custom Hook / 状態管理ライブラリ / 5. フォームと Ref / 6. パフォーマンスと React Compiler / 7. Suspense / Error Boundary / Server Components",
+      "useEffect の典型アンチパターン 4 つ、関数更新の罠、props を mutate しない原則など実務直結のトピックを実例付きで",
+      "Zustand / TanStack Query / React Hook Form / react-error-boundary など現代の主要ライブラリと使い分けを解説",
+      "React 19 の use() Hook / Server Actions / useOptimistic / React Compiler までフォロー",
+      "Guide 総数: 5 → 6 (Ruby / JS / TS / Python / SQL / React)、章総数: 35 → 42",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-26-f",
     date: "2026-05-26",
     title: "🗃️ Study Guide に SQL を追加 (7 章)",
