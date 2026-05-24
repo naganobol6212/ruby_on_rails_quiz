@@ -1,9 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CommandPalette } from "@/components/CommandPalette";
+import { BottomNav } from "@/components/BottomNav";
+import { PWARegister } from "@/components/PWARegister";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,6 +21,31 @@ export const metadata: Metadata = {
   title: "CodeDojo — 複数の言語/FW をクイズで横断学習",
   description:
     "Ruby/Rails・JavaScript・TypeScript・React・Next.js などをクイズで学べる学習プラットフォーム。構造化ジャーナル機能付き。",
+  manifest: "/manifest.webmanifest",
+  applicationName: "CodeDojo",
+  appleWebApp: {
+    capable: true,
+    title: "CodeDojo",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
 };
 
 const themeInitScript = `(function(){try{var t=localStorage.getItem('rrq_theme');var root=document.documentElement;if(t==='dark'){root.classList.add('dark');root.style.colorScheme='dark';}else{root.style.colorScheme='light';}}catch(e){}})();`;
@@ -46,14 +73,16 @@ export default function RootLayout({
           </div>
           <SiteHeader />
           <CommandPalette />
-          <main>{children}</main>
-          <footer className="mt-16 border-t border-zinc-200/70 py-8 text-center text-[11px] text-zinc-500 dark:border-white/5 dark:text-zinc-500">
+          <main className="pb-16 sm:pb-0">{children}</main>
+          <footer className="mt-16 border-t border-zinc-200/70 py-8 pb-24 text-center text-[11px] text-zinc-500 dark:border-white/5 dark:text-zinc-500 sm:pb-8">
             <div className="mx-auto max-w-5xl px-6">
               <p>
                 💎 CodeDojo · 学習データは LocalStorage に保存されます
               </p>
             </div>
           </footer>
+          <BottomNav />
+          <PWARegister />
         </ThemeProvider>
       </body>
     </html>

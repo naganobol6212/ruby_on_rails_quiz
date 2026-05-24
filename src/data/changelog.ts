@@ -17,6 +17,20 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-27-a",
+    date: "2026-05-27",
+    title: "📱 PWA 化 + モバイル下部ナビ + オフライン読了",
+    badge: "feat",
+    highlights: [
+      "📱 PWA manifest.webmanifest + Service Worker でホーム画面にインストール可能に",
+      "📡 オフラインでも一度開いた参考書 / クイズはキャッシュから読める (/offline ページにフォールバック)",
+      "📲 モバイル下部ナビゲーション (5 タブ: ホーム / 学習 / 参考書 / 課題 / ノート) — safe-area-inset 対応",
+      "🎨 SVG アプリアイコン (gem 💎) + maskable 用も同梱、theme_color と viewport-fit を設定",
+      "🏠 アプリショートカット 3 つ (ロードマップ / 参考書 / CRUD 課題) — Android ロングプレス対応",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-26-l",
     date: "2026-05-26",
     title: "🛡️ Study Guide に InfoSec を追加 — 全 11 トラック完走 (7 章)",

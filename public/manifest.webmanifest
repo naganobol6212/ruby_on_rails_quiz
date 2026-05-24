@@ -1,0 +1,47 @@
+{
+  "name": "CodeDojo — クイズで横断学習",
+  "short_name": "CodeDojo",
+  "description": "Ruby/Rails・JS/TS・React/Next.js・Python・SQL・Git・Linux・InfoSec をクイズで学べる学習プラットフォーム",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fafafa",
+  "theme_color": "#e11d48",
+  "lang": "ja",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "ロードマップ",
+      "short_name": "Roadmap",
+      "url": "/roadmap",
+      "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "参考書",
+      "short_name": "Guide",
+      "url": "/guide",
+      "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "CRUD 課題",
+      "short_name": "CRUD",
+      "url": "/crud",
+      "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    }
+  ]
+}
