@@ -339,6 +339,7 @@ export function QuizRunner({
                 key={current.id}
                 questionId={current.id}
                 sampleSummary={current.explanation.summary}
+                modelSelfExplanation={current.explanation.modelSelfExplanation}
               />
 
               {/* 回答後のレビューマーク (大きく、目立つ場所) */}
@@ -466,6 +467,7 @@ function ChoiceArea({
       {question.choices.map((c, i) => {
         const isChosen = choice === i;
         const isAnswer = question.answerIndex === i;
+        const why = question.choiceExplanations?.[i];
 
         let cls =
           "border-zinc-200 bg-white hover:border-rose-400 hover:bg-rose-50/40 dark:border-white/10 dark:bg-white/5 dark:hover:border-rose-400/40 dark:hover:bg-white/[0.07]";
@@ -479,38 +481,91 @@ function ChoiceArea({
             "border-rose-400 bg-rose-50/60 ring-2 ring-rose-500/20 dark:bg-rose-500/10";
 
         return (
-          <button
-            key={i}
-            type="button"
-            disabled={showResult}
-            onClick={() => setChoice(i)}
-            className={`group w-full overflow-hidden rounded-xl border px-4 py-3.5 text-left text-sm transition disabled:cursor-not-allowed ${cls}`}
-          >
-            <div className="flex items-start gap-3">
-              <span
-                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md font-mono text-[11px] font-bold ${
-                  showResult && isAnswer
-                    ? "bg-emerald-500 text-white"
-                    : showResult && isChosen
-                      ? "bg-rose-500 text-white"
-                      : "bg-zinc-100 text-zinc-700 group-hover:bg-rose-100 group-hover:text-rose-700 dark:bg-white/10 dark:text-zinc-300 dark:group-hover:bg-rose-500/30 dark:group-hover:text-rose-100"
-                }`}
-              >
-                {String.fromCharCode(65 + i)}
-              </span>
-              <code className="flex-1 font-mono text-[13px] leading-relaxed text-zinc-900 dark:text-zinc-100">
-                {c}
-              </code>
-              {showResult && isAnswer && (
-                <span className="text-emerald-600 dark:text-emerald-400">✓</span>
-              )}
-              {showResult && isChosen && !isAnswer && (
-                <span className="text-rose-600 dark:text-rose-400">✕</span>
-              )}
-            </div>
-          </button>
+          <div key={i}>
+            <button
+              type="button"
+              disabled={showResult}
+              onClick={() => setChoice(i)}
+              className={`group w-full overflow-hidden rounded-xl border px-4 py-3.5 text-left text-sm transition disabled:cursor-not-allowed ${cls}`}
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md font-mono text-[11px] font-bold ${
+                    showResult && isAnswer
+                      ? "bg-emerald-500 text-white"
+                      : showResult && isChosen
+                        ? "bg-rose-500 text-white"
+                        : "bg-zinc-100 text-zinc-700 group-hover:bg-rose-100 group-hover:text-rose-700 dark:bg-white/10 dark:text-zinc-300 dark:group-hover:bg-rose-500/30 dark:group-hover:text-rose-100"
+                  }`}
+                >
+                  {String.fromCharCode(65 + i)}
+                </span>
+                <code className="flex-1 font-mono text-[13px] leading-relaxed text-zinc-900 dark:text-zinc-100">
+                  {c}
+                </code>
+                {showResult && isAnswer && (
+                  <span className="text-emerald-600 dark:text-emerald-400">
+                    ✓
+                  </span>
+                )}
+                {showResult && isChosen && !isAnswer && (
+                  <span className="text-rose-600 dark:text-rose-400">✕</span>
+                )}
+              </div>
+            </button>
+            {showResult && why && (
+              <ChoiceWhy text={why} isAnswer={isAnswer} />
+            )}
+          </div>
         );
       })}
+    </div>
+  );
+}
+
+function ChoiceWhy({ text, isAnswer }: { text: string; isAnswer: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="ml-9 mt-1.5">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium transition ${
+          isAnswer
+            ? "border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/15"
+            : "border-zinc-300 bg-white text-zinc-600 hover:border-rose-300 hover:text-rose-600 dark:border-white/15 dark:bg-white/5 dark:text-zinc-300 dark:hover:border-rose-400/40 dark:hover:text-rose-300"
+        }`}
+      >
+        <span>{isAnswer ? "なぜこれが正解か" : "なぜこれは違うか"}</span>
+        <span
+          className={`transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden
+        >
+          ▾
+        </span>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="overflow-hidden"
+          >
+            <p
+              className={`mt-1.5 rounded-md border-l-4 px-3 py-2 text-[12px] leading-relaxed ${
+                isAnswer
+                  ? "border-emerald-400 bg-emerald-50/60 text-zinc-800 dark:border-emerald-500/40 dark:bg-emerald-500/[0.06] dark:text-zinc-100"
+                  : "border-zinc-300 bg-zinc-50/70 text-zinc-700 dark:border-white/20 dark:bg-white/[0.03] dark:text-zinc-200"
+              }`}
+            >
+              {text}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

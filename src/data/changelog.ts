@@ -17,6 +17,21 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-24-e",
+    date: "2026-05-24",
+    title: "クイズ解説の拡充スタート (Ruby 基礎 rb-001〜005)",
+    badge: "content",
+    highlights: [
+      "💡『もっと噛み砕いて読む』トグルを解説カードに追加 (わからない人向け説明)",
+      "選択肢ごとに『なぜこれが正解 / なぜこれは違うか』のアコーディオン",
+      "🗣️ 自己説明の模範解答を『結論 → 理由 → たとえば → 落とし穴』の 4 ブロック構造に",
+      "公式リンクは『公式』バッジ付きで強調表示",
+      "まず Ruby 基礎の rb-001〜rb-005 に上記すべてを反映 (公式ガイドのリンク追加)",
+      "残り 25 問は次の PR から数問ずつ拡充予定",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-24-d",
     date: "2026-05-24",
     title: "お知らせページ + 保存 UX 改善 + 写経モード拡張",

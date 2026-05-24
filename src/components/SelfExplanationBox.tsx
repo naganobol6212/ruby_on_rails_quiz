@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { setSelfExplanation, getAttempt } from "@/lib/storage";
+import type { ModelSelfExplanation } from "@/lib/types";
 
 type Props = {
   questionId: string;
-  /** 模範となるサマリー (比較用) */
+  /** 模範となるサマリー (比較用) - 簡易版 */
   sampleSummary: string;
+  /** 構造化された模範解答 (結論 / 理由 / 具体例 / 落とし穴)。
+   *  あれば優先的に表示する。 */
+  modelSelfExplanation?: ModelSelfExplanation;
 };
 
 type CheckResult = {
@@ -61,7 +65,11 @@ function selfCheck(text: string): CheckResult[] {
   return checks;
 }
 
-export function SelfExplanationBox({ questionId, sampleSummary }: Props) {
+export function SelfExplanationBox({
+  questionId,
+  sampleSummary,
+  modelSelfExplanation,
+}: Props) {
   const [text, setText] = useState("");
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState(false);
@@ -206,14 +214,42 @@ export function SelfExplanationBox({ questionId, sampleSummary }: Props) {
             >
               <div className="px-3 py-2">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                  模範解説
+                  模範解説 (説明の手本)
                 </p>
-                <p className="mt-1 text-sm leading-relaxed text-zinc-800 dark:text-zinc-200">
-                  {sampleSummary}
-                </p>
+                {modelSelfExplanation ? (
+                  <div className="mt-2 space-y-3 text-sm leading-relaxed text-zinc-800 dark:text-zinc-200">
+                    <ModelPart
+                      label="結論"
+                      tone="emerald"
+                      body={modelSelfExplanation.conclusion}
+                    />
+                    <ModelPart
+                      label="なぜそうなるか"
+                      tone="sky"
+                      body={modelSelfExplanation.reason}
+                    />
+                    <ModelPart
+                      label="たとえば"
+                      tone="violet"
+                      body={modelSelfExplanation.example}
+                    />
+                    {modelSelfExplanation.pitfall && (
+                      <ModelPart
+                        label="落とし穴"
+                        tone="amber"
+                        body={modelSelfExplanation.pitfall}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <p className="mt-1 text-sm leading-relaxed text-zinc-800 dark:text-zinc-200">
+                    {sampleSummary}
+                  </p>
+                )}
               </div>
               <div className="border-t border-zinc-200 bg-amber-50/60 px-3 py-2 text-[10px] text-amber-800 dark:border-zinc-700 dark:bg-amber-950/30 dark:text-amber-200">
-                💡 自分の説明と比べて、抜けていた要素・順序・具体例の有無を確認してみましょう。
+                💡 自分の説明と比べて、<strong>結論 / 理由 / 具体例</strong>{" "}
+                の 3 点が揃っているかをチェック。抜けていたら追記しましょう。
               </div>
             </motion.div>
           )}
@@ -231,6 +267,47 @@ export function SelfExplanationBox({ questionId, sampleSummary }: Props) {
           でまとめて見返せます。
         </p>
       </div>
+    </div>
+  );
+}
+
+const TONE_CLS: Record<string, { label: string; body: string }> = {
+  emerald: {
+    label: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200",
+    body: "border-emerald-300 dark:border-emerald-500/30",
+  },
+  sky: {
+    label: "bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-200",
+    body: "border-sky-300 dark:border-sky-500/30",
+  },
+  violet: {
+    label: "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-200",
+    body: "border-violet-300 dark:border-violet-500/30",
+  },
+  amber: {
+    label: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200",
+    body: "border-amber-300 dark:border-amber-500/30",
+  },
+};
+
+function ModelPart({
+  label,
+  body,
+  tone,
+}: {
+  label: string;
+  body: string;
+  tone: "emerald" | "sky" | "violet" | "amber";
+}) {
+  const cls = TONE_CLS[tone];
+  return (
+    <div className={`rounded-md border-l-4 bg-white/50 px-3 py-2 dark:bg-white/[0.03] ${cls.body}`}>
+      <span
+        className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${cls.label}`}
+      >
+        {label}
+      </span>
+      <p className="mt-1.5 whitespace-pre-wrap leading-relaxed">{body}</p>
     </div>
   );
 }

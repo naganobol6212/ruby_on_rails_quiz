@@ -13,6 +13,12 @@ export const questions: Question[] = [
       "Ruby で「変更不可な、一意な識別子として使われる軽量オブジェクト」を表すリテラルはどれですか？",
     choices: ['"hello"', ":hello", "'hello'", "%w[hello]"],
     answerIndex: 1,
+    choiceExplanations: [
+      "ダブルクォート文字列リテラル。式展開やエスケープが使えるが、同じ値でも呼び出すたびに新しい String オブジェクトが作られるので「一意な識別子」には不向き。",
+      "正解。Symbol リテラル。同じ名前なら常に同じオブジェクト (object_id 一致) で immutable。Hash のキーや状態フラグの定番。",
+      "シングルクォート文字列。リテラル通り (式展開なし) の String を作るが、Symbol と違って一意性はない。",
+      "%w[ ... ] は「シンボルではなく文字列」の配列リテラル。例えば %w[a b c] は ['a','b','c']。シンボル配列が欲しいなら %i[a b c]。",
+    ],
     hints: [
       "文字列とは違い、同じ値であれば常にメモリ上で同じオブジェクトになります。",
       "頭にコロンが付くリテラルです。Hash のキーなどでよく使われます。",
@@ -22,6 +28,18 @@ export const questions: Question[] = [
       summary: "Symbol は immutable で一意なオブジェクト。",
       reason:
         "文字列リテラルは同じ内容でも呼び出すたびに新しいオブジェクトが作られますが、Symbol は同じ名前なら常に同一オブジェクト (object_id が一致) になります。そのため Hash のキーや状態フラグに使うとメモリ効率・比較速度の両面で有利です。",
+      beginnerExplanation:
+        "「文字列」と「シンボル」は見た目が似ていますが別物です。\n\n文字列 \"hello\" は、書くたびに新しい紙にメモを書くイメージ。同じ \"hello\" でも、書いた紙が違えば別のオブジェクトです。比較するときも「中身を 1 文字ずつ照合」する必要があります。\n\nシンボル :hello は、最初に登場したときに 1 つだけ作られて、その後はみんなが同じものを参照します。なので「これと同じか?」の比較が一瞬で済むし、メモリも節約できます。\n\nRuby では、内部のキー (Hash のキー、ステータス名など、人間が決めた限定的な識別子) を扱うときに Symbol を使うのが定番です。一方、ユーザーが入力した文字 (名前・メッセージなど、変化する可能性のあるもの) は String のままにしておきます。",
+      modelSelfExplanation: {
+        conclusion:
+          "Ruby で「変更不可で一意な軽量識別子」を表すのは Symbol で、リテラルは `:hello` のようにコロン付きで書く。",
+        reason:
+          "Symbol は同じ名前なら常に同一オブジェクト (object_id が一致) になる immutable な値で、Ruby 内部でも特別扱いされる。これにより Hash のキー検索や状態比較が `==` (内容比較) ではなく `equal?` (同一性比較) で高速に行え、メモリ使用量も最小限で済む。一方 String は同じ文字列でもリテラルごとに新規オブジェクトが作られるため、識別子用途には向かない。",
+        example:
+          "たとえば Rails の `user.role == :admin` のような状態比較や、`{ name: \"Alice\", age: 20 }` の Hash キー、ActiveRecord の `where(status: :published)` などがすべて Symbol を使う場面。「あらかじめ決まった限定的な名前」なので Symbol が最適。",
+        pitfall:
+          "外部入力 (params など) を `to_sym` で Symbol 化すると、攻撃者に無制限にシンボルを作られメモリリークになるアンチパターン。Ruby 2.2+ で GC 対象にはなったが、原則として「ユーザー入力は文字列のまま扱う」のが安全。",
+      },
       codeExample:
         '"hello".object_id  #=> 70...A (毎回違う)\n"hello".object_id  #=> 70...B\n:hello.object_id   #=> 1234 (常に同じ)\n:hello.object_id   #=> 1234\n\n# Hash のキーは Symbol が定番\nuser = { name: "Alice", age: 20 }',
       commonMistakes: [
@@ -29,8 +47,12 @@ export const questions: Question[] = [
       ],
       references: [
         {
-          label: "docs.ruby-lang.org - Symbol",
+          label: "Ruby 公式リファレンス: Symbol クラス",
           url: "https://docs.ruby-lang.org/ja/latest/class/Symbol.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: リテラル (シンボル / %記法)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fliteral.html",
         },
       ],
     },
@@ -44,6 +66,12 @@ export const questions: Question[] = [
     code: "puts nil.to_s.length",
     choices: ["NoMethodError", "0", "nil", "4"],
     answerIndex: 1,
+    choiceExplanations: [
+      "nil でも NilClass に `to_s` が定義されているのでエラーにはならない。エラーになるのは `nil.length` のように直接呼んだ場合。",
+      "正解。`nil.to_s` は空文字列 `\"\"` を返し、その `length` は 0。",
+      "puts は値を文字列化して出力するため、結果が nil でもそのまま 'nil' という文字列が表示される。だがそもそもこの式の戻り値は 0 (Integer) で nil ではない。",
+      "`nil.to_s` は 'nil' の 3 文字や 'null' の 4 文字ではなく、空文字 `\"\"` を返す。文字列化が「文字としての nil」を返すと考えると間違える。",
+    ],
     hints: [
       "`nil` には `to_s` メソッドがあり、エラーにはなりません。",
       "`nil.to_s` は空文字列 `\"\"` を返します。",
@@ -53,11 +81,33 @@ export const questions: Question[] = [
       summary: "`nil.to_s` は空文字列 `\"\"`、その length は 0。",
       reason:
         "Ruby では nil もオブジェクトで、NilClass に `to_s` / `to_a` / `to_i` などの変換メソッドが定義されています。to_s は空文字を、to_a は空配列を、to_i は 0 を返すように設計されており、メソッドチェーンを切らずに済みます。",
+      beginnerExplanation:
+        "他の言語 (JavaScript の null や Java の null) と違い、Ruby の nil は「ただの空っぽ」ではなく **NilClass のインスタンスというれっきとしたオブジェクト** です。\n\nだから nil に対してもメソッドを呼べます。ただし呼べるのは NilClass に定義されているメソッドだけ。`nil.to_s` や `nil.to_a` は定義されているのでエラーにならず、それぞれ「空っぽの文字列」「空っぽの配列」を返します。\n\nこの設計のおかげで、データが nil かもしれない場面で `if obj.nil?` のガードを書かずに、`obj.to_s.length` のように安全に連結できます。「nil でも空文字として扱われる」ことが分かっていれば、その後の length は当然 0 になります。\n\n一方で `nil.length` のように NilClass に定義されていないメソッドを呼ぶと NoMethodError になります。「nil でも呼べるメソッド」と「呼べないメソッド」を区別するのが大事です。",
+      modelSelfExplanation: {
+        conclusion:
+          "`nil.to_s.length` は 0 を出力する。`nil.to_s` が空文字列 `\"\"` を返し、その length が 0 になるから。",
+        reason:
+          "Ruby の nil は NilClass のインスタンスで、メソッドを持つオブジェクト。NilClass#to_s は空文字列を返すよう仕様で定義されている (`to_a` は空配列、`to_i` は 0 を返す)。これは「nil 経由でメソッドチェーンを途切れさせない」ための設計判断で、長いチェーン中の nil ガードを省略できる。",
+        example:
+          "たとえば Rails の view で `<%= user.name.to_s.upcase %>` のように書けば、user.name が nil でも空文字 → 空文字の upcase で安全に表示できる。`@user.profile.to_a.each { ... }` も nil 安全に each できる。",
+        pitfall:
+          "ただし NilClass に定義されていない `nil.length` や `nil.upcase` は NoMethodError になる。文字列前提のメソッドを呼ぶ前に `.to_s` を挟むか、`&.length` のぼっち演算子で nil を伝搬させる。",
+      },
       codeExample:
         'nil.to_s     #=> ""\nnil.to_a     #=> []\nnil.to_i     #=> 0\nnil.inspect  #=> "nil"\n\n# だから安全にチェインできる\nputs (user&.name || "ゲスト").upcase',
       commonMistakes: [
         '`nil.length` は NoMethodError。`nil&.length` (ぼっち演算子) で nil を返すように。',
         "`nil.to_s` を空文字判定に使う際は注意。`nil.to_s.empty? #=> true`",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: NilClass",
+          url: "https://docs.ruby-lang.org/ja/latest/class/NilClass.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: NilClass#to_s",
+          url: "https://docs.ruby-lang.org/ja/latest/method/NilClass/i/to_s.html",
+        },
       ],
     },
   },
@@ -70,6 +120,12 @@ export const questions: Question[] = [
       "Ruby で「偽 (falsy)」と評価される値はどれですか？(最も正確なもの)",
     choices: ["0", '""', "[]", "false と nil のみ"],
     answerIndex: 3,
+    choiceExplanations: [
+      "Ruby では 0 は truthy。`if 0` は条件成立。これは JS/Python と異なる重要な差。",
+      "Ruby では空文字列 `\"\"` も truthy。`if \"\"` は条件成立。JS では falsy なので要注意。",
+      "Ruby では空配列 `[]` も truthy。`if []` は条件成立。配列が空かを調べるには `array.empty?` を使う。",
+      "正解。Ruby で falsy なのは false と nil の 2 つだけ。「値の有無 (nil)」と「論理的な偽 (false)」だけが偽で、他はすべて真として扱う最小設計。",
+    ],
     hints: [
       "JavaScript や Python とは異なるので注意。",
       '`if 0 then puts "truthy" end` は何を出力するか考えてみましょう。',
@@ -79,10 +135,28 @@ export const questions: Question[] = [
       summary: "Ruby で falsy なのは `false` と `nil` だけ。",
       reason:
         "C/JavaScript/Python では 0 や 空文字列 / 空配列も falsy ですが、Ruby は false と nil のみが falsy。他はすべて truthy です。これは設計上「値の有無 (nil) と論理的な偽 (false) を区別する」ためで、整数や空コレクションも「ある値」として扱います。",
+      beginnerExplanation:
+        "他の言語を経験している人ほどハマるポイントです。\n\nJavaScript では `if (0)` や `if (\"\")` は実行されません (falsy)。Python でも同じく、0 や空リスト [] や空文字列 \"\" は False 扱いです。\n\nですが Ruby では **false と nil 以外は全部 true** として扱います。つまり 0 も、\"\" も、[] も、{} も、`if` の条件に置けば全部成立してブロックが実行されます。\n\nこれは「値があるかどうか (nil)」と「論理的に真か偽か (false)」だけを偽として扱う、シンプルな設計です。数値の 0 や空のコレクションも「立派な値」なので真扱い、というわけです。\n\nそのため Ruby で「配列が空か?」を判定したいなら `if array` ではダメで、`if array.empty?` のように専用メソッドを使います。",
+      modelSelfExplanation: {
+        conclusion:
+          "Ruby で falsy な値は `false` と `nil` の 2 つだけ。それ以外 (0 や空文字列 `\"\"`、空配列 `[]`、空ハッシュ `{}` も含めて) はすべて truthy。",
+        reason:
+          "Ruby の設計思想として「値の有無 (nil) と論理的な偽 (false) は区別すべき特殊な状態であり、それ以外は『存在する値』として真として扱う」というシンプルなルールが採用されている。これにより、整数の 0 や空のコレクションも『有意な値』として扱え、`if obj` という条件で「obj が存在するか (= nil でも false でもないか)」を端的に判定できる。",
+        example:
+          "たとえば `def find_user(id); ...end` が見つからないとき nil を返すなら、`if user = find_user(id)` で「見つかったときだけ実行」を 1 行で書ける。`array.empty?` のチェックを忘れて `if array then process(array) end` と書いても、空配列 `[]` は truthy なので process が実行されてしまう。",
+        pitfall:
+          "JS/Python の感覚で `if array` と書くと、空配列でも条件が成立してしまう。Ruby では `array.empty?` や `array.any?` のように専用メソッドを使うのが正しい。逆に「nil ガード」だけなら `if obj` で十分。",
+      },
       codeExample:
         'if 0       then puts "truthy" end  # => truthy\nif ""      then puts "truthy" end  # => truthy\nif []      then puts "truthy" end  # => truthy\nif false   then puts "truthy" end  # => 出力なし\nif nil     then puts "truthy" end  # => 出力なし',
       commonMistakes: [
         "JS/Python から来ると `if array.length == 0` ではなく `if array` で空判定したくなるが Ruby では誤り。`array.empty?` を使う。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: 制御構造 (条件式と真偽値)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fcontrol.html",
+        },
       ],
     },
   },
@@ -95,6 +169,12 @@ export const questions: Question[] = [
     code: 'a = "hello"\nb = a\nb << " world"\nputs a',
     choices: ["hello", "hello world", "world", "TypeError"],
     answerIndex: 1,
+    choiceExplanations: [
+      "`b = a` は値のコピーではなく参照のコピー。b への破壊的変更は同じオブジェクトを指す a からも見える。",
+      "正解。`b << \" world\"` は同じ String オブジェクトを破壊的に変更するので、a も b も指している中身が `\"hello world\"` になる。",
+      "代入の場合 (`b = \" world\"`) なら b だけ変わるが、`<<` は元のオブジェクトを書き換える別物。",
+      "Ruby の `<<` は文字列同士で型エラーになる演算子ではない (concat と等価)。型不整合エラーが出るのは数値と文字列の `+` などの場合。",
+    ],
     hints: [
       "`a = b` は参照のコピー (同じオブジェクトを指す) です。",
       "`<<` は破壊的メソッドで、文字列自身を変更します。",
@@ -105,11 +185,33 @@ export const questions: Question[] = [
         "`<<` は破壊的に文字列を変更するため、同じオブジェクトを参照している a も変わって見える。",
       reason:
         "Ruby の変数はオブジェクトへの参照です。`b = a` で同じ String オブジェクトを 2 つの変数が指します。`<<` (concat) は新しい文字列を作らずにそのオブジェクト自体を変更するため、a 側にも反映されます。",
+      beginnerExplanation:
+        "Ruby の変数は「値そのもの」ではなく **「オブジェクトを指す矢印 (参照)」** です。\n\n`a = \"hello\"` を実行すると、メモリ上に \"hello\" という String オブジェクトが 1 つ作られ、変数 a がそれを指します。次に `b = a` と書くと、b は a と同じオブジェクトを指す矢印になります。コピーは作られません。\n\nここで `b << \" world\"` を実行します。`<<` は **既存のオブジェクトの中身を書き換える** 破壊的メソッドで、新しい String を作らずに同じオブジェクトに \" world\" を追記します。a も同じオブジェクトを指しているので、a から覗いても中身は \"hello world\" になっています。\n\nもし a を変えたくなければ、`b = a + \" world\"` (新しい String を返す非破壊的な `+`) や、`b = a.dup` (複製を作る) を使います。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は `hello world`。`<<` が破壊的メソッドで、a と b が同じ String オブジェクトを参照しているため、b 経由の変更が a にも反映される。",
+        reason:
+          "Ruby では `b = a` は値コピーではなく参照コピーで、a と b は同じオブジェクトを指す。`<<` (alias: concat) は元のオブジェクトを直接書き換えるため、片方の変数経由で変更してももう片方から見ても変化が反映される。これに対し `b = a + \" world\"` は新しい String を生成して b に代入するだけで、a は元のまま。",
+        example:
+          "たとえば配列でも同じ。`arr = [1,2]; copy = arr; copy << 3` の後 arr は `[1,2,3]` になる。実務では「メソッド引数の配列を破壊的に変更したら呼び出し元にも影響した」というバグの典型例。`arr.dup` や `arr.frozen?` チェックで防ぐ。",
+        pitfall:
+          "`<<` (破壊的) と `+` (非破壊的) は紛らわしい。さらに `+=` は実は `a = a + b` の糖衣構文なので非破壊的という罠もある。意図を明確にしたいなら freeze や frozen_string_literal を使う。",
+      },
       codeExample:
         'a = "hello"\nb = a\nb << " world"   # 破壊的、a も変わる\na  #=> "hello world"\n\n# 非破壊的にする\na = "hello"\nb = a + " world"  # 新しい String が返る\na  #=> "hello"\n\n# 完全に複製する\nb = a.dup',
       commonMistakes: [
         "`+=` は実は非破壊的 (`a = a + b`)。`<<` や `concat` だけが破壊的。",
         "イミュータブルにしたいなら `String#freeze` または `frozen_string_literal: true` マジックコメントを使う。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: String#<< (concat)",
+          url: "https://docs.ruby-lang.org/ja/latest/method/String/i/=3c=3c.html",
+        },
+        {
+          label: "Ruby 公式リファレンス: Object#dup と freeze",
+          url: "https://docs.ruby-lang.org/ja/latest/method/Object/i/dup.html",
+        },
       ],
     },
   },
@@ -126,6 +228,12 @@ export const questions: Question[] = [
       "1 と 2 の両方",
     ],
     answerIndex: 3,
+    choiceExplanations: [
+      "正しい慣習ではあるが、これだけでは不完全。`?` 付きの述語メソッド慣習も同時に存在する。",
+      "正しい慣習ではあるが、これだけでは不完全。`!` 付きの破壊的メソッド慣習も同時に存在する。",
+      "誤り。アンダースコアで可視性を表す慣習は Ruby にはない (Python の `_foo` のような慣習を混同している)。Ruby では `private` キーワードで明示する。",
+      "正解。`!` (破壊的または要注意) と `?` (真偽値を返す) の 2 つは Ruby の標準的な命名慣習で、メソッド名の一部として認識される。",
+    ],
     hints: [
       "`String#upcase!` のような破壊版のメソッドがあります。",
       "`Array#empty?`、`Integer#even?` のような述語メソッドがあります。",
@@ -136,11 +244,33 @@ export const questions: Question[] = [
         "`!` = 破壊的 / 注意が必要、`?` = 真偽値を返す、という慣習。",
       reason:
         "`!` と `?` はメソッド名の一部として認識される識別子で、Ruby のメソッド命名慣習として広く使われます。`!` は『破壊的』というより『驚きがある・要注意』のサインで、対応する非破壊版が存在する時に付けるのが原則 (例: `sort` と `sort!`)。",
+      beginnerExplanation:
+        "Ruby のメソッド名には、英数字以外に末尾に `!` と `?` の 2 つの記号を入れられます。これらはちゃんと意味があって、ライブラリの利用者にヒントを伝えるための慣習です。\n\n**`?` (クエスチョン) は「はい / いいえで答える質問」のメソッド** に付けます。`empty?` は「空ですか?」、`include?` は「含んでいますか?」、`even?` は「偶数ですか?」のように、true か false を返すメソッドの末尾に付けます。コードを読むときに「これは判定メソッドだな」と一目で分かります。\n\n**`!` (エクスクラメーション) は「注意してね」のサイン** です。多くの場合「元のオブジェクトを書き換える破壊的なメソッド」に付けます。`upcase` は新しい文字列を返すだけですが、`upcase!` は元の文字列そのものを大文字に変えてしまいます。同じ名前で `!` 無しの非破壊版が存在するときに付けるのが原則です。\n\nアンダースコア `_foo` で private を表すのは Python の慣習で、Ruby では `private` キーワードで明示します。混同しないように。",
+      modelSelfExplanation: {
+        conclusion:
+          "Ruby の命名慣習として `!` 付き (破壊的・要注意) と `?` 付き (真偽値を返す) の 2 つが実在する。アンダースコア付きで可視性を表す慣習は Ruby には無い。",
+        reason:
+          "`!` と `?` はメソッド名の一部として Ruby パーサに認識される識別子。ライブラリ利用者に「このメソッドは要注意 / 判定用」というコントラクトを名前だけで伝えるための歴史的な慣習で、標準ライブラリ (String, Array, Hash, Integer など) でも一貫して使われている。一方で可視性は `private` / `protected` キーワードで明示的に宣言する文化なので、名前の prefix/suffix で表す慣習は存在しない。",
+        example:
+          "たとえば `arr = [3,1,2]` に対し `arr.sort` は `[1,2,3]` を返すだけで arr は変わらないが、`arr.sort!` は arr 自体を並び替える。`5.even?` は false、`6.even?` は true。Rails では `user.save` (失敗時 false を返す) と `user.save!` (失敗時例外を投げる) のように、`!` で「失敗時の挙動が違う」という意味でも使われる。",
+        pitfall:
+          "「`!` は破壊的」と単純化しすぎると Rails の `save!` (例外を投げる、非破壊的) などで混乱する。`!` は『非破壊版より驚きがある』全般のサインと覚えるのが安全。また `?` メソッドが必ず true/false を返すとは限らず、`Regexp#match` のように MatchData/nil を返すものもあるので戻り値はドキュメントで要確認。",
+      },
       codeExample:
         'str = "hello"\nstr.upcase   #=> "HELLO" (元は変わらず)\nstr.upcase!  #=> "HELLO" (str 自体が変わる)\n\n[].empty?      #=> true\n5.zero?        #=> false\n3.odd?         #=> true\n"abc".include?("b") #=> true',
       commonMistakes: [
         "対応する非破壊版が無いのに `!` を付けるのは慣習違反 (例: `delete!` が単独であるのは紛らわしい)。",
         "`?` 付きメソッドは true/false ではなく nil/値 を返すこともある (例: `Regexp#match?` は true/false だが `Regexp#match` は MatchData/nil)。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: メソッド呼び出し (識別子の規則)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fcall.html",
+        },
+        {
+          label: "RuboCop Style/MethodCallWithoutArgsParentheses 等の Style cops",
+          url: "https://docs.rubocop.org/rubocop/cops_naming.html",
+        },
       ],
     },
   },
