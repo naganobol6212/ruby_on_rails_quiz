@@ -5912,6 +5912,12 @@ export const questions: Question[] = [
       "NoMethodError",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。Admin#greet の super が祖先チェーンを辿り User → Greeter#greet を呼ぶ。Greeter#greet は name を使って 'Hi, I'm Alice' を返し、Admin がそれに '[ADMIN] ' を付加。",
+      "name が空になるのは attr_reader が無い場合。コードには `attr_reader :name` があるので Alice が表示される。",
+      "Admin が prefix を付ける処理 (`'[ADMIN] '`) を見落としている。",
+      "コードは構文的に正しく、メソッド解決順序 (MRO) で Greeter が見つかるので例外は起きない。",
+    ],
     hints: [
       "Admin#greet → super で User の祖先チェーンを辿る。",
       "User 自身には greet 無し → Greeter#greet が呼ばれる。",
@@ -5922,8 +5928,30 @@ export const questions: Question[] = [
         "super は祖先チェーンを辿って一致するメソッドを探す。Mixin (include) も探索対象。",
       reason:
         "Admin#greet 内の super は親方向 (User → Greeter → Object) を順に探す。User に greet が無くても Greeter#greet が見つかるのでそれが呼ばれる。`Admin.ancestors` で順序を確認できる。",
+      beginnerExplanation:
+        "**super と Mixin の組み合わせ** を理解する重要問題。super は **クラス継承だけでなく Mixin も含む祖先チェーン全体** を辿ります。\n\n**祖先チェーン (ancestors)**:\n```ruby\nAdmin.ancestors\n# => [Admin, User, Greeter, Object, Kernel, BasicObject]\n#         ↑      ↑       ↑     (Mixin も含む)\n```\n\n**実行の流れ**:\n1. `Admin.new('Alice').greet` を呼ぶ\n2. Admin#greet 内の `super` が next ancestor を探す\n3. User には greet が **無い** → 次の祖先 Greeter を探す\n4. Greeter#greet が見つかる → 'Hi, I'm Alice' を返す (name は User の attr_reader 経由)\n5. Admin#greet が '[ADMIN] ' を prefix → **'[ADMIN] Hi, I\\'m Alice'**\n\n**super の探索順 = ancestors の順**:\n- 自クラス (Admin) は除外、次の祖先から探す\n- Mixin (include した Module) も対象\n- 一致するメソッドが見つかるまで上に辿る\n- 最後まで見つからなければ NoMethodError\n\n**Mixin の利点**:\n```ruby\nmodule Greeter\n  def greet; \"Hi, I'm #{name}\"; end\nend\n\nclass User; include Greeter; end\nclass Admin < User; def greet; \"[ADMIN] #{super}\"; end; end\nclass Guest; include Greeter; end\n```\n\nGreeter の greet ロジックを複数クラスで共有でき、必要なクラスだけ super で拡張できる。\n\n**Tip**: super を使ったメタプログラミングや Concern パターンを理解するには、必ず `Class.ancestors` で順序を確認する習慣を付ける。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は '[ADMIN] Hi, I\\'m Alice'。Admin#greet の super が祖先チェーン (Admin → User → Greeter → Object) を辿り、User に greet が無いため Greeter#greet が見つかる。Greeter が 'Hi, I\\'m Alice' を返し、Admin が '[ADMIN] ' を付加。",
+        reason:
+          "Ruby の `super` キーワードは『現在のクラスより上の祖先チェーン (ancestors) から同名メソッドを探す』動作。include した Module も祖先チェーンに含まれるため、Mixin で提供されたメソッドも super で呼べる。これにより継承 + Mixin を組み合わせた柔軟な拡張パターンが書ける。Concern パターン (`included do` + `class_methods do`) の根幹も super チェーンの仕組みに依存している。",
+        example:
+          "Rails の Devise が User モデルに include で多数のメソッドを追加し、ユーザー側で `def password_required?; super && custom_condition?; end` のように super 経由でカスタマイズ。ActiveRecord の save も内部で super チェーンを使い、callback の連鎖を実現している。アプリ自作の Service Object でも基本 Service クラス + 拡張で super を活用するパターン。",
+        pitfall:
+          "super で呼び出す対象のメソッドシグネチャ (引数) が変わると ArgumentError。Mixin Module が他にもメソッドを持っていると、意図しないメソッドが super で呼ばれる場合がある (Module の追加順で MRO が変わる)。Class.ancestors で順序を必ず確認、複雑な多重 Mixin は避けるのが安全。",
+      },
       codeExample:
         "Admin.ancestors\n#=> [Admin, User, Greeter, Object, ...]\n\n# super は次の祖先のメソッドを呼ぶ\n#   Admin#greet -> User (greet なし) -> Greeter#greet が呼ばれる",
+      commonMistakes: [
+        "super の引数を間違える (元のメソッドのシグネチャ変更で ArgumentError)。",
+        "多重 Mixin で MRO が複雑化、意図しない super 先になる。Class.ancestors で確認。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: super と Mixin",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fcall.html#super",
+        },
+      ],
     },
   },
   {
@@ -5940,6 +5968,12 @@ export const questions: Question[] = [
       "5 / Float::INFINITY / String",
     ],
     answerIndex: 0,
+    choiceExplanations: [
+      "正解。10/2=5 (正常)、10/0 で ZeroDivisionError → Float::INFINITY (puts で 'Infinity')、10/'x' で TypeError → rescue で e.class.name = 'TypeError'。",
+      "2 回目は ZeroDivisionError 捕捉で Infinity を返す。0 のままにはならない。",
+      "3 回目は TypeError が起きて 2 つ目の rescue 句で捕捉されるので nil にはならない (e.class.name = 'TypeError' が返る)。",
+      "puts は Float::INFINITY を 'Infinity' として表示。3 つ目は文字列ではなく e.class.name = 'TypeError' という具体的なクラス名。",
+    ],
     hints: [
       "1 回目: 10/2 = 5。",
       "2 回目: ZeroDivisionError → Float::INFINITY。",
@@ -5950,8 +5984,30 @@ export const questions: Question[] = [
         "メソッド末尾 rescue で例外をハンドリング。複数 rescue 句で例外クラス別に分岐できる。",
       reason:
         "メソッド全体を begin/end で囲んだのと同等。先にマッチした rescue 句が実行される。`rescue =>` (デフォルト) は StandardError 以下を捕まえる。`Exception` を直接 rescue するのは SystemExit などを捕まえてしまうため避ける。Float::INFINITY は puts で 'Infinity' と表示される。",
+      beginnerExplanation:
+        "**メソッド末尾 rescue (= メソッド全体を begin で囲む短縮形)** と **複数 rescue 句による例外振り分け** の理解問題。\n\n**コード構造**:\n```ruby\ndef safe_divide(a, b)\n  a / b                          # メイン処理\nrescue ZeroDivisionError         # 0 除算なら無限大\n  Float::INFINITY\nrescue => e                       # それ以外の StandardError 系\n  e.class.name                    # 例外クラス名を文字列で返す\nend\n```\n\n**実行結果**:\n```ruby\nsafe_divide(10, 2)    # 10/2 → 5 (正常)\nsafe_divide(10, 0)    # ZeroDivisionError → Float::INFINITY\n#   puts は Float::INFINITY を 'Infinity' と表示\nsafe_divide(10, 'x')  # TypeError → e.class.name → 'TypeError'\n```\n\n**メソッド末尾 rescue の動き**:\nメソッド全体を `begin ... end` で囲んだのと同等。先にマッチした rescue 句が実行される。複数 rescue 句があれば **specific な例外を上に書く** (ZeroDivisionError → 汎用 => e)。\n\n**`Float::INFINITY`**: Ruby の浮動小数で表現できる正の無限大。`1.0/0` でも得られる。puts で表示すると 'Infinity'。\n\n**例外階層** (復習):\n```\nException\n├── SystemExit                  ← rescue してはダメ\n├── Interrupt                    ← Ctrl-C\n└── StandardError                ← 通常 rescue する対象\n    ├── ArgumentError\n    ├── TypeError\n    ├── ZeroDivisionError\n    ├── RuntimeError             ← raise 'msg' のデフォルト\n    └── ...\n```\n\n**`rescue =>` (クラス省略)** = `rescue StandardError =>`。`Exception` を直接 rescue すると SystemExit / Interrupt まで握りつぶしてしまうので絶対避ける。",
+      modelSelfExplanation: {
+        conclusion:
+          "出力は『5 / Infinity / TypeError』。メソッド末尾 rescue でメソッド全体の例外をハンドリングし、ZeroDivisionError は Float::INFINITY を返し、それ以外の StandardError は `e.class.name` で例外クラス名を返す。",
+        reason:
+          "Ruby のメソッド定義は内部で begin/end で囲まれた扱いになるため、`def...rescue...end` でメソッド全体の例外処理を簡潔に書ける。複数 rescue 句があれば上から順に評価され、最初にマッチしたものが実行される (特定的な例外を上、汎用的なものを下に書くのが原則)。`rescue =>` は引数省略で StandardError とその子クラスを捕捉する Ruby のデフォルト挙動。",
+        example:
+          "現場では、外部 API 呼び出しの safe wrap `def fetch; api.call; rescue Net::HTTPError => e; logger.error(e); nil; rescue => e; raise; end`、文字列パースの安全化 `def to_number(s); Integer(s); rescue ArgumentError; 0; end`、コントローラの広域エラーハンドリング (rescue_from) など、堅牢なメソッド設計で多用される。",
+        pitfall:
+          "rescue 句の順序を間違える (汎用 `rescue => e` を上に書くと specific な例外が来ない) のは典型的バグ。さらに `rescue Exception` (StandardError ではなく Exception) を書くと SystemExit / Interrupt まで捕まえて Ctrl-C で止められないアプリになる。原則は `rescue =>` (= StandardError) で十分。Float::INFINITY は数学的計算では有用だが、ビジネスロジック (金額、件数) では nil や特定値を返す方が安全。",
+      },
       codeExample:
         "# メソッドの末尾 rescue\ndef parse(s)\n  Integer(s)\nrescue ArgumentError\n  0\nend\n\n# begin/rescue/ensure フル形式\nbegin\n  risky\nrescue SpecificError => e\n  handle(e)\nrescue => e\n  log(e)\nensure\n  cleanup\nend",
+      commonMistakes: [
+        "rescue 句の順序を間違える: 汎用 `rescue => e` を上に書くと specific な例外節に来ない。",
+        "`rescue Exception` は SystemExit まで握りつぶす。原則 `rescue =>` (StandardError)。",
+      ],
+      references: [
+        {
+          label: "Ruby 公式リファレンス: 例外処理 (メソッド末尾 rescue)",
+          url: "https://docs.ruby-lang.org/ja/latest/doc/spec=2fcontrol.html#begin",
+        },
+      ],
     },
   },
 
