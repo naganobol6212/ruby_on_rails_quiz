@@ -1,25 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   type JournalEntry,
   type Template,
+  computeStreak,
+  dailyCounts,
   deleteEntry,
+  entriesOnDay,
   findTemplate,
+  getLastTemplateId,
   loadEntries,
+  monthlyCounts,
   templates,
 } from "@/lib/journal";
 import { Modal } from "./Modal";
+import { JournalStreak } from "./JournalStreak";
+import { JournalHeatmap } from "./JournalHeatmap";
+import { TodaysJournal } from "./TodaysJournal";
 
 export function JournalList() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [filter, setFilter] = useState<"all" | string>("all");
   const [modalTemplate, setModalTemplate] = useState<Template | null>(null);
+  const [lastTemplateId, setLastTemplateId] = useState<string | null>(null);
 
   useEffect(() => {
-    const refresh = () => setEntries(loadEntries());
+    const refresh = () => {
+      setEntries(loadEntries());
+      setLastTemplateId(getLastTemplateId());
+    };
     refresh();
     window.addEventListener("rrq:journal-updated", refresh);
     window.addEventListener("storage", refresh);
@@ -28,6 +40,15 @@ export function JournalList() {
       window.removeEventListener("storage", refresh);
     };
   }, []);
+
+  const streak = useMemo(() => computeStreak(entries), [entries]);
+  const todayEntries = useMemo(() => entriesOnDay(entries), [entries]);
+  const heatmapCounts = useMemo(
+    () => dailyCounts(entries, 26 * 7),
+    [entries],
+  );
+  const months = useMemo(() => monthlyCounts(entries, 6), [entries]);
+  const maxMonth = Math.max(1, ...months.map((m) => m.count));
 
   const filtered =
     filter === "all" ? entries : entries.filter((e) => e.templateId === filter);
@@ -62,6 +83,26 @@ export function JournalList() {
           </Link>
         </div>
       </div>
+
+      {/* 今日の記録 (毎日記録しやすい主役 CTA) */}
+      <TodaysJournal
+        todayEntries={todayEntries}
+        lastTemplateId={lastTemplateId}
+        hasStreak={streak.current >= 1}
+      />
+
+      {/* 連続記録 / 累計 */}
+      <JournalStreak streak={streak} totalEntries={entries.length} />
+
+      {/* ヒートマップ + 月別件数 */}
+      {entries.length > 0 && (
+        <section className="grid gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <JournalHeatmap counts={heatmapCounts} weeks={26} />
+          </div>
+          <MonthlyBars months={months} max={maxMonth} />
+        </section>
+      )}
 
       {/* テンプレート選択 (カード全体クリック + 詳細はモーダル) */}
       <section>
@@ -447,5 +488,49 @@ function ModalSection({
       </h4>
       <div className="text-sm">{children}</div>
     </section>
+  );
+}
+
+function MonthlyBars({
+  months,
+  max,
+}: {
+  months: { ym: string; count: number }[];
+  max: number;
+}) {
+  return (
+    <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
+      <h3 className="mb-3 text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+        📈 直近 {months.length} ヶ月の件数
+      </h3>
+      <ul className="space-y-2">
+        {months.map((m) => {
+          const pct = Math.round((m.count / max) * 100);
+          const [, mm] = m.ym.split("-");
+          return (
+            <li key={m.ym} className="flex items-center gap-2 text-xs">
+              <span className="w-10 shrink-0 font-mono text-zinc-500 dark:text-zinc-400">
+                {parseInt(mm, 10)}月
+              </span>
+              <div className="relative h-4 flex-1 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${pct}%` }}
+                  transition={{ duration: 0.4 }}
+                  className={`h-full rounded-full ${
+                    m.count === 0
+                      ? "bg-zinc-200 dark:bg-zinc-700"
+                      : "bg-gradient-to-r from-rose-400 to-fuchsia-500"
+                  }`}
+                />
+              </div>
+              <span className="w-8 shrink-0 text-right font-mono tabular-nums text-zinc-700 dark:text-zinc-300">
+                {m.count}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }

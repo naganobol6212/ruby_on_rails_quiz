@@ -2,17 +2,33 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { loadEntries, templates } from "@/lib/journal";
+import {
+  type StreakInfo,
+  computeStreak,
+  loadEntries,
+  templates,
+} from "@/lib/journal";
 
 export function JournalHomeCard() {
   const [entryCount, setEntryCount] = useState<number | null>(null);
+  const [streak, setStreak] = useState<StreakInfo | null>(null);
 
   useEffect(() => {
-    const refresh = () => setEntryCount(loadEntries().length);
+    const refresh = () => {
+      const entries = loadEntries();
+      setEntryCount(entries.length);
+      setStreak(computeStreak(entries));
+    };
     refresh();
     window.addEventListener("rrq:journal-updated", refresh);
     return () => window.removeEventListener("rrq:journal-updated", refresh);
   }, []);
+
+  const streakLabel = (() => {
+    if (!streak || streak.current === 0) return null;
+    if (streak.todayWritten) return `🔥 ${streak.current} 日連続`;
+    return `⏳ ${streak.current} 日連続 (今日まだ)`;
+  })();
 
   return (
     <Link
@@ -24,13 +40,18 @@ export function JournalHomeCard() {
       </div>
 
       <div className="relative">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">
             Journal · 構造化言語訓練
           </p>
           {entryCount !== null && entryCount > 0 && (
             <span className="rounded-full bg-rose-500/15 px-2 py-0.5 font-mono text-[10px] text-rose-700 dark:text-rose-300">
               {entryCount} 件記録済
+            </span>
+          )}
+          {streakLabel && (
+            <span className="rounded-full bg-orange-500/15 px-2 py-0.5 font-mono text-[10px] text-orange-700 dark:text-orange-300">
+              {streakLabel}
             </span>
           )}
         </div>

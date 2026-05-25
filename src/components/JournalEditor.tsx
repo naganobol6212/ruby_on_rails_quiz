@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   type JournalEntry,
@@ -8,6 +8,9 @@ import {
   createEntry,
   entryToText,
   findEntry,
+  loadEntries,
+  previousEntryOfTemplate,
+  rememberLastTemplate,
   updateEntry,
 } from "@/lib/journal";
 import { Modal } from "./Modal";
@@ -29,6 +32,7 @@ export function JournalEditor({ template, existingId }: Props) {
   const [existing, setExisting] = useState<JournalEntry | null>(null);
   const [copied, setCopied] = useState(false);
   const [savedEntry, setSavedEntry] = useState<JournalEntry | null>(null);
+  const [previousEntry, setPreviousEntry] = useState<JournalEntry | null>(null);
 
   // 初期ロード: 既存エントリ or ドラフトから
   useEffect(() => {
@@ -39,6 +43,7 @@ export function JournalEditor({ template, existingId }: Props) {
         setExisting(e);
         setContent(e.content);
         setTitle(e.title);
+        // 編集モードでは『前回参照』は出さない
         return;
       }
     }
@@ -53,7 +58,36 @@ export function JournalEditor({ template, existingId }: Props) {
     } catch {
       /* noop */
     }
+    // 同じテンプレで書いた直前 1 件を取得 (新規時のみ、継続性表示用)
+    setPreviousEntry(previousEntryOfTemplate(loadEntries(), template.id));
   }, [existingId, template.id]);
+
+  // 前回エントリから『次に活かす』フィールドを抽出 (テンプレ別)
+  const carryOver = useMemo(() => {
+    if (!previousEntry) return null;
+    const map: Partial<Record<string, { label: string; key: string }>> = {
+      kpt: { label: "前回の Try (実行できた？)", key: "try" },
+      "daily-report": {
+        label: "前回の『明日の予定』",
+        key: "tomorrow",
+      },
+      yww: { label: "前回の『次やる』", key: "next" },
+      star: { label: "前回の Result / 学び", key: "result" },
+      "5w1h": { label: "前回の How", key: "how" },
+      prep: { label: "前回の結論 (Point)", key: "point" },
+    };
+    const cfg = map[previousEntry.templateId];
+    if (!cfg) return null;
+    const value = previousEntry.content[cfg.key]?.trim();
+    if (!value) return null;
+    return {
+      label: cfg.label,
+      value,
+      title: previousEntry.title,
+      createdAt: previousEntry.createdAt,
+      id: previousEntry.id,
+    };
+  }, [previousEntry]);
 
   // ドラフト自動保存 (500ms デバウンス)
   useEffect(() => {
@@ -90,6 +124,8 @@ export function JournalEditor({ template, existingId }: Props) {
     if (entry) {
       setSavedEntry(entry);
       setExisting(entry); // 以後の保存は更新扱いに
+      // 『次に同じテンプレで開く』のために最後に使ったテンプレを記憶
+      rememberLastTemplate(template.id);
       if (typeof window !== "undefined") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -302,6 +338,30 @@ export function JournalEditor({ template, existingId }: Props) {
           </div>
         </div>
       </section>
+
+      {/* 前回の同テンプレ entry から継続性ヒント (KPT の Try / daily-report の明日 等) */}
+      {carryOver && !existing && (
+        <section className="rounded-xl border border-amber-300/60 bg-gradient-to-br from-amber-50 to-orange-50/60 p-4 dark:border-amber-400/30 dark:from-amber-500/[0.10] dark:to-orange-500/[0.06]">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-amber-800 dark:text-amber-200">
+              <span aria-hidden>🔁</span>
+              <span>{carryOver.label}</span>
+            </p>
+            <Link
+              href={`/journal/${carryOver.id}`}
+              className="text-[10px] text-amber-700 hover:underline dark:text-amber-300"
+            >
+              元の記録を開く →
+            </Link>
+          </div>
+          <p className="line-clamp-3 whitespace-pre-wrap text-xs leading-relaxed text-amber-900 dark:text-amber-100">
+            {carryOver.value}
+          </p>
+          <p className="mt-2 text-[10px] text-amber-700/80 dark:text-amber-300/70">
+            「{carryOver.title}」 ({new Date(carryOver.createdAt).toLocaleDateString("ja-JP")}) より
+          </p>
+        </section>
+      )}
 
       {/* テンプレート詳細モーダル */}
       <Modal

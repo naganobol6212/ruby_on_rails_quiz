@@ -613,3 +613,195 @@ export function entryToText(entry: JournalEntry): string {
   }
   return lines.join("\n").trim();
 }
+
+// ===========================================================================
+// 継続記録 / 統計 (Streak / Stats / Heatmap)
+// ===========================================================================
+
+/** YYYY-MM-DD 形式のローカル日付キー */
+export function toDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/** 0:00 始まりの Date を返す (時刻情報を落とす) */
+function startOfDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function diffInDays(a: Date, b: Date): number {
+  const ms = startOfDay(a).getTime() - startOfDay(b).getTime();
+  return Math.round(ms / 86400000);
+}
+
+export type StreakInfo = {
+  /** 現在の連続記録日数 (今日 or 昨日まで連続なら) */
+  current: number;
+  /** これまでの最長連続日数 */
+  longest: number;
+  /** 記録のあった日数 (重複排除) */
+  totalDays: number;
+  /** 直近で書いた日付 (なければ null) */
+  lastDate: string | null;
+  /** 今日記録があるか */
+  todayWritten: boolean;
+  /** 昨日記録があるか (今日まだ書いてない時に連続継続中か判定する) */
+  yesterdayWritten: boolean;
+};
+
+export function computeStreak(entries: JournalEntry[]): StreakInfo {
+  const today = startOfDay(new Date());
+  const todayKey = toDateKey(today);
+  const yesterdayKey = toDateKey(new Date(today.getTime() - 86400000));
+
+  if (entries.length === 0) {
+    return {
+      current: 0,
+      longest: 0,
+      totalDays: 0,
+      lastDate: null,
+      todayWritten: false,
+      yesterdayWritten: false,
+    };
+  }
+
+  // 日付ごとに集約 (重複排除)
+  const dayKeys = new Set<string>();
+  for (const e of entries) {
+    dayKeys.add(toDateKey(new Date(e.createdAt)));
+  }
+  const sortedDates = Array.from(dayKeys)
+    .map((k) => new Date(`${k}T00:00:00`))
+    .sort((a, b) => b.getTime() - a.getTime()); // 新しい順
+
+  const todayWritten = dayKeys.has(todayKey);
+  const yesterdayWritten = dayKeys.has(yesterdayKey);
+
+  // current streak: 今日 or 昨日から遡って何日連続
+  let current = 0;
+  const anchor = todayWritten ? today : yesterdayWritten ? new Date(today.getTime() - 86400000) : null;
+  if (anchor) {
+    let cursor = anchor;
+    while (dayKeys.has(toDateKey(cursor))) {
+      current++;
+      cursor = new Date(cursor.getTime() - 86400000);
+    }
+  }
+
+  // longest streak: 全期間で最長
+  let longest = 0;
+  let run = 1;
+  for (let i = 1; i < sortedDates.length; i++) {
+    const gap = diffInDays(sortedDates[i - 1], sortedDates[i]);
+    if (gap === 1) {
+      run++;
+    } else {
+      longest = Math.max(longest, run);
+      run = 1;
+    }
+  }
+  longest = Math.max(longest, run, current);
+
+  return {
+    current,
+    longest,
+    totalDays: dayKeys.size,
+    lastDate: sortedDates[0] ? toDateKey(sortedDates[0]) : null,
+    todayWritten,
+    yesterdayWritten,
+  };
+}
+
+/** 直近 N 日 (今日含む) の日別件数 Map (key: YYYY-MM-DD) */
+export function dailyCounts(entries: JournalEntry[], days = 365): Map<string, number> {
+  const counts = new Map<string, number>();
+  const today = startOfDay(new Date());
+  const oldest = new Date(today.getTime() - (days - 1) * 86400000);
+  for (const e of entries) {
+    const d = new Date(e.createdAt);
+    if (d < oldest) continue;
+    const key = toDateKey(d);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return counts;
+}
+
+/** 特定日のエントリ (新しい順) */
+export function entriesOnDay(
+  entries: JournalEntry[],
+  date: Date = new Date(),
+): JournalEntry[] {
+  const key = toDateKey(date);
+  return entries
+    .filter((e) => toDateKey(new Date(e.createdAt)) === key)
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+}
+
+/** 最後に使ったテンプレ ID を覚える / 取得 (毎日同じ型で書ける UX 用) */
+const LAST_TEMPLATE_KEY = "rrq_journal_last_template_v1";
+
+export function rememberLastTemplate(templateId: TemplateId) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(LAST_TEMPLATE_KEY, templateId);
+  } catch {
+    /* noop */
+  }
+}
+
+export function getLastTemplateId(): TemplateId | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const v = window.localStorage.getItem(LAST_TEMPLATE_KEY);
+    if (!v) return null;
+    return templates.some((t) => t.id === v) ? (v as TemplateId) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** 同じテンプレで書いた直近 1 件 (createdAt より前) を取得 — 継続性表示用 */
+export function previousEntryOfTemplate(
+  entries: JournalEntry[],
+  templateId: TemplateId,
+  beforeDate?: Date,
+): JournalEntry | null {
+  const cutoff = beforeDate ? beforeDate.getTime() : Date.now();
+  const candidates = entries
+    .filter(
+      (e) =>
+        e.templateId === templateId &&
+        new Date(e.createdAt).getTime() < cutoff,
+    )
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return candidates[0] ?? null;
+}
+
+export type MonthlyCount = {
+  /** YYYY-MM */
+  ym: string;
+  count: number;
+};
+
+/** 月別件数 (直近 N ヶ月、古い順) */
+export function monthlyCounts(entries: JournalEntry[], months = 6): MonthlyCount[] {
+  const now = new Date();
+  const buckets: MonthlyCount[] = [];
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    buckets.push({ ym, count: 0 });
+  }
+  const ymOf = (iso: string) => {
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  };
+  for (const e of entries) {
+    const ym = ymOf(e.createdAt);
+    const bucket = buckets.find((b) => b.ym === ym);
+    if (bucket) bucket.count++;
+  }
+  return buckets;
+}
