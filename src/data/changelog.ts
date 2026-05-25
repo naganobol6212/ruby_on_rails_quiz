@@ -17,6 +17,23 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-27-m",
+    date: "2026-05-27",
+    title: "🃏 フラッシュカード機能 (Spaced Repetition / SM-2) を追加",
+    badge: "feat",
+    highlights: [
+      "🃏 /flashcards ページを新設 — 知らない単語や間違えた問題をカード化して長期記憶へ",
+      "🧠 SM-2 (SuperMemo 2) アルゴリズム実装 — Again / Hard / Good / Easy の 4 段階評価で次回復習日を自動計算 (忘却曲線に沿う)",
+      "📚 学習セッション モーダル — 表面 → 答え開示 → 4 段階評価 のフロー、 キーボードショートカット (Space=開示 / 1-4=評価 / Esc=閉じる)",
+      "🎯 今日の復習ヒーロー — 今日 due のカード数を冒頭に大きく表示、 1 クリックでセッション開始",
+      "📊 5 つの統計カード (合計 / 今日復習 / 未学習 / 学習中+忘却 / 定着済)",
+      "🔎 フィルタ (全部 / 今日復習 / 未学習 / 学習中 / 定着済 / 忘れた) + 検索 (表面 / 裏面 / タグ)",
+      "📝 クイズの回答後に『🃏 フラッシュカードに追加』ボタン — 問題文を front、 正解 + 解説を back に自動投入、 重複防止付き",
+      "🧭 ヘッダーに『🃏 カード』 リンク追加",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-27-l",
     date: "2026-05-27",
     title: "📈 学習統計ダッシュボード (/stats) を新設",
