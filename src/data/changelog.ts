@@ -17,6 +17,22 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-27-n",
+    date: "2026-05-27",
+    title: "🔁 忘却曲線リマインド (/review) — 解いた問題を定期的に復習推奨",
+    badge: "feat",
+    highlights: [
+      "🧠 /review ページ新設 — Ebbinghaus 忘却曲線にもとづいて『そろそろ復習』対象を提示",
+      "🎯 推奨ロジック: 🔁 見直しマーク済 (最優先) / 解いた後 30 日以上 / 7 日以上 の 3 段階、 mastered は除外",
+      "🌟 最優先 1 問のヒーロー + 1 タップで該当問題ページに直接遷移",
+      "📊 3 つのサマリカード (見直しマーク / 30 日+ / 7 日+) をクリックでフィルタ切替",
+      "🏠 ホームに復習推奨バナー — 候補が 1 件以上ある時のみ表示 (邪魔しない)",
+      "🧭 ヘッダーに『🔁 復習』 リンク追加",
+      "💡 フラッシュカードとの連携も明示 (体系的にやりたい人は SM-2 へ誘導)",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-27-m",
     date: "2026-05-27",
     title: "🃏 フラッシュカード機能 (Spaced Repetition / SM-2) を追加",

@@ -6,6 +6,7 @@ import { crudChallenges } from "@/data/crud-challenges";
 import { ProgressSummary } from "@/components/ProgressSummary";
 import { TrackPicker } from "@/components/TrackPicker";
 import { JournalHomeCard } from "@/components/JournalHomeCard";
+import { RecallBanner } from "@/components/RecallBanner";
 
 export default function Home() {
   const availableTracks = tracks.filter((t) => t.status === "available").length;
@@ -33,6 +34,11 @@ export default function Home() {
           現場で活きる総合力を毎日 5 分から。
         </p>
       </header>
+
+      {/* 復習推奨バナー (候補 0 件時は非表示) */}
+      <div className="mb-3">
+        <RecallBanner />
+      </div>
 
       {/* 使い方ガイド (1 行で誘導、 詳細は /about に集約) */}
       <div className="mb-6">
