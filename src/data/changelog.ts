@@ -17,6 +17,17 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-27-k",
+    date: "2026-05-27",
+    title: "🛠️ クイックウィン — クイズ次問題のスクロール修正 + ホーム圧縮",
+    badge: "fix",
+    highlights: [
+      "🐛 クイズで『次の問題』を押すと前の解説のスクロール位置が残って画面下から始まっていた問題を修正 — QuizRunner のルートに自動スクロール (sticky header 分の余白も考慮)",
+      "🧹 ホームから LearningCycle (学習サイクル図) を削除して『📖 使い方ガイド』 1 行 CTA に圧縮 — 詳細は /about ページに集約",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-27-j",
     date: "2026-05-27",
     title: "🗺️ ロードマップ大強化 — 次にやるカード / Phase 別バー / フィルタ / 弱点ハイライト",

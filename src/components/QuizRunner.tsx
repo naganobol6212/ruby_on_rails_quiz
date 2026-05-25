@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import type {
@@ -58,6 +58,24 @@ export function QuizRunner({
   const [hintsUsed, setHintsUsed] = useState(0);
   const [sessionSolved, setSessionSolved] = useState(0);
   const [streak, setStreak] = useState(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * 次/前の問題に遷移する時、 前の解説でスクロールが進んでいると
+   * 新しい問題が画面の下から始まる『あれ?』 体験になるため、 必ず
+   * QuizRunner の先頭に戻す。 sticky header 高さの下に揃える。
+   */
+  const scrollToTop = () => {
+    if (typeof window === "undefined") return;
+    const el = rootRef.current;
+    if (el) {
+      const y =
+        el.getBoundingClientRect().top + window.scrollY - 72; // header 分の余白
+      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
   const [attemptCache, setAttemptCache] = useState<
     Record<string, QuestionAttempt>
   >({});
@@ -127,6 +145,7 @@ export function QuizRunner({
     setTextInput("");
     setStatus("answering");
     setHintsUsed(0);
+    scrollToTop();
   };
 
   const handlePrev = () => {
@@ -136,6 +155,7 @@ export function QuizRunner({
     setTextInput("");
     setStatus("answering");
     setHintsUsed(0);
+    scrollToTop();
   };
 
   const handleRetry = () => {
@@ -155,7 +175,7 @@ export function QuizRunner({
   const answered = status !== "answering";
 
   return (
-    <div className="space-y-6">
+    <div ref={rootRef} className="space-y-6">
       {/* ヘッダー */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link

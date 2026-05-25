@@ -6,7 +6,6 @@ import { crudChallenges } from "@/data/crud-challenges";
 import { ProgressSummary } from "@/components/ProgressSummary";
 import { TrackPicker } from "@/components/TrackPicker";
 import { JournalHomeCard } from "@/components/JournalHomeCard";
-import { LearningCycle } from "@/components/LearningCycle";
 
 export default function Home() {
   const availableTracks = tracks.filter((t) => t.status === "available").length;
@@ -35,9 +34,31 @@ export default function Home() {
         </p>
       </header>
 
-      {/* 学習サイクル図 — 各機能の役割と繋がりを常時可視化 */}
+      {/* 使い方ガイド (1 行で誘導、 詳細は /about に集約) */}
       <div className="mb-6">
-        <LearningCycle />
+        <Link
+          href="/about"
+          className="group flex items-center gap-3 rounded-xl border border-sky-200 bg-sky-50/60 px-4 py-3 text-sm transition hover:-translate-y-0.5 hover:border-sky-400 hover:shadow-sm dark:border-sky-500/30 dark:bg-sky-500/[0.07] dark:hover:border-sky-400/60"
+        >
+          <span className="text-xl" aria-hidden>
+            📖
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-sky-700 dark:text-sky-300">
+              How to use · 使い方ガイド
+            </p>
+            <p className="mt-0.5 text-[13px] font-medium text-zinc-800 dark:text-zinc-100">
+              はじめての方は <strong>学習サイクル</strong> と{" "}
+              <strong>各機能の使い方</strong> を 3 分でチェック
+            </p>
+          </div>
+          <span
+            className="text-zinc-400 transition group-hover:translate-x-0.5 group-hover:text-sky-500 dark:text-zinc-600 dark:group-hover:text-sky-300"
+            aria-hidden
+          >
+            →
+          </span>
+        </Link>
       </div>
 
       {/* ジャーナル CTA */}
