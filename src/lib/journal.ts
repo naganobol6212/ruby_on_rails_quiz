@@ -1,6 +1,7 @@
 // 学習ジャーナル: 構造化テンプレートで日々の学びを記録する
 
 export type TemplateId =
+  | "3line"
   | "kpt"
   | "star"
   | "5w1h"
@@ -14,6 +15,12 @@ export type TemplateField = {
   hint: string;
   placeholder: string;
   multiline?: boolean;
+  /**
+   * 『書きにくい人向け』の答えやすい問い。
+   * placeholder より具体的で、自分の経験を引き出すきっかけになる質問。
+   * UI ではチップで並べ、クリックでフィールド先頭に挿入される。
+   */
+  prompts?: string[];
 };
 
 export type TemplateExample = {
@@ -45,6 +52,90 @@ export type Template = {
 export const templates: Template[] = [
   // -------------------------------------------------------------------------
   {
+    id: "3line",
+    name: "3 行ジャーナル",
+    emoji: "✏️",
+    description:
+      "今日 / 学び / 次の一歩 を 1 行ずつ。書き慣れない人の最初の一歩におすすめ",
+    rationale:
+      "構造化ジャーナルの『ミニマム単位』。事実 (今日) → 内省 (学び) → アクション (次の一歩) の流れだけを 3 行で書きます。書き続ける障壁を最小化しながら、KPT / YWT で鍛えられる思考の型を毎日体に染み込ませる入門用テンプレ。慣れてきたら他のテンプレへ移行を。",
+    useCase:
+      "ジャーナル初心者 / 完璧主義で続かない人 / 疲れていて長文が無理な日 / 通勤中の 1 分振り返り。3 行だけなら絶対に書ける、を毎日積み上げます。",
+    skills: [
+      "毎日の継続力 (一番低いハードル)",
+      "事実 → 学び → 行動 への流れを体感する",
+      "短く端的に書く力",
+    ],
+    tips: [
+      "1 行は 1 文でも単語でも箇条書きでも OK。 完璧を狙わない",
+      "『今日』が浮かばなければ『印象に残った 1 つ』だけで OK (会議 / コード / 会話 何でも)",
+      "『学び』はかっこいい気付きじゃなくていい。「あれ知らなかった」「再確認した」レベルでも資産になる",
+      "『次の一歩』は本当に小さく (例: 『明日 1 つのドキュメントだけ読む』)。実行できる粒度に",
+      "週末などに 3 行を 7 個並べて読み返すと、自分のテーマが見えてくる",
+    ],
+    fields: [
+      {
+        key: "today",
+        label: "今日の出来事",
+        hint: "1 行で。印象に残った 1 つ",
+        placeholder: "例: チェリー本 7 章を読んだ / PR レビューでブロック解除",
+        prompts: [
+          "今日、印象に残った瞬間は?",
+          "コード / 会議 / 会話 で『お』と思ったことは?",
+          "詰まった所、または解けた所は?",
+          "今日 1 番時間を使ったことは何?",
+        ],
+      },
+      {
+        key: "learning",
+        label: "学び / 気付き",
+        hint: "1 行で。短くても OK",
+        placeholder:
+          "例: includes と preload は load 戦略が違う / N+1 は bullet で検知できる",
+        prompts: [
+          "今日『知らなかった』と思ったことは?",
+          "昨日まで曖昧だったことが少しクリアになった事は?",
+          "自分の予想と違った結果はあった?",
+          "誰かの考え方で『なるほど』と思った瞬間は?",
+        ],
+      },
+      {
+        key: "next",
+        label: "明日やる小さな一歩",
+        hint: "1 行で。5 分で始められる粒度に",
+        placeholder:
+          "例: bullet gem を development.rb に入れる / RSpec の let 章を読む",
+        prompts: [
+          "明日の最初に手を付けるならこれ、というものは?",
+          "今日の続きで 5 分で始められることは?",
+          "今日の学びを『試す』としたら何をしますか?",
+          "誰かに聞く / 共有する べきことは?",
+        ],
+      },
+    ],
+    examples: [
+      {
+        title: "実例: ある火曜日",
+        content: {
+          today: "ペアプロで User モデルの validation テストを 5 本書いた",
+          learning:
+            "shoulda-matchers で validate_presence_of(:email).is_at_most(255) と 1 行で書ける",
+          next: "明日、既存の spec を shoulda-matchers で書き直してみる (まず 1 ファイル)",
+        },
+      },
+      {
+        title: "実例: 疲れていた日",
+        content: {
+          today: "障害対応で 1 日が消えた",
+          learning: "Slack の検索は from:@user で人縛り検索が速い",
+          next: "ポストモーテムの下書きを 10 分で書く",
+        },
+      },
+    ],
+  },
+
+  // -------------------------------------------------------------------------
+  {
     id: "kpt",
     name: "KPT 振り返り",
     emoji: "📋",
@@ -72,6 +163,13 @@ export const templates: Template[] = [
         placeholder:
           "例: 詰まったらまず公式ドキュメントを開く習慣がついた / PR 出す前にセルフレビューを 5 分やる",
         multiline: true,
+        prompts: [
+          "今日『うまく行った』と感じた瞬間は具体的にいつ?",
+          "詰まった時に役に立ったツール / 手順 / コマンドは?",
+          "次もこの調子で続けたい習慣・姿勢は?",
+          "チームや自分から「よかった」と評価されたことは?",
+          "新しく試して『これは続けよう』と思ったやり方は?",
+        ],
       },
       {
         key: "problem",
@@ -80,6 +178,13 @@ export const templates: Template[] = [
         placeholder:
           "例: ActiveRecord の N+1 を毎回 includes で慌てて直している / RSpec の let の挙動を雰囲気で使ってる",
         multiline: true,
+        prompts: [
+          "今日、想定より時間がかかった作業は?その原因は?",
+          "『雰囲気で使ってる』『よく分かってない』と感じた技術 / 概念は?",
+          "繰り返し詰まっている同じパターンはある?",
+          "レビューや障害で指摘された / 自分で気付いた問題は?",
+          "効率が悪いと感じる自分の手順 / 習慣は?",
+        ],
       },
       {
         key: "try",
@@ -88,6 +193,13 @@ export const templates: Template[] = [
         placeholder:
           "例: PR 出す前に bullet gem のログを確認する手順をチェックリスト化する",
         multiline: true,
+        prompts: [
+          "Problem 1 つに対して、明日から 5 分で始められる行動は?",
+          "Problem の原因を学ぶために『何を / どこから読む』?",
+          "誰かに聞く / 共有する のがいいことは?",
+          "チェックリスト / テンプレ / 自動化 で再発を防げる Problem はある?",
+          "1 週間後にレビューする時、どう測ると効果が分かる?",
+        ],
       },
     ],
     examples: [
@@ -140,6 +252,12 @@ export const templates: Template[] = [
         placeholder:
           "例: 本番リリース直前、決済 API のレスポンスが平均 800ms から 3.5s に劣化していると CS チームから報告",
         multiline: true,
+        prompts: [
+          "いつ / どこで起きた? (時刻・環境・画面)",
+          "気付いたのは誰? どう検知 (アラート / 報告 / 監視) した?",
+          "前提として何が決まっていた / 期待されていた?",
+          "影響範囲 (ユーザー数 / 売上 / 機能) は?",
+        ],
       },
       {
         key: "task",
@@ -148,6 +266,12 @@ export const templates: Template[] = [
         placeholder:
           "例: 当日中に原因を特定し、暫定対応の判断材料を CTO に渡す。本格修正は翌日対応で良い",
         multiline: true,
+        prompts: [
+          "自分の役割 / 立場は何だった?",
+          "達成すべきゴールは? (期限・成功条件)",
+          "何を優先 / 何を後回しにすると決めた?",
+          "外せない制約 (時間・予算・SLA) は何だった?",
+        ],
       },
       {
         key: "action",
@@ -156,6 +280,13 @@ export const templates: Template[] = [
         placeholder:
           "例: 1) New Relic で該当エンドポイントのトレースを確認 → 決済 API 呼び出し前に N+1 が発生していた\n2) ステージングで再現確認、includes で 1 クエリにまとめる修正を作成\n3) hotfix ブランチで PR、レビュー 2 名でマージ後、本番デプロイ",
         multiline: true,
+        prompts: [
+          "まず何から始めた? その判断理由は?",
+          "途中で方針を変えた瞬間はあった? なぜ?",
+          "他のメンバーとどう連携 (相談 / 委譲) した?",
+          "ツール / コマンド / クエリで決め手になったものは?",
+          "(主語『私』で) 自分が判断・実行したことだけに絞ると?",
+        ],
       },
       {
         key: "result",
@@ -164,6 +295,13 @@ export const templates: Template[] = [
         placeholder:
           "例: P95 3.5s → 180ms (-95%)。CS への問い合わせも翌日 0 件。\n学び: APM での『普段のベースライン』を眺める習慣がなかった。週次でダッシュボードを見る時間をブロック",
         multiline: true,
+        prompts: [
+          "数字で言える結果は? (前後比較・削減率・件数)",
+          "ユーザー / チームへの影響はどう変わった?",
+          "この経験から得た学びを 1 文で言うと?",
+          "次に似た状況になったら、最初にやることは?",
+          "再発防止 / 仕組み化 として残せたことは?",
+        ],
       },
     ],
     examples: [
@@ -211,12 +349,22 @@ export const templates: Template[] = [
         label: "What — 何が起きた / 何を学んだ",
         hint: "中心となる事実。動詞で短く。",
         placeholder: "例: Sidekiq Job がリトライループに入り続けた",
+        prompts: [
+          "1 文で言うとどんな出来事 / 学び?",
+          "動詞で書くと『〜が〜した』のような形?",
+          "誰かに 1 行で報告するとしたら?",
+        ],
       },
       {
         key: "when",
         label: "When — いつ",
         hint: "日時・フェーズ・頻度。障害なら検知/発生/収束を分けて",
         placeholder: "例: 月曜 14:30 検知、リリース直後の 14:15 から発生、14:50 に対応完了",
+        prompts: [
+          "発生 / 検知 / 収束 の 3 つの時刻は?",
+          "何度目の出来事? 頻度は?",
+          "リリース直後 / 月初 / 週末 など特定のフェーズで起きやすい?",
+        ],
       },
       {
         key: "where",
@@ -224,12 +372,22 @@ export const templates: Template[] = [
         hint: "システム名・画面・コードパス・環境",
         placeholder:
           "例: 本番環境 (Heroku eu)、Sidekiq worker の WelcomeJob、app/jobs/welcome_job.rb",
+        prompts: [
+          "どの環境 (本番 / staging / dev) で?",
+          "ファイルパス / クラス名 / エンドポイントを具体的に",
+          "影響範囲はどこまで? (1 機能 / 全体 / 特定ユーザーのみ)",
+        ],
       },
       {
         key: "who",
         label: "Who — 誰が関与・影響",
         hint: "ユーザー / 自分 / チーム / 外部サービス",
         placeholder: "例: 影響: 新規登録ユーザー約 200 名 (重複メール)。対応: 自分とインフラ担当 1 名",
+        prompts: [
+          "影響を受けたのは誰? (具体数 or 属性)",
+          "対応に関わったメンバーは?",
+          "上流 / 下流 で関わる外部サービスは?",
+        ],
       },
       {
         key: "why",
@@ -238,6 +396,12 @@ export const templates: Template[] = [
         placeholder:
           "例: 技術的: discard_on の指定漏れで RecordNotFound 例外でも無限リトライ。ビジネス的: ユーザー体験悪化 + メール送信コスト増",
         multiline: true,
+        prompts: [
+          "技術的な原因を 1 文で?",
+          "『なぜ』を 5 回繰り返すと根本原因は何?",
+          "ビジネス / ユーザーへの影響を金額 / 数 で表すと?",
+          "なぜ今までは表面化していなかった?",
+        ],
       },
       {
         key: "how",
@@ -246,6 +410,12 @@ export const templates: Template[] = [
         placeholder:
           "例: ApplicationJob に discard_on の標準を追加 + PR テンプレに項目追加。Sidekiq Dead Set も監視へ",
         multiline: true,
+        prompts: [
+          "暫定対応の手順 (1, 2, 3) は?",
+          "本格修正で何を変える?",
+          "再発防止: コード / プロセス / ドキュメント のどれを変える?",
+          "監視 / アラート / テスト で次回早く気付ける仕組みは?",
+        ],
       },
     ],
     examples: [
@@ -292,6 +462,12 @@ export const templates: Template[] = [
         placeholder:
           "・チェリー本 7 章を読了\n・User モデルの validation テストを 5 ケース追加\n・PR #142 のレビュー対応",
         multiline: true,
+        prompts: [
+          "今日完了したタスク / コミットは?",
+          "読んだ書籍 / 記事 / ドキュメントは?",
+          "触ったコード / ファイル / コマンドは?",
+          "誰かと話した内容で印象に残ったものは?",
+        ],
       },
       {
         key: "learned",
@@ -300,6 +476,13 @@ export const templates: Template[] = [
         placeholder:
           "・deliver_later は ActionMailer が自動で ActiveJob でラップしているだけで、本質は perform_later と同じ\n・has_secure_password は bcrypt gem のラッパーで、cost=12 がデフォ。テストでは cost を下げて高速化できる",
         multiline: true,
+        prompts: [
+          "今日『なるほど』と思った瞬間は?",
+          "昨日まで曖昧だった概念で、少しクリアになった事は?",
+          "『なぜ動くか』が分かった仕組みは?",
+          "自分の予想と違った結果から学んだことは?",
+          "前と今の理解の差分を 1 文で言うと?",
+        ],
       },
       {
         key: "next",
@@ -308,6 +491,12 @@ export const templates: Template[] = [
         placeholder:
           "・retry_on / discard_on のドキュメントを読んで、リトライ戦略を実プロジェクトで設定\n・チェリー本 8 章 (例外処理) を読む",
         multiline: true,
+        prompts: [
+          "今日の続きで明日まず手を付けるのは?",
+          "今日の学びを『試す』としたら何をする?",
+          "誰かに聞く / 共有する べきことは?",
+          "5 分で始められる小さな次の一歩は?",
+        ],
       },
     ],
     examples: [
@@ -353,6 +542,11 @@ export const templates: Template[] = [
         label: "テーマ / 質問",
         hint: "誰かに説明する想定のお題を 1 文で",
         placeholder: "例: Ruby の Symbol と String、いつどっちを使う？",
+        prompts: [
+          "今日学んだ概念で誰かに説明したいものは?",
+          "面接や勉強会で『説明してください』と言われそうな話題は?",
+          "新人に教えるなら、何から説明する?",
+        ],
       },
       {
         key: "point",
@@ -361,6 +555,11 @@ export const templates: Template[] = [
         placeholder:
           "識別子としての用途は Symbol、ユーザーから受け取る可変なテキスト値は String を使う",
         multiline: true,
+        prompts: [
+          "この問いへの答えを 1 文で言うと?",
+          "『つまり〜である』で締める形にすると?",
+          "曖昧語 (思う・かもしれない) を抜くとどう書ける?",
+        ],
       },
       {
         key: "reason",
@@ -369,6 +568,11 @@ export const templates: Template[] = [
         placeholder:
           "1. Symbol は immutable で同名なら同一オブジェクト → 比較速度・メモリ効率が良い\n2. String は mutable で都度生成 → 動的に組み立てる用途に向く\n3. ユーザー入力を to_sym すると無制限にシンボル生成されメモリリーク懸念",
         multiline: true,
+        prompts: [
+          "なぜそう言える?根拠を 3 つ挙げると?",
+          "対比相手と比べた時の違いは?",
+          "技術的な仕組み (内部実装 / 計算量) で言うと?",
+        ],
       },
       {
         key: "example",
@@ -377,6 +581,12 @@ export const templates: Template[] = [
         placeholder:
           "Hash のキー: { name: 'Alice', role: :admin } のように key と状態フラグは Symbol\n値: user.name = 'Alice' のような可変テキストは String\nアンチパターン: params[:role].to_sym (ユーザー入力をSymbol化) → 攻撃者が好きなだけメモリ消費可能",
         multiline: true,
+        prompts: [
+          "コードで書くと?",
+          "実際に遭遇した場面 / バグ事例は?",
+          "アンチパターン (やりがちな間違い) を 1 つ挙げると?",
+          "数字 (件数 / 時間 / バイト) で示せる例は?",
+        ],
       },
       {
         key: "point2",
@@ -385,6 +595,11 @@ export const templates: Template[] = [
         placeholder:
           "つまり『役割が固定された名前・識別子』なら Symbol、『その場で生成される / 外部から来るデータ』なら String と覚えると判断に迷わない",
         multiline: true,
+        prompts: [
+          "最初の結論を別の言葉で言い換えると?",
+          "判断に迷った時の『覚え方』ルールにすると?",
+          "1 行で結論を再強調すると?",
+        ],
       },
     ],
     examples: [
@@ -433,6 +648,11 @@ export const templates: Template[] = [
         label: "1 行サマリー",
         hint: "今日を一言で。Slack スレッドの最初に貼れるレベル",
         placeholder: "例: Welcome Mailer の Job 化 PR をレビュー依頼まで完了 (テストは 80%)",
+        prompts: [
+          "今日の主役タスクを 1 文で言うと?",
+          "上司に『今日何した?』と聞かれたら何と答える?",
+          "進捗率を %で添えるとどう?",
+        ],
       },
       {
         key: "progress",
@@ -441,6 +661,12 @@ export const templates: Template[] = [
         placeholder:
           "1. Welcome Mailer の Job 化実装 ✓\n2. Job のテスト (request spec) 80% (perform_later 検証が残)\n3. ステージングデプロイ + 動作確認 ✓\n4. ドキュメント更新 未着手",
         multiline: true,
+        prompts: [
+          "今日完了したタスクは? (✓ で番号付き)",
+          "進行中の作業はどこまで進んだ? (% で)",
+          "予定していたが未着手のタスクは? 理由は?",
+          "予定外で対応した作業 (差し込み) は?",
+        ],
       },
       {
         key: "learnings",
@@ -449,6 +675,12 @@ export const templates: Template[] = [
         placeholder:
           "・ActiveJob::TestHelper の have_enqueued_job matcher は perform_later の検証に便利\n・retry_on は wait: :polynomially_longer が Rails 7.1+ のデフォルト推奨",
         multiline: true,
+        prompts: [
+          "今日初めて知った API / 設定 / コマンドは?",
+          "ドキュメントを読んで『へえ』と思ったことは?",
+          "ペアプロ / レビュー で学んだ書き方は?",
+          "プロセス / コミュニケーションで気付いたことは?",
+        ],
       },
       {
         key: "blockers",
@@ -457,6 +689,12 @@ export const templates: Template[] = [
         placeholder:
           "・Sidekiq の Dead Set 監視: 何件溜まったら通知すべきか? 過去 30 日の平均 3 件 / 日。10 件超えで通知の運用案 (要 @チームリード判断)",
         multiline: true,
+        prompts: [
+          "判断を仰ぎたい論点と、判断材料 (数字 / 案) は?",
+          "他チーム / 外部に依頼している待ち事項は?",
+          "技術的に詰まっていて助けが欲しいことは?",
+          "リスク / 懸念で共有しておきたいことは?",
+        ],
       },
       {
         key: "tomorrow",
@@ -465,6 +703,12 @@ export const templates: Template[] = [
         placeholder:
           "1. テスト残り (1h)\n2. PR レビュー対応 + マージ (1h)\n3. ドキュメント更新 (0.5h)\n4. 次タスク (検索 API 設計) のキックオフ (2h)",
         multiline: true,
+        prompts: [
+          "明日まず手を付ける優先タスクは? 想定時間は?",
+          "今日積み残したタスクで明日続けるものは?",
+          "MTG / ペアプロ / 1on1 の予定は?",
+          "明日中に終わらせたいゴールは?",
+        ],
       },
     ],
     examples: [
@@ -579,6 +823,7 @@ function defaultTitle(
   content: Record<string, string>,
 ): string {
   const candidates: Record<TemplateId, string[]> = {
+    "3line": ["today", "learning"],
     kpt: ["keep", "problem", "try"],
     star: ["task", "situation"],
     "5w1h": ["what", "why"],

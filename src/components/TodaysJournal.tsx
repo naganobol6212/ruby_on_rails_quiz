@@ -27,8 +27,8 @@ export function TodaysJournal({ todayEntries, lastTemplateId, hasStreak }: Props
     ? (findTemplate(lastTemplateId) ?? null)
     : null;
 
-  // 推奨テンプレ: 前回使ったもの → なければ最も軽量な YWT
-  const recommended = lastTemplate ?? findTemplate("yww") ?? templates[0];
+  // 推奨テンプレ: 前回使ったもの → なければ最も軽量な 3 行ジャーナル
+  const recommended = lastTemplate ?? findTemplate("3line") ?? templates[0];
 
   if (todayEntries.length === 0) {
     // 今日まだ書いてない → 大きな CTA
@@ -55,7 +55,7 @@ export function TodaysJournal({ todayEntries, lastTemplateId, hasStreak }: Props
                 ? "🔥 連続記録更新中。今日も 1 行でも残しましょう"
                 : lastTemplate
                   ? `前回は ${lastTemplate.emoji} ${lastTemplate.name} で書きました`
-                  : "5 分で書ける YWT (やった / わかった / 次やる) がおすすめ"}
+                  : "✏️ まずは 3 行ジャーナル (今日 / 学び / 次の一歩) がおすすめ"}
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:items-end">

@@ -13,8 +13,9 @@ import {
   rememberLastTemplate,
   updateEntry,
 } from "@/lib/journal";
-import { Modal } from "./Modal";
+import { FieldPrompts } from "./FieldPrompts";
 import { MarkdownField } from "./MarkdownField";
+import { Modal } from "./Modal";
 
 type Props = {
   template: Template;
@@ -501,6 +502,13 @@ export function JournalEditor({ template, existingId }: Props) {
                 onChange={(e) => setField(field.key, e.target.value)}
                 placeholder={field.placeholder}
                 className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:border-white/10 dark:bg-white/5 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              />
+            )}
+            {field.prompts && field.prompts.length > 0 && (
+              <FieldPrompts
+                prompts={field.prompts}
+                currentValue={content[field.key] ?? ""}
+                onInsert={(v) => setField(field.key, v)}
               />
             )}
           </div>

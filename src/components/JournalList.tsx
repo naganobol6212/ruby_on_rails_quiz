@@ -19,6 +19,7 @@ import {
 import { Modal } from "./Modal";
 import { JournalStreak } from "./JournalStreak";
 import { JournalHeatmap } from "./JournalHeatmap";
+import { JournalOnboarding } from "./JournalOnboarding";
 import { TodaysJournal } from "./TodaysJournal";
 
 export function JournalList() {
@@ -83,6 +84,9 @@ export function JournalList() {
           </Link>
         </div>
       </div>
+
+      {/* 初回オンボーディング (エントリ 0 件 + dismiss していない時のみ表示) */}
+      {entries.length === 0 && <JournalOnboarding />}
 
       {/* 今日の記録 (毎日記録しやすい主役 CTA) */}
       <TodaysJournal
