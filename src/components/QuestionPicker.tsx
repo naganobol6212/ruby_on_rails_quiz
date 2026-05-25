@@ -10,6 +10,7 @@ import type {
   ReviewMark,
 } from "@/lib/types";
 import { loadProgress, setReviewMark } from "@/lib/storage";
+import { CodeReadingGuide } from "./CodeReadingGuide";
 
 type Props = {
   questions: Question[];
@@ -221,6 +222,9 @@ export function QuestionPicker({
           <span>カテゴリ選択</span>
         </Link>
       </div>
+
+      {/* コードリーディングカテゴリ専用: プログラマー脳 5 ステップ */}
+      {categoryId === "code-reading" && <CodeReadingGuide variant="intro" />}
 
       {/* カテゴリ概要 */}
       <section className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/[0.03]">

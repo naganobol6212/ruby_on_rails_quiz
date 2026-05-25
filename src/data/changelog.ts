@@ -17,6 +17,19 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-27-o",
+    date: "2026-05-27",
+    title: "📖 コードリーディング問題に『プログラマー脳』 5 ステップ How-to を追加",
+    badge: "feat",
+    highlights: [
+      "🧠 CodeReadingGuide コンポーネントを追加 — Felienne Hermans 著『プログラマー脳』のアプローチを 5 ステップに圧縮 (既存知識喚起 / 未知チャンク識別 / チャンク読み / メンタル実行 / 予測 → 答え合わせ → 言語化)",
+      "📚 /quiz/code-reading 一覧ページ冒頭に解説カード (default 開、 詳しく は折りたたみ式)",
+      "✅ コードリーディング問題ページに inline チェックリスト (default 閉、 各ステップにチェック可能、 進捗バッジ表示)",
+      "🎯 他カテゴリーには表示されない条件付き挿入 (categoryId === 'code-reading' の時のみ)",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-27-n",
     date: "2026-05-27",
     title: "🔁 忘却曲線リマインド (/review) — 解いた問題を定期的に復習推奨",

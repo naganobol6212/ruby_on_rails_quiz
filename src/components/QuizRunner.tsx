@@ -17,6 +17,7 @@ import {
 import { createCard, findCardByQuizId } from "@/lib/flashcards";
 import { HintBox } from "./HintBox";
 import { CodeBlock } from "./CodeBlock";
+import { CodeReadingGuide } from "./CodeReadingGuide";
 import { CodeEditor } from "./CodeEditor";
 import { ExplanationCard } from "./ExplanationCard";
 import { SelfExplanationBox } from "./SelfExplanationBox";
@@ -306,6 +307,11 @@ export function QuizRunner({
           </h2>
 
           {current.code && <CodeBlock code={current.code} />}
+
+          {/* コードリーディング問題: プログラマー脳 5 ステップの作業チェックリスト */}
+          {current.categoryId === "code-reading" && current.code && (
+            <CodeReadingGuide variant="inline" />
+          )}
 
           {/* 回答エリア */}
           {current.type === "choice" ? (
