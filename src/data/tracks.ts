@@ -133,6 +133,17 @@ export const tracks: Track[] = [
     ringClass: "hover:ring-purple-500/40",
     status: "available",
   },
+  {
+    id: "exam-prep",
+    name: "試験・認定 まとめ",
+    short: "Exam Prep",
+    emoji: "🎓",
+    description:
+      "IPA / データ認定 / 言語・OS / AI・Claude / クラウド (AWS/GCP/Azure) 各認定の要点 (受験料・出題範囲・合格ライン・対策)",
+    accentClass: "from-amber-500/20 to-yellow-500/5",
+    ringClass: "hover:ring-amber-500/40",
+    status: "available",
+  },
 ];
 
 export const findTrack = (id: string) => tracks.find((t) => t.id === id);

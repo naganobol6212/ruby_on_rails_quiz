@@ -10,6 +10,7 @@ import { anthropicCertQuestions } from "./questions-anthropic-cert";
 import { claudeCodeBasicsQuestions } from "./questions-claude-code-basics";
 import { claudeCodePracticeQuestions } from "./questions-claude-code-practice";
 import { aiSecurityQuestions } from "./questions-ai-security";
+import { examPrepQuestions } from "./questions-exam-prep";
 import { categories, findCategory } from "./categories";
 import type { Question } from "@/lib/types";
 
@@ -25,6 +26,7 @@ export const allQuestions: Question[] = [
   ...claudeCodeBasicsQuestions,
   ...claudeCodePracticeQuestions,
   ...aiSecurityQuestions,
+  ...examPrepQuestions,
 ];
 
 export const questionsByCategory = (categoryId: string) =>

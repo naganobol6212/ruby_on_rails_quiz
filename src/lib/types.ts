@@ -16,7 +16,8 @@ export type TrackId =
   | "git"
   | "infosec"
   | "linux"
-  | "ai-claude";
+  | "ai-claude"
+  | "exam-prep";
 
 export type Track = {
   id: TrackId;
@@ -71,7 +72,12 @@ export type CategoryId =
   | "anthropic-cert"
   | "claude-code-basics"
   | "claude-code-practice"
-  | "ai-security";
+  | "ai-security"
+  // 試験・認定まとめ
+  | "exam-ipa"
+  | "exam-lang-os"
+  | "exam-ai-claude"
+  | "exam-cloud";
 
 export type Category = {
   id: CategoryId;

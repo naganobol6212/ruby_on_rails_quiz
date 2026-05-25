@@ -295,10 +295,10 @@ export const categories: Category[] = [
   {
     id: "anthropic-cert",
     trackId: "ai-claude",
-    name: "Anthropic 公式認定 (CCA-F)",
+    name: "CCA-F 模擬問題",
     description:
-      "Claude Certified Architect — Foundations 試験対策 (5 ドメイン: Agentic / Claude Code / Prompt / MCP / Context)",
-    emoji: "🎓",
+      "Claude Certified Architect — Foundations 本番形式 30 問。6 つの本番想定シナリオ × 5 ドメイン (Agentic / Claude Code / Prompt / MCP / Context) のシナリオ駆動 mock exam",
+    emoji: "📝",
     accentClass: "from-fuchsia-500/20 to-pink-500/5",
     ringClass: "hover:ring-fuchsia-500/40",
   },
@@ -331,6 +331,50 @@ export const categories: Category[] = [
     emoji: "🔐",
     accentClass: "from-red-500/20 to-rose-500/5",
     ringClass: "hover:ring-red-500/40",
+  },
+
+  // ===========================================================================
+  // Track: 試験・認定まとめ
+  // ===========================================================================
+  {
+    id: "exam-ipa",
+    trackId: "exam-prep",
+    name: "IPA / データ認定",
+    description:
+      "基本情報 / 応用情報 / DB スペシャリスト / G 検定 / E 資格 / データサイエンティスト検定",
+    emoji: "🇯🇵",
+    accentClass: "from-yellow-500/20 to-amber-500/5",
+    ringClass: "hover:ring-yellow-500/40",
+  },
+  {
+    id: "exam-lang-os",
+    trackId: "exam-prep",
+    name: "言語・OS 認定",
+    description:
+      "Ruby Silver/Gold / Python PCEP/PCAP / LPIC / Oracle Java SE / PHP 技術者認定",
+    emoji: "🐧",
+    accentClass: "from-emerald-500/20 to-teal-500/5",
+    ringClass: "hover:ring-emerald-500/40",
+  },
+  {
+    id: "exam-ai-claude",
+    trackId: "exam-prep",
+    name: "AI・Claude 関連認定",
+    description:
+      "Anthropic CCA-F (現行) / 予定中の Seller・Developer・Advanced Architect / その他主要 AI 認定",
+    emoji: "🤖",
+    accentClass: "from-purple-500/20 to-fuchsia-500/5",
+    ringClass: "hover:ring-purple-500/40",
+  },
+  {
+    id: "exam-cloud",
+    trackId: "exam-prep",
+    name: "クラウド認定",
+    description:
+      "AWS (CLF/SAA/SAP/MLS) / GCP (ACE/PCA/PMLE) / Azure (AZ-104/AZ-305/AI-102)",
+    emoji: "☁️",
+    accentClass: "from-sky-500/20 to-blue-500/5",
+    ringClass: "hover:ring-sky-500/40",
   },
 ];
 
