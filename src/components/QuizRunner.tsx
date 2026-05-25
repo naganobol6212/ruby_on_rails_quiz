@@ -14,6 +14,7 @@ import {
   recordAttempt,
   setReviewMark,
 } from "@/lib/storage";
+import { createCard, findCardByQuizId } from "@/lib/flashcards";
 import { HintBox } from "./HintBox";
 import { CodeBlock } from "./CodeBlock";
 import { CodeEditor } from "./CodeEditor";
@@ -82,6 +83,16 @@ export function QuizRunner({
 
   const current = questions[index];
   const total = questions.length;
+
+  // フラッシュカードへ追加 (重複防止 + 視覚フィードバック)
+  // ※ 早期 return より前に置く (rules-of-hooks)
+  const [cardAdded, setCardAdded] = useState(false);
+  const existingCard = useMemo(
+    () => (current ? findCardByQuizId(current.id) : null),
+    // current.id が変わるか、 追加直後に再評価
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [current?.id, cardAdded],
+  );
 
   const isCorrect = useMemo(() => {
     if (!current) return false;
@@ -167,6 +178,32 @@ export function QuizRunner({
   const handleMark = (mark: ReviewMark) => {
     const next = currentMark === mark ? null : mark;
     setReviewMark(current.id, next);
+  };
+
+  const handleAddToFlashcards = () => {
+    if (existingCard) return;
+    const front = current.question;
+    let answer = "";
+    if (current.type === "choice") {
+      answer = current.choices[current.answerIndex];
+    } else if (current.type === "text") {
+      answer = current.answers.join(" / ");
+    } else {
+      answer = "(実装課題 — サンプル解法を参照)";
+    }
+    const back = `${answer}\n\n${current.explanation.summary}`;
+    createCard({
+      front,
+      back,
+      tags: [current.categoryId],
+      source: {
+        type: "quiz",
+        questionId: current.id,
+        categoryId: current.categoryId,
+      },
+    });
+    setCardAdded(true);
+    window.setTimeout(() => setCardAdded(false), 1800);
   };
 
   const isFinished = index >= total - 1 && status !== "answering";
@@ -401,6 +438,33 @@ export function QuizRunner({
                       マーク解除
                     </button>
                   )}
+                  {/* フラッシュカードへ追加 (忘却曲線 復習) */}
+                  <button
+                    type="button"
+                    onClick={handleAddToFlashcards}
+                    disabled={!!existingCard || cardAdded}
+                    title={
+                      existingCard
+                        ? "この問題は既にフラッシュカードに追加されています"
+                        : "問題と答えをフラッシュカード化、 SM-2 で復習リマインド"
+                    }
+                    className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition ${
+                      existingCard
+                        ? "border-zinc-200 bg-zinc-100 text-zinc-400 dark:border-white/10 dark:bg-white/5 dark:text-zinc-500"
+                        : cardAdded
+                          ? "border-emerald-500 bg-emerald-500 text-white shadow-md shadow-emerald-500/30"
+                          : "border-zinc-300 bg-white text-zinc-700 hover:border-violet-400 hover:bg-violet-50 hover:text-violet-700 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300 dark:hover:border-violet-400/40 dark:hover:bg-violet-500/10 dark:hover:text-violet-300"
+                    }`}
+                  >
+                    <span aria-hidden>🃏</span>
+                    <span>
+                      {existingCard
+                        ? "カード追加済"
+                        : cardAdded
+                          ? "追加しました ✓"
+                          : "フラッシュカードに追加"}
+                    </span>
+                  </button>
                 </div>
               </div>
 
