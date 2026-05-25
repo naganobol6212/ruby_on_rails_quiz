@@ -6,6 +6,7 @@ import { crudChallenges } from "@/data/crud-challenges";
 import { ProgressSummary } from "@/components/ProgressSummary";
 import { TrackPicker } from "@/components/TrackPicker";
 import { JournalHomeCard } from "@/components/JournalHomeCard";
+import { LearningCycle } from "@/components/LearningCycle";
 
 export default function Home() {
   const availableTracks = tracks.filter((t) => t.status === "available").length;
@@ -33,6 +34,11 @@ export default function Home() {
           現場で活きる総合力を毎日 5 分から。
         </p>
       </header>
+
+      {/* 学習サイクル図 — 各機能の役割と繋がりを常時可視化 */}
+      <div className="mb-6">
+        <LearningCycle />
+      </div>
 
       {/* ジャーナル CTA */}
       <div className="mb-6">
