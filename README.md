@@ -27,6 +27,11 @@ Ruby on Rails を **クイズ** と **学習ジャーナル** で身につける
 | 🔬 デバッグ & パフォーマンス | bullet、EXPLAIN、APM |
 | 🐧 Linux & CLI | find/grep/ssh/権限/xargs |
 | 🛠️ 実践課題 | 実務想定タスク (FizzBuzz から API 認証・メタプロまで) |
+| 🧠 AI エンジニアリング基礎 | Anthropic 5 ワークフロー / ReAct / RAG / LLMOps / NIST AI RMF / ISO 42001 / EU AI Act |
+| 🎓 Anthropic 公式認定 (CCA-F) | Claude Certified Architect — Foundations 試験対策 (5 ドメイン) |
+| ⚙️ Claude Code 基礎 | ハーネス / CLAUDE.md / Hooks / Skills / Subagents / MCP / Plugins |
+| 🛠️ Claude Code 実務活用 | Plan モード / 並列セッション / Output Styles / IDE / Web / 自動化 |
+| 🔐 AI セキュリティ | OWASP LLM Top 10 (2025) / Prompt Injection / Lethal Trifecta / MCP セキュリティ |
 
 各問題には:
 - **段階的ヒント** (3 段階。最後は『答えに近いヒント』として明示)

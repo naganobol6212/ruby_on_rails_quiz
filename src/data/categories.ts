@@ -278,6 +278,104 @@ export const categories: Category[] = [
     accentClass: "from-teal-500/20 to-emerald-500/5",
     ringClass: "hover:ring-teal-500/40",
   },
+
+  // ===========================================================================
+  // Track: AI / Claude
+  // ===========================================================================
+  {
+    id: "ai-engineering",
+    trackId: "ai-claude",
+    name: "AI エンジニアリング基礎",
+    description:
+      "エージェント設計パターン (Anthropic 5 workflows) / RAG / LLMOps / ガバナンス (NIST/ISO/EU AI Act)",
+    emoji: "🧠",
+    accentClass: "from-purple-500/20 to-violet-500/5",
+    ringClass: "hover:ring-purple-500/40",
+  },
+  {
+    id: "anthropic-cert",
+    trackId: "ai-claude",
+    name: "CCA-F 模擬問題",
+    description:
+      "Claude Certified Architect — Foundations 本番形式 30 問。6 つの本番想定シナリオ × 5 ドメイン (Agentic / Claude Code / Prompt / MCP / Context) のシナリオ駆動 mock exam",
+    emoji: "📝",
+    accentClass: "from-fuchsia-500/20 to-pink-500/5",
+    ringClass: "hover:ring-fuchsia-500/40",
+  },
+  {
+    id: "claude-code-basics",
+    trackId: "ai-claude",
+    name: "Claude Code 基礎",
+    description:
+      "ハーネス / CLAUDE.md / Hooks / Skills / Subagents / MCP / Slash Commands / Plugins",
+    emoji: "⚙️",
+    accentClass: "from-indigo-500/20 to-blue-500/5",
+    ringClass: "hover:ring-indigo-500/40",
+  },
+  {
+    id: "claude-code-practice",
+    trackId: "ai-claude",
+    name: "Claude Code 実務活用",
+    description:
+      "ワークフロー設計 / Plan モード / 並列セッション / レビュー / 自動化 / 落とし穴",
+    emoji: "🛠️",
+    accentClass: "from-blue-500/20 to-cyan-500/5",
+    ringClass: "hover:ring-blue-500/40",
+  },
+  {
+    id: "ai-security",
+    trackId: "ai-claude",
+    name: "AI セキュリティ",
+    description:
+      "OWASP LLM Top 10 (2025) / Prompt Injection / Lethal Trifecta / MCP セキュリティ / Constitutional AI",
+    emoji: "🔐",
+    accentClass: "from-red-500/20 to-rose-500/5",
+    ringClass: "hover:ring-red-500/40",
+  },
+
+  // ===========================================================================
+  // Track: 試験・認定まとめ
+  // ===========================================================================
+  {
+    id: "exam-ipa",
+    trackId: "exam-prep",
+    name: "IPA / データ認定",
+    description:
+      "基本情報 / 応用情報 / DB スペシャリスト / G 検定 / E 資格 / データサイエンティスト検定",
+    emoji: "🇯🇵",
+    accentClass: "from-yellow-500/20 to-amber-500/5",
+    ringClass: "hover:ring-yellow-500/40",
+  },
+  {
+    id: "exam-lang-os",
+    trackId: "exam-prep",
+    name: "言語・OS 認定",
+    description:
+      "Ruby Silver/Gold / Python PCEP/PCAP / LPIC / Oracle Java SE / PHP 技術者認定",
+    emoji: "🐧",
+    accentClass: "from-emerald-500/20 to-teal-500/5",
+    ringClass: "hover:ring-emerald-500/40",
+  },
+  {
+    id: "exam-ai-claude",
+    trackId: "exam-prep",
+    name: "AI・Claude 関連認定",
+    description:
+      "Anthropic CCA-F (現行) / 予定中の Seller・Developer・Advanced Architect / その他主要 AI 認定",
+    emoji: "🤖",
+    accentClass: "from-purple-500/20 to-fuchsia-500/5",
+    ringClass: "hover:ring-purple-500/40",
+  },
+  {
+    id: "exam-cloud",
+    trackId: "exam-prep",
+    name: "クラウド認定",
+    description:
+      "AWS (CLF/SAA/SAP/MLS) / GCP (ACE/PCA/PMLE) / Azure (AZ-104/AZ-305/AI-102)",
+    emoji: "☁️",
+    accentClass: "from-sky-500/20 to-blue-500/5",
+    ringClass: "hover:ring-sky-500/40",
+  },
 ];
 
 export const findCategory = (id: string) =>

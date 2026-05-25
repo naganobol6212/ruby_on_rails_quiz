@@ -1,10 +1,16 @@
-// 既存の questions.ts + 新カテゴリ questions-extra.ts + Track 用 questions-tracks.ts + DB 設計 questions-db.ts + 拡充 questions-extra-2.ts + 拡充 questions-extra-3.ts を統合
+// 既存の questions.ts + 新カテゴリ questions-extra.ts + Track 用 questions-tracks.ts + DB 設計 questions-db.ts + 拡充 questions-extra-2.ts + 拡充 questions-extra-3.ts + AI/Claude 5 カテゴリを統合
 import { questions as base } from "./questions";
 import { extraQuestions } from "./questions-extra";
 import { trackQuestions } from "./questions-tracks";
 import { dbQuestions } from "./questions-db";
 import { extraQuestions2 } from "./questions-extra-2";
 import { extraQuestions3 } from "./questions-extra-3";
+import { aiEngineeringQuestions } from "./questions-ai-engineering";
+import { anthropicCertQuestions } from "./questions-anthropic-cert";
+import { claudeCodeBasicsQuestions } from "./questions-claude-code-basics";
+import { claudeCodePracticeQuestions } from "./questions-claude-code-practice";
+import { aiSecurityQuestions } from "./questions-ai-security";
+import { examPrepQuestions } from "./questions-exam-prep";
 import { categories, findCategory } from "./categories";
 import type { Question } from "@/lib/types";
 
@@ -15,6 +21,12 @@ export const allQuestions: Question[] = [
   ...dbQuestions,
   ...extraQuestions2,
   ...extraQuestions3,
+  ...aiEngineeringQuestions,
+  ...anthropicCertQuestions,
+  ...claudeCodeBasicsQuestions,
+  ...claudeCodePracticeQuestions,
+  ...aiSecurityQuestions,
+  ...examPrepQuestions,
 ];
 
 export const questionsByCategory = (categoryId: string) =>

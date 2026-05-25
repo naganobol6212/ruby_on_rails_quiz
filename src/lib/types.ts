@@ -15,7 +15,9 @@ export type TrackId =
   | "db-design"
   | "git"
   | "infosec"
-  | "linux";
+  | "linux"
+  | "ai-claude"
+  | "exam-prep";
 
 export type Track = {
   id: TrackId;
@@ -64,7 +66,18 @@ export type CategoryId =
   | "sql-joins"
   | "sql-advanced"
   // DB 設計
-  | "db-design";
+  | "db-design"
+  // AI / Claude
+  | "ai-engineering"
+  | "anthropic-cert"
+  | "claude-code-basics"
+  | "claude-code-practice"
+  | "ai-security"
+  // 試験・認定まとめ
+  | "exam-ipa"
+  | "exam-lang-os"
+  | "exam-ai-claude"
+  | "exam-cloud";
 
 export type Category = {
   id: CategoryId;
