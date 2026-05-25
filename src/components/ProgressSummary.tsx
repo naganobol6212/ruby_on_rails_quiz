@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { loadProgress, resetProgress } from "@/lib/storage";
 import type { Progress } from "@/lib/types";
@@ -63,13 +64,22 @@ export function ProgressSummary({ totalQuestions }: Props) {
               あなたの進捗
             </h2>
           </div>
-          <button
-            type="button"
-            onClick={handleReset}
-            className="text-[11px] text-zinc-500 transition hover:text-rose-600 hover:underline dark:hover:text-rose-300"
-          >
-            リセット
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/stats"
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 transition hover:text-rose-700 hover:underline dark:text-rose-300 dark:hover:text-rose-200"
+            >
+              📈 詳しい統計を見る
+              <span aria-hidden>→</span>
+            </Link>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="text-[11px] text-zinc-500 transition hover:text-rose-600 hover:underline dark:hover:text-rose-300"
+            >
+              リセット
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

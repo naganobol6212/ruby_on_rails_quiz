@@ -17,6 +17,22 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-27-l",
+    date: "2026-05-27",
+    title: "📈 学習統計ダッシュボード (/stats) を新設",
+    badge: "feat",
+    highlights: [
+      "🎯 ヒーロー 4 カード: 正答率 (定着率) / 累計挑戦 / 連続記録 (🔥) / 学習日数 (累計)",
+      "📊 直近 12 週の学習活動 — 週単位の挑戦数 (青) と解けた数 (緑) のミニ棒グラフ、 hover で件数 tooltip",
+      "🗓 直近 6 ヶ月の月次トレンド — 挑戦 / 解 / ジャーナル の 3 系列を並列バーで比較",
+      "🏷 カテゴリー別正答率 — 得意 Top 5 / 伸びしろ Bottom 5、 各カテゴリーへの導線 + 弱点 🔁 件数表示",
+      "🎯 難易度別正答率 — 初級 / 中級 / 上級 のバー",
+      "📝 ジャーナルヒートマップ (既存コンポーネント再利用) + テンプレ使用比率 (積み上げバー + 凡例)",
+      "🧭 ヘッダーに『📈 統計』 リンク追加 + ProgressSummary からも『詳しい統計を見る →』 で導線",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-27-k",
     date: "2026-05-27",
     title: "🛠️ クイックウィン — クイズ次問題のスクロール修正 + ホーム圧縮",

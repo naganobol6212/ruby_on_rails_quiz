@@ -16,6 +16,7 @@ const links: NavLink[] = [
   { href: "/guide", label: "参考書", icon: "📚" },
   { href: "/crud", label: "CRUD 課題", icon: "🛠️" },
   { href: "/journal", label: "ジャーナル", icon: "📝" },
+  { href: "/stats", label: "統計", icon: "📈" },
   { href: "/about", label: "使い方", icon: "📖" },
 ];
 
