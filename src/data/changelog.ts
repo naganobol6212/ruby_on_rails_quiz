@@ -17,6 +17,21 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-27-g",
+    date: "2026-05-27",
+    title: "✍️ ジャーナル Markdown 対応 + ツールバー + ライブプレビュー",
+    badge: "feat",
+    highlights: [
+      "📝 ジャーナル本文を Markdown 対応 (見出し / 太字 / 斜体 / 取り消し / コード / 引用 / 箇条書き / 番号付き / リンク / 区切り)",
+      "🛠️ 各 multiline フィールドに Markdown ツールバー (見出し / 太字 / 斜体 / リスト / 引用 / コード / リンク 等を 1 クリック挿入)",
+      "👁 各フィールドに『編集 / プレビュー』トグル + 文字数カウンタ",
+      "⌨️ キーボードショートカット: ⌘B 太字 / ⌘I 斜体 / ⌘K リンク / ⌘E プレビュー切替 / ⌘S 保存",
+      "🔒 自作の軽量 Markdown レンダラ (依存追加なし、HTML escape + URL allowlist で安全)",
+      "📖 詳細ビュー (JournalEntryView) もマークダウンレンダリングされ表示が綺麗に",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-27-f",
     date: "2026-05-27",
     title: "📔 ジャーナル『毎日続けやすく』大幅強化 — ストリーク / ヒートマップ / 今日の CTA",

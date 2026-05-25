@@ -14,6 +14,7 @@ import {
   updateEntry,
 } from "@/lib/journal";
 import { Modal } from "./Modal";
+import { MarkdownField } from "./MarkdownField";
 
 type Props = {
   template: Template;
@@ -441,6 +442,24 @@ export function JournalEditor({ template, existingId }: Props) {
         </div>
       </Modal>
 
+      {/* Markdown ヒント (multiline フィールドで markdown が効くことを周知) */}
+      <details className="rounded-lg border border-zinc-200 bg-zinc-50/60 px-3 py-2 text-xs dark:border-zinc-800 dark:bg-zinc-900/40">
+        <summary className="cursor-pointer font-semibold text-zinc-700 hover:text-rose-600 dark:text-zinc-300 dark:hover:text-rose-300">
+          ✨ 本文は Markdown 対応 (見出し / 太字 / コード / リスト / 引用) — クリックで詳細
+        </summary>
+        <div className="mt-2 grid gap-x-4 gap-y-1 text-[11px] text-zinc-600 dark:text-zinc-400 sm:grid-cols-2">
+          <code># 見出し</code>
+          <code>**太字** *斜体* ~~取り消し~~</code>
+          <code>- 箇条書き  1. 番号付き</code>
+          <code>`code` ```fenced```</code>
+          <code>&gt; 引用</code>
+          <code>[link](https://example.com)</code>
+        </div>
+        <p className="mt-2 text-[10px] text-zinc-500 dark:text-zinc-500">
+          各フィールド右上の <strong>👁 プレビュー</strong> で確認できます。⌘B 太字 / ⌘I 斜体 / ⌘K リンク / ⌘E プレビュー切替 / ⌘S 保存。
+        </p>
+      </details>
+
       {/* タイトル */}
       <section>
         <label className="mb-1.5 block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
@@ -468,12 +487,12 @@ export function JournalEditor({ template, existingId }: Props) {
               </span>
             </label>
             {field.multiline ? (
-              <textarea
+              <MarkdownField
                 value={content[field.key] ?? ""}
-                onChange={(e) => setField(field.key, e.target.value)}
+                onChange={(v) => setField(field.key, v)}
                 placeholder={field.placeholder}
-                rows={4}
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 font-sans text-sm leading-relaxed text-zinc-900 placeholder:text-zinc-400 focus:border-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:border-white/10 dark:bg-white/5 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                rows={5}
+                onSubmit={handleSave}
               />
             ) : (
               <input

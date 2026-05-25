@@ -13,6 +13,7 @@ import {
   loadEntries,
 } from "@/lib/journal";
 import { JournalEditor } from "./JournalEditor";
+import { JournalMarkdown } from "./JournalMarkdown";
 import { Modal } from "./Modal";
 
 type Props = {
@@ -229,6 +230,10 @@ export function JournalEntryView({ id }: Props) {
                     <p className="mt-2 text-xs italic text-zinc-400 dark:text-zinc-500">
                       (未記入)
                     </p>
+                  ) : field.multiline ? (
+                    <div className="mt-2">
+                      <JournalMarkdown text={value!} />
+                    </div>
                   ) : (
                     <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-zinc-800 dark:text-zinc-200">
                       {value}
