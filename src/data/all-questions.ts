@@ -6,7 +6,6 @@ import { dbQuestions } from "./questions-db";
 import { extraQuestions2 } from "./questions-extra-2";
 import { extraQuestions3 } from "./questions-extra-3";
 import { aiEngineeringQuestions } from "./questions-ai-engineering";
-import { anthropicCertQuestions } from "./questions-anthropic-cert";
 import { claudeCodeBasicsQuestions } from "./questions-claude-code-basics";
 import { claudeCodePracticeQuestions } from "./questions-claude-code-practice";
 import { aiSecurityQuestions } from "./questions-ai-security";
@@ -21,7 +20,6 @@ export const allQuestions: Question[] = [
   ...extraQuestions2,
   ...extraQuestions3,
   ...aiEngineeringQuestions,
-  ...anthropicCertQuestions,
   ...claudeCodeBasicsQuestions,
   ...claudeCodePracticeQuestions,
   ...aiSecurityQuestions,

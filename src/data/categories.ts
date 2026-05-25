@@ -293,16 +293,6 @@ export const categories: Category[] = [
     ringClass: "hover:ring-purple-500/40",
   },
   {
-    id: "anthropic-cert",
-    trackId: "ai-claude",
-    name: "CCA-F 模擬問題",
-    description:
-      "Claude Certified Architect — Foundations 本番形式 30 問。6 つの本番想定シナリオ × 5 ドメイン (Agentic / Claude Code / Prompt / MCP / Context) のシナリオ駆動 mock exam",
-    emoji: "📝",
-    accentClass: "from-fuchsia-500/20 to-pink-500/5",
-    ringClass: "hover:ring-fuchsia-500/40",
-  },
-  {
     id: "claude-code-basics",
     trackId: "ai-claude",
     name: "Claude Code 基礎",

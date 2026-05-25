@@ -309,10 +309,9 @@ export const examProfiles: ExamProfile[] = [
       "MCP (Model Context Protocol) / Context Window 管理",
     ],
     strategy:
-      "Anthropic Academy のコース (無料) を一通り → 公式 docs を辞書代わりに → 本サイトの『CCA-F 模擬問題』でシナリオ感覚を養う。 試験は実務シナリオ寄り。",
+      "Anthropic Academy のコース (無料) を一通り → 公式 docs を辞書代わりに → 本サイトの Claude Code 基礎・実践カテゴリで手を動かす。 試験は実務シナリオ寄り。",
     officialUrl: "https://www.anthropic.com/news/claude-partner-network",
     relatedCategoryIds: [
-      "anthropic-cert",
       "claude-code-basics",
       "claude-code-practice",
       "ai-engineering",

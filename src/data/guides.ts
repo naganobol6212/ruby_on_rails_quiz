@@ -5372,7 +5372,6 @@ end
       "linux-cli",
       "security",
       "ai-engineering",
-      "anthropic-cert",
       "claude-code-basics",
       "ai-security",
     ],
@@ -5765,13 +5764,6 @@ const CATEGORY_STUDY_FALLBACK: Partial<Record<CategoryId, StudyGuideLink[]>> = {
       guideId: "exam-prep-overview",
       chapterId: "ai-and-claude",
       note: "Anthropic 認定の地図 — Claude Code 実務応用の前提",
-    },
-  ],
-  "anthropic-cert": [
-    {
-      guideId: "exam-prep-overview",
-      chapterId: "ai-and-claude",
-      note: "Anthropic 認定の地図 — 試験の射程と対策ルート",
     },
   ],
   "ai-engineering": [

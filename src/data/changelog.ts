@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-25-h",
+    date: "2026-05-25",
+    title: "🗑 CCA-F 模擬問題カテゴリ (30 問) を削除",
+    badge: "content",
+    highlights: [
+      "🎯 CCA-F の知識領域は Claude Code 基礎・実践 / AI エンジニアリング / AI セキュリティ の 4 カテゴリで既にカバーされており、 試験形式の模擬問題 30 問は重複と判断",
+      "🗑 anthropic-cert カテゴリ + questions-anthropic-cert.ts (30 問) を削除",
+      "🔗 試験概要は引き続き /track/exam-prep の Anthropic CCA-F カードと exam-prep-overview ガイドの ai-and-claude 章で参照可能",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-25-g",
     date: "2026-05-25",
     title: "🏠 ホームを『今日何をやるか』 ダッシュボード化",
@@ -114,11 +126,9 @@ export const changelog: ChangelogEntry[] = [
   {
     version: "2026-05-25-a",
     date: "2026-05-25",
-    title: "📝 CCA-F 模擬問題 30 問 + 📚 ガイド『試験・認定の地図』を追加",
+    title: "📚 ガイド『試験・認定の地図』を追加",
     badge: "content",
     highlights: [
-      "📝 『Anthropic 公式認定 (CCA-F)』カテゴリを『CCA-F 模擬問題』に全面刷新 — 試験ロジ問題から本番形式のシナリオ駆動 30 問に書き換え",
-      "🎯 6 つの本番想定シナリオ (SaaS 社内展開 / EC サポート / 法務 PDF 抽出 / 製薬 RAG / 銀行 KYC / OSS バグ修正) × 5 ドメイン (Agentic / Claude Code / Prompt / MCP / Context) の構成",
       "📚 ガイド『試験・認定の地図』 (4 章) を新設 — 受験料・出題範囲・合格点・対策ルートを俯瞰",
     ],
     prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",

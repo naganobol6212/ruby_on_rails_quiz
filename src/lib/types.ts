@@ -69,7 +69,6 @@ export type CategoryId =
   | "db-design"
   // AI / Claude
   | "ai-engineering"
-  | "anthropic-cert"
   | "claude-code-basics"
   | "claude-code-practice"
   | "ai-security";
