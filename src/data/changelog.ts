@@ -17,6 +17,20 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-25-f",
+    date: "2026-05-25",
+    title: "📖 ガイド未整備カテゴリにも『もう一度学ぶ』 を表示 (14 カテゴリ救済)",
+    badge: "feat",
+    highlights: [
+      "🎯 これまで Rails / RSpec / Logs / Debugging / Practical / Code Reading / Ruby Advanced / AI 関連 5 カテゴリの問題では『もう一度学ぶ』 セクションが空表示だった問題を解消",
+      "🗺 CATEGORY_STUDY_FALLBACK マップで 14 カテゴリそれぞれに最も近い既存ガイド章 + ヒント文を設定 — 新ガイドを書かずに当座をしのぐ",
+      "💎 例: rails-convention → ruby-intro / classes-and-modules、 active-record → db-design-intro / er-and-normalization + sql-intro / joins、 ai-engineering → exam-prep-overview / ai-and-claude",
+      "🔧 guidesByCategory() を studyLinksForCategory() にリネーム — 戻り値が章レベル粒度 + note 付きの StudyGuideLink[] に進化",
+      "⚠️ 代替案内であることを意識させるため、 UI には『※ カテゴリから自動関連付け』 のラベルを引き続き表示",
+    ],
+    prUrl: "https://github.com/naganobol6212/ruby_on_rails_quiz/pulls",
+  },
+  {
     version: "2026-05-25-e",
     date: "2026-05-25",
     title: "📱 モバイル BottomNav に『🔁 復習』 を追加 — 記憶定着機能の到達性を改善",

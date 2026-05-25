@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import type { CategoryId, Explanation } from "@/lib/types";
 import { CodeBlock } from "./CodeBlock";
-import { findGuide, guidesByCategory } from "@/data/guides";
+import { findGuide, studyLinksForCategory } from "@/data/guides";
 
 type Props = {
   explanation: Explanation;
@@ -83,16 +83,27 @@ function resolveStudyLinks(
   }
 
   // 2. 明示がなければ categoryId からフォールバック (最大 2 件)
+  // studyLinksForCategory は章レベル & note 付きの代替案内も返す
   if (links.length === 0 && categoryId) {
-    for (const guide of guidesByCategory(categoryId).slice(0, 2)) {
-      const key = `${guide.id}|`;
+    for (const sg of studyLinksForCategory(categoryId).slice(0, 2)) {
+      const guide = findGuide(sg.guideId);
+      if (!guide) continue;
+      const chapter = sg.chapterId
+        ? guide.chapters.find((c) => c.id === sg.chapterId)
+        : undefined;
+      const key = `${guide.id}|${chapter?.id ?? ""}`;
       if (seen.has(key)) continue;
       seen.add(key);
       links.push({
         guideId: guide.id,
         guideTitle: guide.title,
         guideEmoji: guide.emoji,
-        href: `/guide/${guide.id}`,
+        chapterId: chapter?.id,
+        chapterTitle: chapter?.title,
+        href: chapter
+          ? `/guide/${guide.id}/${chapter.id}`
+          : `/guide/${guide.id}`,
+        note: sg.note,
         explicit: false,
       });
     }
