@@ -6,13 +6,12 @@ import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThemeToggle } from "./ThemeToggle";
 import { ChangelogBadge } from "./ChangelogBadge";
-import { SearchTrigger, SearchTriggerMobile } from "./SearchTrigger";
 import { AuthButton } from "./AuthButton";
 
 type NavLink = { href: string; label: string; icon: string };
 
 const links: NavLink[] = [
-  { href: "/", label: "ホーム", icon: "🏠" },
+  // ホームはロゴクリックで戻れるためナビには含めない
   { href: "/roadmap", label: "ロードマップ", icon: "🗺️" },
   { href: "/guide", label: "参考書", icon: "📚" },
   { href: "/crud", label: "CRUD 課題", icon: "🛠️" },
@@ -111,7 +110,6 @@ export function SiteHeader() {
             );
           })}
           <div className="mx-1 h-5 w-px bg-zinc-200 dark:bg-white/10" />
-          <SearchTrigger />
           <ChangelogBadge />
           <ThemeToggle />
           <AuthButton />
@@ -119,7 +117,6 @@ export function SiteHeader() {
 
         {/* モバイルナビ */}
         <div className="flex items-center gap-2 sm:hidden">
-          <SearchTriggerMobile />
           <ChangelogBadge />
           <ThemeToggle />
           <AuthButton />
