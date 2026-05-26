@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { roadmap, totalSteps } from "@/data/roadmap";
+import type { RoadmapPhase } from "@/data/roadmap";
 import { loadProgress } from "@/lib/storage";
 import {
   type ProgressIndex,
@@ -19,7 +19,27 @@ import { PhaseProgressBars } from "./PhaseProgressBars";
 import { RoadmapFilters } from "./RoadmapFilters";
 import { PHASE_COLORS, StepCard } from "./StepCard";
 
-export function RoadmapView() {
+type RoadmapViewProps = {
+  /** 表示するトラックの phases 配列 */
+  roadmap: RoadmapPhase[];
+  /** トラック名 (例: 「Ruby on Rails」) */
+  trackName: string;
+  /** ヘッドライン (h1 に出すフレーズ。 例: 「ゼロから Rails 中級者まで」) */
+  headline: string;
+  /** 「すべてのトラック一覧へ」 戻りリンクを出すか (個別トラックページでは true) */
+  showTrackBackLink?: boolean;
+};
+
+export function RoadmapView({
+  roadmap,
+  trackName,
+  headline,
+  showTrackBackLink = false,
+}: RoadmapViewProps) {
+  const totalSteps = useMemo(
+    () => roadmap.reduce((sum, phase) => sum + phase.steps.length, 0),
+    [roadmap],
+  );
   const [index, setIndex] = useState<ProgressIndex | null>(null);
   const [filter, setFilter] = useState<RoadmapFilter>("all");
 
@@ -40,7 +60,7 @@ export function RoadmapView() {
         roadmap,
         index ?? { solvedIds: new Set(), weakIds: new Set() },
       ),
-    [index],
+    [index, roadmap],
   );
 
   // Phase 別統計
@@ -54,14 +74,14 @@ export function RoadmapView() {
       phase,
       stats: computePhaseStats(phase, index),
     }));
-  }, [index]);
+  }, [index, roadmap]);
 
   const filterCounts = useMemo(
     () =>
       index
         ? countByFilter(roadmap, index)
         : { all: totalSteps, incomplete: totalSteps, completed: 0, weak: 0 },
-    [index],
+    [index, roadmap, totalSteps],
   );
 
   // 全体集計
@@ -104,17 +124,32 @@ export function RoadmapView() {
           ホーム
         </Link>
         <span>›</span>
-        <span className="font-medium text-zinc-700 dark:text-zinc-200">
-          ロードマップ
-        </span>
+        {showTrackBackLink ? (
+          <>
+            <Link
+              href="/roadmap"
+              className="hover:text-rose-600 hover:underline dark:hover:text-rose-300"
+            >
+              ロードマップ
+            </Link>
+            <span>›</span>
+            <span className="font-medium text-zinc-700 dark:text-zinc-200">
+              {trackName}
+            </span>
+          </>
+        ) : (
+          <span className="font-medium text-zinc-700 dark:text-zinc-200">
+            ロードマップ
+          </span>
+        )}
       </div>
 
       <header className="mb-6">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">
-          Learning Roadmap
+          {trackName} · Learning Roadmap
         </p>
         <h1 className="mt-1 text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-          🗺️ ゼロから Rails 中級者まで
+          🗺️ {headline}
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
           このアプリだけで完結する学習パスです。 {totalSteps} ステップ・全{" "}
