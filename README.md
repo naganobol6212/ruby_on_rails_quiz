@@ -98,12 +98,29 @@ Ruby on Rails を **クイズ** と **学習ジャーナル** で身につける
 
 ## データの取り扱い
 
+デフォルトは **ローカル保存のみ** (アカウント不要、 サーバーへの送信もなし)。
+**ログインすると同じ進捗をデバイス間で同期** できます (任意機能)。
+
 - すべてあなたの **ブラウザ (LocalStorage)** に保存されます
-- サーバーへ送信される情報は **一切ありません**
-- アカウント登録・ログイン不要
+- ログインしない限り、 サーバーへ送信される情報は **一切ありません**
 - リセットしたい時: ブラウザの DevTools → Application → Local Storage → 該当 origin をクリア
 
-⚠️ ブラウザのデータを削除すると全記録が消えます。大事な記録は定期的にジャーナル詳細の **コピー** ボタンで外部 (Notion 等) に転記推奨。
+⚠️ ブラウザのデータを削除すると未同期の記録は消えます。 ログインしておけばクラウドからリストア可能。 ジャーナルの **コピー** ボタンで外部 (Notion 等) への転記も推奨。
+
+### ☁️ クラウド同期 (GitHub ログイン) のセットアップ
+
+セルフホストする場合に同期機能を有効化するには Supabase の無料枠で 5 分。
+何もしなければ従来通り LocalStorage のみ動作し、 ログインボタンは表示されません。
+
+1. **Supabase プロジェクトを作成** ([app.supabase.com](https://app.supabase.com/))
+2. **SQL マイグレーション実行**: `supabase/migrations/0001_init.sql` を SQL Editor に貼って実行
+3. **GitHub OAuth を有効化**:
+   - GitHub 側で [OAuth App を作成](https://github.com/settings/developers) (Callback URL は Supabase の `https://<project>.supabase.co/auth/v1/callback`)
+   - Supabase 側で Authentication → Providers → GitHub に Client ID / Secret を登録
+4. **環境変数を設定**: `.env.local.example` を `.env.local` にコピーし、 Supabase の URL と anon key を記入
+5. デプロイ環境 (Vercel / Cloudflare Pages 等) でも同じ環境変数を設定
+
+設計詳細: Supabase Auth + Postgres + Row Level Security で「自分の行だけ読み書き」 を DB レベルで保証。 anon key はクライアントに露出して OK (RLS で守られている)。
 
 ---
 

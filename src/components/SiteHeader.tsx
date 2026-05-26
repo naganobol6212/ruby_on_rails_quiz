@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ThemeToggle } from "./ThemeToggle";
 import { ChangelogBadge } from "./ChangelogBadge";
 import { SearchTrigger, SearchTriggerMobile } from "./SearchTrigger";
+import { AuthButton } from "./AuthButton";
 
 type NavLink = { href: string; label: string; icon: string };
 
@@ -101,6 +102,7 @@ export function SiteHeader() {
           <SearchTrigger />
           <ChangelogBadge />
           <ThemeToggle />
+          <AuthButton />
         </nav>
 
         {/* モバイルナビ */}
@@ -108,6 +110,7 @@ export function SiteHeader() {
           <SearchTriggerMobile />
           <ChangelogBadge />
           <ThemeToggle />
+          <AuthButton />
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}

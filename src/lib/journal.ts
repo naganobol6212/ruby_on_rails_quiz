@@ -1,5 +1,7 @@
 // 学習ジャーナル: 構造化テンプレートで日々の学びを記録する
 
+import { syncDeleteJournalEntry, syncPushJournalEntry } from "./sync";
+
 export type TemplateId =
   | "3line"
   | "kpt"
@@ -787,6 +789,7 @@ export function createEntry(
   const entries = loadEntries();
   entries.unshift(entry);
   saveEntries(entries);
+  syncPushJournalEntry(entry);
   return entry;
 }
 
@@ -806,12 +809,14 @@ export function updateEntry(
   };
   entries[idx] = updated;
   saveEntries(entries);
+  syncPushJournalEntry(updated);
   return updated;
 }
 
 export function deleteEntry(id: string) {
   const entries = loadEntries().filter((e) => e.id !== id);
   saveEntries(entries);
+  syncDeleteJournalEntry(id);
 }
 
 export function findEntry(id: string): JournalEntry | undefined {

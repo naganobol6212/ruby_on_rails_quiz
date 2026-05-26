@@ -1,4 +1,5 @@
 import type { Progress, QuestionAttempt, ReviewMark } from "./types";
+import { syncPushAttempt } from "./sync";
 
 const STORAGE_KEY = "rrq_progress_v3";
 
@@ -76,6 +77,7 @@ export const recordAttempt = (
   };
 
   saveProgress(newProgress);
+  syncPushAttempt(updated);
   return newProgress;
 };
 
@@ -96,6 +98,7 @@ export const setReviewMark = (questionId: string, mark: ReviewMark) => {
     attempts: { ...progress.attempts, [questionId]: updated },
   };
   saveProgress(newProgress);
+  syncPushAttempt(updated);
   return newProgress;
 };
 
@@ -125,6 +128,7 @@ export const setSelfExplanation = (
     attempts: { ...progress.attempts, [questionId]: updated },
   };
   saveProgress(newProgress);
+  syncPushAttempt(updated);
   return newProgress;
 };
 

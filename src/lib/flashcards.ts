@@ -8,6 +8,7 @@
  */
 
 import type { TemplateId } from "./journal";
+import { syncDeleteFlashcard, syncPushFlashcard } from "./sync";
 
 // ===========================================================================
 // 型
@@ -166,6 +167,7 @@ export function createCard(input: {
     ...initialSrsFields(now),
   };
   saveAll([...loadCards(), card]);
+  syncPushFlashcard(card);
   return card;
 }
 
@@ -187,6 +189,7 @@ export function updateCard(
   };
   cards[idx] = updated;
   saveAll(cards);
+  syncPushFlashcard(updated);
   return updated;
 }
 
@@ -196,6 +199,7 @@ export function reviewCard(id: string, rating: SrsRating): Flashcard | null {
   if (idx === -1) return null;
   cards[idx] = applyRating(cards[idx], rating);
   saveAll(cards);
+  syncPushFlashcard(cards[idx]);
   return cards[idx];
 }
 
@@ -204,6 +208,7 @@ export function deleteCard(id: string): boolean {
   const next = cards.filter((c) => c.id !== id);
   if (next.length === cards.length) return false;
   saveAll(next);
+  syncDeleteFlashcard(id);
   return true;
 }
 

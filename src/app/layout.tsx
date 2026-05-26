@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AuthProvider } from "@/lib/auth/context";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CommandPalette } from "@/components/CommandPalette";
 import { BottomNav } from "@/components/BottomNav";
@@ -66,6 +67,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
         <ThemeProvider>
+         <AuthProvider>
           <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
             <div className="absolute -top-40 -left-40 h-[36rem] w-[36rem] rounded-full bg-rose-300/30 blur-3xl dark:bg-rose-500/10" />
             <div className="absolute top-1/2 -right-40 h-[32rem] w-[32rem] rounded-full bg-violet-300/30 blur-3xl dark:bg-violet-500/10" />
@@ -77,12 +79,13 @@ export default function RootLayout({
           <footer className="mt-16 border-t border-zinc-200/70 py-8 pb-24 text-center text-[11px] text-zinc-500 dark:border-white/5 dark:text-zinc-500 sm:pb-8">
             <div className="mx-auto max-w-5xl px-6">
               <p>
-                💎 CodeDojo · 学習データは LocalStorage に保存されます
+                💎 CodeDojo · ローカルに保存、 ログインすればデバイス間で同期
               </p>
             </div>
           </footer>
           <BottomNav />
           <PWARegister />
+         </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
