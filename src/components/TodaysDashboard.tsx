@@ -8,6 +8,7 @@ import { findCategory } from "@/data/categories";
 import { loadProgress } from "@/lib/storage";
 import { recallCandidates, summarize } from "@/lib/recall";
 import { computeStreak, loadEntries } from "@/lib/journal";
+import { TrackDiagnosis } from "./TrackDiagnosis";
 import type { Progress, Question } from "@/lib/types";
 
 type ResumeCategory = {
@@ -197,13 +198,17 @@ export function TodaysDashboard() {
 
   return (
     <section className="space-y-3">
-      {/* 「今日のおすすめ」 アクションヒーロー */}
+      {/* 「今日のおすすめ」 アクションヒーロー (新規ユーザーには診断 UI を出す) */}
       <motion.div
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
-        <ActionHero action={action} />
+        {action.kind === "fresh-start" ? (
+          <TrackDiagnosis />
+        ) : (
+          <ActionHero action={action} />
+        )}
       </motion.div>
 
       {/* 今日の数字 */}

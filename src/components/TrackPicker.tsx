@@ -5,19 +5,50 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { tracks } from "@/data/tracks";
 import { questionsByTrack } from "@/data/all-questions";
+import { getRoadmap } from "@/data/roadmaps";
 import { loadProgress } from "@/lib/storage";
 
+type TrackStat = {
+  solved: number;
+  total: number;
+  /** ロードマップが存在するトラックのみ */
+  roadmap?: { done: number; total: number };
+};
+
 export function TrackPicker() {
-  const [stats, setStats] = useState<Record<string, { solved: number; total: number }>>({});
+  const [stats, setStats] = useState<Record<string, TrackStat>>({});
 
   useEffect(() => {
     const refresh = () => {
       const attempts = loadProgress().attempts;
-      const result: Record<string, { solved: number; total: number }> = {};
+      const solvedIds = new Set(
+        Object.entries(attempts)
+          .filter(([, a]) => a.solved)
+          .map(([id]) => id),
+      );
+      const result: Record<string, TrackStat> = {};
       tracks.forEach((t) => {
         const qs = questionsByTrack(t.id);
-        const solved = qs.filter((q) => attempts[q.id]?.solved).length;
-        result[t.id] = { solved, total: qs.length };
+        const solved = qs.filter((q) => solvedIds.has(q.id)).length;
+        const roadmap = getRoadmap(t.id);
+        let roadmapStats: TrackStat["roadmap"];
+        if (roadmap) {
+          let total = 0;
+          let done = 0;
+          for (const phase of roadmap.phases) {
+            for (const step of phase.steps) {
+              total++;
+              const required = step.items.flatMap(
+                (i) => i.requiredQuestionIds ?? [],
+              );
+              if (required.length > 0 && required.every((id) => solvedIds.has(id))) {
+                done++;
+              }
+            }
+          }
+          roadmapStats = { done, total };
+        }
+        result[t.id] = { solved, total: qs.length, roadmap: roadmapStats };
       });
       setStats(result);
     };
@@ -92,6 +123,11 @@ export function TrackPicker() {
                       開く →
                     </span>
                   </div>
+                  {s.roadmap && (
+                    <p className="mt-1.5 text-[10px] text-zinc-500 dark:text-zinc-400">
+                      🗺️ ロードマップ {s.roadmap.done} / {s.roadmap.total} ステップ
+                    </p>
+                  )}
                 </>
               )}
               {!isComingSoon && s.total === 0 && (
