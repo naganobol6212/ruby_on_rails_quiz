@@ -64,8 +64,21 @@ export function SiteHeader() {
           href="/"
           className="group inline-flex items-center gap-2.5 font-bold tracking-tight"
         >
-          <span className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-rose-200/80 bg-gradient-to-br from-rose-50 to-white text-sm transition-transform group-hover:scale-105 dark:border-rose-500/30 dark:from-rose-950/70 dark:to-zinc-900">
-            <span>💎</span>
+          <span className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 to-fuchsia-600 text-white shadow-sm transition-transform group-hover:scale-105">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M8 8 L4 12 L8 16" />
+              <path d="M16 8 L20 12 L16 16" />
+              <line x1="14" y1="6" x2="10" y2="18" />
+            </svg>
           </span>
           <span className="text-base text-zinc-900 dark:text-zinc-100">
             Code<span className="text-rose-600 dark:text-rose-400">Dojo</span>
@@ -80,13 +93,12 @@ export function SiteHeader() {
               <Link
                 key={l.href}
                 href={l.href}
-                className={`group relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-all ${
+                className={`group relative inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium transition-all ${
                   active
                     ? "bg-gradient-to-r from-rose-500/15 to-fuchsia-500/15 text-rose-700 dark:from-rose-500/20 dark:to-fuchsia-500/20 dark:text-rose-200"
                     : "text-zinc-600 hover:bg-white/80 hover:text-rose-600 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-rose-300"
                 }`}
               >
-                <span className="text-xs opacity-80">{l.icon}</span>
                 <span>{l.label}</span>
                 {active && (
                   <motion.span

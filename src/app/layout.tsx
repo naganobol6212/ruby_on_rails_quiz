@@ -79,7 +79,7 @@ export default function RootLayout({
           <footer className="mt-16 border-t border-zinc-200/70 py-8 pb-24 text-center text-[11px] text-zinc-500 dark:border-white/5 dark:text-zinc-500 sm:pb-8">
             <div className="mx-auto max-w-5xl px-6">
               <p>
-                💎 CodeDojo · ローカルに保存、 ログインすればデバイス間で同期
+                CodeDojo · ローカルに保存、 ログインすればデバイス間で同期
               </p>
             </div>
           </footer>
