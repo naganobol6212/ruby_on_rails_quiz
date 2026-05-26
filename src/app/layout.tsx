@@ -18,10 +18,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteTitle = "CodeDojo — 複数の言語/FW をクイズで横断学習";
+const siteDescription =
+  "Ruby/Rails・JavaScript・TypeScript・React・Next.js などをクイズで学べる学習プラットフォーム。 構造化ジャーナル機能付き。";
+
 export const metadata: Metadata = {
-  title: "CodeDojo — 複数の言語/FW をクイズで横断学習",
-  description:
-    "Ruby/Rails・JavaScript・TypeScript・React・Next.js などをクイズで学べる学習プラットフォーム。構造化ジャーナル機能付き。",
+  title: {
+    default: siteTitle,
+    template: "%s — CodeDojo",
+  },
+  description: siteDescription,
   manifest: "/manifest.webmanifest",
   applicationName: "CodeDojo",
   appleWebApp: {
@@ -35,6 +41,27 @@ export const metadata: Metadata = {
       { url: "/favicon.ico", sizes: "any" },
     ],
     apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
+  openGraph: {
+    type: "website",
+    siteName: "CodeDojo",
+    title: siteTitle,
+    description: siteDescription,
+    locale: "ja_JP",
+    images: [
+      {
+        url: "/icon.svg",
+        width: 512,
+        height: 512,
+        alt: "CodeDojo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: siteTitle,
+    description: siteDescription,
+    images: ["/icon.svg"],
   },
 };
 
