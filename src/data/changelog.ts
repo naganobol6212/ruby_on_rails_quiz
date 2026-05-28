@@ -17,6 +17,31 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-28-b",
+    date: "2026-05-28",
+    title: "🎯 クイズの正解が『A』 に偏っていた問題を修正",
+    badge: "fix",
+    highlights: [
+      "🔍 AI 系 4 カテゴリ (AI エンジニアリング / Claude Code 基礎・実務 / AI セキュリティ) の全 120 問が、 正解がすべて選択肢 A に固定されていた問題を発見",
+      "🛠 偏りは AI 以外にも及んでいたため、 偏っていた 10 ファイル・計 622 問の正解位置を分散 (各選択肢がほぼ 25% ずつになるよう調整)",
+      "🔒 選択肢と各選択肢の解説を正解とセットで並べ替え、 正解テキスト・解説・選択肢の集合が変わっていないことを全 622 問で機械検証",
+      "🧪 型チェック / Lint / テスト (22 件) / ビルドすべて通過",
+    ],
+    prUrl: "https://github.com/naganobol6212/code-dojo-app/pull/82",
+  },
+  {
+    version: "2026-05-28-a",
+    date: "2026-05-28",
+    title: "🧠 AI / Claude の体系参考書を新規追加 (全 8 章)",
+    badge: "content",
+    highlights: [
+      "📚 これまで AI 系カテゴリの『参考書』 が試験・認定の案内に飛んでいたのを、 体系的に学べる専用ガイドに刷新",
+      "🗺 全 8 章構成: LLM 基礎 → エージェント設計パターン → RAG → Claude Code 基礎 → Claude Code 実務 → MCP → AI セキュリティ → LLMOps / ガバナンス",
+      "🔗 各章末の理解度確認クイズを実際の AI 問題に紐付け、 AI 4 カテゴリの『もう一度学ぶ』 導線を新ガイドへ変更",
+    ],
+    prUrl: "https://github.com/naganobol6212/code-dojo-app/pull/82",
+  },
+  {
     version: "2026-05-25-h",
     date: "2026-05-25",
     title: "🗑 CCA-F 模擬問題カテゴリ (30 問) を削除",
