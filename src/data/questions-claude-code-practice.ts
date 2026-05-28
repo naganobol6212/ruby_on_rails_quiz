@@ -21,17 +21,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "VS Code 拡張で、エディタの選択範囲を Claude へ『ファイルパス + 行範囲付きの @-mention』として挿入するショートカットは？",
     choices: [
+      "Cmd/Ctrl + Shift + Esc",
       "Option/Alt + K",
       "Cmd/Ctrl + Esc",
       "Cmd/Ctrl + Shift + T",
-      "Cmd/Ctrl + Shift + Esc",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "Cmd/Ctrl + Shift + Esc は新しい会話タブを開く。",
       "正解。Option/Alt + K が選択範囲を `@file:lines` の形で Claude 入力欄へ挿入する。",
       "Cmd/Ctrl + Esc はエディタと Claude パネルのフォーカスをトグルするショートカット。",
       "Cmd/Ctrl + Shift + T は閉じた Claude タブを再オープンする。",
-      "Cmd/Ctrl + Shift + Esc は新しい会話タブを開く。",
     ],
     hints: [
       "K は『Kontext』のKと覚えると忘れない。",
@@ -56,17 +56,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "VS Code 拡張で『エディタと Claude パネルのフォーカスをトグル』するショートカットは？",
     choices: [
-      "Cmd/Ctrl + Esc",
       "Cmd/Ctrl + Shift + Esc",
       "Cmd/Ctrl + Shift + T",
       "Option/Alt + K",
+      "Cmd/Ctrl + Esc",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。Cmd/Ctrl + Esc がエディタと Claude パネルの間でフォーカスを切り替える。",
       "Shift + Esc は『新しい会話タブを開く』ショートカット。",
       "Shift + T は閉じたタブを再オープンする。",
       "Option/Alt + K は選択範囲を @-mention として挿入する。",
+      "正解。Cmd/Ctrl + Esc がエディタと Claude パネルの間でフォーカスを切り替える。",
     ],
     hints: [
       "片手で頻繁に切り替える操作なので、押しやすいキーが割り当てられている。",
@@ -92,17 +92,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "VS Code 拡張の『Checkpoints UI』が提供する操作として誤っているものはどれ？",
     choices: [
+      "フォーク + リワインドを同時に行う",
       "別ブランチへ自動 push する",
       "会話を任意の時点にリワインドする",
       "ある時点から会話をフォークする",
-      "フォーク + リワインドを同時に行う",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "フォーク+リワインドの同時操作も UI から可能。",
       "正解。Checkpoints UI に自動 push 機能は無い。Git の push はユーザー操作。",
       "リワインドは Checkpoints UI の中核機能。",
       "フォーク (分岐) も提供される。",
-      "フォーク+リワインドの同時操作も UI から可能。",
     ],
     hints: [
       "Checkpoints は『会話・ファイル状態のスナップショット』を扱う機能。",
@@ -127,17 +127,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "IDE 拡張の『組み込み MCP サーバー (名前: `ide`)』が公開するツールとして正しい組み合わせは？",
     choices: [
+      "`mcp__ide__deploy` と `mcp__ide__rollback`",
       "`mcp__ide__getDiagnostics` (読み取り専用) と `mcp__ide__executeCode` (Jupyter)",
       "`mcp__ide__commit` と `mcp__ide__push`",
       "`mcp__ide__openFile` と `mcp__ide__closeFile`",
-      "`mcp__ide__deploy` と `mcp__ide__rollback`",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "デプロイ系の MCP ツールではない。",
       "正解。診断情報の取得 (read-only) と Jupyter 実行の 2 ツールが公開される。",
       "Git 操作は MCP `ide` の責務ではない。",
       "ファイル開閉 API は提供されていない。",
-      "デプロイ系の MCP ツールではない。",
     ],
     hints: [
       "127.0.0.1 のランダムポートでアクティベーション毎にトークン発行。",
@@ -162,17 +162,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "JetBrains プラグインで Claude Code を動かすときの仕組みとして正しいのは？",
     choices: [
-      "IDE 内ターミナルで CLI を起動し、CLI と同じモード切替で操作する",
-      "JetBrains 独自のサイドパネル UI を提供し、VS Code とは別のショートカット体系になる",
       "クラウドでだけ動き、ローカルでは使えない",
       "API キーを設定するとシンタックスハイライト機能だけ追加される",
+      "IDE 内ターミナルで CLI を起動し、CLI と同じモード切替で操作する",
+      "JetBrains 独自のサイドパネル UI を提供し、VS Code とは別のショートカット体系になる",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。JetBrains 版は IDE 内ターミナルで CLI を呼び出すラッパで、CLI と同じプランモード等が使える。",
-      "JetBrains 専用 UI は持たず、ターミナル経由で動く。",
       "ローカル CLI 経由なのでローカルでも動く。",
       "Claude Code はシンタックスハイライトを目的とした拡張ではない。",
+      "正解。JetBrains 版は IDE 内ターミナルで CLI を呼び出すラッパで、CLI と同じプランモード等が使える。",
+      "JetBrains 専用 UI は持たず、ターミナル経由で動く。",
     ],
     hints: [
       "Plugin は『CLI のラッパ』に近い形態。",
@@ -236,17 +236,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "Claude Code on the Web のセッションで利用可能なパーミッションモードとして正しいのは？",
     choices: [
-      "Auto accept edits と Plan mode の 2 つだけ",
-      "Ask / Auto / Bypass の 3 つ",
       "すべてのモード (Ask / Auto / Bypass / Plan)",
       "Bypass のみ",
+      "Auto accept edits と Plan mode の 2 つだけ",
+      "Ask / Auto / Bypass の 3 つ",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。Web 版では Auto accept edits と Plan mode の 2 つのみが利用可能。",
-      "Ask / Auto / Bypass は CLI 側のモードで Web には無い。",
       "Web ではモードが制限されている。",
       "Bypass は危険なので Web では提供されない。",
+      "正解。Web 版では Auto accept edits と Plan mode の 2 つのみが利用可能。",
+      "Ask / Auto / Bypass は CLI 側のモードで Web には無い。",
     ],
     hints: [
       "クラウド環境の安全性を考えて制限されている。",
@@ -271,17 +271,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "クラウドで走らせていたセッションを『手元のターミナルへ引き継ぐ』ためのコマンドは？",
     choices: [
-      "claude --teleport",
       "claude --remote",
       "claude --resume",
       "claude --clone",
+      "claude --teleport",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。`--teleport` でクラウドセッションを手元へ引き寄せる。",
       "`--remote` は逆に、ローカル CLI をリモート (ブラウザ等) から操作するためのもの。",
       "`--resume` は中断したセッションの再開で、環境移動ではない。",
       "そういうフラグは存在しない。",
+      "正解。`--teleport` でクラウドセッションを手元へ引き寄せる。",
     ],
     hints: [
       "テレポートは『場所を移す』イメージ。",
@@ -345,17 +345,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "Claude Code の組み込み Output Style (4 種類) として正しい組み合わせは？",
     choices: [
+      "Markdown / Plain / JSON / HTML",
       "Default / Proactive / Explanatory / Learning",
       "Default / Verbose / Quiet / Debug",
       "Junior / Senior / Architect / Reviewer",
-      "Markdown / Plain / JSON / HTML",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "出力フォーマット選択ではない。",
       "正解。Default / Proactive (即実行) / Explanatory (学習向け Insights) / Learning (TODO(human) を挟む) の 4 種類。",
       "そういった命名のスタイルは無い。",
       "ロール名のスタイルは存在しない。",
-      "出力フォーマット選択ではない。",
     ],
     hints: [
       "Proactive は『止まらず進む』。",
@@ -415,17 +415,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "カスタム Output Style を作る際の正しい配置と frontmatter として正しいのは？",
     choices: [
-      "`~/.claude/output-styles/` か `.claude/output-styles/` 配下の Markdown。frontmatter に `name` / `description` / `keep-coding-instructions` / `force-for-plugin` が指定可能",
       "`package.json` の `claude.styles` フィールドに JSON で書く",
       "`~/.bashrc` に環境変数として登録する",
       "Anthropic のダッシュボードでのみ管理する",
+      "`~/.claude/output-styles/` か `.claude/output-styles/` 配下の Markdown。frontmatter に `name` / `description` / `keep-coding-instructions` / `force-for-plugin` が指定可能",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。Markdown + YAML frontmatter で、ユーザー global か repo ローカルに配置する。",
       "package.json での宣言はサポートされていない。",
       "環境変数ではなくファイルベース。",
       "ダッシュボード経由ではなくファイルで管理する。",
+      "正解。Markdown + YAML frontmatter で、ユーザー global か repo ローカルに配置する。",
     ],
     hints: [
       "Skills 等と同じく `~/.claude/` または `.claude/` 配下に置く。",
@@ -454,17 +454,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "現在のセッションそのものを『デタッチして裏で走らせ続ける』スラッシュコマンドは？",
     choices: [
-      "/background",
-      "/tasks",
       "/batch",
       "/teleport",
+      "/background",
+      "/tasks",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。`/background` でセッション全体をデタッチしてバックグラウンド化する。",
-      "`/tasks` は『今走っているバックグラウンドタスク一覧』を表示するもの。",
       "`/batch` は大きな変更を独立した worktree 群へ分解する。",
       "`/teleport` はクラウドセッションをローカルへ移す。",
+      "正解。`/background` でセッション全体をデタッチしてバックグラウンド化する。",
+      "`/tasks` は『今走っているバックグラウンドタスク一覧』を表示するもの。",
     ],
     hints: [
       "セッション単位 vs タスク単位の違いを意識する。",
@@ -524,17 +524,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "Claude Code が提供する `Monitor` ツールの挙動として正しいのはどれ？",
     choices: [
-      "バックグラウンドで走るスクリプトを監視し、stdout の各行が 1 イベントとしてストリーミングされる",
-      "CPU 使用率を計測してダッシュボードに出す",
       "ファイル変更を検知して自動コミットする",
       "ネットワーク帯域を制限する",
+      "バックグラウンドで走るスクリプトを監視し、stdout の各行が 1 イベントとしてストリーミングされる",
+      "CPU 使用率を計測してダッシュボードに出す",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。Monitor は long-running なバックグラウンドプロセスの stdout を逐次イベント化する。",
-      "そのような OS リソース計測機能は無い。",
       "自動コミットは Hook で実装するもの。",
       "ネットワーク制御の役割はない。",
+      "正解。Monitor は long-running なバックグラウンドプロセスの stdout を逐次イベント化する。",
+      "そのような OS リソース計測機能は無い。",
     ],
     hints: [
       "until-loop で『条件が満たされるまで』待つ用途にも使える。",
@@ -598,17 +598,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "次のうち『組み込みスラッシュコマンドではないもの』はどれ？",
     choices: [
-      "/deploy",
       "/plan",
       "/permissions",
       "/checkpoints",
+      "/deploy",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。`/deploy` は組み込みコマンドではない。デプロイは Hook や Skill で組むのが一般的。",
       "`/plan` はプランモードへの切替を行う組み込みコマンド。",
       "`/permissions` で許可コマンドの管理ができる。",
       "`/checkpoints` でチェックポイント管理が可能。",
+      "正解。`/deploy` は組み込みコマンドではない。デプロイは Hook や Skill で組むのが一般的。",
     ],
     hints: [
       "デプロイは Claude Code の責務範囲ではない。",
@@ -633,17 +633,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "現在の文脈使用率を確認するスラッシュコマンドと、長い会話を要約圧縮するコマンドの組み合わせとして正しいのは？",
     choices: [
+      "/memory と /init",
       "/context と /compact",
       "/usage と /clear",
       "/tasks と /resume",
-      "/memory と /init",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "メモリ初期化系で、これも文脈圧縮ではない。",
       "正解。`/context` で使用率、`/compact` で要約圧縮。",
       "`/usage` はサブスクリプション使用量で、文脈使用率ではない。",
       "タスク一覧とセッション再開は別目的。",
-      "メモリ初期化系で、これも文脈圧縮ではない。",
     ],
     hints: [
       "60% を超えたら警戒したい。",
@@ -672,17 +672,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "公式 Claude Code 101 で推奨される基本ワークフローの順序は？",
     choices: [
-      "Explore → Plan → Code → Commit",
       "Code → Test → Plan → Refactor",
       "Plan → Commit → Code → Explore",
       "Compile → Deploy → Plan → Review",
+      "Explore → Plan → Code → Commit",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。公式が繰り返し言及する 4 ステップ。",
       "順序が逆。先に Plan する。",
       "Commit が前過ぎる。",
       "Compile/Deploy はワークフローの主軸ではない。",
+      "正解。公式が繰り返し言及する 4 ステップ。",
     ],
     hints: [
       "まず読む (Explore)。",
@@ -707,17 +707,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "コンテキスト管理の目安として、よく言及される閾値はどれ？",
     choices: [
-      "60% を超えたら警戒し、83.5% 付近で auto-compaction が発火する",
       "10% を超えたらセッションを破棄する",
       "100% に達するまで何の挙動も変わらない",
       "30% 以上ではコマンドが受け付けられなくなる",
+      "60% を超えたら警戒し、83.5% 付近で auto-compaction が発火する",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。実務的には 60% 程度で警戒、約 83.5% で auto-compaction (ロッシー) が走る。",
       "10% は実用上ほぼ問題にならない値。",
       "100% まで何も起きない、というのは誤り。auto-compaction が間に挟まる。",
       "30% でロックされる挙動は無い。",
+      "正解。実務的には 60% 程度で警戒、約 83.5% で auto-compaction (ロッシー) が走る。",
     ],
     hints: [
       "ロッシー圧縮を踏むと細部が消える。",
@@ -777,17 +777,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "CLAUDE.md について、よく指摘される『落とし穴』はどれ？",
     choices: [
+      "CLAUDE.md はクラウド版でのみ機能する",
       "CLAUDE.md はフックではないので『always do X』を本当に保証したいなら Hook を実装する必要がある。さらに 200 行を超えると遵守率が下がる傾向がある",
       "CLAUDE.md を置くとモデルが必ず守ってくれるので Hook は不要",
       "CLAUDE.md は長ければ長いほど良い",
-      "CLAUDE.md はクラウド版でのみ機能する",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "ローカル / クラウド双方で利用される。",
       "正解。CLAUDE.md は説得力のあるプロンプトに過ぎず、強制力は Hook で担保する必要がある。",
       "Hook 無しでは『必ず』は保証できない。",
       "200 行を超えると遵守率が下がる、と複数の記事で報告されている。",
-      "ローカル / クラウド双方で利用される。",
     ],
     hints: [
       "強制 = Hook、推奨 = CLAUDE.md。",
@@ -813,17 +813,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "コードレビューを Claude にやらせる際、品質が上がりやすい運用はどれ？",
     choices: [
-      "実装したセッションとは別の『新しい文脈のセッション』でレビューさせる",
-      "実装した直後の同じ会話でそのままレビューさせる",
       "Plan モードのままレビューさせる",
       "Bypass モードでレビューさせる",
+      "実装したセッションとは別の『新しい文脈のセッション』でレビューさせる",
+      "実装した直後の同じ会話でそのままレビューさせる",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。書いた本人 (同じセッション) は自分のコードに肯定的になりやすい。フレッシュな文脈の方が辛口に評価する。",
-      "同じ会話だと自己肯定バイアスが入りやすい。",
       "Plan モードはレビュー本来の用途ではない。",
       "Bypass はパーミッションの話で品質には直接寄与しない。",
+      "正解。書いた本人 (同じセッション) は自分のコードに肯定的になりやすい。フレッシュな文脈の方が辛口に評価する。",
+      "同じ会話だと自己肯定バイアスが入りやすい。",
     ],
     hints: [
       "人間のコードレビューと同じ理屈。",
@@ -852,17 +852,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "Skill 内の文言設計について、Qiita 記事 (dai_chi 氏) が指摘した知見として正しいのは？",
     choices: [
-      "『CRITICAL / MUST / WORTHLESS』のような強い語を入れると Skill 起動率が約 84% まで上がる",
       "敬語で書くほど起動率が上がる",
       "絵文字を多用すると起動率が上がる",
       "英語で書くと起動率が下がる",
+      "『CRITICAL / MUST / WORTHLESS』のような強い語を入れると Skill 起動率が約 84% まで上がる",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。強い語で『これは無視できない』というシグナルを与えると Skill 選択率が上がるという観察。",
       "敬語は起動率と直接相関しない。",
       "絵文字の効用は報告されていない。",
       "英語/日本語の差は本質ではない。",
+      "正解。強い語で『これは無視できない』というシグナルを与えると Skill 選択率が上がるという観察。",
     ],
     hints: [
       "モデルへ『重要度』を強く伝えるのがコツ。",
@@ -922,17 +922,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "Skill / Command を書くときの『起動精度を上げる』典型テクニックとして適切でないものはどれ？",
     choices: [
+      "強い語 (MUST / CRITICAL) を必要な場面だけ使う",
       "description を意図的に曖昧にして広く拾わせる",
       "『TRIGGER when: ...』『SKIP: ...』のように適用条件を箇条書きで明示する",
       "対象ファイルパターン (例: `*.tsx`) を description に書く",
-      "強い語 (MUST / CRITICAL) を必要な場面だけ使う",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "強語は必要なところだけに絞る運用が正解。",
       "正解。曖昧にすると誤発火や非発火が増える。むしろ具体化する方が良い。",
       "TRIGGER / SKIP を分けて書くのは典型テクニック。",
       "ファイルパターンを書くと文脈マッチが効きやすい。",
-      "強語は必要なところだけに絞る運用が正解。",
     ],
     hints: [
       "曖昧 = ハズレ。",
@@ -961,17 +961,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "現在の差分に対してコードレビューを走らせる『組み込みスラッシュコマンド』は？",
     choices: [
-      "/review (バンドルされた code-review スキルを実行)",
-      "/lint",
       "/format",
       "/diff",
+      "/review (バンドルされた code-review スキルを実行)",
+      "/lint",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。`/review` が code-review スキルを呼び出してレビューを行う。",
-      "/lint は組み込みコマンドではない。",
       "/format も組み込みコマンドではない。",
       "/diff という組み込みコマンドは無い。",
+      "正解。`/review` が code-review スキルを呼び出してレビューを行う。",
+      "/lint は組み込みコマンドではない。",
     ],
     hints: [
       "Skill とセットで提供される。",
@@ -996,17 +996,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "セキュリティ観点で『現在の変更だけ』をレビューさせる組み込みコマンドは？",
     choices: [
+      "/cve-scan",
       "/security-review",
       "/review --security",
       "/audit",
-      "/cve-scan",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "/cve-scan という組み込みコマンドは無い。",
       "正解。`/security-review` が現在ブランチの保留中変更に対するセキュリティレビューを実行する。",
       "/review はセキュリティ専用ではない。",
       "/audit という組み込みコマンドは無い。",
-      "/cve-scan という組み込みコマンドは無い。",
     ],
     hints: [
       "コード全体ではなく『保留中の差分』だけ。",
@@ -1031,17 +1031,17 @@ export const claudeCodePracticeQuestions: Question[] = [
     question:
       "サブエージェントを worktree で隔離して並列実行したいとき、frontmatter に書く設定として正しいのは？",
     choices: [
-      "`isolation: worktree`",
-      "`runtime: docker`",
       "`scope: branch`",
       "`mode: parallel`",
+      "`isolation: worktree`",
+      "`runtime: docker`",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。`isolation: worktree` で各サブエージェントに独立した git worktree を割り当てる。",
-      "Docker ランタイム指定は別物。",
       "そういうキーは存在しない。",
       "`mode: parallel` というキーは存在しない。",
+      "正解。`isolation: worktree` で各サブエージェントに独立した git worktree を割り当てる。",
+      "Docker ランタイム指定は別物。",
     ],
     hints: [
       "Git worktree を使う。",

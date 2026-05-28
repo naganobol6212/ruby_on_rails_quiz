@@ -21,12 +21,12 @@ export const extraQuestions3: Question[] = [
     question:
       "次の式 `a ?? b` (nullish coalescing) と `a || b` (logical OR) の違いは？",
     choices: [
-      "?? は null/undefined の時だけ b を返す。|| は falsy (0/'')も b を返す",
-      "完全に同じ",
       "?? は型エラー",
       "|| は廃止",
+      "?? は null/undefined の時だけ b を返す。|| は falsy (0/'')も b を返す",
+      "完全に同じ",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "0 や '' を有効な値として扱いたい時に ?? を使う。",
       "|| は『falsy ならフォールバック』、?? は『nullish ならフォールバック』。",
@@ -49,12 +49,12 @@ export const extraQuestions3: Question[] = [
     question:
       "`user?.address?.city` (optional chaining) の挙動として正しいのは？",
     choices: [
-      "user / user.address のどれかが null/undefined なら全体が undefined、エラーにならない",
       "user が null だと TypeError",
       "全部 string で連結",
       "city が null なら例外",
+      "user / user.address のどれかが null/undefined なら全体が undefined、エラーにならない",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "?. は左側が nullish なら短絡して undefined を返す。",
       "?. は array / function 呼び出しにも使える (arr?.[0]、fn?.())。",
@@ -77,12 +77,12 @@ export const extraQuestions3: Question[] = [
     question:
       "JS で『オブジェクトを deep clone する』モダンな標準 API は？",
     choices: [
-      "structuredClone(obj) (ES2022、ブラウザ + Node 17+ 標準)",
       "Object.assign({}, obj)",
       "JSON.parse(JSON.stringify(obj))",
       "spread {...obj}",
+      "structuredClone(obj) (ES2022、ブラウザ + Node 17+ 標準)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Object.assign や spread は『1 階層だけ』(shallow copy)。",
       "JSON ハックは関数 / Date / Map / Set / undefined を失う。",
@@ -133,12 +133,12 @@ export const extraQuestions3: Question[] = [
     question:
       "`typeof null` と `null instanceof Object` の結果は？",
     choices: [
+      "両方 true",
       "'object' と false (typeof null は歴史的バグ、instanceof は false)",
       "'null' と true",
       "'undefined' と false",
-      "両方 true",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "typeof null === 'object' は JS の有名な歴史的バグ。",
       "instanceof は prototype チェーンを辿るが null は対象外。",
@@ -192,12 +192,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "`fn.call(ctx, a, b)`、`fn.apply(ctx, [a, b])`、`fn.bind(ctx, a)` の違いは？",
     choices: [
+      "call は廃止",
       "call/apply は即実行 (call は引数を個別、apply は配列)、bind は『新関数を返す』",
       "全部同じ",
       "bind は即実行",
-      "call は廃止",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "call: 個別引数で即実行。apply: 配列引数で即実行。bind: this 固定の新関数を返す。",
       "spread (`fn(...args)`) で apply の用途は減った。",
@@ -220,12 +220,12 @@ export const extraQuestions3: Question[] = [
     question: "次のコードのカウンタは何を出力する？",
     code: "function makeCounter() {\n  let count = 0\n  return function() { count++; return count }\n}\nconst c = makeCounter()\nconsole.log(c(), c(), c())",
     choices: [
-      "1, 2, 3 — クロージャで count が保持される",
-      "1, 1, 1 — 毎回 0 にリセット",
       "0, 0, 0",
       "エラー",
+      "1, 2, 3 — クロージャで count が保持される",
+      "1, 1, 1 — 毎回 0 にリセット",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "内側の関数が外側の変数を参照し続ける = クロージャ。",
       "makeCounter の呼び出しが終わっても count は GC されない。",
@@ -247,8 +247,8 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "次のコードの結果は？",
     code: "const sum = [1, 2, 3, 4]\n  .filter(n => n % 2 === 0)\n  .map(n => n * 10)\n  .reduce((acc, n) => acc + n, 0)\nconsole.log(sum)",
-    choices: ["60", "100", "20", "0"],
-    answerIndex: 0,
+    choices: ["100", "20", "0", "60"],
+    answerIndex: 3,
     hints: [
       "filter で偶数 → [2, 4]。",
       "map で 10 倍 → [20, 40]。",
@@ -298,12 +298,12 @@ export const extraQuestions3: Question[] = [
     question: "次のコードはどちらが実行できる？",
     code: "console.log(decl())\nconsole.log(expr())\nfunction decl() { return 'decl' }\nconst expr = function() { return 'expr' }",
     choices: [
+      "decl() が ReferenceError",
       "decl() は OK、expr() は ReferenceError (関数宣言は hoist されるが const は TDZ)",
       "両方 OK",
       "両方エラー",
-      "decl() が ReferenceError",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "`function name() {}` は完全に巻き上げられる (定義込み)。",
       "`const x = function() {}` は const の TDZ で参照不可。",
@@ -325,12 +325,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "IIFE (Immediately Invoked Function Expression) の主な用途は？",
     choices: [
-      "関数を即実行 + スコープ分離 — ES Modules 登場前のグローバル汚染回避手段、現代は限定的",
-      "高速化",
       "型チェック",
       "ES2020 で導入",
+      "関数を即実行 + スコープ分離 — ES Modules 登場前のグローバル汚染回避手段、現代は限定的",
+      "高速化",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "(function() { ... })() の形。",
       "関数式を作って即呼び出し → 内部変数を外に漏らさない。",
@@ -352,12 +352,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "純粋関数 (pure function) の定義は？",
     choices: [
-      "同じ入力に対して常に同じ出力 + 副作用なし (外部状態を変えない / I/O しない)",
       "型注釈がある",
       "高速",
       "非同期",
+      "同じ入力に対して常に同じ出力 + 副作用なし (外部状態を変えない / I/O しない)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "数学的な関数 (f(x) = x + 1) と同じ性質。",
       "テスト容易 / 並列化容易 / メモ化可能 / Redux reducer の前提。",
@@ -406,12 +406,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "カリー化 (currying) と部分適用 (partial application) の違いは？",
     choices: [
+      "部分適用は async 専用",
       "カリー化: N 引数関数を 1 引数関数の連鎖に分解。部分適用: 引数の一部を固定して引数の少ない関数を返す",
       "完全に同じ",
       "カリー化は廃止",
-      "部分適用は async 専用",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "curry(f)(a)(b)(c) — 1 つずつ。",
       "partial(f, a) — 一部固定、残りはまとめて渡せる。",
@@ -437,12 +437,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "Promise.all / allSettled / race / any の違いは？",
     choices: [
-      "all=全成功で resolve・1 失敗で即 reject / allSettled=全完了を待ち status 配列 / race=最初に確定したもの / any=最初に成功 (全失敗で AggregateError)",
       "全部同じ",
       "race は廃止",
       "any は ES5",
+      "all=全成功で resolve・1 失敗で即 reject / allSettled=全完了を待ち status 配列 / race=最初に確定したもの / any=最初に成功 (全失敗で AggregateError)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "all は失敗に弱い (1 つで全体失敗)。",
       "allSettled は『全部待って結果を集める』。",
@@ -464,12 +464,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "async/await のエラーハンドリングで推奨される書き方は？",
     choices: [
-      "try/catch で囲む (await の throw を捕捉)",
-      ".then().catch() のみ",
       "if (await) で判定",
       "エラーは catch できない",
+      "try/catch で囲む (await の throw を捕捉)",
+      ".then().catch() のみ",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "await は reject された Promise を throw に変換。",
       "try/catch でほぼ同期的に書ける。",
@@ -492,12 +492,12 @@ export const extraQuestions3: Question[] = [
     question: "次のコードの出力順は？",
     code: "console.log('1')\nsetTimeout(() => console.log('2'), 0)\nPromise.resolve().then(() => console.log('3'))\nconsole.log('4')",
     choices: [
+      "1, 3, 4, 2",
       "1, 4, 3, 2 — マイクロタスク (Promise) はタスク (setTimeout) より先",
       "1, 2, 3, 4",
       "1, 4, 2, 3",
-      "1, 3, 4, 2",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "同期実行 → マイクロタスクキュー → タスクキュー の順。",
       "Promise.then はマイクロタスク、setTimeout はマクロタスク。",
@@ -546,8 +546,8 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "次のコードの結果は？",
     code: "Promise.resolve(1)\n  .then(x => x + 1)\n  .then(x => Promise.resolve(x * 2))\n  .then(x => x + 10)\n  .then(console.log)",
-    choices: ["14", "12", "4", "TypeError"],
-    answerIndex: 0,
+    choices: ["12", "4", "TypeError", "14"],
+    answerIndex: 3,
     hints: [
       "1 → +1 = 2 → *2 = 4 → +10 = 14。",
       "then() の戻り値が Promise なら自動で unwrap される。",
@@ -570,12 +570,12 @@ export const extraQuestions3: Question[] = [
     question: "次の 2 つのコードの違いは？",
     code: "// A\nfor (const url of urls) {\n  await fetch(url)\n}\n\n// B\nawait Promise.all(urls.map(u => fetch(u)))",
     choices: [
-      "A は順次 (1 つずつ完了を待つ)、B は並列 (同時に発火) — B の方が遥かに速い",
-      "完全に同じ",
       "A の方が速い",
       "B はエラー",
+      "A は順次 (1 つずつ完了を待つ)、B は並列 (同時に発火) — B の方が遥かに速い",
+      "完全に同じ",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "for + await は順次実行 (waterfall)。",
       "Promise.all + map で並列発火 → 並列に待つ。",
@@ -597,12 +597,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "ES2022 で導入された Top-Level await の使える場所は？",
     choices: [
+      "Node.js のみ",
       "ES Module (.mjs / type=module / Next.js Server Component) — CommonJS では使えない",
       "全 JS ファイル",
       "ブラウザのみ",
-      "Node.js のみ",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Module 直下で await を書ける。",
       "CommonJS (require) では使えない (同期前提)。",
@@ -624,12 +624,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "次のうち、setTimeout(0) より早く実行されるものは？",
     choices: [
-      "queueMicrotask / Promise.resolve().then / MutationObserver (マイクロタスク)",
-      "setInterval(0)",
       "setImmediate (Node)",
       "DOM イベント",
+      "queueMicrotask / Promise.resolve().then / MutationObserver (マイクロタスク)",
+      "setInterval(0)",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "マイクロタスクは『現在のスタック空になり次第』即実行。",
       "setTimeout/setImmediate はタスク (次のループ)。",
@@ -652,12 +652,12 @@ export const extraQuestions3: Question[] = [
     question: "次のコードに含まれる問題は？",
     code: "async function deleteAll(ids) {\n  for (const id of ids) {\n    await fetch(`/api/${id}`, { method: 'DELETE' })\n  }\n}",
     choices: [
+      "ids が array じゃない",
       "順次実行で遅い + 1 失敗で残り中断 + try/catch なし — 並列 + allSettled で改善",
       "問題なし",
       "async が抜けている",
-      "ids が array じゃない",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "順次の for + await は独立 I/O で非常に遅い。",
       "途中で throw されると残りが実行されない。",
@@ -710,12 +710,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "ページネーションの 2 番目のページ (1 ページ 20 件) を取得する SQL は？",
     choices: [
-      "SELECT ... ORDER BY id LIMIT 20 OFFSET 20",
-      "SELECT ... LIMIT 20, 40",
       "SELECT ... PAGE 2",
       "SELECT ... SKIP 1 TAKE 20",
+      "SELECT ... ORDER BY id LIMIT 20 OFFSET 20",
+      "SELECT ... LIMIT 20, 40",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "LIMIT N で N 行、OFFSET M で先頭から M 行スキップ。",
       "OFFSET ベースは深いページで遅くなる (1000 ページ目で 20000 行スキャン)。",
@@ -737,12 +737,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "ORDER BY で『NULL を末尾に置く』(降順) 標準 SQL の指定は？",
     choices: [
-      "ORDER BY col DESC NULLS LAST",
-      "ORDER BY col DESC EXCEPT NULL",
       "ORDER BY ISNULL(col), col DESC",
       "ORDER BY NULL DESC",
+      "ORDER BY col DESC NULLS LAST",
+      "ORDER BY col DESC EXCEPT NULL",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "PostgreSQL / Oracle は NULLS FIRST / NULLS LAST をサポート。",
       "MySQL は古典的に対応せず → ORDER BY col IS NULL, col DESC で代用。",
@@ -765,12 +765,12 @@ export const extraQuestions3: Question[] = [
     question: "次のクエリの結果は？",
     code: "SELECT DISTINCT role FROM users;\n-- users.role = 'admin', 'user', 'admin', 'user', 'admin'",
     choices: [
-      "2 行: 'admin', 'user' — 重複排除",
-      "5 行",
       "1 行",
       "エラー",
+      "2 行: 'admin', 'user' — 重複排除",
+      "5 行",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "DISTINCT は SELECT 結果から重複を排除。",
       "DISTINCT col1, col2 は両方の組合せが UNIQUE。",
@@ -792,12 +792,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "LIKE のワイルドカードで『大文字小文字を区別しない』PostgreSQL 演算子は？",
     choices: [
-      "ILIKE — case-insensitive な LIKE (PostgreSQL 拡張)",
-      "LIKE IGNORE CASE",
       "LIKE LOWER",
       "FUZZY LIKE",
+      "ILIKE — case-insensitive な LIKE (PostgreSQL 拡張)",
+      "LIKE IGNORE CASE",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "% は 0+ 文字、_ は 1 文字のワイルドカード。",
       "MySQL の LIKE は照合順序によりデフォルトで case-insensitive。",
@@ -820,12 +820,12 @@ export const extraQuestions3: Question[] = [
     question: "次の 2 つのクエリは同じ結果になる？",
     code: "-- A\nSELECT * FROM products WHERE price BETWEEN 100 AND 500;\n\n-- B\nSELECT * FROM products WHERE price >= 100 AND price <= 500;",
     choices: [
-      "はい、完全に同等 (BETWEEN は両端を含む)",
       "BETWEEN は両端を含まない",
       "B の方が速い",
       "結果が異なる",
+      "はい、完全に同等 (BETWEEN は両端を含む)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "BETWEEN A AND B は『A 以上 B 以下』(両端含む)。",
       "NULL は対象外 (BETWEEN も IN も)。",
@@ -847,12 +847,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "SQL の CASE 式の主な用途は？",
     choices: [
-      "条件分岐で SELECT 結果や WHERE / ORDER BY 内で値を切り替える (if/else 相当)",
       "ループ処理",
       "DDL のみ",
       "JOIN の高速化",
+      "条件分岐で SELECT 結果や WHERE / ORDER BY 内で値を切り替える (if/else 相当)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "CASE WHEN ... THEN ... ELSE ... END の構文。",
       "SELECT / WHERE / ORDER BY / GROUP BY どこでも使える。",
@@ -874,12 +874,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "PostgreSQL で『UPDATE して更新後の値を返す』構文は？",
     choices: [
+      "UPDATE ... LET ...",
       "UPDATE ... SET ... WHERE ... RETURNING *",
       "UPDATE ... GET ...",
       "UPDATE ... OUTPUT ...",
-      "UPDATE ... LET ...",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "PostgreSQL / Oracle の拡張。",
       "INSERT / UPDATE / DELETE で RETURNING を使うと結果が返る。",
@@ -901,12 +901,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "PostgreSQL で『INSERT して、既存なら UPDATE』(UPSERT) の構文は？",
     choices: [
-      "INSERT ... ON CONFLICT (col) DO UPDATE SET ...",
       "UPSERT INTO ...",
       "INSERT OR REPLACE",
       "MERGE INTO ...",
+      "INSERT ... ON CONFLICT (col) DO UPDATE SET ...",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "PostgreSQL: ON CONFLICT 構文。",
       "MySQL: INSERT ... ON DUPLICATE KEY UPDATE。",
@@ -929,12 +929,12 @@ export const extraQuestions3: Question[] = [
     question: "次のクエリの意味は？",
     code: "SELECT name,\n  (SELECT COUNT(*) FROM posts WHERE user_id = users.id) AS post_count\nFROM users;",
     choices: [
-      "スカラーサブクエリ — 各 user 行ごとに posts.count を実行 (相関サブクエリ、N+1 風)",
-      "JOIN と同じ",
       "型エラー",
       "1 行だけ取得",
+      "スカラーサブクエリ — 各 user 行ごとに posts.count を実行 (相関サブクエリ、N+1 風)",
+      "JOIN と同じ",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "サブクエリが外側の users.id を参照 = 相関サブクエリ。",
       "実装は『各 user 行に対して posts 全体を走査』 → 遅い可能性。",
@@ -956,12 +956,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "NULL を持つ列の比較で正しいのは？",
     choices: [
-      "col = NULL は常に NULL (true でも false でもない) — IS NULL を使う",
       "col = NULL で NULL の行が hit",
       "col = NULL は false",
       "= と IS NULL は同等",
+      "col = NULL は常に NULL (true でも false でもない) — IS NULL を使う",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "SQL の 3 値論理: true / false / NULL。",
       "WHERE は true の行だけ返す → NULL は除外される。",
@@ -987,12 +987,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "CROSS JOIN とは？",
     choices: [
-      "デカルト積 — 全行 × 全行の組合せ (条件なし)、N × M 行を返す",
       "INNER JOIN と同じ",
       "OUTER JOIN の一種",
       "JOIN の最適化",
+      "デカルト積 — 全行 × 全行の組合せ (条件なし)、N × M 行を返す",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "ON 句なしで全組合せ。",
       "100 行 × 100 行 = 10000 行になる、注意。",
@@ -1015,12 +1015,12 @@ export const extraQuestions3: Question[] = [
     question: "従業員の上司情報を 1 つのテーブルから取得する書き方は？",
     code: "-- employees(id, name, manager_id) — manager_id は同じテーブルの id を参照",
     choices: [
-      "SELF JOIN — 同じテーブルにエイリアスを 2 つ付けて JOIN",
       "RECURSIVE JOIN",
       "CROSS JOIN",
       "別テーブル分離が必須",
+      "SELF JOIN — 同じテーブルにエイリアスを 2 つ付けて JOIN",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "同テーブルを 2 つの別名で JOIN。",
       "manager_id を持って自己参照する階層構造の頻出パターン。",
@@ -1043,12 +1043,12 @@ export const extraQuestions3: Question[] = [
     question: "次の 2 つの JOIN は同じ結果？",
     code: "-- A\nSELECT * FROM users u JOIN posts p ON u.id = p.user_id;\n\n-- B\nSELECT * FROM users u JOIN posts p USING (user_id);  -- ※ users にも user_id があれば",
     choices: [
+      "B はエラー",
       "USING は両テーブルに同名カラムがある場合の短縮形 — 列が 1 つに統合される",
       "全く別物",
       "USING は廃止",
-      "B はエラー",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "USING (col) は両テーブルに同名の col がある時に書ける。",
       "JOIN 結果で col が 1 つに統合される (ON だと u.col と p.col が両方残る)。",
@@ -1070,12 +1070,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "NATURAL JOIN を本番コードで使うべきでない主な理由は？",
     choices: [
-      "スキーマ進化 (新カラム追加) で意図せず JOIN 条件が変わるリスク、明示性に欠ける",
       "遅い",
       "MySQL でしか動かない",
       "結果が空になる",
+      "スキーマ進化 (新カラム追加) で意図せず JOIN 条件が変わるリスク、明示性に欠ける",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "両テーブルの『全同名カラム』で自動 JOIN。",
       "後から updated_at / created_at 等を両方に追加すると JOIN 結果が変わる。",
@@ -1097,12 +1097,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "PostgreSQL の LATERAL JOIN の主な用途は？",
     choices: [
-      "サブクエリが『各左テーブル行』を参照可能 — 行ごとのトップ N / 関数 JOIN で重宝",
-      "並列実行",
       "INDEX 専用",
       "テーブル削除",
+      "サブクエリが『各左テーブル行』を参照可能 — 行ごとのトップ N / 関数 JOIN で重宝",
+      "並列実行",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "通常のサブクエリは外側を参照不可、LATERAL なら参照可。",
       "『各ユーザーの最新 3 投稿』のような行ごと TOP-N に最適。",
@@ -1151,12 +1151,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "『A の中で B に存在するもの』(SEMI JOIN) の慣用句は？",
     choices: [
-      "EXISTS (...) — 結果は A の列のみ、1 件見つかれば早期終了",
-      "INNER JOIN B (重複あり)",
       "SELECT DISTINCT a.* FROM ...",
       "LATERAL",
+      "EXISTS (...) — 結果は A の列のみ、1 件見つかれば早期終了",
+      "INNER JOIN B (重複あり)",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "EXISTS / IN サブクエリは『あるかないかだけ』判定。",
       "INNER JOIN は B 側が複数あると A 側を重複させる。",
@@ -1318,12 +1318,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "標準 SQL のトランザクション分離レベル 4 つを弱い順に並べると？",
     choices: [
+      "全部同じ",
       "READ UNCOMMITTED < READ COMMITTED < REPEATABLE READ < SERIALIZABLE",
       "SERIALIZABLE < REPEATABLE READ < READ COMMITTED < READ UNCOMMITTED",
       "REPEATABLE READ < READ COMMITTED < SERIALIZABLE < READ UNCOMMITTED",
-      "全部同じ",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "弱い = 並行性 ◎・整合性 ▲、強い = 並行性 ▲・整合性 ◎。",
       "READ UNCOMMITTED は dirty read を許容 (PG では実装上 RC と同じ)。",
@@ -1372,12 +1372,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "『行を読んだ後に確実に自分が更新する』ための悲観ロック構文は？",
     choices: [
-      "SELECT ... FOR UPDATE (他の TX が同じ行に SELECT FOR UPDATE / UPDATE できなくなる)",
       "SELECT WITH LOCK",
       "BEGIN EXCLUSIVE",
       "LOCK SELECT",
+      "SELECT ... FOR UPDATE (他の TX が同じ行に SELECT FOR UPDATE / UPDATE できなくなる)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "FOR UPDATE で行ロック、競合する TX は待たされる。",
       "SKIP LOCKED で『他がロック中の行はスキップ』(キュー実装に便利)。",
@@ -1399,12 +1399,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "デッドロックを避ける一般的な戦略は？",
     choices: [
+      "デッドロックは防げない",
       "(1) 全 TX で同じ順序でロックを取る、(2) TX を短く、(3) 失敗時の自動リトライを実装、(4) 必要に応じて SERIALIZABLE で SSI に任せる",
       "ロックを使わない",
       "SLEEP で待つ",
-      "デッドロックは防げない",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "デッドロックは『2 つの TX が違う順序で同じ行をロック』で発生。",
       "DB がデッドロック検出して片方を abort。",
@@ -1426,12 +1426,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "PostgreSQL の `EXPLAIN ANALYZE` の出力で重要な情報は？",
     choices: [
-      "actual rows / planned rows の乖離、実際の実行時間 (actual time)、各ノードのコスト、使われた INDEX",
-      "クエリの行数のみ",
       "ファイルサイズ",
       "サーバ稼働時間",
+      "actual rows / planned rows の乖離、実際の実行時間 (actual time)、各ノードのコスト、使われた INDEX",
+      "クエリの行数のみ",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "EXPLAIN (推定) と EXPLAIN ANALYZE (実測) は別物。",
       "rows=推定 vs actual rows=実測 の乖離が大きいと統計古い (ANALYZE が必要)。",
@@ -1480,12 +1480,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "EXPLAIN の cost (例: cost=0.29..8.31) の意味は？",
     choices: [
+      "行数",
       "start_cost..total_cost — 開始までと完了までの推定コスト (page I/O や CPU の重み付け単位)",
       "実測時間 (ms)",
       "ファイルサイズ",
-      "行数",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "コストは『単位なしの推定値』、ms ではない。",
       "start_cost: 最初の行を返すまで。total_cost: 全行を返すまで。",
@@ -1507,12 +1507,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "PostgreSQL の VACUUM と ANALYZE の役割は？",
     choices: [
+      "ANALYZE は INDEX 作成",
       "VACUUM = 古い行バージョンを掃除 (MVCC で発生) / ANALYZE = 統計情報を更新 (Optimizer 用)",
       "両方バックアップ",
       "VACUUM はテーブル削除",
-      "ANALYZE は INDEX 作成",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "MVCC で UPDATE / DELETE すると古い行が残る → VACUUM で回収。",
       "Optimizer は統計 (行数 / 値の分布) で plan を決める → ANALYZE で更新。",
@@ -1534,12 +1534,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "PostgreSQL の HOT (Heap-Only Tuple) Update の利点は？",
     choices: [
+      "JOIN が速い",
       "INDEX を更新せず同じ page 内で新バージョンを作る → INDEX bloat を減らし高速",
       "DELETE が速くなる",
       "INDEX が増える",
-      "JOIN が速い",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "通常の UPDATE は INDEX も新行を指すように更新する。",
       "HOT は『INDEX 対象外のカラム』を同 page 内で更新する場合に発動。",
@@ -1561,12 +1561,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "大量データを高速に bulk insert する PostgreSQL のコマンドは？",
     choices: [
+      "MASS INSERT",
       "COPY (バイナリ / CSV から直接、INSERT より圧倒的に速い)",
       "INSERT INTO ... VALUES (1), (2), (3) ...",
       "BULK INSERT",
-      "MASS INSERT",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "COPY は WAL とパーサーをスキップするため超高速。",
       "INSERT の数十倍速い。",
@@ -1588,12 +1588,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "PostgreSQL で『どのクエリが遅いか』を集計・分析する標準 extension は？",
     choices: [
-      "pg_stat_statements — クエリごとの実行回数 / 平均時間 / 総時間 / I/O を集計",
       "pg_top",
       "pg_slow",
       "pg_query_log",
+      "pg_stat_statements — クエリごとの実行回数 / 平均時間 / 総時間 / I/O を集計",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "クエリのテンプレート単位 (パラメータ違いを統合) で集計。",
       "shared_preload_libraries に追加 + extension 作成。",
@@ -1615,12 +1615,12 @@ export const extraQuestions3: Question[] = [
     type: "choice",
     question: "PostgreSQL の Connection Pool として PgBouncer の主な役割は？",
     choices: [
-      "アプリ ↔ PG 間の接続プール — 大量のアプリ接続を少数の PG 接続に多重化、PG プロセス爆発を防ぐ",
-      "クエリ高速化",
       "INDEX 自動作成",
       "バックアップ",
+      "アプリ ↔ PG 間の接続プール — 大量のアプリ接続を少数の PG 接続に多重化、PG プロセス爆発を防ぐ",
+      "クエリ高速化",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "PG は接続ごとに 1 プロセスを起動するので接続数が増えると重い。",
       "PgBouncer が間に入り、アプリの大量接続を少数の PG 接続に集約。",

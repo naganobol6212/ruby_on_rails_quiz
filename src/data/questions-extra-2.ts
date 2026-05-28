@@ -19,12 +19,12 @@ export const extraQuestions2: Question[] = [
     question:
       "annotated tag と lightweight tag の主な違いは？",
     choices: [
-      "annotated はオブジェクト (タガー / 日付 / メッセージ / 署名可) を持つ、lightweight は単なるブランチ風参照",
       "annotated は遅い",
       "lightweight は削除できない",
       "両者は完全に同じ",
+      "annotated はオブジェクト (タガー / 日付 / メッセージ / 署名可) を持つ、lightweight は単なるブランチ風参照",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "リリースバージョンには annotated を使うのが慣習。",
       "git tag -a で annotated、git tag (フラグなし) で lightweight。",
@@ -47,12 +47,12 @@ export const extraQuestions2: Question[] = [
     question:
       "Git submodule の代わりに、より単純で衝突しにくい代替手段は？",
     choices: [
+      "git stash",
       "git subtree (歴史も丸ごと取り込む) / 単なるパッケージマネージャ (npm / gem) で管理",
       "submodule 以外は存在しない",
       "git worktree",
-      "git stash",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "submodule は別 commit を指すポインタで、初心者が壊しがち。",
       "subtree は対象リポジトリの履歴を統合して『単一リポジトリ』のように扱える。",
@@ -97,12 +97,12 @@ export const extraQuestions2: Question[] = [
     question:
       "Git の commit / push 時に lint やテストを自動実行する標準的な仕組みは？",
     choices: [
+      "package.json の scripts",
       ".git/hooks/* のスクリプト (or husky / lefthook / pre-commit 等のラッパー)",
       ".github/workflows のみ",
       "rake task",
-      "package.json の scripts",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "ローカルでサーバ側 CI を待たずに弾くための仕組み。",
       "pre-commit / pre-push / commit-msg などの hook を実行スクリプトとして書く。",
@@ -129,12 +129,12 @@ export const extraQuestions2: Question[] = [
     question:
       "JSON を CLI で整形・抽出する標準ツールは？",
     choices: [
-      "jq (JSON 専用) / yq (YAML/JSON 両対応)",
-      "json-cli",
       "sed -j",
       "grep -j",
+      "jq (JSON 専用) / yq (YAML/JSON 両対応)",
+      "json-cli",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "API レスポンスの整形・フィルタに必須。",
       "`.[]` で配列展開、`.field` でフィールドアクセス。",
@@ -157,12 +157,12 @@ export const extraQuestions2: Question[] = [
     question:
       "rsync で『削除も同期する』(送信元に無いファイルを送信先からも消す) オプションは？",
     choices: [
+      "--mirror",
       "--delete",
       "--remove",
       "--sync-all",
-      "--mirror",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "デフォルトでは送信元の追加・変更のみ反映、削除は反映されない。",
       "完全ミラー化したい時に使う (危険、要 --dry-run)。",
@@ -213,12 +213,12 @@ export const extraQuestions2: Question[] = [
     question:
       "bash の `[ ... ]` (test) と `[[ ... ]]` (拡張テスト) の違いは？",
     choices: [
-      "[[ ]] は bash 拡張で正規表現 (=~) / && || 直接使用 / 文字列分割なし。POSIX 互換が必要なら [ ]",
-      "両者は完全に同じ",
       "[ ] は廃止",
       "[[ ]] は数値専用",
+      "[[ ]] は bash 拡張で正規表現 (=~) / && || 直接使用 / 文字列分割なし。POSIX 互換が必要なら [ ]",
+      "両者は完全に同じ",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "[[ ]] は bash / zsh の拡張、POSIX (sh / dash) では使えない。",
       "[[ ]] は変数のクォートなしで安全、正規表現も。",
@@ -245,12 +245,12 @@ export const extraQuestions2: Question[] = [
     question:
       "HSTS preload list に登録すると何が起きる？",
     choices: [
-      "ブラウザに最初から HTTPS のみで接続させる (初回 HTTP リクエストの隙を排除)、ただし登録解除に数年かかる",
-      "PageSpeed が上がる",
       "SEO が上がる",
       "登録すぐ解除できる",
+      "ブラウザに最初から HTTPS のみで接続させる (初回 HTTP リクエストの隙を排除)、ただし登録解除に数年かかる",
+      "PageSpeed が上がる",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "通常の HSTS は『一度 HTTPS で訪問後』に効く。",
       "preload list はブラウザに同梱されるので、初回アクセスから強制。",
@@ -273,12 +273,12 @@ export const extraQuestions2: Question[] = [
     question:
       "パスワードハッシュアルゴリズムとして現代の OWASP 推奨は？",
     choices: [
-      "Argon2 (id) — 2015 PHC 優勝者、メモリハードで GPU 攻撃に強い。次点が bcrypt / scrypt",
       "MD5",
       "SHA-256",
       "Base64",
+      "Argon2 (id) — 2015 PHC 優勝者、メモリハードで GPU 攻撃に強い。次点が bcrypt / scrypt",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "GPU で総当たりに強い = メモリハード (時間 + メモリの両方を要求)。",
       "Argon2id は時間 / メモリ / 並列度の 3 パラメータ。",
@@ -329,12 +329,12 @@ export const extraQuestions2: Question[] = [
     question:
       "CDN から JS/CSS を読み込む際に『改ざんされていないこと』をブラウザが検証する仕組みは？",
     choices: [
+      "X-Content-Type-Options",
       "Subresource Integrity (SRI) — integrity 属性に SHA-384 ハッシュを指定",
       "CORS",
       "HPKP (廃止)",
-      "X-Content-Type-Options",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "<script integrity='sha384-...' src='https://cdn.example.com/lib.js'> の形式。",
       "CDN のファイルが改ざんされたらブラウザが実行を拒否。",
@@ -358,12 +358,12 @@ export const extraQuestions2: Question[] = [
       "次のコードに含まれる脆弱性は？",
     code: "def login\n  user = User.find_by(email: params[:email])\n  if user&.authenticate(params[:password])\n    session[:user_id] = user.id\n    redirect_to params[:next] || dashboard_path\n  end\nend",
     choices: [
-      "Open Redirect — params[:next] を検証なしで redirect_to に渡している (外部ドメインへ誘導可能)",
       "SQL Injection",
       "XSS",
       "CSRF",
+      "Open Redirect — params[:next] を検証なしで redirect_to に渡している (外部ドメインへ誘導可能)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "params[:next] が 'https://evil.com' でも redirect_to が実行される。",
       "フィッシング助長 (ログイン成功 → 攻撃者サイトへ誘導)。",
@@ -389,8 +389,8 @@ export const extraQuestions2: Question[] = [
     type: "choice",
     question:
       "TS 4.9+ で導入された『型は維持しつつ、その値が型に合致するかチェック』する演算子は？",
-    choices: ["satisfies", "matches", "is", "ensures"],
-    answerIndex: 0,
+    choices: ["matches", "is", "ensures", "satisfies"],
+    answerIndex: 3,
     hints: [
       "`as Color` だと『強制キャスト』、`satisfies Color` は『チェックのみで型保持』。",
       "リテラル型の絞り込みが効くのが大きな利点。",
@@ -413,12 +413,12 @@ export const extraQuestions2: Question[] = [
     question:
       "TS で『配列の最後の要素の型を取り出す』高度な型操作は？",
     choices: [
-      "T extends [...any, infer Last] ? Last : never",
-      "T[T.length - 1]",
       "Last<T>",
       "T.tail",
+      "T extends [...any, infer Last] ? Last : never",
+      "T[T.length - 1]",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Variadic Tuple Types (TS 4.0+) と Conditional Type + infer の組合せ。",
       "`...any` で『何個でも前』、`infer Last` で最後を捕捉。",
@@ -499,12 +499,12 @@ export const extraQuestions2: Question[] = [
     question:
       "次のうち、ユーティリティ型として『誤り』を含むのは？",
     choices: [
-      "Optional<T> (TS 標準ではない、Partial<T> が正しい)",
       "Partial<T>",
       "Required<T>",
       "Readonly<T>",
+      "Optional<T> (TS 標準ではない、Partial<T> が正しい)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "標準には Partial / Required / Readonly があるが Optional はない。",
       "Optional は他言語 (Java / Kotlin) の概念。",
@@ -527,12 +527,12 @@ export const extraQuestions2: Question[] = [
     question:
       "TS でグローバル変数 (`window.myApp`) や 3rd party ライブラリの型を拡張する仕組みは？",
     choices: [
-      "declare global { interface Window { myApp: ... } } / declare module で .d.ts に書く",
-      "type Window だけ書く",
       "window.myApp = ... と JS 側だけ",
       "拡張できない",
+      "declare global { interface Window { myApp: ... } } / declare module で .d.ts に書く",
+      "type Window だけ書く",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Ambient declaration と呼ばれる。",
       "interface の宣言マージ機能を使って既存の Window / Process / Express.Request 等に追加。",
@@ -555,12 +555,12 @@ export const extraQuestions2: Question[] = [
     question:
       "TS 5.0+ で導入された const type parameter の使い方として正しいのは？",
     choices: [
+      "TS 5.0 では使えない",
       "function foo<const T>(arg: T) — 呼び出し時の引数を literal type として推論する",
       "型変数を const にする",
       "コンパイル時定数を強制",
-      "TS 5.0 では使えない",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "通常のジェネリクスはオブジェクト引数を広い型に推論する。",
       "`const T` で呼び出し側に as const を付けなくても literal 推論。",
@@ -611,12 +611,12 @@ export const extraQuestions2: Question[] = [
     question:
       "Discriminated Union の網羅性 (Exhaustiveness) をコンパイル時にチェックする慣用句は？",
     choices: [
-      "default ケースで const _: never = x として代入 (新ケース追加時に error)",
       "if (true) { ... } else throw",
       "console.error",
       "@ts-ignore",
+      "default ケースで const _: never = x として代入 (新ケース追加時に error)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "never 型は『どの値も入らない』 → switch の default で残りが never であることをチェック。",
       "新ケースを Union に追加すると default の x の型が new case を含むため代入エラーに。",
@@ -671,12 +671,12 @@ export const extraQuestions2: Question[] = [
     question:
       "React 18+ の StrictMode は開発時に何をする？",
     choices: [
+      "全コンポーネントを memo 化する",
       "useState / useEffect 等を意図的に 2 回呼ぶ — 副作用の冪等性チェック / 古い API 警告 / 開発時のみ動作",
       "本番で 2 倍速くなる",
       "型チェックを厳しくする",
-      "全コンポーネントを memo 化する",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "開発時に意図的に二度実行して、冪等でない副作用を検出。",
       "useEffect の cleanup 漏れを発見できる。",
@@ -699,12 +699,12 @@ export const extraQuestions2: Question[] = [
     question:
       "重い state 更新をユーザー操作 (typing) をブロックせずに行うための React 18+ API は？",
     choices: [
-      "startTransition (or useTransition) — 重い更新を低優先度としてマーク",
       "setTimeout で遅延",
       "useEffect 内で setState",
       "useMemo",
+      "startTransition (or useTransition) — 重い更新を低優先度としてマーク",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Concurrent Features の中核。",
       "ユーザー入力 (typing) は高優先、絞り込み結果の描画は低優先と分けられる。",
@@ -727,12 +727,12 @@ export const extraQuestions2: Question[] = [
     question:
       "React で『ユニーク ID を生成する』Hook (React 18+) は？",
     choices: [
-      "useId — SSR / Client Hydration 間で一貫した ID を生成",
-      "Math.random()",
       "useRef(crypto.randomUUID())",
       "Date.now()",
+      "useId — SSR / Client Hydration 間で一貫した ID を生成",
+      "Math.random()",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "input と label の for/htmlFor 関連付けに便利。",
       "SSR と CSR で同じ ID を生成 (Hydration エラー防止)。",
@@ -755,12 +755,12 @@ export const extraQuestions2: Question[] = [
     question:
       "React 外部の store (Redux / Zustand / browser API 等) を React の concurrent renderer と安全に統合する Hook は？",
     choices: [
+      "useEffect",
       "useSyncExternalStore — subscribe / snapshot / serverSnapshot で同期",
       "useState",
       "useRef",
-      "useEffect",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "React 18+ で標準化された外部 store 同期 Hook。",
       "Redux / Zustand など主要ライブラリの内部で使われている。",
@@ -811,12 +811,12 @@ export const extraQuestions2: Question[] = [
     question:
       "React の Fragment に key を付けたい時の書き方は？",
     choices: [
-      "<Fragment key={id}> ... </Fragment> (短縮形 <></> では key を付けられない)",
       "<key={id}>",
       "<div key={id} fragment>",
       "Fragment に key は不要",
+      "<Fragment key={id}> ... </Fragment> (短縮形 <></> では key を付けられない)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "<></> は短縮形で props を取れない。",
       "リスト内で複数要素を 1 つの単位として render したい時に。",
@@ -839,12 +839,12 @@ export const extraQuestions2: Question[] = [
     question:
       "React で SSR/Hydration エラーを避けつつ『クライアントだけで動く』値 (window / Date.now など) を扱う方法は？",
     choices: [
-      "useState + useEffect でクライアントマウント後に値をセット (or 'use client' + 動的 import + ssr: false)",
-      "サーバー側で生成",
       "window 直接アクセス",
       "対応不要",
+      "useState + useEffect でクライアントマウント後に値をセット (or 'use client' + 動的 import + ssr: false)",
+      "サーバー側で生成",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "サーバーで初期 HTML を生成 → クライアントが Hydrate でズレるとエラー。",
       "Date.now() / Math.random() / window.localStorage がよくある原因。",
@@ -867,12 +867,12 @@ export const extraQuestions2: Question[] = [
     question:
       "React で『コンポーネント内で発生した例外を捕捉してフォールバック UI を出す』仕組みは？",
     choices: [
+      "console.error",
       "Error Boundary — class component の componentDidCatch / static getDerivedStateFromError、または react-error-boundary ライブラリ",
       "try/catch でラップ",
       "useEffect でエラー監視",
-      "console.error",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "React 本体には class 版しかない、関数で書くなら react-error-boundary。",
       "render / lifecycle / Hook 中の throw を捕捉。",
@@ -923,12 +923,12 @@ export const extraQuestions2: Question[] = [
     question:
       "React Compiler (実験的、React 19+) が自動でやってくれることは？",
     choices: [
-      "useMemo / useCallback / React.memo の自動挿入 (依存解析でメモ化を自動化)",
-      "TypeScript 型の自動生成",
       "テストの自動生成",
       "本番デプロイ",
+      "useMemo / useCallback / React.memo の自動挿入 (依存解析でメモ化を自動化)",
+      "TypeScript 型の自動生成",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Facebook (Meta) 開発のコンパイラ。",
       "Babel / SWC プラグインとして組み込む。",
@@ -955,12 +955,12 @@ export const extraQuestions2: Question[] = [
     question:
       "Python 3.10+ で導入された『パターンマッチ』の構文は？",
     choices: [
+      "select / case",
       "match / case (構造的パターンマッチ)",
       "switch / case",
       "matches / when",
-      "select / case",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "case は値の比較だけでなく、構造の分解 + ガード式が可能。",
       "Ruby の case/in や Rust / Elixir のパターンマッチに近い。",
@@ -1039,12 +1039,12 @@ export const extraQuestions2: Question[] = [
     question:
       "Python の `with` 文と一緒に使う『コンテキストマネージャ』を関数として簡単に作るデコレータは？",
     choices: [
-      "@contextmanager (from contextlib)",
-      "@with_block",
       "@enter",
       "@resource",
+      "@contextmanager (from contextlib)",
+      "@with_block",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "通常は __enter__ / __exit__ を持つクラスを書く。",
       "@contextmanager + yield で簡単に。",
@@ -1067,12 +1067,12 @@ export const extraQuestions2: Question[] = [
     question:
       "Python の pathlib (PosixPath / WindowsPath) の利点として正しいのは？",
     choices: [
+      "OS 依存",
       "オブジェクト指向 + OS 非依存 / / 演算子で結合 / 多くのファイル操作メソッド (read_text / write_text / exists 等)",
       "os.path より遅い",
       "Python 2 専用",
-      "OS 依存",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "pathlib.Path('foo') / 'bar' で結合 (string concat より安全)。",
       "Path.exists() / read_text() / write_text() / iterdir() などメソッドが豊富。",
@@ -1123,12 +1123,12 @@ export const extraQuestions2: Question[] = [
     question:
       "f-string で『数値を 3 桁区切り + 小数点 2 桁』にする書式指定は？",
     choices: [
-      "f'{n:,.2f}'",
-      "f'{n:000.2}'",
       "f'{n:#,.2}'",
       "f'{n:%.2f,}'",
+      "f'{n:,.2f}'",
+      "f'{n:000.2}'",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       ", でカンマ区切り、.Nf で小数点 N 桁。",
       "順序は『種別 + パディング + カンマ + 精度 + 型』。",
@@ -1151,12 +1151,12 @@ export const extraQuestions2: Question[] = [
     question:
       "Python で型ヒント付きのジェネリック関数を書く時、TypeVar の代わりに使える新しい構文 (3.12+) は？",
     choices: [
+      "T = TypeVar('T') しか方法はない",
       "def first[T](items: list[T]) -> T: ... (PEP 695 type parameter syntax)",
       "def first<T>(items: list<T>) -> T:",
       "def first[T:](items)",
-      "T = TypeVar('T') しか方法はない",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Python 3.12+ で導入された PEP 695。",
       "TypeScript の <T> に近い構文。",
@@ -1207,12 +1207,12 @@ export const extraQuestions2: Question[] = [
     question:
       "Python で『最頻出する要素 Top N を取得』する標準ライブラリは？",
     choices: [
-      "collections.Counter + most_common(N)",
       "set + sort",
       "dict + sorted",
       "標準ライブラリにはない",
+      "collections.Counter + most_common(N)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Counter は dict のサブクラスで、要素の出現回数を数える。",
       "most_common(N) で頻度降順の Top N。",

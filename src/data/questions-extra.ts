@@ -13,8 +13,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "RSpec で『テストグループ』を定義するメソッドはどれですか？",
-    choices: ["test", "describe", "group", "spec"],
-    answerIndex: 1,
+    choices: ["spec", "test", "describe", "group"],
+    answerIndex: 2,
     hints: [
       "テスト対象のクラスや機能をくくる外枠です。",
       "ネストして文脈を分けるときは context という別名もあります。",
@@ -38,12 +38,12 @@ export const extraQuestions: Question[] = [
       "次のコードで、`expect(result).to eq(42)` が意味することは？",
     code: "RSpec.describe Calculator do\n  it 'adds numbers' do\n    result = Calculator.add(40, 2)\n    expect(result).to eq(42)\n  end\nend",
     choices: [
-      "result が 42 と等しいことを検証する (==)",
-      "result が 42 のオブジェクトと同一であることを検証する (equal?)",
       "result の型が Integer であることを検証する",
       "result が真であることを検証する",
+      "result が 42 と等しいことを検証する (==)",
+      "result が 42 のオブジェクトと同一であることを検証する (equal?)",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "`eq` は同値性 (equality) を表す matcher の略です。",
       "`equal` だと別の意味になります (object_id 比較)。",
@@ -65,8 +65,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "RSpec で『各 it の前に毎回実行したいセットアップ』を書くブロックは？",
-    choices: ["before(:each)", "before(:all)", "around", "after"],
-    answerIndex: 0,
+    choices: ["after", "before(:each)", "before(:all)", "around"],
+    answerIndex: 1,
     hints: [
       "頻出のフックです。エイリアスとして `before` 単体でも使えます。",
       "`:all` を指定すると全 example の前に 1 回だけ実行されます。",
@@ -114,8 +114,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "テスト用データ生成 gem として Rails で最も広く使われているのは？",
-    choices: ["fixtures (Rails 標準)", "factory_bot", "faker", "minitest"],
-    answerIndex: 1,
+    choices: ["faker", "minitest", "fixtures (Rails 標準)", "factory_bot"],
+    answerIndex: 3,
     hints: [
       "DSL で柔軟にデータを定義できるのが特徴です。",
       "属性ごとにシーケンスや関連オブジェクトを定義できます。",
@@ -138,12 +138,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの意味は？",
     code: "allow(Notifier).to receive(:send).and_return(true)\nMyService.call\nexpect(Notifier).to have_received(:send).with(user_id: 1)",
     choices: [
+      "Notifier をプライベートにする",
       "Notifier.send をスタブ化し、呼ばれたかと引数を検証",
       "Notifier クラスを置き換える",
       "Notifier の例外を捕捉する",
-      "Notifier をプライベートにする",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "外部依存をテスト中に置き換える典型イディオムです。",
       "allow は許可、expect は検証です。",
@@ -166,12 +166,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails で『コントローラを HTTP リクエストとしてテストする』推奨スペックタイプは？",
     choices: [
-      "controller spec (古い、非推奨)",
       "request spec",
       "feature spec",
       "model spec",
+      "controller spec (古い、非推奨)",
     ],
-    answerIndex: 1,
+    answerIndex: 0,
     hints: [
       "Rack/ミドルウェアを含めた本物に近いリクエストを送ります。",
       "Rails 5+ では controller spec の代わりに推奨されています。",
@@ -194,12 +194,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、RSpec のテストが『遅い・脆い』時に最初に疑うべきポイントとして適切なものは？",
     choices: [
-      "create を build_stubbed や build に置き換えられないか",
       "describe を全部消す",
       "expect を removed する",
       "rspec を minitest に書き換える",
+      "create を build_stubbed や build に置き換えられないか",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "DB アクセスはテスト速度を大きく左右します。",
       "保存が不要なら DB を叩く理由はありません。",
@@ -229,12 +229,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails 開発環境で SQL / リクエストログを見るのに最も標準的なファイルは？",
     choices: [
-      "log/development.log",
-      "log/server.log",
       "log/runtime.log",
       "tmp/log.log",
+      "log/development.log",
+      "log/server.log",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Rails は環境ごとに log/ 配下にログを出します。",
       "ファイル名はその環境名と一致します。",
@@ -278,12 +278,12 @@ export const extraQuestions: Question[] = [
     question:
       "ログから『2024-01-15 の ERROR ログだけ』を抽出するコマンドとして適切なのは？",
     choices: [
-      "grep '2024-01-15' log/production.log | grep ERROR",
       "find / -name ERROR",
       "ls log/ | grep 2024",
       "cd log && more error",
+      "grep '2024-01-15' log/production.log | grep ERROR",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Unix のフィルタリングはパイプで繋ぐのが定番。",
       "grep を 2 回繋いで AND 条件を作ります。",
@@ -306,12 +306,12 @@ export const extraQuestions: Question[] = [
     question:
       "Linux サーバ上で『systemd で起動しているサービスのログ』を見るコマンドは？",
     choices: [
+      "cat /var/log/my-app",
       "journalctl -u my-app -f",
       "log -follow my-app",
       "service-log my-app",
-      "cat /var/log/my-app",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "systemd 環境専用のログ管理ツールです。",
       "`-u` でユニット名 (サービス名) を指定。",
@@ -334,12 +334,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails コントローラ内で『現在のリクエスト情報を任意のメッセージで出す』のに使うのは？",
     choices: [
-      "puts 'hello'",
       "Rails.logger.info 'hello'",
       "print 'hello'",
       "console.log 'hello'",
+      "puts 'hello'",
     ],
-    answerIndex: 1,
+    answerIndex: 0,
     hints: [
       "puts はサーバ標準出力に出るだけで永続化されません。",
       "Rails のロガーには info/debug/warn/error/fatal のレベル別メソッドが揃っています。",
@@ -362,12 +362,12 @@ export const extraQuestions: Question[] = [
     question: "ログから 500 エラー上位 5 つの URL を集計するコマンドは？",
     code: "# nginx access log の例 (status, path, ...) が空白区切り",
     choices: [
-      'grep " 500 " access.log | awk \'{print $7}\' | sort | uniq -c | sort -rn | head -5',
-      "find access.log -name 500",
       "ls -la access.log | head -5",
       "cat access.log",
+      'grep " 500 " access.log | awk \'{print $7}\' | sort | uniq -c | sort -rn | head -5',
+      "find access.log -name 500",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Unix フィルタを 4-5 個パイプで連結します。",
       "`awk` で必要なカラムを取り出し、`sort | uniq -c` で集計、`sort -rn` で件数降順。",
@@ -411,12 +411,12 @@ export const extraQuestions: Question[] = [
     question:
       "本番で発生した 500 エラーを調査する『正しい順序』として最も筋が良いものは？",
     choices: [
-      "再現 → 仮説 → ログ確認 → 修正 → 再現テスト → デプロイ → 監視",
-      "コードを書き換えて push → 動くまで繰り返す",
       "ログを全部削除して直す",
       "本番 DB を直接編集してから報告",
+      "再現 → 仮説 → ログ確認 → 修正 → 再現テスト → デプロイ → 監視",
+      "コードを書き換えて push → 動くまで繰り返す",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "原因が分からないまま修正を投入するのは禁じ手。",
       "ログから事実を集め、仮説を立て、検証可能な最小修正を出す流れがプロ。",
@@ -443,12 +443,12 @@ export const extraQuestions: Question[] = [
     question:
       "現在のブランチに、別ブランチ feature を統合する 2 つの代表的なコマンドは？",
     choices: [
+      "git clone feature / git init feature",
       "git merge feature / git rebase feature",
       "git pull feature / git push feature",
       "git checkout feature / git status feature",
-      "git clone feature / git init feature",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "1 つは履歴を残した統合、もう 1 つは履歴を直列化する統合です。",
       "片方はマージコミットを作り、片方は履歴を書き換えます。",
@@ -548,12 +548,12 @@ export const extraQuestions: Question[] = [
     question:
       "コンフリクトしたファイルの解消後、コミットに進む正しい順序は？",
     choices: [
-      "コンフリクト箇所を編集 → git add ファイル → git commit (merge) または git rebase --continue",
       "git push --force だけで OK",
       "コミットを全て削除する",
       "ブランチを削除して作り直す",
+      "コンフリクト箇所を編集 → git add ファイル → git commit (merge) または git rebase --continue",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "<<<<<<< / ======= / >>>>>>> のマーカーを編集で取り除きます。",
       "解決済みであることを git に伝える操作が次に必要です。",
@@ -576,12 +576,12 @@ export const extraQuestions: Question[] = [
     question:
       "GitHub CLI (gh) でカレントブランチから main 向けにプルリクエストを作成するコマンドは？",
     choices: [
-      "gh pr create --base main",
       "gh push pr main",
       "gh request main",
       "gh branch --pr main",
+      "gh pr create --base main",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "PR 操作はすべて `gh pr xxx` のサブコマンドにまとまっています。",
       "create / view / list / merge / close 等がよく使われます。",
@@ -604,12 +604,12 @@ export const extraQuestions: Question[] = [
     question:
       "誤って push した直前のコミットを巻き戻したいが、すでに他人が pull している可能性が高い。最も安全な対応は？",
     choices: [
-      "git revert <SHA> で打ち消しコミットを追加して push",
-      "git reset --hard HEAD~1 して force push",
       "リポジトリを削除して作り直す",
       "リモートの履歴を編集する",
+      "git revert <SHA> で打ち消しコミットを追加して push",
+      "git reset --hard HEAD~1 して force push",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "履歴を書き換えると、他人の手元が壊れる可能性があります。",
       "履歴を残しつつ『打ち消す』新コミットを追加する方法が安全。",
@@ -686,12 +686,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、SQL Injection の危険があるコードは？",
     choices: [
+      "User.find_by(name: params[:name])",
       "User.where('name = ?', params[:name])",
       'User.where("name = \'#{params[:name]}\'")',
       "User.where(name: params[:name])",
-      "User.find_by(name: params[:name])",
     ],
-    answerIndex: 1,
+    answerIndex: 2,
     hints: [
       "文字列に直接 params を埋め込んでしまっているのが危険。",
       "プレースホルダ (?) や Hash 形式なら安全。",
@@ -714,12 +714,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails で CSRF 対策が標準で組み込まれている仕組みは？",
     choices: [
+      "GET だけ受け付ける",
       "ApplicationController で protect_from_forgery (現在は CSRF トークンを form に自動挿入)",
       "全 POST を拒否する",
       "Cookie を使わない",
-      "GET だけ受け付ける",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "form_with などのフォームヘルパが自動でトークンを埋め込みます。",
       "サーバ側は protect_from_forgery が標準で有効化されています。",
@@ -742,12 +742,12 @@ export const extraQuestions: Question[] = [
     question:
       "ERB テンプレートで `<%= user_input %>` と書いたとき、XSS は自動で防がれる？",
     choices: [
-      "防がれる (HTML エスケープが自動)",
       "防がれない",
       "ブラウザが防ぐ",
       "Rails では XSS は発生しない",
+      "防がれる (HTML エスケープが自動)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Rails 3 以降は標準で出力エスケープ。",
       "raw / html_safe を明示的に呼ばない限り安全側。",
@@ -792,12 +792,12 @@ export const extraQuestions: Question[] = [
     question:
       "パスワードを DB に保存する正しいやり方は？",
     choices: [
-      "平文で保存する",
       "MD5 でハッシュ化して保存する",
       "bcrypt 等のソルト付き遅いハッシュでハッシュ化して保存 (Rails なら has_secure_password)",
       "Base64 で保存する",
+      "平文で保存する",
     ],
-    answerIndex: 2,
+    answerIndex: 1,
     hints: [
       "平文 / 簡単なハッシュは流出時に総当たり攻撃で即解読されます。",
       "MD5 / SHA1 は速すぎるのでパスワードには不適。",
@@ -820,12 +820,12 @@ export const extraQuestions: Question[] = [
     question:
       "OWASP Top 10 (2021) で最新の最上位カテゴリ (A01) はどれ？",
     choices: [
+      "CSRF",
       "Broken Access Control (壊れたアクセス制御)",
       "Injection",
       "XSS",
-      "CSRF",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "ユーザーが本来アクセスできないリソースを取得・操作できてしまう問題。",
       "Rails では Pundit/CanCanCan で防ぐ層に当たります。",
@@ -851,8 +851,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "Ruby/Rails で『コードの途中で実行を止めて対話的に変数を確認したい』時のデファクト gem は？",
-    choices: ["pry-rails / debug", "console.log", "rails-trace", "ruby-stop"],
-    answerIndex: 0,
+    choices: ["rails-trace", "ruby-stop", "pry-rails / debug", "console.log"],
+    answerIndex: 2,
     hints: [
       "Ruby 3.1+ から `debug` gem が標準同梱。",
       "古くは byebug、もう少し前は pry-byebug。",
@@ -948,12 +948,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails で『どの SQL がどれだけ時間を使っているか』を画面上で可視化する開発用 gem は？",
     choices: [
+      "factory_bot",
       "rack-mini-profiler",
       "byebug",
       "rspec",
-      "factory_bot",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "画面左上に小さなバッジが出て、クリックで詳細表示。",
       "SQL 実行時間 / レンダリング時間 / メモリ等を表示。",
@@ -976,12 +976,12 @@ export const extraQuestions: Question[] = [
     question:
       "本番で『特定のリクエストが遅い』時の調査の進め方として最適なのは？",
     choices: [
-      "APM (New Relic 等) の Slow Transaction を確認 → 詳細 trace で SQL/外部 API を特定 → 再現環境で検証",
-      "本番でブレークポイントを入れる",
       "アプリを再起動して様子見",
       "全リクエストにログを大量出力",
+      "APM (New Relic 等) の Slow Transaction を確認 → 詳細 trace で SQL/外部 API を特定 → 再現環境で検証",
+      "本番でブレークポイントを入れる",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "本番にデバッガを入れるのは禁忌。",
       "APM (Application Performance Monitoring) が現代の調査入口。",
@@ -1080,8 +1080,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "ファイル `app.log` を 1 ページずつ読みながら検索する標準的なコマンドは？",
-    choices: ["less app.log", "echo app.log", "ls app.log", "ps app.log"],
-    answerIndex: 0,
+    choices: ["echo app.log", "ls app.log", "ps app.log", "less app.log"],
+    answerIndex: 3,
     hints: [
       "ページャ (pager) と呼ばれます。",
       "矢印キーで移動、/word で検索、F で follow モード。",
@@ -1132,12 +1132,12 @@ export const extraQuestions: Question[] = [
     question:
       "リモートサーバに SSH 鍵で接続する基本コマンドは？",
     choices: [
-      "ssh -i ~/.ssh/id_ed25519 user@host",
-      "ssh password://user@host",
       "ssh-connect user@host key",
       "telnet user@host",
+      "ssh -i ~/.ssh/id_ed25519 user@host",
+      "ssh password://user@host",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "-i で鍵ファイルを指定 (省略可、デフォルト鍵がある場合)。",
       "id_rsa は古め、id_ed25519 が現代の推奨。",
@@ -1161,12 +1161,12 @@ export const extraQuestions: Question[] = [
       "ファイルに対する権限の意味として正しいのは？",
     code: "$ ls -l\n-rw-r--r-- 1 alice users 100 Jan 1 app.rb",
     choices: [
+      "実行のみ可能",
       "所有者: 読み書き / グループ: 読み / その他: 読み",
       "全員が読み書き可能",
       "誰も読めない",
-      "実行のみ可能",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "9 文字を 3 文字ずつに分解: 所有者 / グループ / その他。",
       "r=4, w=2, x=1 の合計が chmod の数字表現。",
@@ -1216,8 +1216,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "コマンドの出力 (例: 全ファイル名) を、別コマンドの引数として渡したい時に使うコマンドは？",
-    choices: ["xargs", "pipe", "redirect", "transfer"],
-    answerIndex: 0,
+    choices: ["transfer", "xargs", "pipe", "redirect"],
+    answerIndex: 1,
     hints: [
       "標準入力を空白区切りで分解して、別コマンドの引数にする。",
       "find ... | xargs rm のような形が典型。",
@@ -1244,12 +1244,12 @@ export const extraQuestions: Question[] = [
     question:
       "RSpec で『複数の describe / context から共通のテストブロックを呼び出して再利用する』仕組みは？",
     choices: [
-      "shared_examples / it_behaves_like",
-      "include_module",
       "merge_describe",
       "import_specs",
+      "shared_examples / it_behaves_like",
+      "include_module",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "テストのテンプレートを定義しておき、複数箇所から名前で呼び出します。",
       "DRY (Don't Repeat Yourself) をテストにも適用するイディオム。",
@@ -1273,12 +1273,12 @@ export const extraQuestions: Question[] = [
       "次のコードで `subject` を省略形で書き直すと？",
     code: "describe Calculator do\n  describe '#add' do\n    subject { Calculator.new.add(2, 3) }\n    it { expect(subject).to eq 5 }\n  end\nend",
     choices: [
-      "it { is_expected.to eq 5 }",
-      "it { subject.must_equal 5 }",
       "it.to eq 5",
       "省略はできない",
+      "it { is_expected.to eq 5 }",
+      "it { subject.must_equal 5 }",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "subject を明示せずに it ブロックから参照する書き方があります。",
       "受動態の英語表現で『〜であると期待される』を意味する記法。",
@@ -1330,12 +1330,12 @@ export const extraQuestions: Question[] = [
       "次のコードが検証していることは？",
     code: "expect { fetch_user }.to raise_error(ActiveRecord::RecordNotFound, /User with id/)",
     choices: [
-      "fetch_user が指定例外を、指定メッセージパターン付きで投げる",
-      "fetch_user が成功する",
       "fetch_user が nil を返す",
       "fetch_user の戻り値が ActiveRecord::Base",
+      "fetch_user が指定例外を、指定メッセージパターン付きで投げる",
+      "fetch_user が成功する",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "ブロック付き expect は副作用 (例外 / 出力など) を検証します。",
       "matcher 名に raise が含まれているのが大きなヒント。",
@@ -1380,12 +1380,12 @@ export const extraQuestions: Question[] = [
     question:
       "ブラウザ操作 (クリック / 入力 / 表示確認) を含む E2E テストを書く Rails 推奨の spec タイプは？",
     choices: [
+      "helper spec",
       "system spec (Capybara + headless browser)",
       "model spec",
       "view spec",
-      "helper spec",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Rails 5.1 から組み込み、Capybara + 実ブラウザを使います。",
       "JavaScript も実行できる本物に近い E2E テスト。",
@@ -1408,12 +1408,12 @@ export const extraQuestions: Question[] = [
     question:
       "外部 API への HTTP リクエストをテストで再生・記録する gem は？",
     choices: [
-      "VCR (+ WebMock)",
       "Capybara",
       "factory_bot",
       "Devise",
+      "VCR (+ WebMock)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "実 HTTP リクエストを最初の 1 回だけ記録、以降はカセットから再生。",
       "ビデオデッキの略のような 3 文字の名前。",
@@ -1436,12 +1436,12 @@ export const extraQuestions: Question[] = [
     question:
       "RSpec で『開発中はこのテストだけ実行したい』時に使える、describe/it に付けるメタデータは？",
     choices: [
-      ":focus (focus: true) と --tag focus",
       ":hidden",
       ":only",
       ":private",
+      ":focus (focus: true) と --tag focus",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "メタデータをタグで指定し、コマンドラインで絞り込む方法です。",
       "RSpec の `fdescribe` / `fit` を使うと自動でこのタグが付きます。",
@@ -1512,8 +1512,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "JSON 形式のログを抽出・整形する CLI ツールは？",
-    choices: ["jq", "json-cli", "jconvert", "jsed"],
-    answerIndex: 0,
+    choices: ["jsed", "jq", "json-cli", "jconvert"],
+    answerIndex: 1,
     hints: [
       "2 文字の短いコマンド名。",
       "ドットでフィールドアクセス、`.[]` で配列展開、`select()` でフィルタなど SQL に近い表現が書けます。",
@@ -1535,8 +1535,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "ログファイルが肥大化しすぎないよう、サイズ/日付で自動分割・圧縮・古いものを削除する Linux の標準ツールは？",
-    choices: ["logrotate", "log-cleaner", "ftruncate", "auto-purge"],
-    answerIndex: 0,
+    choices: ["auto-purge", "logrotate", "log-cleaner", "ftruncate"],
+    answerIndex: 1,
     hints: [
       "Cron 経由で日次実行されるのが標準的なセットアップ。",
       "/etc/logrotate.d/ 配下に設定ファイルを置く方式。",
@@ -1587,12 +1587,12 @@ export const extraQuestions: Question[] = [
     question:
       "本番でログレベルを一時的に DEBUG にしたい時の、再起動不要な定番アプローチは？",
     choices: [
+      "config を git push してデプロイ",
       "Rails.logger.level = Logger::DEBUG を Rails console で実行",
       "/etc/rails.conf を編集",
       "Heroku を再起動",
-      "config を git push してデプロイ",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Rails コンソールから実行中のプロセスに対して動的に変更できます。",
       "ただしマルチプロセス環境 (Puma) では 1 ワーカーにしか効かないので注意。",
@@ -1616,12 +1616,12 @@ export const extraQuestions: Question[] = [
       "次のコマンドの目的として最も適切なのは？",
     code: "ps -p $(lsof -t -i:3000) -o pid,etime,rss,cmd",
     choices: [
-      "ポート 3000 を使っているプロセスの起動時間・メモリ・コマンドを表示",
       "ポート 3000 を閉じる",
       "Rails アプリを再起動",
       "ファイルをロック",
+      "ポート 3000 を使っているプロセスの起動時間・メモリ・コマンドを表示",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "コマンド置換 `$(...)` で内側を先に実行している点に注目。",
       "lsof -t -i:PORT は『そのポートを listen している PID のみ』を返します。",
@@ -1644,12 +1644,12 @@ export const extraQuestions: Question[] = [
     question:
       "1 リクエストごとに『そのリクエスト中の全ログ』を後で追えるようにする Rails の仕組みは？",
     choices: [
-      "Rails.logger.tagged ブロック (TaggedLogging)",
       "Rails.cache.write",
       "Rails.cookies.write",
       "Rails.session.tagged",
+      "Rails.logger.tagged ブロック (TaggedLogging)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "ログ行の先頭に [tag] が付き、grep で 1 リクエスト分のログをまとめて抽出できるようになります。",
       "Rails 標準で、デフォルトでは request_id が付与されます。",
@@ -1675,8 +1675,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "『この機能、ある時点では動いていたのに最近壊れた』を二分探索で原因コミットを特定する Git コマンドは？",
-    choices: ["git bisect", "git find", "git blame", "git binary"],
-    answerIndex: 0,
+    choices: ["git blame", "git binary", "git bisect", "git find"],
+    answerIndex: 2,
     hints: [
       "コミット履歴を二分探索で絞り込む機能。",
       "good / bad コミットを指定すると、Git が真ん中を順に提示してくれます。",
@@ -1743,8 +1743,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "1 つのリポジトリで複数ブランチを同時にチェックアウトして並行作業する Git の機能は？",
-    choices: ["git worktree", "git multibranch", "git parallel", "git clone --multi"],
-    answerIndex: 0,
+    choices: ["git multibranch", "git parallel", "git clone --multi", "git worktree"],
+    answerIndex: 3,
     hints: [
       "別ディレクトリにブランチを展開し、本体は維持しつつ並行で見られます。",
       "git stash や master ⇔ feature 切替の手間を省きます。",
@@ -1823,12 +1823,12 @@ export const extraQuestions: Question[] = [
     question:
       "コミットメッセージのスタイルとして広く採用される『feat / fix / docs / refactor 等の prefix』規約は？",
     choices: [
-      "Conventional Commits",
-      "Strict Commits",
       "Semantic Style",
       "Atom Style",
+      "Conventional Commits",
+      "Strict Commits",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Angular プロジェクトから広まった規約。",
       "type(scope): subject の形式で書きます。",
@@ -1851,12 +1851,12 @@ export const extraQuestions: Question[] = [
     question:
       "対話的 rebase (`git rebase -i HEAD~3`) でできない操作はどれ？",
     choices: [
+      "コミットメッセージを書き換える",
       "コミットを跨いだファイル名の変更履歴を消す",
       "コミットの順番を入れ替える (reorder)",
       "複数コミットを 1 つに squash する",
-      "コミットメッセージを書き換える",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "rebase -i のメニューは pick / reword / edit / squash / fixup / drop の組み合わせ。",
       "順番入れ替え・統合・編集・削除はできるが、ファイルレベルの履歴改変は別操作。",
@@ -1883,12 +1883,12 @@ export const extraQuestions: Question[] = [
     question:
       "ブラウザに『今後このサイトは HTTPS のみで接続する』を強制する HTTP ヘッダーは？",
     choices: [
-      "Strict-Transport-Security (HSTS)",
-      "X-Frame-Options",
       "X-Content-Type-Options",
       "Cache-Control",
+      "Strict-Transport-Security (HSTS)",
+      "X-Frame-Options",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "HTTP → HTTPS 自動アップグレードと、HTTPS なしアクセスのブロックを行う設定。",
       "max-age と includeSubDomains を指定するヘッダー。",
@@ -1911,12 +1911,12 @@ export const extraQuestions: Question[] = [
     question:
       "ブラウザに『どこから来た JS/CSS/image なら実行を許可するか』のホワイトリストを指示する HTTP ヘッダーは？",
     choices: [
-      "Content-Security-Policy (CSP)",
       "Access-Control-Allow-Origin (CORS)",
       "X-XSS-Protection",
       "Referrer-Policy",
+      "Content-Security-Policy (CSP)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "XSS の二次被害 (inject されたスクリプトの実行) を強力に防ぐ仕組み。",
       "default-src / script-src / style-src 等でドメインを許可リスト化します。",
@@ -1939,12 +1939,12 @@ export const extraQuestions: Question[] = [
     question:
       "JWT (JSON Web Token) のセキュリティで『最重要の落とし穴』として有名なのは？",
     choices: [
-      "alg=none / 弱いアルゴリズムを許可してしまう (alg confusion)",
       "Base64 が遅い",
       "JSON のパースに時間がかかる",
       "ペイロードが大きすぎる",
+      "alg=none / 弱いアルゴリズムを許可してしまう (alg confusion)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "署名アルゴリズム自体を改ざんされる攻撃。",
       "alg ヘッダで none を指定して署名を無効化、または HS256 ↔ RS256 を悪用するパターン。",
@@ -1966,8 +1966,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "Rails で『ログイン試行を 1 IP/1 分につき 5 回まで』に制限する定番 gem は？",
-    choices: ["rack-attack", "throttle-rate", "limiter", "shield-rate"],
-    answerIndex: 0,
+    choices: ["shield-rate", "rack-attack", "throttle-rate", "limiter"],
+    answerIndex: 1,
     hints: [
       "Rack ミドルウェアとして動作。Rails 以外でも使えます。",
       "DSL で `throttle('logins/ip', limit: 5, period: 1.minute) do |req|...` のように書きます。",
@@ -1990,12 +1990,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails ログから『password』『credit_card』等の機密値を自動マスキングする設定は？",
     choices: [
-      "Rails.application.config.filter_parameters",
       "Rails.application.config.skip_params",
       "Rails.application.config.hide_log",
       "Rails.application.config.secret_log",
+      "Rails.application.config.filter_parameters",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Rails が自動でログに `[FILTERED]` と置換してくれる仕組み。",
       "config/initializers/filter_parameter_logging.rb がデフォルトで生成されます。",
@@ -2068,12 +2068,12 @@ export const extraQuestions: Question[] = [
     question:
       "ファイルアップロード機能のセキュリティ対策として最重要なのは？",
     choices: [
-      "拡張子だけでなく Content-Type / マジックバイトで実コンテンツを検証し、別ドメイン or S3 から配信",
       "ファイル名を ROT13 で暗号化する",
       "アップロード後に削除する",
       "ZIP に圧縮する",
+      "拡張子だけでなく Content-Type / マジックバイトで実コンテンツを検証し、別ドメイン or S3 から配信",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "拡張子だけのチェックは簡単に bypass される (foo.jpg と名乗る .exe など)。",
       "実際のコンテンツのマジックバイト (ファイル先頭の数バイト) を確認する必要があります。",
@@ -2100,12 +2100,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails 7.1+ で『SQL クエリ発行元のコード位置を SQL コメントに自動付与』する標準機能は？",
     choices: [
-      "Marginalia / ActiveRecord::QueryLogs",
-      "Sql::Tracer",
       "Sequel::SourceMap",
       "Bullet::Annotator",
+      "Marginalia / ActiveRecord::QueryLogs",
+      "Sql::Tracer",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "SQL のコメントに /* application:MyApp, controller:Posts, action:index */ のような注釈が付きます。",
       "もとは marginalia gem の機能、Rails 7.1+ で標準化。",
@@ -2127,8 +2127,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "Ruby のオブジェクトを見やすく整形して出力する標準的なデバッグ用メソッドは？",
-    choices: ["pp (pretty-print)", "view", "dump", "fmt"],
-    answerIndex: 0,
+    choices: ["dump", "fmt", "pp (pretty-print)", "view"],
+    answerIndex: 2,
     hints: [
       "puts よりも構造を保って表示する 2 文字のメソッド。",
       "Hash や Array をインデント付きで出してくれます。",
@@ -2151,12 +2151,12 @@ export const extraQuestions: Question[] = [
     question:
       "現在の呼び出しスタック (どこから呼ばれたか) を確認する Ruby のメソッドは？",
     choices: [
-      "caller / caller_locations",
       "stack / trace",
       "where / from",
       "backtrace",
+      "caller / caller_locations",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Kernel に定義されているメソッド。",
       "呼び出し元のファイル名:行数:メソッド名 の配列を返します。",
@@ -2202,12 +2202,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails console の `app` オブジェクトでできることは？",
     choices: [
+      "テンプレートをコンパイルする",
       "HTTP リクエストを送ってルーティング / コントローラの挙動を試す (app.get '/posts')",
       "Rails アプリを再起動する",
       "DB を削除する",
-      "テンプレートをコンパイルする",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Rails console から、ブラウザ経由のリクエストをシミュレートできます。",
       "ルーティングが正しいか、レスポンスの内容を見たい時に便利。",
@@ -2230,12 +2230,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails 7+ で開発時にプロセス全体 (web + worker + tailwind 等) を起動する標準スクリプトは？",
     choices: [
-      "bin/dev (foreman / overmind 経由)",
-      "bin/start_all",
       "bin/launch",
       "bin/up",
+      "bin/dev (foreman / overmind 経由)",
+      "bin/start_all",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Rails 7 が生成する Procfile.dev を読み込むスクリプト。",
       "rails s + bin/jobs + tailwindcss --watch などを 1 コマンドで並行起動。",
@@ -2286,12 +2286,12 @@ export const extraQuestions: Question[] = [
     question:
       "本番で『遅いリクエストの中身を Rails が自動で吐く詳細ログ』をどう取る？",
     choices: [
+      "Rails console で再現",
       "config.active_support.report_deprecations / 0.5 秒以上は INFO に出る + APM の slow trace を組み合わせる",
       "puts でログ出力",
       "DB を再起動",
-      "Rails console で再現",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Rails 自体には『遅いリクエストだけ詳細を出す』組込み機能は弱い。",
       "現代は APM (New Relic / Skylight / Datadog) で slow transaction trace を見るのが主流。",
@@ -2318,12 +2318,12 @@ export const extraQuestions: Question[] = [
     question:
       "シェルに『よく使うコマンドの短縮形』を定義する宣言は？",
     choices: [
-      "alias gs='git status'",
       "shortcut gs='git status'",
       "define gs='git status'",
       "macro gs='git status'",
+      "alias gs='git status'",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "5 文字の英単語、シェルの組み込みコマンド。",
       "~/.bashrc や ~/.zshrc に書いて永続化するのが定番。",
@@ -2346,12 +2346,12 @@ export const extraQuestions: Question[] = [
     question:
       "Linux で定期実行を設定する伝統的なツールは？",
     choices: [
-      "cron / crontab",
       "schedule / scheduletab",
       "timer / timertab",
       "loop / looptab",
+      "cron / crontab",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "古くから Unix 系に標準搭載されている定期実行デーモン。",
       "crontab -e で編集、`分 時 日 月 曜 コマンド` の 5 フィールド形式。",
@@ -2374,12 +2374,12 @@ export const extraQuestions: Question[] = [
     question:
       "SSH 接続を切ってもバックグラウンドで処理を続けたい時のターミナル多重化ツールは？",
     choices: [
-      "tmux / screen",
-      "ssh-keep / bg-runner",
       "nohup-only",
       "remote-exec",
+      "tmux / screen",
+      "ssh-keep / bg-runner",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "1 つのターミナルセッションに複数のウィンドウ / 分割を持てます。",
       "切断しても detach 状態で生存、後で再 attach 可能。",
@@ -2403,12 +2403,12 @@ export const extraQuestions: Question[] = [
       "API を JSON POST でテストする `curl` のオプション組み合わせは？",
     code: '# /users に { "name": "Alice" } を POST したい',
     choices: [
+      "curl -auto -post users",
       "curl -X POST -H 'Content-Type: application/json' -d '{\"name\":\"Alice\"}' http://localhost:3000/users",
       "curl POST http://localhost:3000/users name=Alice",
       "curl -file users.json",
-      "curl -auto -post users",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "-X で HTTP メソッド、-H でヘッダ、-d でボディ指定が curl の基本。",
       "JSON を送るには Content-Type ヘッダを明示しないとサーバーで認識されません。",
@@ -2431,12 +2431,12 @@ export const extraQuestions: Question[] = [
     question:
       "現在 LISTEN しているポート一覧を表示する現代的なコマンドは？",
     choices: [
+      "lsof / ss どちらも使える",
       "ss -tlnp",
       "ps -listen",
       "netstat -tlnp (古い)",
-      "lsof / ss どちらも使える",
     ],
-    answerIndex: 3,
+    answerIndex: 0,
     hints: [
       "netstat は古く、現代は ss が推奨されますが両方使えます。",
       "lsof -i:PORT もポート別に強力。",
@@ -2459,12 +2459,12 @@ export const extraQuestions: Question[] = [
     question:
       "ローカルファイルをリモートサーバに転送するコマンドは？",
     choices: [
-      "scp local.tar user@host:/path/",
-      "ftp -upload local.tar",
       "cp -remote local.tar",
       "ssh-copy local.tar",
+      "scp local.tar user@host:/path/",
+      "ftp -upload local.tar",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "ssh + cp の合成的なコマンド名で 3 文字。",
       "SSH 認証を使うので鍵があれば自動。",
@@ -2487,12 +2487,12 @@ export const extraQuestions: Question[] = [
     question:
       "ファイル / ディレクトリの違いを見やすく比較する CLI は？",
     choices: [
+      "delta -compare",
       "diff -u (or colordiff)",
       "compare -file",
       "match -files",
-      "delta -compare",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "標準ツールで unified diff 形式 (+/-) を出します。",
       "色付けには colordiff や diff-so-fancy / delta を組み合わせる。",
@@ -2515,12 +2515,12 @@ export const extraQuestions: Question[] = [
     question:
       "本番サーバの『ネットワーク疎通だけ』を最速で確認する基本コマンド組み合わせは？",
     choices: [
-      "ping (ICMP) + curl/telnet/nc でポート疎通 + dig/nslookup で名前解決",
       "Rails console で確認",
       "GUI でリモートデスクトップ",
       "Slack で同僚に聞く",
+      "ping (ICMP) + curl/telnet/nc でポート疎通 + dig/nslookup で名前解決",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "3 つの異なるレイヤー (ネットワーク到達 / ポート / DNS) を別々に検証するのが定石。",
       "それぞれが正常で初めて『接続できる』と言える。",
@@ -2546,8 +2546,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力は？",
     code: "puts 7 / 2\nputs 7.0 / 2\nputs 7 / 2.0",
-    choices: ["3 / 3.5 / 3.5", "3.5 / 3.5 / 3.5", "3 / 3 / 3", "3.5 / 3 / 3"],
-    answerIndex: 0,
+    choices: ["3.5 / 3.5 / 3.5", "3 / 3 / 3", "3.5 / 3 / 3", "3 / 3.5 / 3.5"],
+    answerIndex: 3,
     hints: [
       "整数同士の割り算と、片方が浮動小数の場合で挙動が変わります。",
       "Ruby は型強制を行わず、整数 / 整数 は整数のままです。",
@@ -2569,8 +2569,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question: "Ruby の if 文は値を返す式。次のコードの a の値は？",
     code: "a = if 5 > 3 then 'big' else 'small' end",
-    choices: ["'big'", "'small'", "nil", "true"],
-    answerIndex: 0,
+    choices: ["'small'", "nil", "true", "'big'"],
+    answerIndex: 3,
     hints: [
       "Ruby の制御構文は式 (値を返す)。",
       "5 > 3 は真なので then 側が評価されます。",
@@ -2591,8 +2591,8 @@ export const extraQuestions: Question[] = [
     difficulty: "beginner",
     type: "choice",
     question: "`5.times { |i| puts i }` で出力される最後の数は？",
-    choices: ["5", "4", "6", "0"],
-    answerIndex: 1,
+    choices: ["0", "5", "4", "6"],
+    answerIndex: 2,
     hints: [
       "`n.times` は 0 から始まる。",
       "ループは n 回繰り返すので i は 0 〜 n-1。",
@@ -2634,12 +2634,12 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question: "次のうち、Ruby の三項演算子の正しい書き方は？",
     choices: [
+      "x > 0 -> 'pos' : 'neg'",
       "x > 0 ? 'pos' : 'neg'",
       "x > 0 if 'pos' else 'neg'",
       "x > 0 ? 'pos' | 'neg'",
-      "x > 0 -> 'pos' : 'neg'",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "C 言語スタイルの記法。",
       "`condition ? true_value : false_value` の形式。",
@@ -2660,8 +2660,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力は？",
     code: 'arr = [1, 2, 3]\narr.each { |n| puts n }\nputs arr.length',
-    choices: ["1 2 3 3", "1 2 3", "3", "[1, 2, 3] 3"],
-    answerIndex: 0,
+    choices: ["3", "[1, 2, 3] 3", "1 2 3 3", "1 2 3"],
+    answerIndex: 2,
     hints: [
       "each は各要素を順に出力します。",
       "ループ後に length が表示されます。",
@@ -2706,12 +2706,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'def greet(name)\n  return "hi" if name.nil?\n  "hello, #{name}"\nend\n\nputs greet(nil)\nputs greet("Alice")',
     choices: [
+      "hi / hi",
       "hi / hello, Alice",
       "hello,  / hello, Alice",
       "nil / hello, Alice",
-      "hi / hi",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "後置 if は条件成立時のみ前の式を実行。",
       "name が nil なら return で早期復帰。",
@@ -2732,8 +2732,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力は？",
     code: 'arr = ["a", "b", "c"]\narr.each_with_index { |x, i| puts "#{i}:#{x}" }',
-    choices: ["0:a 1:b 2:c", "1:a 2:b 3:c", "a:0 b:1 c:2", "0:c 1:b 2:a"],
-    answerIndex: 0,
+    choices: ["1:a 2:b 3:c", "a:0 b:1 c:2", "0:c 1:b 2:a", "0:a 1:b 2:c"],
+    answerIndex: 3,
     hints: [
       "each_with_index は (要素, 0 始まりのインデックス) を渡す。",
       "ブロック引数の順は (要素, index)。",
@@ -2806,12 +2806,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "h = { name: 'Alice', age: 20 }\nh.each { |k, v| puts \"#{k}=#{v}\" }",
     choices: [
-      "name=Alice age=20",
-      "Alice 20",
       "name age",
       "name:Alice age:20",
+      "name=Alice age=20",
+      "Alice 20",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Hash#each はキーと値をブロックに渡す。",
       "ブロック引数 `|k, v|` で分解。",
@@ -2834,12 +2834,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'puts "ruby".include?("ub")\nputs "ruby".start_with?("ru")\nputs "ruby".end_with?("by")',
     choices: [
-      "true / true / true",
       "true / false / true",
       "false / true / true",
       "true / true / false",
+      "true / true / true",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "3 つとも文字列の包含チェック。",
       "include? は部分一致、start_with? は先頭、end_with? は末尾。",
@@ -2889,12 +2889,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "h = Hash.new { |hash, key| hash[key] = [] }\nh[:a] << 1\nh[:a] << 2\nh[:b] << 3\np h",
     choices: [
-      "{a: [1, 2], b: [3]}",
-      "{a: [1, 2, 3]}",
       "{a: 1, b: 3}",
       "{}",
+      "{a: [1, 2], b: [3]}",
+      "{a: [1, 2, 3]}",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Hash.new にブロックを渡すと『未定義キーアクセス時の挙動』を定義できる。",
       "ブロックはキー毎に呼ばれ、ここでは空配列をセットして返している。",
@@ -2919,8 +2919,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question:
       "Ruby で『現在の例外オブジェクト』を rescue 句内で参照する書き方は？",
-    choices: ["rescue => e", "rescue (e)", "rescue with e", "rescue e"],
-    answerIndex: 0,
+    choices: ["rescue (e)", "rescue with e", "rescue e", "rescue => e"],
+    answerIndex: 3,
     hints: [
       "矢印 => で受け取る。",
       "クラスを限定するなら `rescue StandardError => e`、デフォルトは省略可。",
@@ -2942,12 +2942,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "[1, 2, 3].lazy.map { |n| puts \"map #{n}\"; n * 2 }.first(2)",
     choices: [
+      "Enumerator を返す",
       "map 1 / map 2 を出力して [2, 4]",
       "map 1〜3 すべて出力して [2, 4]",
       "何も出力せず [2, 4]",
-      "Enumerator を返す",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "lazy はチェーンを遅延評価にする。",
       "first(2) は必要な分だけ map を実行。",
@@ -3059,12 +3059,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "puts [1, 2, 3, 4, 5].first(3).inspect",
     choices: [
+      "[1, 2, 3, 4, 5]",
       "[1, 2, 3]",
       "[3, 4, 5]",
       "[1]",
-      "[1, 2, 3, 4, 5]",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "first(n) は配列の先頭 n 個を返す。",
       "対義語は last(n) で末尾 n 個。",
@@ -3113,12 +3113,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "[1, 2, 3].push(4, 5)",
     choices: [
+      "TypeError",
       "[1, 2, 3, 4, 5]",
       "[1, 2, 3]",
       "[4, 5]",
-      "TypeError",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "push は配列末尾に要素を追加する破壊的メソッド。",
       "複数引数を渡せる (一度に複数追加)。",
@@ -3162,12 +3162,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "h1 = { a: 1, b: 2 }\nh2 = { b: 3, c: 4 }\np h1.merge(h2)",
     choices: [
-      "{a: 1, b: 3, c: 4}",
-      "{a: 1, b: 2, c: 4}",
       "{a: 1, b: 2, b: 3, c: 4}",
       "TypeError",
+      "{a: 1, b: 3, c: 4}",
+      "{a: 1, b: 2, c: 4}",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "merge は 2 つの Hash を合体させる。",
       "同じキーは『右側 (引数側)』が優先される。",
@@ -3190,12 +3190,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "[1, 2, 3, 4].partition { |n| n.even? }",
     choices: [
-      "[[2, 4], [1, 3]]",
       "[[1, 3], [2, 4]]",
       "[[2, 4]]",
       "[1, 2, 3, 4]",
+      "[[2, 4], [1, 3]]",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "partition は 1 回の走査で『条件に合う / 合わない』を 2 つの配列に分ける。",
       "結果は 2 要素の配列 (1 つ目が条件成立、2 つ目が不成立)。",
@@ -3296,12 +3296,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "(1..5).step(2).to_a",
     choices: [
+      "[1, 3, 5, 7]",
       "[1, 3, 5]",
       "[1, 2, 3, 4, 5]",
       "[2, 4]",
-      "[1, 3, 5, 7]",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Range#step は指定間隔で要素を取り出す。",
       "Ruby の step は開始値を含む。",
@@ -3323,12 +3323,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、Hash のキーを Symbol → String に一括変換するメソッドは？",
     choices: [
-      "transform_keys(&:to_s)",
       "stringify_all",
       "convert_to_string",
       "to_s_keys",
+      "transform_keys(&:to_s)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Hash#transform_keys はキーを変換する関数。",
       "ブロックで変換ロジックを渡す。",
@@ -3351,12 +3351,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "['apple', 'banana', 'cherry'].tally",
     choices: [
-      '{"apple"=>1, "banana"=>1, "cherry"=>1}',
       '["apple", "banana", "cherry"]',
       "3",
       '{"a"=>1, "b"=>1, "c"=>1}',
+      '{"apple"=>1, "banana"=>1, "cherry"=>1}',
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Ruby 2.7+ の Enumerable メソッド。",
       "各要素の出現回数を Hash で返す。",
@@ -3379,12 +3379,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "[3, 1, 4, 1, 5].sort\n[3, 1, 4, 1, 5].sort.reverse\n[3, 1, 4, 1, 5].sort { |a, b| b <=> a }",
     choices: [
-      "[1,1,3,4,5] / [5,4,3,1,1] / [5,4,3,1,1]",
-      "[1,1,3,4,5] / [1,1,3,4,5] / [5,4,3,1,1]",
       "[3,1,4,1,5] / [5,1,4,1,3] / [1,1,3,4,5]",
       "全部 [1,1,3,4,5]",
+      "[1,1,3,4,5] / [5,4,3,1,1] / [5,4,3,1,1]",
+      "[1,1,3,4,5] / [1,1,3,4,5] / [5,4,3,1,1]",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "sort はデフォルトで昇順 (<=>)。",
       "降順は reverse 後 or ブロックで `b <=> a`。",
@@ -3407,12 +3407,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "h = { name: 'Alice', age: 20, role: 'admin' }\nh.values_at(:name, :role)",
     choices: [
-      '["Alice", "admin"]',
-      '["Alice", "admin", 20]',
       '{name: "Alice", role: "admin"}',
       "TypeError",
+      '["Alice", "admin"]',
+      '["Alice", "admin", 20]',
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "values_at は複数キーの値を配列で取得。",
       "Hash と Array 両方にある。",
@@ -3435,12 +3435,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "[1, 2, 3].cycle(2) { |n| print n }",
     choices: [
+      "1 2 3 (改行)",
       "123123",
       "111222333",
       "123",
-      "1 2 3 (改行)",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "cycle は配列を繰り返す。",
       "引数なしは無限ループ (Ctrl-C 必要)。",
@@ -3513,12 +3513,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "[1, 2, 3, 4, 5].chunk_while { |a, b| b - a == 1 }.to_a",
     choices: [
-      "[[1, 2, 3, 4, 5]]",
-      "[[1], [2], [3], [4], [5]]",
       "[[1, 2], [3, 4], [5]]",
       "[1, 2, 3, 4, 5]",
+      "[[1, 2, 3, 4, 5]]",
+      "[[1], [2], [3], [4], [5]]",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "chunk_while は連続する 2 要素が条件を満たす間グループ化。",
       "1→2, 2→3, 3→4, 4→5 はすべて +1 なので 1 グループ。",
@@ -3601,12 +3601,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'class Point\n  def initialize(x, y)\n    @x, @y = x, y\n  end\nend\n\np = Point.new(3, 4)\nputs p.instance_variables',
     choices: [
-      "[:@x, :@y]",
-      "[3, 4]",
       "[\"@x\", \"@y\"]",
       "[]",
+      "[:@x, :@y]",
+      "[3, 4]",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "instance_variables は定義されたインスタンス変数の Symbol 配列を返す。",
       "値ではなく『変数名 (シンボル形式)』が返る。",
@@ -3678,12 +3678,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'class A\n  def hello; "A"; end\nend\n\nclass B < A\n  def hello; "B (" + super + ")"; end\nend\n\nputs B.new.hello',
     choices: [
-      "B (A)",
       "A",
       "B",
       "A (B)",
+      "B (A)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "super で親クラスの同名メソッドを呼ぶ。",
       "戻り値を文字列連結している。",
@@ -3705,12 +3705,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、Ruby の Comparable モジュールが Module の機能として要求する『定義すべきメソッド』は？",
     choices: [
-      "<=> のみ",
       "< と > のみ",
       "== のみ",
       "<=> と == の両方",
+      "<=> のみ",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "1 個だけ定義すれば残り (<, <=, ==, >=, >) は自動で得られる。",
       "宇宙船演算子と呼ばれる 3 文字の演算子。",
@@ -3733,12 +3733,12 @@ export const extraQuestions: Question[] = [
     question:
       "次の Module 関連メソッドのうち、『継承時に親子で名前空間も共有する』のはどれ？",
     choices: [
+      "private メソッドは継承されない",
       "module 内で定義したクラス / 定数 (例: MyModule::User)",
       "include したインスタンスメソッドのみ",
       "extend したクラスメソッドのみ",
-      "private メソッドは継承されない",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Module は名前空間としての側面もあります。",
       "`module App; class User; end; end` は App::User として参照されます。",
@@ -3817,12 +3817,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、Ruby の `module_function` の効果は？",
     choices: [
+      "クラスメソッドを定義する",
       "モジュールメソッドとしてもインスタンスメソッド (private) としても使える",
       "メソッドを完全に隠す",
       "オーバーライドを禁止する",
-      "クラスメソッドを定義する",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Math モジュールが典型的に使う仕組み。",
       "`Math.sqrt(2)` でも `include Math; sqrt(2)` でも呼べる。",
@@ -3845,12 +3845,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'class Cat\n  def initialize(name); @name = name; end\n  def to_s; "Cat[#{@name}]"; end\n  def inspect; "<Cat name=#{@name}>"; end\nend\n\nputs Cat.new("Tama")\np Cat.new("Tama")',
     choices: [
-      "Cat[Tama] / <Cat name=Tama>",
-      "<Cat name=Tama> / Cat[Tama]",
       "Cat[Tama] / Cat[Tama]",
       "Tama / Tama",
+      "Cat[Tama] / <Cat name=Tama>",
+      "<Cat name=Tama> / Cat[Tama]",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "puts は to_s を呼ぶ。",
       "p は inspect を呼ぶ。",
@@ -3872,12 +3872,12 @@ export const extraQuestions: Question[] = [
     question:
       "Ruby の `is_a?` と `instance_of?` の違いは？",
     choices: [
-      "is_a? は祖先 (継承/Mixin) も含む、instance_of? はそのクラス丁度のみ",
       "両者は同じ",
       "is_a? は private を見る、instance_of? は public のみ",
       "is_a? は Class のみ、instance_of? は Module も",
+      "is_a? は祖先 (継承/Mixin) も含む、instance_of? はそのクラス丁度のみ",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "1 つは継承関係を含めて判定、もう 1 つは厳密に同一クラス。",
       "include した Module も含むかどうか。",
@@ -3928,12 +3928,12 @@ export const extraQuestions: Question[] = [
     question:
       "シングルトン (1 つしかインスタンスを作らない) を実装する Ruby 標準ライブラリは？",
     choices: [
+      "Singleton.new(MyClass)",
       "require 'singleton' して include Singleton",
       "require 'unique'",
       "include OnlyOne",
-      "Singleton.new(MyClass)",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "標準ライブラリの『singleton』を require。",
       "include すると new が private になり、`instance` で取得。",
@@ -3956,12 +3956,12 @@ export const extraQuestions: Question[] = [
     question:
       "Module の `prepend` を使うと何が違う？",
     choices: [
-      "include より優先度が高く、元メソッドを super で呼び出せる形でラップできる",
-      "include と完全に同じ",
       "include の逆順 (祖先チェーンの末尾に挿入)",
       "クラスメソッドだけが含まれる",
+      "include より優先度が高く、元メソッドを super で呼び出せる形でラップできる",
+      "include と完全に同じ",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "prepend は元クラスの『前』に Module を差し込む。",
       "祖先チェーンで元クラスより先に呼ばれるので、上書き + super で元を呼べる。",
@@ -3984,12 +3984,12 @@ export const extraQuestions: Question[] = [
     question:
       "Ruby 3.2+ で導入された『イミュータブルな値オブジェクト』を 1 行で作るクラスは？",
     choices: [
-      "Data.define",
       "Value.create",
       "Immutable.struct",
       "Record.new",
+      "Data.define",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Struct の弟分。Ruby 3.2+ から標準。",
       "イミュータブル (setter なし) で == 等が自動定義。",
@@ -4012,12 +4012,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'class A\n  def initialize\n    @v = "A"\n  end\nend\n\nclass B < A\n  def initialize\n    @v = "B"\n  end\nend\n\nputs B.new.instance_variable_get(:@v)',
     choices: [
-      "B",
       "A",
       "nil",
       "TypeError",
+      "B",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "サブクラスの initialize は親をオーバーライドする (super を呼ばないと親は走らない)。",
       "B の initialize で @v = 'B'。",
@@ -4068,12 +4068,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'class A\n  def self.inherited(subclass)\n    puts "#{subclass} inherits from #{self}"\n  end\nend\n\nclass B < A\nend',
     choices: [
-      "B inherits from A",
-      "A inherits from B",
       "何も出力しない",
       "TypeError",
+      "B inherits from A",
+      "A inherits from B",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "inherited はクラスが継承された瞬間に呼ばれるフック。",
       "subclass にはサブクラス自身が渡される。",
@@ -4124,12 +4124,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'class A\n  @@count = 0\n  def initialize; @@count += 1; end\nend\n\nclass B < A\nend\n\n3.times { A.new }\n2.times { B.new }\nputs A.class_variable_get(:@@count)',
     choices: [
-      "5",
       "3",
       "2",
       "NameError",
+      "5",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "@@ クラス変数は継承先と共有される。",
       "A 3 回 + B 2 回 = 5 回 initialize が呼ばれる。",
@@ -4156,12 +4156,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "result = [1, 2, 3].each { |n| puts n * 2 }\np result",
     choices: [
-      "2 / 4 / 6 / [1, 2, 3]",
-      "2 / 4 / 6 / [2, 4, 6]",
       "[1, 2, 3]",
       "[2, 4, 6]",
+      "2 / 4 / 6 / [1, 2, 3]",
+      "2 / 4 / 6 / [2, 4, 6]",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "each はブロックを実行するがレシーバを返す。",
       "出力は 2/4/6、result は [1, 2, 3]。",
@@ -4184,12 +4184,12 @@ export const extraQuestions: Question[] = [
     question:
       "Proc / Lambda / メソッドオブジェクトを統一的に呼び出すメソッドは？",
     choices: [
-      ".call (or .[] or .())",
       ".invoke",
       ".execute",
       ".run",
+      ".call (or .[] or .())",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Ruby のプロックオブジェクト呼び出しメソッド。",
       "省略形として `.()` や `[]` も使える。",
@@ -4240,12 +4240,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'def call_block(&blk)\n  blk.call(10)\nend\n\nresult = call_block { |x| x + 5 }\nputs result',
     choices: [
+      "nil",
       "15",
       "10",
       "5",
-      "nil",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "&blk でブロックを Proc として受け取る。",
       "blk.call(10) でブロックに 10 を渡して呼び出す。",
@@ -4267,12 +4267,12 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question: "Ruby の Proc と Lambda の引数チェックの違いは？",
     choices: [
-      "Lambda は厳密 (引数数違いで ArgumentError)、Proc は緩い (nil 補完 / 余分は無視)",
       "両者は同じ",
       "Proc は厳密、Lambda は緩い",
       "Lambda は引数を取れない",
+      "Lambda は厳密 (引数数違いで ArgumentError)、Proc は緩い (nil 補完 / 余分は無視)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Lambda は『関数』らしい厳密な振る舞い。",
       "Proc はブロックの延長で緩い (足りなければ nil)。",
@@ -4295,12 +4295,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'def safe_div(a, b)\n  a / b\nrescue ZeroDivisionError\n  Float::INFINITY\nensure\n  puts "done"\nend\n\nputs safe_div(10, 0)',
     choices: [
+      "ZeroDivisionError",
       "done / Infinity",
       "Infinity / done",
       "done / 0",
-      "ZeroDivisionError",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "ensure は例外の有無に関わらず最後に実行される。",
       "rescue で Float::INFINITY が返り値になる。",
@@ -4373,12 +4373,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'class Container\n  define_method(:items) do\n    @items ||= []\n  end\nend\n\nc = Container.new\nc.items << 1\nc.items << 2\nputs c.items.inspect',
     choices: [
-      "[1, 2]",
       "[2]",
       "[]",
       "[[1], [2]]",
+      "[1, 2]",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "define_method で動的にメソッドを定義。",
       "`@items ||= []` は初回 nil の時だけ初期化、以後は同じ配列を返す。",
@@ -4401,12 +4401,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'class Foo\n  def call; "Foo"; end\nend\n\nf = Foo.new\nresult = case f\n         when Foo then "matched"\n         else "no"\n         end\nputs result',
     choices: [
-      "matched",
-      "no",
       "Foo",
       "TypeError",
+      "matched",
+      "no",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "case/when は内部で === で比較。",
       "Class#=== はそのクラスのインスタンスかチェック。",
@@ -4429,12 +4429,12 @@ export const extraQuestions: Question[] = [
     question:
       "Ruby のブロック内で `return` を使うとどうなる？",
     choices: [
+      "ArgumentError",
       "ブロックを呼んだメソッドから抜ける (Proc/yield の場合)、Lambda の場合はラムダから抜けるだけ",
       "ブロックだけ終わる",
       "プログラム全体が終了",
-      "ArgumentError",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Proc と Lambda で return の挙動が決定的に違う。",
       "Proc / yield 内の return は『定義された』メソッドから抜ける。",
@@ -4457,12 +4457,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'class Foo\n  def initialize\n    @bar = "B"\n  end\n  private\n  def secret; "S"; end\nend\n\nf = Foo.new\nputs f.send(:secret)',
     choices: [
-      "S",
-      "NoMethodError",
       "nil",
       "B",
+      "S",
+      "NoMethodError",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "send は private/protected を貫通して呼べる。",
       "通常 f.secret は NoMethodError。",
@@ -4513,12 +4513,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'thr = Thread.new { sleep 0.01; 42 }\nputs thr.value',
     choices: [
+      "ThreadError",
       "42",
       "nil",
       "Thread",
-      "ThreadError",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Thread.new はブロックを別スレッドで実行。",
       "thr.value は終了を待ってからブロックの戻り値を返す。",
@@ -4541,12 +4541,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'class Foo\n  def self.const_missing(name)\n    "missing: #{name}"\nend\nend\n\nputs Foo::ANYTHING',
     choices: [
-      "missing: ANYTHING",
-      "NameError",
       "nil",
       "ANYTHING",
+      "missing: ANYTHING",
+      "NameError",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "const_missing は未定義定数アクセス時のフック。",
       "method_missing の定数版。",
@@ -4572,8 +4572,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力は？",
     code: 'words = ["ruby", "is", "fun"]\nresult = words.map { |w| w.length }.sum\nputs result',
-    choices: ["9", "3", "ruby is fun", "[4, 2, 3]"],
-    answerIndex: 0,
+    choices: ["3", "ruby is fun", "[4, 2, 3]", "9"],
+    answerIndex: 3,
     hints: [
       "map で各単語の長さを取り出す。",
       "[4, 2, 3] の合計。",
@@ -4596,12 +4596,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'h = { a: 1, b: 2, c: 3 }\nresult = h.select { |k, v| v.odd? }.keys\np result',
     choices: [
-      "[:a, :c]",
-      "[:b]",
       "[1, 3]",
       "[:a, :b, :c]",
+      "[:a, :c]",
+      "[:b]",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "select で値が奇数のキー・値ペアを残す。",
       "残るのは {a: 1, c: 3}。",
@@ -4624,12 +4624,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'a = [1, 2, 3]\nb = a.dup\nb << 4\np a\np b',
     choices: [
-      "[1, 2, 3] / [1, 2, 3, 4]",
       "[1, 2, 3, 4] / [1, 2, 3, 4]",
       "[1, 2, 3] / [1, 2, 3]",
       "[1, 2, 3, 4] / [1, 2, 3]",
+      "[1, 2, 3] / [1, 2, 3, 4]",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "dup は浅いコピーを作る。",
       "b は a と別オブジェクト。",
@@ -4651,8 +4651,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力は？",
     code: 'arr = [1, 2, 3, 4, 5]\nresult = arr.reduce(0) { |sum, n| n.odd? ? sum + n : sum }\nputs result',
-    choices: ["9", "15", "6", "0"],
-    answerIndex: 0,
+    choices: ["0", "9", "15", "6"],
+    answerIndex: 1,
     hints: [
       "reduce(0) は初期値 0 から累積。",
       "ブロック内で奇数なら加算、偶数なら sum をそのまま。",
@@ -4674,8 +4674,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力は？",
     code: 'class Counter\n  attr_reader :value\n  def initialize; @value = 0; end\n  def +(other); @value += other; self; end\nend\n\nc = Counter.new\nc + 10 + 20\nputs c.value',
-    choices: ["30", "10", "20", "0"],
-    answerIndex: 0,
+    choices: ["10", "20", "0", "30"],
+    answerIndex: 3,
     hints: [
       "+ メソッドが self を返すのでメソッドチェーン可能。",
       "c + 10 で @value = 10、(c + 10) は c 自身。",
@@ -4725,8 +4725,8 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力は？",
     code: 'class Foo\n  def initialize(arr); @arr = arr; end\n  def double; @arr.map { |n| n * 2 }; end\nend\n\nf = Foo.new([1, 2, 3])\nputs f.double.sum',
-    choices: ["12", "6", "[2, 4, 6]", "1 2 3"],
-    answerIndex: 0,
+    choices: ["1 2 3", "12", "6", "[2, 4, 6]"],
+    answerIndex: 1,
     hints: [
       "double は [2, 4, 6] を返す。",
       "sum で合計を計算。",
@@ -4749,12 +4749,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'arr = [1, 2, 3]\nresult = arr.zip([10, 20, 30]).map { |a, b| a + b }\np result',
     choices: [
-      "[11, 22, 33]",
-      "[1, 2, 3, 10, 20, 30]",
       "[10, 40, 90]",
       "[[1, 10], [2, 20], [3, 30]]",
+      "[11, 22, 33]",
+      "[1, 2, 3, 10, 20, 30]",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "zip で [[1,10], [2,20], [3,30]] になる。",
       "map のブロック引数 |a, b| で各ペアを分解。",
@@ -4805,12 +4805,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'class Animal\n  def speak; "generic sound"; end\nend\n\nclass Dog < Animal\n  def speak; "wan!"; end\nend\n\nclass Puppy < Dog\nend\n\nputs Puppy.new.speak\nputs Puppy.ancestors.first(3).inspect',
     choices: [
-      "wan! / [Puppy, Dog, Animal]",
-      "generic sound / [Puppy, Animal, Dog]",
       "wan! / [Dog, Puppy, Animal]",
       "generic sound / [Animal]",
+      "wan! / [Puppy, Dog, Animal]",
+      "generic sound / [Puppy, Animal, Dog]",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Puppy は Dog のサブクラス、Dog の speak を継承。",
       "ancestors の先頭は自分、次に親、その次に祖父。",
@@ -4861,12 +4861,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'a = "hello"\nb = "hello"\nc = a\nputs a.equal?(b)\nputs a.equal?(c)',
     choices: [
-      "false / true",
-      "true / true",
       "false / false",
       "true / false",
+      "false / true",
+      "true / true",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "通常の文字列リテラルは毎回新しいオブジェクト。",
       "代入は参照コピーなので同一オブジェクト。",
@@ -4889,12 +4889,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'begin\n  raise "first"\nrescue => e\n  begin\n    raise "second"\n  rescue => e2\n    puts e2.message\n    puts e2.cause.message\n  end\nend',
     choices: [
+      "second / second",
       "second / first",
       "first / second",
       "first / first",
-      "second / second",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "rescue 内で再度 raise すると、元の例外が e.cause として記録される。",
       "e2 は 'second'、e2.cause は最初の 'first'。",
@@ -4917,12 +4917,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: 'class A\n  def m; "A"; end\nend\n\nmodule M1\n  def m; "M1 " + super; end\nend\n\nmodule M2\n  def m; "M2 " + super; end\nend\n\nclass B < A\n  include M1\n  include M2\nend\n\nputs B.new.m',
     choices: [
-      "M2 M1 A",
-      "M1 M2 A",
       "A M1 M2",
       "B M1 M2 A",
+      "M2 M1 A",
+      "M1 M2 A",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "include の順は祖先チェーンで逆になる (後 include した方が先)。",
       "B.ancestors = [B, M2, M1, A, ...]。",
@@ -4999,12 +4999,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails アプリのディレクトリ構成で、ビジネスロジックを書くフォルダは？",
     choices: [
-      "app/models",
       "app/views",
       "app/controllers",
       "config",
+      "app/models",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "MVC の M (Model) はビジネスロジック層。",
       "View は表示、Controller は仲介、config は設定。",
@@ -5027,12 +5027,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails アプリの環境別設定ファイルが置かれる場所は？",
     choices: [
+      "settings/",
       "config/environments/",
       "config/environment/",
       "app/config/",
-      "settings/",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "config 配下に environments (複数形) ディレクトリ。",
       "development.rb / test.rb / production.rb の 3 つが標準。",
@@ -5055,12 +5055,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails で名前空間付きモデル `Admin::User` のファイル配置は？",
     choices: [
-      "app/models/admin/user.rb",
       "app/models/Admin/User.rb",
       "app/models/admin_user.rb",
       "app/admin/models/user.rb",
+      "app/models/admin/user.rb",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Module 名 (Admin) は snake_case でディレクトリ化。",
       "Class 名 (User) は snake_case でファイル名。",
@@ -5083,12 +5083,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails で『複数モデルに共通の機能』を切り出す慣習的な場所は？",
     choices: [
+      "config/concerns/",
       "app/models/concerns/",
       "app/lib/",
       "app/shared/",
-      "config/concerns/",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "concern (関心事) という名前。",
       "ActiveSupport::Concern を使う Module 群を置く。",
@@ -5133,12 +5133,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails で初期化処理 (環境問わず) を 1 度だけ実行するファイルの置き場は？",
     choices: [
+      "tmp/init/",
       "config/initializers/",
       "app/initializers/",
       "config/setup/",
-      "tmp/init/",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "config 配下の initializers ディレクトリ。",
       "アルファベット順に読み込まれる (load_initializer)。",
@@ -5161,12 +5161,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails 7+ で『フロントエンド用 JS/CSS をバンドルする』のに使われる手法は？",
     choices: [
+      "rake task",
       "importmap-rails (デフォルト) / esbuild / webpack",
       "webpacker のみ",
       "yarn install のみ",
-      "rake task",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Rails 7 はデフォルトで importmap (no-build) を採用。",
       "esbuild / webpack / rollup を選ぶこともできる (rails new -j ...)。",
@@ -5189,12 +5189,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails で『リクエスト処理を別スレッド / プロセスに移譲する』ジョブシステムの抽象化レイヤーは？",
     choices: [
+      "Action Mailer",
       "Active Job",
       "Active Storage",
       "Action Cable",
-      "Action Mailer",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Sidekiq / Resque / GoodJob 等を抽象化。",
       "perform_later / perform_now で実行制御。",
@@ -5217,12 +5217,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails で『画像 / ファイルアップロード』の標準モジュールは？",
     choices: [
-      "Active Storage",
       "Paperclip (旧)",
       "CarrierWave (gem)",
       "Action Pack",
+      "Active Storage",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Rails 5.2+ で標準採用。",
       "S3 / Google Cloud / Azure / ローカルを統一インターフェースで扱える。",
@@ -5301,12 +5301,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails 6+ で複数 DB を同時に扱う仕組みのキーワードは？",
     choices: [
-      "Multi-Database (database.yml の primary/replica + connects_to)",
-      "Polyglot",
       "Multi-tenancy",
       "Shards-only",
+      "Multi-Database (database.yml の primary/replica + connects_to)",
+      "Polyglot",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "primary / replica の役割分担、シャーディング両対応。",
       "Model に `connects_to database: { ... }` を書いて指定。",
@@ -5329,12 +5329,12 @@ export const extraQuestions: Question[] = [
     question:
       "Rails 7.1+ で導入された『 dockerfile + Kamal による自前デプロイ』のキーワードは？",
     choices: [
-      "Kamal (旧 MRSK)",
-      "Capistrano",
       "Heroku Buildpack",
       "Mina",
+      "Kamal (旧 MRSK)",
+      "Capistrano",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "37signals (Basecamp) が開発したデプロイツール。",
       "Docker + SSH ベースで複数サーバに無停止デプロイ。",
@@ -5389,12 +5389,12 @@ export const extraQuestions: Question[] = [
     question: "次の routes.rb で生成される URL は？",
     code: "resources :posts, only: [:index, :show]",
     choices: [
-      "GET /posts と GET /posts/:id のみ",
       "GET /posts のみ",
       "RESTful 全 7 アクション",
       "GET /posts/:id のみ",
+      "GET /posts と GET /posts/:id のみ",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "`only:` で生成するアクションを限定。",
       "[:index, :show] = 一覧 + 詳細。",
@@ -5444,12 +5444,12 @@ export const extraQuestions: Question[] = [
     type: "choice",
     question: "Rails の controller で `params` の中身として正しいのは？",
     choices: [
-      "URL パラメータ・クエリ・POST ボディが統合された Hash 様オブジェクト",
       "URL のクエリのみ",
       "POST ボディのみ",
       "Cookie 全部",
+      "URL パラメータ・クエリ・POST ボディが統合された Hash 様オブジェクト",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "params は全リクエスト情報を統合した便利オブジェクト。",
       "ActionController::Parameters クラス。",
@@ -5472,12 +5472,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のルートで `resources :users` の URL Helper の組合せとして正しいのは？",
     choices: [
-      "users_path / user_path(@user) / new_user_path / edit_user_path(@user)",
-      "users_path / show_user_path / create_user_path / destroy_user_path",
       "all_users / find_user / make_user",
       "index_users / show_users",
+      "users_path / user_path(@user) / new_user_path / edit_user_path(@user)",
+      "users_path / show_user_path / create_user_path / destroy_user_path",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "resources が生成するヘルパーは `リソース_path` / `単数_path` の 2 系統。",
       "編集系は `edit_リソース_path(モデル)`、新規は `new_リソース_path`。",
@@ -5500,12 +5500,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、特定アクションでのみ `before_action` をスキップする書き方は？",
     choices: [
+      "before_action :authenticate!, skip: [:index]",
       "skip_before_action :authenticate!, only: [:index]",
       "no_before_action :authenticate!",
       "remove_before_action :authenticate!",
-      "before_action :authenticate!, skip: [:index]",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "skip_xxx 系のメソッドがある。",
       "親コントローラで設定された before_action を子で無効化。",
@@ -5528,12 +5528,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、routes でサブドメイン (例: api.example.com) を判定する書き方は？",
     choices: [
-      "constraints subdomain: 'api'",
-      "subdomain :api",
       "route_subdomain('api')",
       "match :api",
+      "constraints subdomain: 'api'",
+      "subdomain :api",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "constraints でサブドメイン / フォーマット等の制約を指定。",
       "subdomain: 'api' で 'api.example.com' のみマッチ。",
@@ -5556,12 +5556,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、Rails のリダイレクトで PRG (Post/Redirect/Get) パターンを正しく実装しているのは？",
     choices: [
+      "全部 render",
       "POST 成功時 redirect_to @post, 失敗時 render :new, status: :unprocessable_entity",
       "POST 成功時 render :show, 失敗時 redirect_to :new",
       "POST 成功時 head :ok, 失敗時 head :error",
-      "全部 render",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "PRG パターン: 成功時はリダイレクト (ブラウザの戻る → 再送信を防ぐ)。",
       "失敗時はバリデーションエラー込みで再 render (PRG しない、フォーム状態を保持)。",
@@ -5584,12 +5584,12 @@ export const extraQuestions: Question[] = [
     question:
       "Controller で flash メッセージを表示する書き方として正しいのは？",
     choices: [
-      "redirect_to @post, notice: '保存しました'",
-      "render :show, notice: '保存しました'",
       "flash[:notice] = '保存しました' (render と組合せ可)",
       "1 と 3 の両方",
+      "redirect_to @post, notice: '保存しました'",
+      "render :show, notice: '保存しました'",
     ],
-    answerIndex: 3,
+    answerIndex: 1,
     hints: [
       "flash は次のリクエストまでセッションに保持。",
       "redirect_to のオプション or flash[:key] = ... の 2 通り。",
@@ -5634,12 +5634,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、Rails の View ヘルパー (link_to 等) をコントローラから使えるようにする宣言は？",
     choices: [
-      "helper_method :name_in_controller",
-      "view_method :name",
       "expose :name",
       "include AllHelpers",
+      "helper_method :name_in_controller",
+      "view_method :name",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "controller のメソッドを view から呼べるようにする。",
       "current_user / signed_in? 等の認証ヘルパーで頻出。",
@@ -5662,12 +5662,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、Rails の routes で『api/v1』を URL prefix にしつつ Controller を `Api::V1::PostsController` にする書き方は？",
     choices: [
-      "namespace :api do; namespace :v1 do; resources :posts; end; end",
       "scope :api do; scope :v1 do; resources :posts; end; end",
       "match 'api/v1/posts'",
       "prefix 'api/v1' { resources :posts }",
+      "namespace :api do; namespace :v1 do; resources :posts; end; end",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "namespace は URL prefix + コントローラ module スコープを両方かける。",
       "scope は URL prefix のみ。",
@@ -5718,12 +5718,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、Rails コントローラから 『JSON だけ受け付ける』ように制限する書き方は？",
     choices: [
-      "respond_to do |format|; format.json { ... }; end (他は 406)",
       "render json: only",
       "skip_html_format",
       "format :json",
+      "respond_to do |format|; format.json { ... }; end (他は 406)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "respond_to ブロックで複数フォーマット分岐。",
       "json ブロックだけ書けば他のフォーマットは 406 Not Acceptable。",
@@ -5746,12 +5746,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、Rails 7+ で API モードのコントローラの基底クラスとして適切なのは？",
     choices: [
+      "ActiveRecord::API",
       "ActionController::API (View/Cookies/CSRF 等を含まない軽量版)",
       "ActionController::Base (Web 用)",
       "ApplicationRecord",
-      "ActiveRecord::API",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Web 用は ActionController::Base、API 専用の軽量版は別クラス。",
       "View レイヤー、CSRF、Cookies 等を含まないので速い。",
@@ -5774,12 +5774,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、Rails コントローラのキャッシュ機構として『View レンダリング全体を保存・再利用』するヘルパーは？",
     choices: [
-      "fragment cache (`<% cache @post do %> ... <% end %>`)",
       "method cache",
       "url_cache",
       "csrf_cache",
+      "fragment cache (`<% cache @post do %> ... <% end %>`)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "View 内で `cache` ヘルパーを使う。",
       "key にモデルを渡すと updated_at を見て自動失効。",
@@ -5806,12 +5806,12 @@ export const extraQuestions: Question[] = [
     question:
       "User.where(active: true).first と User.find_by(active: true) の違いは？",
     choices: [
+      "find_by は遅い",
       "ほぼ同じ (どちらも 1 件取得、無ければ nil)。find_by の方が意図が明確",
       "where.first は配列を返す",
       "find_by は ID 必須",
-      "find_by は遅い",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "両者とも条件にマッチする最初の 1 件を返す。",
       "無ければ nil。",
@@ -5834,12 +5834,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの SQL イメージは？",
     code: "User.where(name: nil)",
     choices: [
-      "WHERE name IS NULL",
-      "WHERE name = 'nil'",
       "WHERE name = ''",
       "WHERE name = NULL",
+      "WHERE name IS NULL",
+      "WHERE name = 'nil'",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Ruby の nil は SQL の NULL。",
       "ActiveRecord が自動的に IS NULL に変換。",
@@ -5885,12 +5885,12 @@ export const extraQuestions: Question[] = [
       "次の Migration はどの操作を実行する？",
     code: "class AddIndexToUsersEmail < ActiveRecord::Migration[7.1]\n  def change\n    add_index :users, :email, unique: true\n  end\nend",
     choices: [
-      "users.email に UNIQUE INDEX を追加",
-      "email カラム自体を追加",
       "user_id にプライマリキーを追加",
       "外部キー制約を追加",
+      "users.email に UNIQUE INDEX を追加",
+      "email カラム自体を追加",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "add_index はインデックス追加。",
       "unique: true で UNIQUE 制約付き。",
@@ -5913,12 +5913,12 @@ export const extraQuestions: Question[] = [
     question: "次のコードの SQL イメージは？",
     code: "User.includes(:posts).where(active: true)",
     choices: [
-      "users を取得 (active=true) + 別クエリで posts を IN で一括取得 (N+1 対策)",
-      "users と posts を 1 つの JOIN で取得",
       "users だけ取得",
       "posts だけ取得",
+      "users を取得 (active=true) + 別クエリで posts を IN で一括取得 (N+1 対策)",
+      "users と posts を 1 つの JOIN で取得",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "includes は N+1 対策のための事前ロード。",
       "通常は 2 回のクエリ (users SELECT + posts WHERE user_id IN ...)。",
@@ -5941,12 +5941,12 @@ export const extraQuestions: Question[] = [
     question:
       "ActiveRecord の callback で『DB 書き込み完了 + transaction commit 後』に実行されるのは？",
     choices: [
+      "after_update",
       "after_commit",
       "after_save",
       "after_create",
-      "after_update",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "after_save / after_create はトランザクション内なのでロールバックする可能性あり。",
       "メール送信や Job キューイング等の『取り返しがつかない処理』は commit 後が安全。",
@@ -5972,12 +5972,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、ActiveRecord の `validates :name, presence: true` で防げないものは？",
     choices: [
-      "DB の他クライアントから直接 NULL を INSERT される",
       "Rails コードからの空文字 / nil",
       "新規作成の空名前",
       "全角空白だけの名前 (presence は空文字扱い)",
+      "DB の他クライアントから直接 NULL を INSERT される",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Model のバリデーションは Rails アプリ経由でのみ動く。",
       "DB 直接アクセス (psql, 他言語アプリ) は素通り。",
@@ -6000,12 +6000,12 @@ export const extraQuestions: Question[] = [
     question:
       "ActiveRecord で『複数の属性値を `:draft, :published` の文字列セットに制限』する宣言は？",
     choices: [
-      "enum status: { draft: 0, published: 1 }",
       "validates :status, inclusion: { in: [:draft, :published] }",
       "1 と 2 の両方",
       "Rails 標準では不可",
+      "enum status: { draft: 0, published: 1 }",
     ],
-    answerIndex: 2,
+    answerIndex: 1,
     hints: [
       "enum は専用のクラスマクロで自動メソッドを生成。",
       "inclusion バリデーションでも値制限可能 (DB 列は任意)。",
@@ -6056,12 +6056,12 @@ export const extraQuestions: Question[] = [
     question:
       "ActiveRecord で『更新時に updated_at を自動更新せず、ある属性だけ INSERT した時刻を保持』する仕組みは？",
     choices: [
-      "touch: false オプション or `update_columns` 系メソッド",
       "skip_timestamps",
       "config.skip_timestamps = true",
       "Rails 標準では不可",
+      "touch: false オプション or `update_columns` 系メソッド",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "update_all / update_columns は updated_at を自動更新しない。",
       "save 系では touch: false が使える (Rails 6+)。",
@@ -6084,12 +6084,12 @@ export const extraQuestions: Question[] = [
     question:
       "次のうち、ActiveRecord の `scope` と「クラスメソッド」の違いとして正しいのは？",
     choices: [
+      "クラスメソッドは継承不可",
       "scope は必ず Relation を返す前提 (引数なし or nil 時も)。クラスメソッドは nil を返すと nil チェーンが切れる",
       "両者は完全に同じ",
       "scope は遅い",
-      "クラスメソッドは継承不可",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "scope は内部で必ず Relation を返すように設計されている。",
       "クラスメソッドで条件付きに nil を返すと、その後のチェーンが落ちる (NoMethodError on nil)。",
@@ -6112,12 +6112,12 @@ export const extraQuestions: Question[] = [
     question:
       "ActiveRecord の `Post.includes(:user).where(\"users.name LIKE ?\", \"%a%\")` が正しく動かないことがあるのは？",
     choices: [
-      "includes が preload 戦略 (別クエリ) を選ぶと WHERE が posts のみに適用され、users.name 条件が SQL エラーになる。references(:users) で eager_load に強制",
       "users テーブルが大きすぎる",
       "LIKE は使えない",
       "always works",
+      "includes が preload 戦略 (別クエリ) を選ぶと WHERE が posts のみに適用され、users.name 条件が SQL エラーになる。references(:users) で eager_load に強制",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "includes は条件次第で preload / eager_load を切替。",
       "文字列条件 (`users.name LIKE`) は AR が関連を認識しにくい。",
@@ -6140,12 +6140,12 @@ export const extraQuestions: Question[] = [
     question:
       "ActiveRecord で『1 つのカラムに JSON / Hash を保存』する宣言は？",
     choices: [
-      "serialize :data, JSON (or Coder) or PostgreSQL なら t.jsonb で型ネイティブ",
-      "store_text :data",
       "json :data",
       "attribute :data, :json",
+      "serialize :data, JSON (or Coder) or PostgreSQL なら t.jsonb で型ネイティブ",
+      "store_text :data",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "DB が PostgreSQL なら jsonb 型がネイティブ対応。",
       "MySQL なら JSON 型 (5.7+) または serialize で TEXT に保存。",
@@ -6168,12 +6168,12 @@ export const extraQuestions: Question[] = [
     question:
       "ActiveRecord で『N+1 検出 + 自動最適化』を行う gem として正しいのは？",
     choices: [
+      "rails-erd",
       "bullet (検出のみ) / Goldiloader (自動 eager loading)",
       "rspec / minitest",
       "factory_bot",
-      "rails-erd",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "bullet は『警告だけ』表示、開発時に気付くツール。",
       "Goldiloader は『自動で eager loading』を有効化する gem。",

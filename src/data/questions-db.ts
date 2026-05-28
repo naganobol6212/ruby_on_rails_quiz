@@ -16,12 +16,12 @@ export const dbQuestions: Question[] = [
     type: "choice",
     question: "第 1 正規形 (1NF) の条件として正しいのは？",
     choices: [
+      "BCNF を満たす",
       "1 つのセルには 1 つの値だけ (配列・JSON で複数値を持たない)",
       "全カラムが PK を参照する",
       "推移的従属がない",
-      "BCNF を満たす",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "atomic (原子的) という言葉が使われます。",
       "1 つのセルに 'tags=ruby,rails,sql' のような複数値を入れると違反。",
@@ -43,12 +43,12 @@ export const dbQuestions: Question[] = [
     type: "choice",
     question: "第 3 正規形 (3NF) の主な狙いは？",
     choices: [
-      "非キー属性が他の非キー属性に従属しない (推移的従属の排除)",
       "全列を NOT NULL にする",
       "外部キーを全て削除する",
       "1 つの列に複数値を入れる",
+      "非キー属性が他の非キー属性に従属しない (推移的従属の排除)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "推移的従属 (transitive dependency) の排除がキーワード。",
       "PK → 非キー → 別の非キー という連鎖をなくす。",
@@ -155,12 +155,12 @@ export const dbQuestions: Question[] = [
     question:
       "users と posts の 1:N リレーションの DB 設計として正しいのは？",
     choices: [
-      "posts テーブルに user_id (FK) を持たせる",
-      "users テーブルに post_ids 配列カラムを持たせる",
       "中間テーブル user_posts を作る",
       "JSON で全部 users に詰める",
+      "posts テーブルに user_id (FK) を持たせる",
+      "users テーブルに post_ids 配列カラムを持たせる",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "FK は『N 側』に持たせるのが基本。",
       "配列カラムや JSON は集計・参照整合性が弱い。",
@@ -183,12 +183,12 @@ export const dbQuestions: Question[] = [
     question:
       "posts と tags の N:N リレーション (1 投稿に複数タグ、1 タグに複数投稿) の DB 設計は？",
     choices: [
-      "中間テーブル post_tags を作り、両者への FK を持つ (複合 PK or 別途 id + UNIQUE)",
       "posts.tag_ids 配列カラム",
       "tags.post_ids 配列カラム",
       "両方の id をカンマ区切りで保存",
+      "中間テーブル post_tags を作り、両者への FK を持つ (複合 PK or 別途 id + UNIQUE)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "N:N は中間テーブル (join table / junction table) で表現。",
       "(post_id, tag_id) の複合 PK か、id + UNIQUE 制約。",
@@ -211,12 +211,12 @@ export const dbQuestions: Question[] = [
     question:
       "次のうち、ポリモーフィック関連 (polymorphic association) が向くケースは？",
     choices: [
+      "INDEX の代替",
       "コメントを Post / Photo / Video 等『多種類の親』に付けたい時 (commentable_type + commentable_id)",
       "users と posts のような単純な 1:N",
       "数値の集計用テーブル",
-      "INDEX の代替",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "親の型が複数候補ある時に使う。",
       "Rails の belongs_to :commentable, polymorphic: true。",
@@ -239,12 +239,12 @@ export const dbQuestions: Question[] = [
     question:
       "DB 設計の時点で INDEX を貼るべきカラムは？",
     choices: [
-      "WHERE / JOIN / ORDER BY で頻繁に使う列、特に外部キー (user_id 等) と UNIQUE 制約用の列",
-      "全カラム",
       "PK だけ",
       "TEXT 型の列だけ",
+      "WHERE / JOIN / ORDER BY で頻繁に使う列、特に外部キー (user_id 等) と UNIQUE 制約用の列",
+      "全カラム",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "INDEX は SELECT を速くするが INSERT/UPDATE を遅くする (要バランス)。",
       "外部キーには PostgreSQL は自動で INDEX を貼らない (MySQL は貼る)。",
@@ -267,12 +267,12 @@ export const dbQuestions: Question[] = [
     question:
       "Rails の標準的なタイムスタンプカラム (`timestamps` で追加されるもの) は？",
     choices: [
-      "created_at と updated_at",
-      "ts_created と ts_updated",
       "insertedAt と modifiedAt",
       "ctime と mtime",
+      "created_at と updated_at",
+      "ts_created と ts_updated",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Rails / 多くの OSS の規約。",
       "INSERT 時に created_at、UPDATE 毎に updated_at を自動更新。",
@@ -295,12 +295,12 @@ export const dbQuestions: Question[] = [
     question:
       "『ソフト削除 (soft delete)』を実装する一般的な方法は？",
     choices: [
+      "is_active を反転する",
       "deleted_at TIMESTAMPTZ を追加し、NULL なら有効、値があれば削除済み",
       "別 DB に移動する",
       "実際にレコードを削除する",
-      "is_active を反転する",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "物理削除しない代わりに deleted_at を埋める。",
       "WHERE deleted_at IS NULL がデフォルトスコープに。",
@@ -351,12 +351,12 @@ export const dbQuestions: Question[] = [
     question:
       "金額・通貨の DB 型として推奨されるのは？",
     choices: [
-      "DECIMAL(precision, scale) / NUMERIC (精度を保証)",
       "FLOAT / DOUBLE (浮動小数点)",
       "TEXT で文字列保存",
       "INT (円なら問題なし)",
+      "DECIMAL(precision, scale) / NUMERIC (精度を保証)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "金額は誤差が出てはいけない。",
       "FLOAT は 2 進数浮動小数 → 0.1 + 0.2 ≠ 0.3 の罠。",
@@ -379,12 +379,12 @@ export const dbQuestions: Question[] = [
     question:
       "DB の文字列列で『可変長で長さ制限なし』に向くデータ型は？",
     choices: [
-      "TEXT (PostgreSQL は VARCHAR と同性能、長さ制限が不要なら TEXT 推奨)",
-      "CHAR(255)",
       "VARCHAR(255) 一択",
       "BLOB",
+      "TEXT (PostgreSQL は VARCHAR と同性能、長さ制限が不要なら TEXT 推奨)",
+      "CHAR(255)",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "PostgreSQL: TEXT と VARCHAR は内部実装ほぼ同じで性能差なし。",
       "MySQL: VARCHAR(N) で N を指定するか、TEXT (大きなテキスト用)。",
@@ -407,12 +407,12 @@ export const dbQuestions: Question[] = [
     question:
       "次の DB 設計アンチパターンとして有名な『EAV モデル』とは？",
     choices: [
+      "Event-Action-Validation の略",
       "Entity-Attribute-Value: 列を増やさず (entity_id, attribute, value) の縦持ちで全属性を保存する設計",
       "拡張可能な FK 設計",
       "外部 API 連携用の中間モデル",
-      "Event-Action-Validation の略",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "可変な属性を扱うために『縦持ち』で全部 1 テーブルに入れる手法。",
       "柔軟だが集計・型保証・JOIN が悪夢に。",
@@ -463,12 +463,12 @@ export const dbQuestions: Question[] = [
     question:
       "DB 設計で『non-deterministic な値』(乱数 / シーケンス) を主キーに使う場合の典型的な落とし穴は？",
     choices: [
-      "UUID v4 はランダム順なので B-Tree INDEX のページ分割が頻発し、書き込み性能が劣化する (v7/ULID で時系列順に)",
       "UUID は遅すぎて使えない",
       "INDEX は不要になる",
       "PK にはならない",
+      "UUID v4 はランダム順なので B-Tree INDEX のページ分割が頻発し、書き込み性能が劣化する (v7/ULID で時系列順に)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "B-Tree は値順に並ぶ → 値がランダムだと挿入位置がバラバラ。",
       "ページ分割 = 既存ページの分割 + 新ページ作成で I/O 増。",

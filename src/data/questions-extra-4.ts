@@ -23,17 +23,17 @@ export const extraQuestions4: Question[] = [
     question:
       "`nil?` / `empty?` / `blank?` / `present?` の関係として正しいのは？",
     choices: [
+      "`present?` は `!nil?` と同じ意味",
       "`nil?` は Ruby 標準、 `empty?` も Ruby 標準だが文字列・配列・ハッシュ等のみ、 `blank?` / `present?` は Rails (ActiveSupport) 拡張で nil も空文字も空白文字も『空』 と判定する",
       "全て Ruby 標準。 `nil?` と `blank?` は同義",
       "`empty?` は nil に対しても呼び出せて nil なら true を返す",
-      "`present?` は `!nil?` と同じ意味",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "不正解。 present? は `!blank?`。 単に `!nil?` ではなく、 空文字や空配列も false 扱いになる。",
       "正解。 nil? は Object クラスのメソッド、 empty? は各クラス (String, Array, Hash 等) が個別に定義。 blank? / present? は Rails が Object 全般に生やす拡張で、 nil・false・空文字 (空白のみも含む)・空配列・空ハッシュ をすべて『blank』 と扱う。",
       "不正解。 blank? は Rails 拡張で、 nil? とは判定範囲が違う ('' や ' ' は nil? では false、 blank? では true)。",
       "不正解。 nil に対して empty? を呼ぶと NoMethodError。 nil をハンドルしたいなら blank? か `&.empty?`。",
-      "不正解。 present? は `!blank?`。 単に `!nil?` ではなく、 空文字や空配列も false 扱いになる。",
     ],
     hints: [
       "nil? は全 Object の標準メソッド。 empty? は『中身』 を持てるオブジェクトのみ。",
@@ -73,17 +73,17 @@ export const extraQuestions4: Question[] = [
     question:
       "次のコードの結果として正しいのは？\n\n```ruby\nnums = [1, 2, 3]\nresult = nums.each { |n| n * 2 }\n```",
     choices: [
-      "`result` は `[1, 2, 3]` (元の配列がそのまま返る)",
-      "`result` は `[2, 4, 6]` (倍にした新しい配列)",
       "`result` は `nil`",
       "`result` は `6` (最後の評価値)",
+      "`result` は `[1, 2, 3]` (元の配列がそのまま返る)",
+      "`result` は `[2, 4, 6]` (倍にした新しい配列)",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。 `each` はブロックの戻り値を集めず、 レシーバ (元の配列) をそのまま返す。 変換した新しい配列がほしいなら `map` を使う。",
-      "不正解。 `[2, 4, 6]` を得たいなら `nums.map { |n| n * 2 }` を使う。 each はあくまで反復のためのメソッド。",
       "不正解。 each は nil ではなく レシーバ自身を返す。",
       "不正解。 ブロックの戻り値 (n * 2 の最後) ではなく、 each はレシーバを返す。",
+      "正解。 `each` はブロックの戻り値を集めず、 レシーバ (元の配列) をそのまま返す。 変換した新しい配列がほしいなら `map` を使う。",
+      "不正解。 `[2, 4, 6]` を得たいなら `nums.map { |n| n * 2 }` を使う。 each はあくまで反復のためのメソッド。",
     ],
     hints: [
       "each は『副作用のための反復』 で、 戻り値は重要視されない設計。",
@@ -122,13 +122,13 @@ export const extraQuestions4: Question[] = [
     type: "choice",
     question:
       "次のコードの出力は？\n\n```ruby\nresult = [1, 2, 3, 4].inject(10) { |acc, n| acc + n }\nputs result\n```",
-    choices: ["20", "10", "24", "エラー"],
-    answerIndex: 0,
+    choices: ["10", "24", "エラー", "20"],
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。 `inject(初期値)` は初期値からスタートして、 各要素について `acc + n` を計算。 10 + 1 + 2 + 3 + 4 = 20。",
       "不正解。 10 は初期値で、 そこから累積する。 加算は実行される。",
       "不正解。 24 は初期値なしの `inject(:+)` の結果 (1+2+3+4=10 ではないので注意、 1+2+3+4=10、 24 にもならない)。",
       "不正解。 構文も型も問題ない。 acc / n はそれぞれ累積値と現要素を受け取る。",
+      "正解。 `inject(初期値)` は初期値からスタートして、 各要素について `acc + n` を計算。 10 + 1 + 2 + 3 + 4 = 20。",
     ],
     hints: [
       "inject(初期値) は初期値を最初の acc に入れて反復する。",
@@ -163,17 +163,17 @@ export const extraQuestions4: Question[] = [
     type: "choice",
     question: "`include` / `extend` / `prepend` の違いとして正しいのは？",
     choices: [
+      "`prepend` は Ruby 1.8 以前のレガシー機能で現在は非推奨",
       "`include` はインスタンスメソッドとしてミックスイン、 `extend` はクラスメソッド (特異メソッド) としてミックスイン、 `prepend` はインスタンスメソッドだが探索順がそのクラス自身より前になる",
       "全て同じ意味で、 書き方の好みで使い分ける",
       "`include` はモジュール、 `extend` はクラス、 `prepend` は親クラスをミックスインする",
-      "`prepend` は Ruby 1.8 以前のレガシー機能で現在は非推奨",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "不正解。 prepend は Ruby 2.0 で追加。 既存メソッドのフックを後付けする手段として現役。",
       "正解。 ancestors で確認できる探索順は、 prepend → 自分自身 → include → 親クラス、 となる。 extend は特定オブジェクト (クラスをオブジェクトと見れば クラスメソッド) に特異メソッドを生やす。",
       "不正解。 メソッド探索順 (ancestors) と、 インスタンス/クラスのどちら側に生えるかが根本的に異なる。",
       "不正解。 全てモジュールをミックスインする機能。 対象 (instance / class) と探索順が違う。",
-      "不正解。 prepend は Ruby 2.0 で追加。 既存メソッドのフックを後付けする手段として現役。",
     ],
     hints: [
       "ancestors で MRO (メソッド探索順) を確認するとイメージしやすい。",
@@ -213,17 +213,17 @@ export const extraQuestions4: Question[] = [
     question:
       "`method_missing` で動的にメソッド呼び出しを処理するクラスを書く時、 ペアで実装すべきメソッドとその理由は？",
     choices: [
-      "`respond_to_missing?` を必ずペアで実装する。 さもないと `respond_to?` が false を返し、 duck typing や `Object#methods`、 シリアライズ系ライブラリで誤動作する",
       "`method_added` を実装する。 method_missing で受けたメソッドを動的に定義するため",
       "ペアで実装すべきメソッドはない。 method_missing 単体で完結する",
       "`initialize` を必ず override する。 method_missing は親クラスの初期化を妨げるため",
+      "`respond_to_missing?` を必ずペアで実装する。 さもないと `respond_to?` が false を返し、 duck typing や `Object#methods`、 シリアライズ系ライブラリで誤動作する",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。 method_missing だけ実装すると、 `obj.respond_to?(:foo)` は false を返してしまう。 これに頼っている標準ライブラリやサードパーティ (例: JSON シリアライザ、 ActiveModel) が誤動作する。 必ず respond_to_missing? もペアで実装する。",
       "不正解。 method_added は『メソッドが定義された時に呼ばれるフック』 で、 method_missing とは目的が違う。",
       "不正解。 respond_to_missing? を実装しないと、 多くのライブラリ (特に Rails 内部) が duck typing で false を見て分岐し、 期待しない挙動になる。",
       "不正解。 initialize の override は method_missing と無関係。",
+      "正解。 method_missing だけ実装すると、 `obj.respond_to?(:foo)` は false を返してしまう。 これに頼っている標準ライブラリやサードパーティ (例: JSON シリアライザ、 ActiveModel) が誤動作する。 必ず respond_to_missing? もペアで実装する。",
     ],
     hints: [
       "`respond_to?` のデフォルト実装は、 実際に定義されたメソッドしか見ない。",
@@ -316,17 +316,17 @@ export const extraQuestions4: Question[] = [
     question:
       "`find` / `find_by` / `where(...).first` の挙動の違いとして正しいのは？",
     choices: [
-      "`find` は見つからない時 ActiveRecord::RecordNotFound を raise、 `find_by` と `where(...).first` は nil を返す。 性能は find / find_by が LIMIT 1 込みの 1 SQL、 where(...).first は条件次第で同等",
       "全て同じ挙動で、 書き方の好みで使い分ける",
       "`find_by` は配列を返す。 単体取得には不向き",
       "`find` は nil を返し、 `find_by` は例外を投げる",
+      "`find` は見つからない時 ActiveRecord::RecordNotFound を raise、 `find_by` と `where(...).first` は nil を返す。 性能は find / find_by が LIMIT 1 込みの 1 SQL、 where(...).first は条件次第で同等",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。 find は primary key で引いて見つからなければ RecordNotFound を投げる (Rails の rescue_from で 404 にハンドリングしやすい)。 find_by(条件) は任意属性での検索で、 ヒットしなければ nil。 where(条件).first は ActiveRecord::Relation を介して LIMIT 1 を付ける。",
       "不正解。 例外を投げるか nil を返すかで明確に差がある。 これを混同するとエラーハンドリングが破綻する。",
       "不正解。 find_by は単体 (or nil) を返す。 配列を返すのは where や find_all。",
       "不正解。 逆。 find が例外、 find_by が nil。",
+      "正解。 find は primary key で引いて見つからなければ RecordNotFound を投げる (Rails の rescue_from で 404 にハンドリングしやすい)。 find_by(条件) は任意属性での検索で、 ヒットしなければ nil。 where(条件).first は ActiveRecord::Relation を介して LIMIT 1 を付ける。",
     ],
     hints: [
       "Rails の慣習では、 詳細ページの URL に対応する取得には find を使う (見つからなければ 404)。",
@@ -362,17 +362,17 @@ export const extraQuestions4: Question[] = [
     question:
       "`update` / `update_all` / `update_columns` の違いとして最も正確なのは？",
     choices: [
+      "`update_columns` はバリデーションを実行し、 update はスキップする",
       "`update` はバリデーション・コールバック・updated_at すべて実行。 `update_columns` はバリデーション・コールバック・updated_at をすべてスキップして直接 UPDATE。 `update_all` は Relation 全体に対する一括 UPDATE で、 同じくスキップ + インスタンス化しない",
       "全て同じ。 速度の違いだけ",
       "`update_all` はコールバックのみ実行する",
-      "`update_columns` はバリデーションを実行し、 update はスキップする",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "不正解。 逆。 update がバリデーション実行、 update_columns はスキップする。",
       "正解。 これがハマる定番ポイント。 update は『安全だが遅い』、 update_columns は『速いが整合性に注意』、 update_all は『大量更新向け』 と覚える。 updated_at の挙動の差は監査ログでバグになりやすい。",
       "不正解。 バリデーション・コールバック・updated_at の有無は明確に異なる。",
       "不正解。 update_all はコールバックもバリデーションも実行しない (各レコードをインスタンス化すらしない)。",
-      "不正解。 逆。 update がバリデーション実行、 update_columns はスキップする。",
     ],
     hints: [
       "コールバック (before_save 等) と バリデーション (presence: true 等) はどれが走るか？",
@@ -412,17 +412,17 @@ export const extraQuestions4: Question[] = [
     question:
       "Strong Parameters の `params.require(:user).permit(:name, :email)` で `require` と `permit` がそれぞれ担う役割として正しいのは？",
     choices: [
-      "`require` はキーの存在を保証 (なければ ParameterMissing 例外)、 `permit` は許可するキーをホワイトリストで指定 (それ以外は除外)",
       "`require` も `permit` も単なる alias で同じ意味",
       "`require` はバリデーション、 `permit` は型変換",
       "`require` は HTTP 必須パラメータ、 `permit` は CORS の制御",
+      "`require` はキーの存在を保証 (なければ ParameterMissing 例外)、 `permit` は許可するキーをホワイトリストで指定 (それ以外は除外)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。 require は『:user キーが params に存在しないと ActionController::ParameterMissing を投げる』 ガード。 permit は『:user の中身のうち、 :name と :email だけを許可、 残りは silently 除外』 ホワイトリスト。 mass assignment 脆弱性 (例: admin: true を勝手に渡される) を防ぐ。",
       "不正解。 require と permit は責務が異なる。 両方揃って Strong Parameters の保護が完成する。",
       "不正解。 バリデーションはモデル側 (validates) の責務。 Strong Parameters はあくまで『受け入れるキー』 の制御。",
       "不正解。 HTTP / CORS の話ではない。",
+      "正解。 require は『:user キーが params に存在しないと ActionController::ParameterMissing を投げる』 ガード。 permit は『:user の中身のうち、 :name と :email だけを許可、 残りは silently 除外』 ホワイトリスト。 mass assignment 脆弱性 (例: admin: true を勝手に渡される) を防ぐ。",
     ],
     hints: [
       "歴史的背景: Rails 4 で導入された mass assignment 対策の仕組み。",
@@ -549,17 +549,17 @@ export const extraQuestions4: Question[] = [
     question:
       "RSpec の `subject` と `is_expected` の使い方として最も適切なのは？",
     choices: [
+      "subject を定義したら必ず is_expected で呼ばないとエラー",
       "暗黙の subject は `described_class.new` で、 `subject { ... }` で明示できる。 `is_expected.to ...` は `expect(subject).to ...` の糖衣構文で、 1 行 it とよく組み合わせる",
       "subject は describe ブロックでしか使えず、 context では使えない",
       "is_expected は subject を使わなくても、 直前の let を自動的に参照する",
-      "subject を定義したら必ず is_expected で呼ばないとエラー",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "不正解。 subject を定義しても、 普通に expect(subject) で書いても良い。 is_expected は単に短く書くための糖衣。",
       "正解。 `subject` は『このスペックの主役』 を宣言し、 `is_expected.to be_valid` のように 1 行で表現できる。 暗黙の subject (User の describe なら User.new) もあるが、 引数を渡したいなら明示的に subject { ... } を書く。",
       "不正解。 context でも使える。 階層をネストすれば subject を上書きできる。",
       "不正解。 is_expected は subject を参照する。 let を直接見ない。",
-      "不正解。 subject を定義しても、 普通に expect(subject) で書いても良い。 is_expected は単に短く書くための糖衣。",
     ],
     hints: [
       "暗黙の subject = `described_class.new`。",
@@ -695,17 +695,17 @@ export const extraQuestions4: Question[] = [
     question:
       "本番環境で N+1 クエリが疑われる。 bullet gem は development 専用で使えない。 最も効率的な調査手段は？",
     choices: [
-      "ActiveSupport::Notifications で `sql.active_record` を購読してリクエストごとに SQL 件数を集計し、 閾値超過時にログ警告 or APM に送る (Datadog/New Relic の APM はこれを標準で見せる)",
-      "production ログを全部 grep して目視で SQL を数える",
       "全コントローラに `puts ActiveRecord::Base.connection.exec_query` を仕込む",
       "本番で N+1 を検知する手段はない。 development で再現するしかない",
+      "ActiveSupport::Notifications で `sql.active_record` を購読してリクエストごとに SQL 件数を集計し、 閾値超過時にログ警告 or APM に送る (Datadog/New Relic の APM はこれを標準で見せる)",
+      "production ログを全部 grep して目視で SQL を数える",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。 ActiveSupport::Notifications は Rails 内部のイベントを購読する公式機構で、 `sql.active_record` イベントを subscribe すれば全 SQL の発行を捕捉できる。 これをリクエスト単位でカウントし、 閾値 (例: 50 SQL) を超えたら警告ログを出す自前 middleware を書くか、 APM (Datadog/Scout/Skylight) を入れれば自動でハイライトしてくれる。",
-      "不正解。 production.log は莫大な量で grep 集計は現実的でない。 集約が必要。",
       "不正解。 puts でログを汚すのは本番ではアンチパターン。 そもそも構造化されていない。",
       "不正解。 ActiveSupport::Notifications を使えば本番でも検知できる。",
+      "正解。 ActiveSupport::Notifications は Rails 内部のイベントを購読する公式機構で、 `sql.active_record` イベントを subscribe すれば全 SQL の発行を捕捉できる。 これをリクエスト単位でカウントし、 閾値 (例: 50 SQL) を超えたら警告ログを出す自前 middleware を書くか、 APM (Datadog/Scout/Skylight) を入れれば自動でハイライトしてくれる。",
+      "不正解。 production.log は莫大な量で grep 集計は現実的でない。 集約が必要。",
     ],
     hints: [
       "Rails 内部のイベントを購読する仕組みは何？",
@@ -798,17 +798,17 @@ export const extraQuestions4: Question[] = [
     type: "choice",
     question: "`WHERE` と `HAVING` の違いとして正しいのは？",
     choices: [
-      "WHERE は GROUP BY の前 (生行) に絞り込み、 HAVING は GROUP BY の後 (集計結果) に絞り込む。 集計関数 (COUNT, SUM 等) は HAVING でしか使えない",
-      "WHERE は SELECT、 HAVING は UPDATE で使う",
       "WHERE は 1 つのテーブル、 HAVING は JOIN したテーブルで使う",
       "全く同じで、 書き方の好みで使い分ける",
+      "WHERE は GROUP BY の前 (生行) に絞り込み、 HAVING は GROUP BY の後 (集計結果) に絞り込む。 集計関数 (COUNT, SUM 等) は HAVING でしか使えない",
+      "WHERE は SELECT、 HAVING は UPDATE で使う",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。 SQL の論理処理順序は FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY。 つまり WHERE で先に行を絞ってから集計し、 HAVING で集計後の結果を絞る。 そのため COUNT(*) > 5 のような集計条件は HAVING でしか書けない。",
-      "不正解。 両方とも SELECT (SUBQUERY 含む) で使う。 UPDATE / DELETE では WHERE のみ。",
       "不正解。 テーブル数とは無関係。",
       "不正解。 評価タイミングが違うので、 書き換え可能とは限らない。 集計関数を WHERE に書くとエラー。",
+      "正解。 SQL の論理処理順序は FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY。 つまり WHERE で先に行を絞ってから集計し、 HAVING で集計後の結果を絞る。 そのため COUNT(*) > 5 のような集計条件は HAVING でしか書けない。",
+      "不正解。 両方とも SELECT (SUBQUERY 含む) で使う。 UPDATE / DELETE では WHERE のみ。",
     ],
     hints: [
       "SQL の論理処理順序を思い出す。 SELECT より前に WHERE と HAVING がある。",
@@ -844,17 +844,17 @@ export const extraQuestions4: Question[] = [
     question:
       "次のクエリで意図せず INNER JOIN 化してしまう罠の説明として正しいのは？\n\n```sql\nSELECT u.*, p.id AS post_id\nFROM users u\nLEFT JOIN posts p ON p.user_id = u.id\nWHERE p.published = true;\n```",
     choices: [
+      "Postgres と MySQL で挙動が違うので片方では問題ない",
       "WHERE 句で `p.published = true` を書くと、 LEFT JOIN で右辺が NULL になった行 (= 投稿のないユーザー) も p.published が NULL になり条件から落ち、 結果的に INNER JOIN と同じになる。 残したいなら ON 句に条件を移すか、 `p.published = true OR p.id IS NULL` と書く",
       "LEFT JOIN は常に INNER JOIN と同じ結果を返す",
       "ORDER BY を付けないと自動的に INNER 化する",
-      "Postgres と MySQL で挙動が違うので片方では問題ない",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "不正解。 SQL 標準の挙動で、 DB エンジン依存ではない。",
       "正解。 これは『LEFT JOIN の罠』 として有名。 LEFT JOIN は右側が NULL でも左を残すが、 WHERE で右の列に条件を付けると NULL 行が条件不一致で消える。 正しい書き方は (1) ON 句に条件を入れる、 (2) WHERE で `OR p.id IS NULL` を許容、 のいずれか。",
       "不正解。 LEFT JOIN は通常 INNER と異なる結果を返す (左を残す)。 ただし上記のように WHERE 句で条件を付け間違えると同じ結果になる。",
       "不正解。 ORDER BY とは無関係。",
-      "不正解。 SQL 標準の挙動で、 DB エンジン依存ではない。",
     ],
     hints: [
       "LEFT JOIN は『右が NULL でも左を残す』 が、 NULL に対する比較は何を返す？",
@@ -940,17 +940,17 @@ export const extraQuestions4: Question[] = [
     question:
       "複合インデックス `(user_id, created_at)` を貼った時、 そのインデックスが効くクエリの組合せとして正しいのは？",
     choices: [
-      "WHERE user_id = ? や WHERE user_id = ? AND created_at >= ? は効く。 WHERE created_at >= ? 単体 (左端 user_id を含まない) は効かない (= 左端一致の原則)",
-      "どんな順序のどんな組合せでも常に効く",
       "WHERE created_at >= ? 単体でも効く",
       "WHERE user_id = ? AND created_at >= ? は非効率で、 単独 INDEX を 2 つ貼った方が常に速い",
+      "WHERE user_id = ? や WHERE user_id = ? AND created_at >= ? は効く。 WHERE created_at >= ? 単体 (左端 user_id を含まない) は効かない (= 左端一致の原則)",
+      "どんな順序のどんな組合せでも常に効く",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。 B-Tree 複合インデックスは『左端から連続して条件指定された部分』 のみ使える。 (user_id, created_at) なら user_id 単体や user_id + created_at は効くが、 created_at 単体は使えない。 これを『左端一致 (leftmost prefix) の原則』 と呼ぶ。",
-      "不正解。 順序と左端一致が重要。 範囲検索が途中に入るとそれ以降の列は使えない、 等の制約もある。",
       "不正解。 left-most prefix 原則により、 先頭列 user_id がないと使えない。 created_at 単体検索が必要なら別途 INDEX が要る。",
       "不正解。 単独 INDEX 2 つでは index merge に依存することになり、 多くの場合複合 INDEX の方が高速。",
+      "正解。 B-Tree 複合インデックスは『左端から連続して条件指定された部分』 のみ使える。 (user_id, created_at) なら user_id 単体や user_id + created_at は効くが、 created_at 単体は使えない。 これを『左端一致 (leftmost prefix) の原則』 と呼ぶ。",
+      "不正解。 順序と左端一致が重要。 範囲検索が途中に入るとそれ以降の列は使えない、 等の制約もある。",
     ],
     hints: [
       "B-Tree の構造をイメージする。 user_id でまず分岐し、 その下に created_at で並ぶ。",
@@ -990,17 +990,17 @@ export const extraQuestions4: Question[] = [
     question:
       "ステータスを表す列 (例: order_status = pending / paid / shipped / cancelled) の設計として、 シニア視点で最もバランスが良いのは？",
     choices: [
-      "VARCHAR + CHECK 制約 (or DB ENUM) + アプリ側で Rails の enum マクロ。 値が安定していて参照テーブルにする意味が薄く、 INDEX も効く。 将来値を追加するのも ALTER 1 回で済む",
       "INTEGER + アプリ側で定数マッピング (例: 0=pending, 1=paid)。 速度と容量だけを最優先",
       "別テーブル `order_statuses` を作って status_id で FK 参照。 ステータスは常に正規化すべき",
       "全て JSONB に詰める。 柔軟性が最重要",
+      "VARCHAR + CHECK 制約 (or DB ENUM) + アプリ側で Rails の enum マクロ。 値が安定していて参照テーブルにする意味が薄く、 INDEX も効く。 将来値を追加するのも ALTER 1 回で済む",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。 VARCHAR + CHECK (or DB ENUM 型) は (1) 値が SQL クエリで読める、 (2) ダンプを目視で理解できる、 (3) INDEX が効く、 (4) Rails の enum マクロでアプリ側からも安全に扱える、 とバランスが良い。 値が頻繁に変わる場合は参照テーブルだが、 ステータスは通常そこまで頻繁に変わらない。",
       "不正解。 INTEGER は容量小さいが SQL クエリやダンプで意味が読めず、 アプリと DB の対応表がズレた時の事故が致命的。 旧 Rails (4 以前) ではこれが主流だったが、 現代では非推奨。",
       "不正解。 ステータスのような『値が安定した小数の選択肢』 を別テーブルに切り出すと、 JOIN コストが常時発生してメリットが薄い。 値が頻繁に追加される or 属性付き (色や説明文を持つ等) なら検討。",
       "不正解。 ステータスのような『限定された選択肢』 を JSONB に詰めるのは過剰な柔軟性で、 INDEX も効きにくく、 型安全性も失う。",
+      "正解。 VARCHAR + CHECK (or DB ENUM 型) は (1) 値が SQL クエリで読める、 (2) ダンプを目視で理解できる、 (3) INDEX が効く、 (4) Rails の enum マクロでアプリ側からも安全に扱える、 とバランスが良い。 値が頻繁に変わる場合は参照テーブルだが、 ステータスは通常そこまで頻繁に変わらない。",
     ],
     hints: [
       "『値が安定している』 か『頻繁に追加される』 か。",
@@ -1043,17 +1043,17 @@ export const extraQuestions4: Question[] = [
     question:
       "feature ブランチを main に取り込む時、 `git rebase` (+ merge --ff-only) と `git merge --squash` の違いとして正しいのは？",
     choices: [
-      "rebase は feature 上の個別コミットを main の先端に並べ替えて 1 直線にし、 各コミット履歴を保つ。 merge --squash は全変更を 1 コミットにまとめて main に乗せ、 個別コミット履歴は捨てる。 用途で使い分ける",
-      "全く同じ結果になる",
       "rebase は履歴を消し、 merge --squash は履歴を残す",
       "rebase は GitHub 専用、 merge --squash は GitLab 専用",
+      "rebase は feature 上の個別コミットを main の先端に並べ替えて 1 直線にし、 各コミット履歴を保つ。 merge --squash は全変更を 1 コミットにまとめて main に乗せ、 個別コミット履歴は捨てる。 用途で使い分ける",
+      "全く同じ結果になる",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。 rebase は『コミットを保ったまま履歴を 1 本に揃える』、 squash merge は『PR ごとに 1 コミットに集約する』。 後者はチームで一貫した『PR = 1 コミット』 ポリシーを取る場合の定番。 PR レビューで途中の試行錯誤を残したいなら rebase。",
-      "不正解。 結果のコミット数も履歴の見た目も大きく異なる。",
       "不正解。 逆。 squash merge こそ個別コミットを捨てる。",
       "不正解。 どちらも Git の機能で、 ホスティング (GitHub/GitLab/Bitbucket) は単に UI を提供しているだけ。",
+      "正解。 rebase は『コミットを保ったまま履歴を 1 本に揃える』、 squash merge は『PR ごとに 1 コミットに集約する』。 後者はチームで一貫した『PR = 1 コミット』 ポリシーを取る場合の定番。 PR レビューで途中の試行錯誤を残したいなら rebase。",
+      "不正解。 結果のコミット数も履歴の見た目も大きく異なる。",
     ],
     hints: [
       "git log でどう見えるかをイメージする。",
@@ -1093,17 +1093,17 @@ export const extraQuestions4: Question[] = [
     question:
       "プロジェクト全体から `TODO` 文字列を grep したら、 ビルド成果物の中の バイナリにマッチして大量の文字化けが出てしまった。 これを抑える最も簡潔なオプションは？",
     choices: [
-      "`grep -rI TODO .` — `-I` (大文字 I) でバイナリファイルを無視する",
-      "`grep -ri TODO .` — `-i` (小文字 i) で大文字小文字を無視する",
       "`grep -rv TODO .` — `-v` で逆マッチさせる",
       "`grep -r --binary-only TODO .` — バイナリだけ対象にする",
+      "`grep -rI TODO .` — `-I` (大文字 I) でバイナリファイルを無視する",
+      "`grep -ri TODO .` — `-i` (小文字 i) で大文字小文字を無視する",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。 `-I` (大文字) はバイナリファイルをスキップする grep のオプション。 ビルド成果物 (.o, .a, 画像等) を勝手に除外してくれる。 ripgrep (`rg`) なら デフォルトでバイナリ無視 + .gitignore 尊重で更に快適。",
-      "不正解。 `-i` は case-insensitive。 バイナリ無視とは別の機能。",
       "不正解。 `-v` は反転マッチ (TODO を含まない行)。 求める動作と逆。",
       "不正解。 そんなオプションはない。 `--binary-files=` で挙動を細かく制御できるが質問の意図と逆。",
+      "正解。 `-I` (大文字) はバイナリファイルをスキップする grep のオプション。 ビルド成果物 (.o, .a, 画像等) を勝手に除外してくれる。 ripgrep (`rg`) なら デフォルトでバイナリ無視 + .gitignore 尊重で更に快適。",
+      "不正解。 `-i` は case-insensitive。 バイナリ無視とは別の機能。",
     ],
     hints: [
       "grep の man / `--help` でバイナリ関連のオプションを探す。",
@@ -1143,17 +1143,17 @@ export const extraQuestions4: Question[] = [
     question:
       "ステージング環境で再現しないのに、 本番環境のみで特定エンドポイントが 500 エラーで落ちる。 シニアエンジニアとして最初に取るべきアクションは？",
     choices: [
-      "本番のログ / APM / エラートラッカ (Sentry 等) で実際のスタックトレースとリクエスト内容 (params, user, headers) を確認し、 ステージングとの『環境差分』 (データ・設定・スケール・依存サービス) を仮説リストアップ",
       "とりあえずアプリを再起動して様子を見る",
       "ステージングと本番でコードを比較し、 差分があれば本番を強制ロールバック",
       "本番で `binding.break` を仕込んで再現を待つ",
+      "本番のログ / APM / エラートラッカ (Sentry 等) で実際のスタックトレースとリクエスト内容 (params, user, headers) を確認し、 ステージングとの『環境差分』 (データ・設定・スケール・依存サービス) を仮説リストアップ",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。 まず『何が起きたか』 (スタックトレース + 入力) を確証してから、 『なぜステージングで再現しないか』 (環境差分の仮説) を洗い出すのが王道。 環境差分の主要分類は (1) データ (本番にだけある特殊レコード)、 (2) 設定 (環境変数 / 機能フラグ)、 (3) スケール (並行数・データ量)、 (4) 外部依存 (本番のみの API キー・サードパーティ応答)。",
       "不正解。 再起動は症状を一時的に隠す可能性があり、 原因究明から遠ざかる。 真の原因が残ったまま再発する。",
       "不正解。 コード差分があるかを確認するのは良いが、 確認前にロールバックは性急。 直近のデプロイが原因かの確証も取らずに巻き戻すと別の問題を引き起こす可能性。",
       "不正解。 本番で binding.break はプロセスをハングさせて全ユーザーに影響。 絶対に避ける。 本番デバッグはログ / APM / dry-run 環境で。",
+      "正解。 まず『何が起きたか』 (スタックトレース + 入力) を確証してから、 『なぜステージングで再現しないか』 (環境差分の仮説) を洗い出すのが王道。 環境差分の主要分類は (1) データ (本番にだけある特殊レコード)、 (2) 設定 (環境変数 / 機能フラグ)、 (3) スケール (並行数・データ量)、 (4) 外部依存 (本番のみの API キー・サードパーティ応答)。",
     ],
     hints: [
       "『何が起きたか』 と『なぜ起きたか』 は別。 まず前者を確証する。",
@@ -1190,17 +1190,17 @@ export const extraQuestions4: Question[] = [
     question:
       "JavaScript で `0 == \"\"` の結果と、 ESLint 等で推奨される比較演算子は？",
     choices: [
+      "`undefined`。 比較できない値同士は undefined を返す",
       "`true`。 `==` は型変換を伴う緩い比較で予期せぬ結果を生むため、 厳密等価 `===` (型も含めて比較) が推奨される",
       "`false`。 数値と文字列は常に等しくない",
       "`TypeError`。 異なる型は比較できない",
-      "`undefined`。 比較できない値同士は undefined を返す",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "不正解。 比較演算子は boolean を返す。 undefined にはならない。",
       "正解。 `==` は両辺を共通の型に変換してから比較する。 `0 == \"\"` は両者が Number に変換されて 0 == 0 で true。 こうした暗黙変換はバグの温床なので、 ESLint の eqeqeq ルールも含め、 ほぼ全てのスタイルガイドが `===` (strict equality) を推奨する。",
       "不正解。 `==` の暗黙変換で true になる。 `===` なら false。",
       "不正解。 JavaScript の比較は型エラーにならず、 暗黙変換が走る (これが問題)。",
-      "不正解。 比較演算子は boolean を返す。 undefined にはならない。",
     ],
     hints: [
       "JavaScript の `==` は『等価 (loose equality)』 で、 `===` は『厳密等価 (strict equality)』。",

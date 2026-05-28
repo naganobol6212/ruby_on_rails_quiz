@@ -19,17 +19,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "Anthropic の『Building Effective Agents』における Workflow と Agent の最も本質的な違いは？",
     choices: [
-      "Workflow は事前定義されたコードパスを LLM とツールが辿る。Agent は LLM 自身がプロセスを動的に決定する",
-      "Workflow はマルチモーダル、Agent はテキストのみ",
       "Workflow は Anthropic 専用、Agent は OpenAI 専用",
       "Workflow は本番禁止、Agent のみ本番利用可",
+      "Workflow は事前定義されたコードパスを LLM とツールが辿る。Agent は LLM 自身がプロセスを動的に決定する",
+      "Workflow はマルチモーダル、Agent はテキストのみ",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。Anthropic は Workflow = predefined code paths、Agent = LLM が自分でプロセスを舵取り、と明確に定義している。",
-      "モダリティの違いではなく『制御フローを誰が決めるか』が本質。",
       "ベンダー固有の概念ではない。一般的なエージェント設計の語彙。",
       "Workflow は予測可能で本番運用しやすく、むしろ推奨される。",
+      "正解。Anthropic は Workflow = predefined code paths、Agent = LLM が自分でプロセスを舵取り、と明確に定義している。",
+      "モダリティの違いではなく『制御フローを誰が決めるか』が本質。",
     ],
     hints: [
       "誰が次のステップを決めるか？",
@@ -61,17 +61,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "Anthropic が定義する『Prompt Chaining』ワークフローの説明として正しいのは？",
     choices: [
+      "生成と評価をループさせる",
       "タスクを順次的なサブステップに分解し、各ステップの出力を次の入力にする",
       "1 つの入力を複数の LLM が並列に処理する",
       "分類器で問い合わせを専門ハンドラに振り分ける",
-      "生成と評価をループさせる",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "それは Evaluator-Optimizer の説明。",
       "正解。Prompt Chaining = タスクを直線的なサブステップ列に分け、前段の出力を後段へ渡す。途中に gate (検証) を挟むことも多い。",
       "それは Parallelization (Sectioning / Voting) の説明。",
       "それは Routing の説明。",
-      "それは Evaluator-Optimizer の説明。",
     ],
     hints: [
       "5 パターンのうち最もシンプルな直列構成。",
@@ -99,17 +99,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "Anthropic の『Routing』ワークフローを採用すべき典型的なシナリオは？",
     choices: [
-      "顧客サポートで一般質問・返金・技術問題などカテゴリごとに専門プロンプトを用意したい",
       "1 つの長文を複数の観点で同時に評価したい",
       "コードを書いてテストで自動評価しループ修正したい",
       "未知のサブタスクが動的に発生する複雑な調査タスクを実行したい",
+      "顧客サポートで一般質問・返金・技術問題などカテゴリごとに専門プロンプトを用意したい",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。Routing は分類器 (LLM or 古典 ML) が入力を分類し、それぞれに最適化された下流プロンプト / モデルに流す構成。",
       "それは Parallelization (Sectioning) が適切。",
       "それは Evaluator-Optimizer の典型例。",
       "サブタスク数が予測できないケースは Orchestrator-Workers または Agent が適切。",
+      "正解。Routing は分類器 (LLM or 古典 ML) が入力を分類し、それぞれに最適化された下流プロンプト / モデルに流す構成。",
     ],
     hints: [
       "分類 → 専門ハンドラ、という二段構え。",
@@ -175,17 +175,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "Orchestrator-Workers ワークフローを Parallelization (Sectioning) より優先すべき状況は？",
     choices: [
-      "サブタスクの数や種類が入力ごとに動的で事前に予測できない",
       "サブタスクが完全に独立で、いつも同じ数だけ並列実行すれば良い",
       "評価基準が明確で生成と評価をループしたい",
       "1 種類のシンプルなタスクを高速に大量処理したい",
+      "サブタスクの数や種類が入力ごとに動的で事前に予測できない",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。サブタスク数が事前に決まらない (例: ファイル横断リファクタで何ファイル変更が要るか不明) ケースで Orchestrator-Workers が真価を発揮。",
       "サブタスクが静的なら Parallelization で十分。",
       "それは Evaluator-Optimizer。",
       "オーケストレータを挟むのは過剰、シンプルな Workflow で十分。",
+      "正解。サブタスク数が事前に決まらない (例: ファイル横断リファクタで何ファイル変更が要るか不明) ケースで Orchestrator-Workers が真価を発揮。",
     ],
     hints: [
       "事前にステップ数が決まるか、動的に決まるかが鍵。",
@@ -217,17 +217,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "Evaluator-Optimizer (生成 + 評価ループ) が特に効果を発揮する条件は？",
     choices: [
-      "評価基準が明文化できて、人間の繰り返しレビューでも明らかに品質が向上するタスク",
-      "評価基準が曖昧でモデルも人間も合意できない創造的タスク",
       "1 回の生成で十分な単純タスク",
       "リアルタイムストリーミングが必須なタスク",
+      "評価基準が明文化できて、人間の繰り返しレビューでも明らかに品質が向上するタスク",
+      "評価基準が曖昧でモデルも人間も合意できない創造的タスク",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。Anthropic は『人間がフィードバックすると改善が明らかに分かるタスク』を Evaluator-Optimizer 適用の指標にしている。",
-      "評価合意が取れないと critic が機能せず無限ループになりやすい。",
       "1 発で十分なら critic は過剰。",
       "ループするとレイテンシが増えるためむしろリアルタイム性は犠牲になる。",
+      "正解。Anthropic は『人間がフィードバックすると改善が明らかに分かるタスク』を Evaluator-Optimizer 適用の指標にしている。",
+      "評価合意が取れないと critic が機能せず無限ループになりやすい。",
     ],
     hints: [
       "Generator + Critic の 2 つの LLM ロールが必要。",
@@ -254,17 +254,17 @@ export const aiEngineeringQuestions: Question[] = [
     type: "choice",
     question: "ReAct パターンが繰り返すループの構成要素は？",
     choices: [
+      "Map → Reduce → Shuffle の 3 ステップ",
       "Thought → Action → Observation の 3 ステップ",
       "Plan → Execute → Reflect の 3 ステップ",
       "Encode → Decode → Score の 3 ステップ",
-      "Map → Reduce → Shuffle の 3 ステップ",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "それは MapReduce。エージェント設計とは別物。",
       "正解。ReAct = Reasoning + Acting。Thought (内的推論) → Action (ツール呼出) → Observation (結果取得) のループ。",
       "それは Plan-and-Execute (+ Reflection) の構成。",
       "ReAct とは無関係なエンコーダ・デコーダ用語。",
-      "それは MapReduce。エージェント設計とは別物。",
     ],
     hints: [
       "Reasoning と Acting を交互に行う、が名前の由来。",
@@ -296,17 +296,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "Plan-and-Execute パターンが ReAct より優れる典型的なケースは？",
     choices: [
-      "長期的・多段階の調査タスクで、最初に全体計画を立てた方がブレが少ない",
-      "1 ステップで終わる FAQ 回答",
       "ストリーミングで逐次トークンを返したい",
       "ツールが 1 つしかなく分岐が無いタスク",
+      "長期的・多段階の調査タスクで、最初に全体計画を立てた方がブレが少ない",
+      "1 ステップで終わる FAQ 回答",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。Plan-and-Execute は最初に明示的なプランを生成、その後でステップ実行する。多段階タスクで途中迷子になるのを防ぐ。",
-      "1 ステップで終わるなら計画自体が過剰。",
       "プラン生成が前段に入るので逐次性はむしろ落ちる。",
       "分岐不要なら計画も不要。",
+      "正解。Plan-and-Execute は最初に明示的なプランを生成、その後でステップ実行する。多段階タスクで途中迷子になるのを防ぐ。",
+      "1 ステップで終わるなら計画自体が過剰。",
     ],
     hints: [
       "ReAct は『考えて → 動く』を 1 回ずつ。Plan-and-Execute は『先に全体プランを作る』。",
@@ -415,17 +415,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "Hybrid Search (ハイブリッド検索) における dense と sparse の組み合わせとは？",
     choices: [
+      "オンプレ DB とクラウド DB を両方検索する",
       "Dense (埋め込みベクトル類似度) と Sparse (BM25 など語彙一致) を併用し結果を融合する",
       "高解像度画像と低解像度画像を組み合わせる検索",
       "GPU 検索と CPU 検索を並列で走らせる手法",
-      "オンプレ DB とクラウド DB を両方検索する",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "デプロイ位置の話ではない。",
       "正解。Dense は意味検索に強く、Sparse は固有名詞・ID・コード片など完全一致に強い。RRF (Reciprocal Rank Fusion) などで融合する。",
       "画像解像度とは無関係。",
       "ハードウェアではなくアルゴリズムの併用。",
-      "デプロイ位置の話ではない。",
     ],
     hints: [
       "ベクトル検索だけだと『型番』『商品コード』のような完全一致に弱い。",
@@ -453,17 +453,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "本番品質の RAG で『Re-ranker (再ランキング)』を入れる目的は？",
     choices: [
+      "埋め込みコストを下げる",
       "初段で取得した数十〜数百件を cross-encoder で精密採点し、LLM に渡す top 5〜10 を選び直す",
       "ベクトル DB の容量を減らす",
       "LLM の出力をリランクする",
-      "埋め込みコストを下げる",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "埋め込みコストとは無関係。",
       "正解。Bi-encoder の高速検索で広く拾い、cross-encoder (Cohere Rerank 3.5 / BGE-Reranker など) で精密スコアリングする 2 段構成が定番。",
       "容量削減のためではない。",
       "対象は『検索結果』であって生成結果ではない。",
-      "埋め込みコストとは無関係。",
     ],
     hints: [
       "Bi-encoder は速いが粗い、Cross-encoder は遅いが正確。",
@@ -491,17 +491,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "Adaptive RAG が単純な RAG より優れる点は？",
     choices: [
-      "クエリの複雑度を分類して、単純なら直接回答・複雑なら多段検索、と戦略を切り替える",
       "GPU の動的割り当てを行う",
       "埋め込みモデルを毎回再学習する",
       "ベクトル DB を 2 つ並列利用する",
+      "クエリの複雑度を分類して、単純なら直接回答・複雑なら多段検索、と戦略を切り替える",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。Adaptive RAG は分類器でクエリを No-retrieval / Single-step / Multi-step に振り分け、コストと精度を両立する。",
       "ハードウェア割り当てとは無関係。",
       "埋め込み再学習はしない。",
       "DB を増やすことではない。",
+      "正解。Adaptive RAG は分類器でクエリを No-retrieval / Single-step / Multi-step に振り分け、コストと精度を両立する。",
     ],
     hints: [
       "シンプルな『今日の天気は？』に多段検索は過剰。",
@@ -529,17 +529,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "RAGAs の `Faithfulness` メトリックが計測しているものは？",
     choices: [
-      "生成された回答内の主張が、取得した文脈から推論可能である割合 (幻覚抑制の指標)",
-      "クエリと回答の語彙一致度",
       "検索された文脈の Precision",
       "クエリと検索結果の意味的類似度",
+      "生成された回答内の主張が、取得した文脈から推論可能である割合 (幻覚抑制の指標)",
+      "クエリと回答の語彙一致度",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。Faithfulness = 回答中の主張のうち何 % が context から裏付けられるか。LLM-as-judge で測り、幻覚率の代理指標になる。",
-      "それは BLEU / ROUGE 系の語彙メトリクス。",
       "それは Context Precision の説明。",
       "それは Embedding 類似度の話で別物。",
+      "正解。Faithfulness = 回答中の主張のうち何 % が context から裏付けられるか。LLM-as-judge で測り、幻覚率の代理指標になる。",
+      "それは BLEU / ROUGE 系の語彙メトリクス。",
     ],
     hints: [
       "幻覚 (hallucination) を測りたい時に見る指標。",
@@ -567,17 +567,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "RAGAs の `Context Recall` メトリックの特徴として正しいのは？",
     choices: [
-      "4 大メトリクスの中で唯一 ground-truth 回答を必要とする (検索が必要情報を網羅できたかを測る)",
       "ground-truth 不要で常にゼロショット評価できる",
       "LLM の応答時間を測る",
       "生成側メトリクスである",
+      "4 大メトリクスの中で唯一 ground-truth 回答を必要とする (検索が必要情報を網羅できたかを測る)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。Context Recall は ground-truth 回答に必要な情報が検索結果に含まれていたかを評価するため、参照回答が必須。",
       "Context Recall だけは ground-truth が必要。",
       "レイテンシ計測は別の話。",
       "Context Recall は検索品質側のメトリクス。",
+      "正解。Context Recall は ground-truth 回答に必要な情報が検索結果に含まれていたかを評価するため、参照回答が必須。",
     ],
     hints: [
       "『取りこぼしがなかったか』を測る。",
@@ -647,17 +647,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "LLMOps が従来の MLOps と最も異なる点として適切なのは？",
     choices: [
+      "Python が使えない",
       "成果物がモデル重みではなくプロンプト・RAG インデックス・システムメッセージ等が中心で、評価も決定論的でなく LLM-judge / 人手中心",
       "GPU を使わない",
       "クラウドで動かせない",
-      "Python が使えない",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "Python は標準。",
       "正解。LLMOps では prompt・RAG index・system message が一級の成果物で、出力は自由文・評価は LLM-as-judge / 人手が中心。",
       "GPU はむしろ推論で多用する。",
       "クラウドが主戦場。",
-      "Python は標準。",
     ],
     hints: [
       "何を変えたら挙動が変わるか？",
@@ -723,17 +723,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "LLMOps ツールの選定: 『LangChain / LangGraph と密結合で公式統合が最も強い』のはどれ？",
     choices: [
-      "LangSmith",
-      "Langfuse",
       "Arize Phoenix",
       "LiteLLM",
+      "LangSmith",
+      "Langfuse",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。LangSmith は LangChain 公式の観測・評価プラットフォーム。LangChain / LangGraph の trace を最小設定で取れる。",
-      "Langfuse は OSS で自己ホスト可、フレームワーク非依存。",
       "Phoenix は OpenTelemetry-native でフレームワーク非依存。",
       "LiteLLM は複数プロバイダのゲートウェイで観測専用ではない。",
+      "正解。LangSmith は LangChain 公式の観測・評価プラットフォーム。LangChain / LangGraph の trace を最小設定で取れる。",
+      "Langfuse は OSS で自己ホスト可、フレームワーク非依存。",
     ],
     hints: [
       "LangChain と『同じ会社』のプロダクト。",
@@ -765,17 +765,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "『LiteLLM』が解決する代表的な課題は？",
     choices: [
-      "OpenAI / Anthropic / Bedrock / Vertex など複数プロバイダを統一 API で呼び、フォールバック / レート制限 / コスト制御を一元化する",
       "ベクトル DB の代替",
       "プロンプトの構文ハイライト",
       "GPU クラスタの自動構築",
+      "OpenAI / Anthropic / Bedrock / Vertex など複数プロバイダを統一 API で呼び、フォールバック / レート制限 / コスト制御を一元化する",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。LiteLLM は 100+ プロバイダを OpenAI 互換 API でラップする proxy / SDK。プロバイダ切替・コスト制御に便利。",
       "ベクトル DB ではない。",
       "エディタ機能ではない。",
       "インフラ自動構築ツールでもない。",
+      "正解。LiteLLM は 100+ プロバイダを OpenAI 互換 API でラップする proxy / SDK。プロバイダ切替・コスト制御に便利。",
     ],
     hints: [
       "Multi-provider gateway。",
@@ -803,17 +803,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "LLM システム特有の『技術的負債』として誤っているのは？",
     choices: [
-      "学習データのラベルノイズ",
-      "プロンプトドリフト (時間経過で挙動が変わる)",
       "埋め込みドリフト (新モデルとの非互換)",
       "サイレントな品質劣化 (テスト網羅率が低くデグレに気づきにくい)",
+      "学習データのラベルノイズ",
+      "プロンプトドリフト (時間経過で挙動が変わる)",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。ラベルノイズは MLOps の問題で、LLMOps 固有ではない (RAG ではむしろドキュメント品質が該当)。",
-      "プロンプトドリフトは LLMOps 特有の課題。バージョン管理必須。",
       "埋め込みドリフトも特有。モデル切替で既存インデックスが使えなくなる。",
       "出力が自由テキストなので決定論的テストが書きにくく、デグレが見えにくい。",
+      "正解。ラベルノイズは MLOps の問題で、LLMOps 固有ではない (RAG ではむしろドキュメント品質が該当)。",
+      "プロンプトドリフトは LLMOps 特有の課題。バージョン管理必須。",
     ],
     hints: [
       "MLOps と LLMOps の課題を切り分ける問題。",
@@ -841,17 +841,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "プロンプトのバージョニングをコードのバージョニングと『別管理』にする利点は？",
     choices: [
+      "LLM が自動でプロンプトを書き換える",
       "非エンジニアもプロンプトを編集・実験・ロールバックでき、リリースを伴わず A/B テストできる",
       "Git が不要になる",
       "プロンプトを暗号化できる",
-      "LLM が自動でプロンプトを書き換える",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "自動書換は別の概念。",
       "正解。LangSmith / Langfuse の Prompt Management のように、プロンプトを別レジストリで管理するとリリースなしで差し替え可能になる。",
       "Git は引き続きコードで使う。",
       "暗号化機能とは別の話。",
-      "自動書換は別の概念。",
     ],
     hints: [
       "PM やドメインエキスパートに編集してもらいたい。",
@@ -921,17 +921,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "NIST AI Risk Management Framework (AI RMF 1.0) の 4 つのコア機能は？",
     choices: [
-      "Govern / Map / Measure / Manage",
       "Plan / Do / Check / Act",
       "Identify / Protect / Detect / Respond",
       "Collect / Train / Deploy / Audit",
+      "Govern / Map / Measure / Manage",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。NIST AI RMF 1.0 (2023年1月) は Govern / Map / Measure / Manage の 4 コア機能。Govern が横断的に他 3 つを統べる。",
       "それは ISO の PDCA。AI RMF とは別。",
       "それは NIST CSF (Cybersecurity Framework) の機能。",
       "AI RMF の機能名ではない。",
+      "正解。NIST AI RMF 1.0 (2023年1月) は Govern / Map / Measure / Manage の 4 コア機能。Govern が横断的に他 3 つを統べる。",
     ],
     hints: [
       "Govern が他 3 つを横断的に支える。",
@@ -959,17 +959,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "ISO/IEC 42001:2023 の特徴として正しいものは？",
     choices: [
-      "世界初の AI マネジメントシステム (AIMS) 国際規格で、第三者認証が可能・ISO 27001 等と同じ Annex SL 構造・PDCA ベース",
-      "米国の任意フレームワークで認証はできない",
       "EU 加盟国のみ適用される法律",
       "Google が発行したガイドライン",
+      "世界初の AI マネジメントシステム (AIMS) 国際規格で、第三者認証が可能・ISO 27001 等と同じ Annex SL 構造・PDCA ベース",
+      "米国の任意フレームワークで認証はできない",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。ISO/IEC 42001 は AI マネジメントシステム (AIMS) の認証可能規格で、ISO 27001 / 9001 と共通の Annex SL 構造・PDCA。",
-      "それは NIST AI RMF の特徴。",
       "ISO 規格は国際標準で EU 限定ではない。",
       "ISO は国際標準化機構が発行する規格で企業発行ではない。",
+      "正解。ISO/IEC 42001 は AI マネジメントシステム (AIMS) の認証可能規格で、ISO 27001 / 9001 と共通の Annex SL 構造・PDCA。",
+      "それは NIST AI RMF の特徴。",
     ],
     hints: [
       "ISO 27001 (ISMS) の AI 版、と理解すると分かりやすい。",
@@ -997,17 +997,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "EU AI Act の『4 つのリスク階層』として正しい組み合わせは？",
     choices: [
+      "Red / Yellow / Green / White",
       "Unacceptable / High / Limited / Minimal",
       "Critical / High / Medium / Low",
       "Tier 1 / Tier 2 / Tier 3 / Tier 4",
-      "Red / Yellow / Green / White",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "色分けはマーケ用で公式分類ではない。",
       "正解。EU AI Act は Unacceptable (禁止) / High (厳格義務) / Limited (透明性義務) / Minimal (義務なし) の 4 階層。",
       "似ているが公式用語ではない。",
       "Tier 表記は EU AI Act の用語ではない。",
-      "色分けはマーケ用で公式分類ではない。",
     ],
     hints: [
       "禁止カテゴリと最小リスクの間に 2 段階。",
@@ -1077,15 +1077,15 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "EU AI Act における『汎用 AI モデル (GPAI) のシステミックリスク』を判定する訓練計算量の閾値は？",
     choices: [
+      "10^12 FLOPs",
       "10^25 FLOPs",
       "10^18 FLOPs",
       "10^30 FLOPs",
-      "10^12 FLOPs",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
-      "正解。EU AI Act は累積訓練計算量 > 10^25 FLOPs を『システミックリスクを持つ GPAI』とみなす推定基準にした。",
       "桁が異なる。",
+      "正解。EU AI Act は累積訓練計算量 > 10^25 FLOPs を『システミックリスクを持つ GPAI』とみなす推定基準にした。",
       "桁が異なる。",
       "桁が異なる。",
     ],
@@ -1157,17 +1157,17 @@ export const aiEngineeringQuestions: Question[] = [
     question:
       "あるチームが EU 市場に高リスク AI システムを投入する。NIST AI RMF / ISO 42001 / EU AI Act / Model Cards の役割分担として最も適切なのは？",
     choices: [
-      "EU AI Act が法的要件、ISO/IEC 42001 が認証可能な実装フレーム、NIST AI RMF が補完的ガイダンス、Model Cards が透明性開示の具体的文書",
       "4 つは互いに排他的でどれか 1 つを選ぶ",
       "EU AI Act は任意ガイダンス、NIST AI RMF は法的要件",
       "Model Cards は法的義務でその他はオプション",
+      "EU AI Act が法的要件、ISO/IEC 42001 が認証可能な実装フレーム、NIST AI RMF が補完的ガイダンス、Model Cards が透明性開示の具体的文書",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。法令 (EU AI Act) + マネジメントシステム認証 (ISO 42001) + リスク管理ガイダンス (NIST AI RMF) + 透明性文書 (Model Cards) が階層的・補完的に機能する。",
       "排他ではなく組み合わせて使う。",
       "EU AI Act は法令、NIST AI RMF は任意。",
       "Model Cards 自体は規格や法律ではなく実務文書。",
+      "正解。法令 (EU AI Act) + マネジメントシステム認証 (ISO 42001) + リスク管理ガイダンス (NIST AI RMF) + 透明性文書 (Model Cards) が階層的・補完的に機能する。",
     ],
     hints: [
       "法令 / 認証 / 任意ガイダンス / 透明性文書、と層が違う。",

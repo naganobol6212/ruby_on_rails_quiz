@@ -13,12 +13,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "console.log(typeof null)\nconsole.log(typeof undefined)\nconsole.log(typeof [])",
     choices: [
+      "undefined / undefined / object",
       "object / undefined / object",
       "null / undefined / array",
       "object / object / array",
-      "undefined / undefined / object",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "typeof null は歴史的なバグで知られる結果を返す。",
       "undefined だけは独自のプリミティブ型。",
@@ -40,12 +40,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "次のうち、JavaScript の falsy な値の組合せは？",
     choices: [
+      "0 と '' のみ",
       "false, 0, '', null, undefined, NaN",
       "false, 0, [], {}, null",
       "false のみ",
-      "0 と '' のみ",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "if (val) で falsy 判定される値は限られている。",
       "空配列 [] と空オブジェクト {} は truthy。",
@@ -96,12 +96,12 @@ export const trackQuestions: Question[] = [
     question:
       "let / const / var の違いとして正しいものは？",
     choices: [
-      "var は関数スコープ + 巻き上げあり、let/const はブロックスコープ。const は再代入不可",
       "三者は同じ",
       "let は再代入不可",
       "const はグローバル、let はローカル",
+      "var は関数スコープ + 巻き上げあり、let/const はブロックスコープ。const は再代入不可",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "var は古い宣言で関数スコープ。",
       "let / const は ES6+ で導入されたブロックスコープ。",
@@ -124,12 +124,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "const obj = { name: 'Alice', age: 20 }\nconst { name, age } = obj\nconsole.log(name, age)",
     choices: [
-      "Alice 20",
       "name age",
       "obj.name obj.age",
       "undefined undefined",
+      "Alice 20",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "分割代入 (destructuring) でオブジェクトのプロパティを変数化。",
       "const { name, age } = obj は const name = obj.name; const age = obj.age と同義。",
@@ -152,12 +152,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "const a = [1, 2, 3]\nconst b = [...a, 4, 5]\nconst c = { ...{ x: 1 }, y: 2 }\nconsole.log(b.length, c.x, c.y)",
     choices: [
-      "5 1 2",
-      "3 1 2",
       "5 undefined undefined",
       "TypeError",
+      "5 1 2",
+      "3 1 2",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "スプレッド演算子 ...arr / ...obj。",
       "配列なら要素展開、オブジェクトならプロパティ展開。",
@@ -202,12 +202,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "const user = { name: 'Alice' }\nconsole.log(user?.profile?.email ?? 'no email')",
     choices: [
-      "no email",
-      "undefined",
       "TypeError",
       "null",
+      "no email",
+      "undefined",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Optional Chaining (?.) で profile が undefined の時にエラー回避。",
       "Nullish Coalescing (??) で undefined の時に default を返す。",
@@ -230,12 +230,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "const arr = [1, 2, 3, 4, 5]\nconst result = arr.filter(n => n > 2).map(n => n * 2)\nconsole.log(result)",
     choices: [
-      "[6, 8, 10]",
       "[2, 4, 6, 8, 10]",
       "[3, 4, 5]",
       "[1, 2, 3, 4, 5]",
+      "[6, 8, 10]",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "filter で 2 より大きい要素を残す → [3, 4, 5]。",
       "map で 2 倍する → [6, 8, 10]。",
@@ -258,12 +258,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0)\n}",
     choices: [
-      "3 / 3 / 3",
-      "0 / 1 / 2",
       "0 / 0 / 0",
       "undefined",
+      "3 / 3 / 3",
+      "0 / 1 / 2",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "var はループスコープを作らない。",
       "setTimeout のコールバックが実行される時には i = 3 (ループ終了後)。",
@@ -290,12 +290,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "const greet = (name) => `hi, ${name}`\nconsole.log(greet('Alice'))",
     choices: [
-      "hi, Alice",
       "${name}",
       "undefined",
       "TypeError",
+      "hi, Alice",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "アロー関数の構文。",
       "テンプレートリテラル ` で文字列補間。",
@@ -346,12 +346,12 @@ export const trackQuestions: Question[] = [
     question:
       "クロージャの説明として正しいのは？",
     choices: [
-      "関数が定義された時のスコープの変数を、後から実行されても参照できる仕組み",
-      "JS の global object",
       "function キーワードで作られる関数",
       "this の自動バインディング",
+      "関数が定義された時のスコープの変数を、後から実行されても参照できる仕組み",
+      "JS の global object",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "関数 + その関数が参照する周囲の変数 = クロージャ。",
       "外側スコープの変数を覚えて持ち運ぶ。",
@@ -402,12 +402,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "const arr = ['a', 'b', 'c']\nconst result = arr.reduce((acc, x, i) => {\n  acc[x] = i\n  return acc\n}, {})\nconsole.log(result)",
     choices: [
-      "{ a: 0, b: 1, c: 2 }",
-      "{ 0: 'a', 1: 'b', 2: 'c' }",
       "['a', 'b', 'c']",
       "{}",
+      "{ a: 0, b: 1, c: 2 }",
+      "{ 0: 'a', 1: 'b', 2: 'c' }",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "reduce で初期値 {} から累積。",
       "ブロック内で acc[x] = i (キー = 要素、値 = インデックス)。",
@@ -434,12 +434,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力順は？",
     code: "console.log('1')\nsetTimeout(() => console.log('2'), 0)\nPromise.resolve().then(() => console.log('3'))\nconsole.log('4')",
     choices: [
-      "1 → 4 → 3 → 2",
       "1 → 2 → 3 → 4",
       "1 → 2 → 4 → 3",
       "1 → 3 → 4 → 2",
+      "1 → 4 → 3 → 2",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "同期コード → マイクロタスク (Promise) → マクロタスク (setTimeout) の順。",
       "1 → 4 が同期、3 はマイクロタスク、2 はマクロタスク。",
@@ -490,12 +490,12 @@ export const trackQuestions: Question[] = [
     question:
       "Promise.all と Promise.allSettled の違いは？",
     choices: [
+      "allSettled は遅い",
       "Promise.all は 1 つでも reject すると全体が reject、Promise.allSettled は全部の結果 (fulfilled/rejected) を返す",
       "両者は同じ",
       "Promise.all は順次、allSettled は並列",
-      "allSettled は遅い",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "all は『すべて成功』を求める。",
       "allSettled は『すべて終了』を求める (成否問わず)。",
@@ -518,12 +518,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの結果は？",
     code: "const p = new Promise(resolve => {\n  console.log('a')\n  resolve()\n})\np.then(() => console.log('b'))\nconsole.log('c')",
     choices: [
-      "a → c → b",
-      "a → b → c",
       "c → a → b",
       "b → a → c",
+      "a → c → b",
+      "a → b → c",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Promise のコンストラクタ内は同期で実行される。",
       ".then のコールバックはマイクロタスクキューに入る。",
@@ -546,12 +546,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードのデフォルト挙動でエラー時に起きることは？",
     code: "async function risky() {\n  throw new Error('boom')\n}\nrisky()",
     choices: [
-      "未処理 Promise rejection の警告/エラー (Node なら UnhandledPromiseRejection)",
       "throw された Error がそのまま伝播",
       "何も起きない (静かに失敗)",
       "プログラムが即終了",
+      "未処理 Promise rejection の警告/エラー (Node なら UnhandledPromiseRejection)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "async 関数内の throw は Promise の reject になる。",
       "呼び出し側で .catch / try-catch しないと未処理。",
@@ -579,12 +579,12 @@ export const trackQuestions: Question[] = [
       "次の型注釈で正しいものは？",
     code: "function add(a, b) { return a + b }",
     choices: [
-      "function add(a: number, b: number): number { return a + b }",
-      "function add(number a, number b) returns number {}",
       "function<number, number, number> add(a, b) {}",
       "type add = (number, number) => number",
+      "function add(a: number, b: number): number { return a + b }",
+      "function add(number a, number b) returns number {}",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "TypeScript の関数注釈は `param: Type`。",
       "戻り値の型は ): Type の形。",
@@ -607,12 +607,12 @@ export const trackQuestions: Question[] = [
     question:
       "次のうち、interface と type alias の違いとして正しいのは？",
     choices: [
+      "両者は完全に同じ",
       "interface は宣言マージ可、type は不可。実用上は混在を避けて統一する",
       "type alias は廃止された",
       "interface は遅い",
-      "両者は完全に同じ",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "interface は同名宣言が自動マージ (宣言マージ機能)。",
       "type alias は同名で再定義不可。",
@@ -664,12 +664,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの型は？",
     code: "function identity<T>(x: T): T { return x }\nconst a = identity('hello')\nconst b = identity(42)",
     choices: [
-      "a: string / b: number (各呼び出しで T が推論される)",
-      "両方 unknown",
       "両方 T",
       "両方 any",
+      "a: string / b: number (各呼び出しで T が推論される)",
+      "両方 unknown",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "<T> はジェネリクス (型変数)。",
       "呼び出し時に T が推論される。",
@@ -724,12 +724,12 @@ export const trackQuestions: Question[] = [
     question:
       "React で関数コンポーネントで状態を持つために使う Hook は？",
     choices: [
+      "createState",
       "useState",
       "useStore",
       "useLocalState",
-      "createState",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Hook 名は use で始まる。",
       "返り値はタプル [現在の値, セッター]。",
@@ -752,12 +752,12 @@ export const trackQuestions: Question[] = [
     question:
       "React の useEffect の使い方として正しいのは？",
     choices: [
-      "useEffect(() => { ... }, [deps]) で副作用を実行、依存配列が変わった時に再実行",
-      "useEffect は廃止された",
       "useEffect は同期処理用",
       "useEffect は引数を取らない",
+      "useEffect(() => { ... }, [deps]) で副作用を実行、依存配列が変わった時に再実行",
+      "useEffect は廃止された",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "副作用 (DOM 操作、API 通信、購読) を扱う Hook。",
       "第 2 引数の依存配列で再実行のタイミング制御。",
@@ -780,12 +780,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの問題点は？",
     code: "function List({ items }) {\n  return items.map((item, i) => <li>{item.name}</li>)\n}",
     choices: [
-      "key prop が無く、警告 + 再レンダリング時の差分検出が非効率",
       "items.map ではなく forEach にすべき",
       "li タグが間違っている",
       "問題なし",
+      "key prop が無く、警告 + 再レンダリング時の差分検出が非効率",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "React のリスト描画では key prop が必須。",
       "key が無いと差分検出 (reconciliation) が効率的に動かない。",
@@ -808,12 +808,12 @@ export const trackQuestions: Question[] = [
     question:
       "React で『高コストな計算結果を再レンダリング間でキャッシュ』する Hook は？",
     choices: [
-      "useMemo",
       "useCallback",
       "useRef",
       "useReducer",
+      "useMemo",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "値をメモ化する Hook。",
       "useCallback は『関数』をメモ化、useMemo は『値』をメモ化。",
@@ -868,12 +868,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js 13+ の App Router で『/about ページを作る』正しいファイル配置は？",
     choices: [
+      "src/pages/about/index.tsx",
       "app/about/page.tsx",
       "pages/about.tsx (Pages Router 用)",
       "app/about.tsx",
-      "src/pages/about/index.tsx",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "App Router はディレクトリ + page.tsx 命名。",
       "Pages Router (pages/) は旧式。",
@@ -896,12 +896,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js 13+ App Router でデフォルトのコンポーネントタイプは？",
     choices: [
-      "Server Component (Server 側でレンダリング、JS バンドル無し)",
       "Client Component",
       "Static HTML",
       "Both equally",
+      "Server Component (Server 側でレンダリング、JS バンドル無し)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "App Router のデフォルトは Server Component。",
       "useState / useEffect 等の Hook を使うなら 'use client' ディレクティブが必要。",
@@ -924,12 +924,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js App Router で API エンドポイントを作るファイル名は？",
     choices: [
+      "handler.ts",
       "route.ts (or route.js)",
       "api.ts",
       "endpoint.ts",
-      "handler.ts",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "App Router の API は Route Handler。",
       "page.tsx と同じディレクトリ規約だが、ファイル名が違う。",
@@ -952,12 +952,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js でクライアント側からサーバー関数を呼ぶ機能は？",
     choices: [
-      "Server Actions (\"use server\" 注釈)",
-      "Server Functions",
       "API Routes only",
       "RPC",
+      "Server Actions (\"use server\" 注釈)",
+      "Server Functions",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Next.js 13.4+ で安定化。",
       "関数の冒頭に 'use server' ディレクティブを書く。",
@@ -980,12 +980,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js App Router でデータキャッシュを無効化する方法として正しいのは？",
     choices: [
-      "revalidatePath / revalidateTag / { cache: 'no-store' } / { next: { revalidate: 60 } }",
       "cache.flush() のみ",
       "ブラウザリロードのみ",
       "キャッシュは無効化できない",
+      "revalidatePath / revalidateTag / { cache: 'no-store' } / { next: { revalidate: 60 } }",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "fetch のオプション or revalidate 関数で制御。",
       "ISR (Incremental Static Regeneration) は revalidate 秒数で。",
@@ -1037,8 +1037,8 @@ export const trackQuestions: Question[] = [
     difficulty: "beginner",
     type: "choice",
     question: "Vue 3 Composition API で『リアクティブな変数』を作る関数は？",
-    choices: ["ref / reactive", "useState (Nuxt 拡張)", "data()", "computed"],
-    answerIndex: 0,
+    choices: ["useState (Nuxt 拡張)", "data()", "computed", "ref / reactive"],
+    answerIndex: 3,
     hints: [
       "Vue 3 のリアクティブシステムの中核。",
       "プリミティブは ref、オブジェクトは reactive。",
@@ -1060,12 +1060,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "Nuxt 3 で API からデータを取得する標準コンポーザブルは？",
     choices: [
-      "useFetch / useAsyncData",
-      "fetch.use()",
       "$nuxt.fetch",
       "asyncMethod",
+      "useFetch / useAsyncData",
+      "fetch.use()",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "use で始まるコンポーザブル関数。",
       "SSR / CSR で重複呼び出しを防ぐ仕組み。",
@@ -1109,12 +1109,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "Nuxt 3 でアプリ全体の状態管理に推奨されるのは？",
     choices: [
-      "Pinia (公式推奨) / useState",
-      "Vuex (Vue 2 時代の旧式)",
       "Redux",
       "context API",
+      "Pinia (公式推奨) / useState",
+      "Vuex (Vue 2 時代の旧式)",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Vue 公式の新しいストアライブラリ。",
       "Composition API ベースで TypeScript 親和性が高い。",
@@ -1211,8 +1211,8 @@ export const trackQuestions: Question[] = [
     difficulty: "intermediate",
     type: "choice",
     question: "Vue 3 のテンプレートで条件付き描画と繰り返しのディレクティブは？",
-    choices: ["v-if / v-for", "ng-if / ng-for", "if / for", "@if / @for"],
-    answerIndex: 0,
+    choices: ["ng-if / ng-for", "if / for", "@if / @for", "v-if / v-for"],
+    answerIndex: 3,
     hints: [
       "Vue のテンプレートディレクティブ。",
       "v- で始まる構文。",
@@ -1233,8 +1233,8 @@ export const trackQuestions: Question[] = [
     difficulty: "intermediate",
     type: "choice",
     question: "Nuxt 3 で『コンポーネントが自動 import される』ディレクトリは？",
-    choices: ["components/", "ui/", "src/components/", "lib/"],
-    answerIndex: 0,
+    choices: ["ui/", "src/components/", "lib/", "components/"],
+    answerIndex: 3,
     hints: [
       "components/ 配下のファイルは import 文なしで使える。",
       "ファイル名 = コンポーネント名 (PascalCase)。",
@@ -1256,8 +1256,8 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question:
       "Nuxt 3 で自分専用の Composable (例: useFavorites) を作るディレクトリは？",
-    choices: ["composables/", "utils/", "hooks/", "helpers/"],
-    answerIndex: 0,
+    choices: ["helpers/", "composables/", "utils/", "hooks/"],
+    answerIndex: 1,
     hints: [
       "Composition API のコンポーザブル関数を置く専用ディレクトリ。",
       "自動 import される (use~ 命名)。",
@@ -1280,12 +1280,12 @@ export const trackQuestions: Question[] = [
     question:
       "Nuxt 3 でレンダリングモードを SPA (CSR のみ) にする設定は？",
     choices: [
-      "nuxt.config.ts に ssr: false",
       "pages/index.client.vue にする",
       "nuxt.config.ts に csr: true",
       "ssr: 'spa'",
+      "nuxt.config.ts に ssr: false",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "ssr 設定で SSR を on/off。",
       "false で純粋な SPA モード。",
@@ -1307,12 +1307,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "Vue 3 で『複数の root 要素を持つテンプレート』は許される？",
     choices: [
+      "Vue 2 と同じ制約",
       "許される (Fragment、Vue 2 では不可)",
       "許されない",
       "ラッパー div 必須",
-      "Vue 2 と同じ制約",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Vue 3 から Fragment サポート。",
       "Vue 2 ではテンプレートに 1 つの root が必須だった。",
@@ -1334,12 +1334,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "Vue 3 の watch / watchEffect の違いは？",
     choices: [
+      "両者は完全に同じ",
       "watch は対象を明示 + 旧値も取れる。watchEffect は依存自動追跡で旧値なし",
       "watch は遅い、watchEffect は速い",
       "watch は非推奨、watchEffect 一択",
-      "両者は完全に同じ",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "watch(source, callback) で source 指定。",
       "watchEffect(effect) は中で参照したリアクティブ値を自動追跡。",
@@ -1361,8 +1361,8 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question:
       "Nuxt 3 でメタタグ (title, description, OG) を動的に設定する関数は？",
-    choices: ["useHead / useSeoMeta", "useMeta", "$head()", "setHead"],
-    answerIndex: 0,
+    choices: ["useMeta", "$head()", "setHead", "useHead / useSeoMeta"],
+    answerIndex: 3,
     hints: [
       "コンポーザブル関数で head 操作。",
       "useSeoMeta はより便利 (型付き OG タグ等)。",
@@ -1384,12 +1384,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "Nuxt 3 でクライアント専用コンポーネントを作るには？",
     choices: [
+      "ブラウザ専用ライブラリは使えない",
       "ComponentName.client.vue のサフィックス, or <ClientOnly> で囲む",
       "ssr: false コンポーネントオプション",
       "use client ディレクティブ (Next.js 流)",
-      "ブラウザ専用ライブラリは使えない",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "ファイル名サフィックス .client.vue。",
       "または <ClientOnly> で囲む。",
@@ -1412,12 +1412,12 @@ export const trackQuestions: Question[] = [
     question:
       "Nuxt 3 でエラーハンドリング全般 (404 / 500) を担当するファイルは？",
     choices: [
-      "error.vue (ルート直下)",
-      "_error.vue",
       "404.vue / 500.vue",
       "errors/index.vue",
+      "error.vue (ルート直下)",
+      "_error.vue",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Nuxt 3 のエラーページは error.vue 1 つ。",
       "Next.js Pages Router の _error.tsx に近い。",
@@ -1438,8 +1438,8 @@ export const trackQuestions: Question[] = [
     difficulty: "advanced",
     type: "choice",
     question: "Vue 3 で『状態が変わったときだけ再計算する』のに使う API は？",
-    choices: ["computed", "ref", "reactive", "watch"],
-    answerIndex: 0,
+    choices: ["watch", "computed", "ref", "reactive"],
+    answerIndex: 1,
     hints: [
       "依存値が変わった時だけ再計算 + 結果をキャッシュ。",
       "React の useMemo に近い概念。",
@@ -1462,12 +1462,12 @@ export const trackQuestions: Question[] = [
     question:
       "Nuxt 3 で『複数のページにまたがる共通の状態』を SSR 安全に保持する関数は？",
     choices: [
-      "useState (Nuxt 提供、SSR 安全な ref)",
-      "ref",
       "reactive",
       "localStorage",
+      "useState (Nuxt 提供、SSR 安全な ref)",
+      "ref",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Nuxt が提供する SSR 対応の状態保持関数。",
       "キーで識別され、サーバ→クライアントへ値が渡される。",
@@ -1489,12 +1489,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "Nuxt 3 のデフォルトのフォルダ構成として正しいのは？",
     choices: [
-      "pages / components / composables / server / layouts / public / assets / middleware / plugins",
       "src/app / src/components のみ",
       "Rails のような MVC 配置",
       "完全自由 (規約なし)",
+      "pages / components / composables / server / layouts / public / assets / middleware / plugins",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Nuxt は規約ベース (Convention over Configuration)。",
       "各ディレクトリに明確な役割。",
@@ -1521,12 +1521,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "print(type(None))\nprint(type([]))\nprint(type({}))",
     choices: [
+      "TypeError",
       "<class 'NoneType'> / <class 'list'> / <class 'dict'>",
       "None / list / dict",
       "type / type / type",
-      "TypeError",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "type() はオブジェクトのクラスを返す。",
       "None は単独で NoneType クラスのシングルトン。",
@@ -1576,12 +1576,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "x = 10\ny = 3\nprint(x // y)\nprint(x / y)\nprint(x % y)",
     choices: [
-      "3 / 3.3333... / 1",
-      "3.33 / 3.33 / 1",
       "3 / 3 / 1",
       "TypeError",
+      "3 / 3.3333... / 1",
+      "3.33 / 3.33 / 1",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "// は整数除算 (切り捨て)。",
       "/ は通常の除算で float を返す (Python 3)。",
@@ -1625,12 +1625,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "fruits = ['apple', 'banana', 'cherry']\nprint(fruits[0])\nprint(fruits[-1])\nprint(fruits[1:3])",
     choices: [
-      "apple / cherry / ['banana', 'cherry']",
-      "apple / apple / ['banana']",
       "1 / 3 / [2, 3]",
       "IndexError",
+      "apple / cherry / ['banana', 'cherry']",
+      "apple / apple / ['banana']",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Python のリストは 0 始まり、負数は末尾から。",
       "[-1] は末尾 (last)。",
@@ -1652,8 +1652,8 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力は？",
     code: "nums = [1, 2, 3, 4, 5]\nresult = [n * 2 for n in nums if n % 2 == 0]\nprint(result)",
-    choices: ["[4, 8]", "[2, 4, 6, 8, 10]", "[1, 3, 5]", "[]"],
-    answerIndex: 0,
+    choices: ["[2, 4, 6, 8, 10]", "[1, 3, 5]", "[]", "[4, 8]"],
+    answerIndex: 3,
     hints: [
       "リスト内包表記。",
       "条件 if n % 2 == 0 で偶数だけ、それを 2 倍。",
@@ -1676,12 +1676,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "def greet(name='world'):\n    return f'Hello, {name}!'\n\nprint(greet())\nprint(greet('Alice'))",
     choices: [
-      "Hello, world! / Hello, Alice!",
-      "Hello, ! / Hello, Alice!",
       "Hello, name! / Hello, Alice!",
       "TypeError",
+      "Hello, world! / Hello, Alice!",
+      "Hello, ! / Hello, Alice!",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "デフォルト引数 + f-string (フォーマット文字列)。",
       "引数省略時は 'world' が使われる。",
@@ -1704,12 +1704,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "d = {'name': 'Alice', 'age': 20}\nprint(d.get('name'))\nprint(d.get('email', 'N/A'))",
     choices: [
-      "Alice / N/A",
       "Alice / None",
       "name / age",
       "KeyError",
+      "Alice / N/A",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "dict.get(key) は存在しないキーで None。",
       "dict.get(key, default) でデフォルト値指定可。",
@@ -1731,12 +1731,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "Python で例外を捕捉する正しい構文は？",
     choices: [
-      "try / except / else / finally",
-      "try / catch / finally",
       "begin / rescue / ensure",
       "do / catch",
+      "try / except / else / finally",
+      "try / catch / finally",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Java / JS の try/catch に近いが catch ではなく except。",
       "else 句もあり (例外が出なかった時のみ)。",
@@ -1758,12 +1758,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "Python で『with 文』を使う主な目的は？",
     choices: [
-      "リソース (ファイル / ロック / 接続) を安全に開閉する (context manager)",
-      "for ループの代替",
       "クラス定義",
       "型ヒント",
+      "リソース (ファイル / ロック / 接続) を安全に開閉する (context manager)",
+      "for ループの代替",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "ファイル open + close を自動化する仕組み。",
       "ブロック抜けで自動 close (例外時も)。",
@@ -1786,12 +1786,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "def add(*args, **kwargs):\n    print(args)\n    print(kwargs)\n\nadd(1, 2, 3, x=10, y=20)",
     choices: [
+      "TypeError",
       "(1, 2, 3) / {'x': 10, 'y': 20}",
       "[1, 2, 3] / {'x': 10, 'y': 20}",
       "1 2 3 / x=10 y=20",
-      "TypeError",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "*args は位置引数のタプル。",
       "**kwargs はキーワード引数の辞書。",
@@ -1936,8 +1936,8 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力は？",
     code: "def make_counter():\n    count = 0\n    def inner():\n        nonlocal count\n        count += 1\n        return count\n    return inner\n\nc = make_counter()\nprint(c(), c(), c())",
-    choices: ["1 2 3", "1 1 1", "0 0 0", "UnboundLocalError"],
-    answerIndex: 0,
+    choices: ["UnboundLocalError", "1 2 3", "1 1 1", "0 0 0"],
+    answerIndex: 1,
     hints: [
       "クロージャ + nonlocal キーワード。",
       "nonlocal で外側スコープの変数を書き換えられる。",
@@ -1959,12 +1959,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "Python の Generator (yield 関数) の特徴として正しいのは？",
     choices: [
-      "値を都度生成して返すイテレータ。メモリ効率が良く無限列も扱える",
       "通常の関数より速い",
       "並列実行する",
       "戻り値が dict",
+      "値を都度生成して返すイテレータ。メモリ効率が良く無限列も扱える",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "yield キーワードを使う関数。",
       "next() を呼ばれるたびに yield で 1 つずつ返す。",
@@ -1986,12 +1986,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "Python の主要なテストフレームワークは？",
     choices: [
+      "Mocha",
       "pytest (推奨) / unittest (標準ライブラリ)",
       "RSpec",
       "Jest",
-      "Mocha",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "pytest は現代的なデファクト。",
       "unittest は標準ライブラリで Java JUnit 風。",
@@ -2045,12 +2045,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "users テーブルから全カラムを取得する SQL は？",
     choices: [
-      "SELECT * FROM users",
       "GET users",
       "SELECT users",
       "FETCH * users",
+      "SELECT * FROM users",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "`SELECT カラム FROM テーブル` が基本形。",
       "`*` で全カラム。",
@@ -2126,12 +2126,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "ロール別にユーザー数を集計する SQL は？",
     choices: [
+      "SELECT GROUP role FROM users",
       "SELECT role, COUNT(*) FROM users GROUP BY role",
       "SELECT role, COUNT FROM users",
       "COUNT users BY role",
-      "SELECT GROUP role FROM users",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "GROUP BY でグループ化、COUNT/SUM/AVG/MAX/MIN で集計。",
       "SELECT には集計関数とグループ化カラムのみ書ける。",
@@ -2153,12 +2153,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "新規ユーザーを追加する SQL は？",
     choices: [
-      "INSERT INTO users (name, email) VALUES ('Alice', 'a@x')",
       "ADD users name='Alice'",
       "CREATE users SET name='Alice'",
       "PUT users (name) VALUES ('Alice')",
+      "INSERT INTO users (name, email) VALUES ('Alice', 'a@x')",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "INSERT INTO テーブル (カラム) VALUES (値)。",
       "カラム指定省略時は全カラムを順番に。",
@@ -2207,12 +2207,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "id=1 のユーザーを削除する SQL は？",
     choices: [
-      "DELETE FROM users WHERE id = 1",
       "REMOVE FROM users WHERE id = 1",
       "DROP users WHERE id = 1",
       "DELETE users SET id = 1",
+      "DELETE FROM users WHERE id = 1",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "DELETE FROM テーブル WHERE 条件。",
       "DROP TABLE は『テーブル自体を消す』なので別物。",
@@ -2310,12 +2310,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "users と posts を user_id で結合する SQL は？",
     choices: [
-      "SELECT * FROM users INNER JOIN posts ON users.id = posts.user_id",
-      "SELECT * FROM users WHERE posts.user_id",
       "SELECT * FROM users.posts",
       "JOIN users posts ON user_id",
+      "SELECT * FROM users INNER JOIN posts ON users.id = posts.user_id",
+      "SELECT * FROM users WHERE posts.user_id",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "INNER JOIN テーブル ON 条件 で結合。",
       "両テーブルで一致する行のみ。",
@@ -2337,12 +2337,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "INNER JOIN と LEFT JOIN の違いは？",
     choices: [
+      "LEFT は左テーブルしか返さない",
       "INNER は両方一致する行のみ、LEFT は左テーブルの全行 (右側 NULL になりうる)",
       "両者は同じ",
       "INNER は遅い",
-      "LEFT は左テーブルしか返さない",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "INNER = 共通部分のみ。",
       "LEFT OUTER JOIN = 左テーブル全部 + マッチした右テーブル。",
@@ -2364,12 +2364,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "各ユーザーの投稿数を集計する SQL は？",
     choices: [
-      "SELECT u.name, COUNT(p.id) FROM users u LEFT JOIN posts p ON u.id = p.user_id GROUP BY u.id, u.name",
-      "SELECT COUNT(users) FROM posts",
       "SELECT * FROM users GROUP BY posts",
       "JOIN COUNT users posts",
+      "SELECT u.name, COUNT(p.id) FROM users u LEFT JOIN posts p ON u.id = p.user_id GROUP BY u.id, u.name",
+      "SELECT COUNT(users) FROM posts",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "JOIN + GROUP BY + COUNT の組合せ。",
       "LEFT JOIN で投稿 0 件のユーザーも含める。",
@@ -2391,12 +2391,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "次のうち、サブクエリの使い方として正しいのは？",
     choices: [
-      "WHERE col IN (SELECT col FROM ...)、FROM (SELECT ...) サブテーブル、SELECT カラム (SELECT ...)",
       "サブクエリは禁止",
       "WHERE のみ",
       "サブクエリは LIMIT 1 必須",
+      "WHERE col IN (SELECT col FROM ...)、FROM (SELECT ...) サブテーブル、SELECT カラム (SELECT ...)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "サブクエリは SELECT / FROM / WHERE / HAVING など多くの場所で使える。",
       "IN / EXISTS / スカラサブクエリ の 3 形式。",
@@ -2446,12 +2446,12 @@ export const trackQuestions: Question[] = [
     question: "次の SQL の結果は？",
     code: "-- users: (1,A), (2,B), (3,C)\n-- posts: (1,1,T1), (2,1,T2), (3,2,T3)\nSELECT u.name, p.title\nFROM users u\nLEFT JOIN posts p ON u.id = p.user_id;",
     choices: [
+      "0 行",
       "A T1 / A T2 / B T3 / C NULL (4 行)",
       "A T1 / B T3 (2 行)",
       "C のみ (1 行)",
-      "0 行",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "LEFT JOIN なので users 全行が残る。",
       "A は 2 投稿、B は 1 投稿、C は 0 投稿。",
@@ -2473,12 +2473,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "N+1 問題を 1 つの SQL で解決するには？",
     choices: [
-      "JOIN で関連テーブルをまとめて取得、または IN サブクエリで関連を一括取得",
-      "ループで毎回 SELECT",
       "UPDATE で一括",
       "解決できない",
+      "JOIN で関連テーブルをまとめて取得、または IN サブクエリで関連を一括取得",
+      "ループで毎回 SELECT",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "JOIN で 1 クエリにまとめる、または IN で関連を一括取得 (2 クエリ)。",
       "ActiveRecord の includes / preload / eager_load と同じ思想。",
@@ -2501,12 +2501,12 @@ export const trackQuestions: Question[] = [
     question: "次のクエリの問題は？",
     code: "SELECT u.name, COUNT(p.id), AVG(o.total)\nFROM users u\nJOIN posts p ON u.id = p.user_id\nJOIN orders o ON u.id = o.user_id\nGROUP BY u.id, u.name;",
     choices: [
+      "問題なし",
       "1 対多が 2 系統 JOIN されて posts × orders の直積になり、件数・平均が膨らむ",
       "JOIN は 1 つに制限される",
       "GROUP BY のカラムが足りない",
-      "問題なし",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "1 user に対し posts も orders もそれぞれ複数あると、行が膨れ上がる (デカルト積)。",
       "COUNT(p.id) と AVG(o.total) が両方とも肥大化する。",
@@ -2582,12 +2582,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "SQL でトランザクションを使う 3 つのキーワードは？",
     choices: [
+      "START / END / RESET",
       "BEGIN (or START TRANSACTION) / COMMIT / ROLLBACK",
       "OPEN / CLOSE / CANCEL",
       "TRY / CATCH / FINALLY",
-      "START / END / RESET",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "BEGIN でトランザクション開始。",
       "COMMIT で確定、ROLLBACK で巻き戻し。",
@@ -2609,12 +2609,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "SQL でクエリの実行計画を確認するキーワードは？",
     choices: [
-      "EXPLAIN (PostgreSQL/MySQL/SQLite 等で共通)",
-      "PLAN",
       "TRACE",
       "ANALYZE_QUERY",
+      "EXPLAIN (PostgreSQL/MySQL/SQLite 等で共通)",
+      "PLAN",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "クエリの前に EXPLAIN を付ける。",
       "実行計画 (Seq Scan / Index Scan / Nested Loop など) が表示される。",
@@ -2636,12 +2636,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "次の WHERE 句のうち、INDEX が効きやすいのは？",
     choices: [
-      "WHERE email = 'a@x'",
       "WHERE LOWER(email) = 'a@x'",
       "WHERE email LIKE '%@x'",
       "WHERE SUBSTR(email, 1, 3) = 'a@x'",
+      "WHERE email = 'a@x'",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "INDEX は『カラム値そのまま』の比較で効く。",
       "関数で加工 (LOWER / SUBSTR) すると効かない。",
@@ -2664,12 +2664,12 @@ export const trackQuestions: Question[] = [
     question: "次の INDEX 設計のうち、最も効果的なのは？",
     code: "-- クエリ: WHERE user_id = 1 AND status = 'paid' ORDER BY created_at DESC",
     choices: [
-      "CREATE INDEX ON orders(user_id, status, created_at DESC)",
-      "CREATE INDEX ON orders(created_at)",
       "CREATE INDEX ON orders(user_id)",
       "INDEX は不要",
+      "CREATE INDEX ON orders(user_id, status, created_at DESC)",
+      "CREATE INDEX ON orders(created_at)",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "WHERE + ORDER BY をカバーする複合 INDEX。",
       "カラム順は WHERE の等価条件 → 範囲条件 → ORDER BY の順が定石。",
@@ -2723,8 +2723,8 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力は？",
     code: "const a = { x: 1 }\nconst b = a\nb.x = 99\nconsole.log(a.x)",
-    choices: ["99", "1", "undefined", "TypeError"],
-    answerIndex: 0,
+    choices: ["undefined", "TypeError", "99", "1"],
+    answerIndex: 2,
     hints: [
       "オブジェクトの代入は参照のコピー。",
       "a と b は同じオブジェクトを指す。",
@@ -2747,12 +2747,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの出力は？",
     code: "console.log([1, 2, 3] + [4, 5, 6])",
     choices: [
+      "TypeError",
       "1,2,34,5,6",
       "[1, 2, 3, 4, 5, 6]",
       "[1+4, 2+5, 3+6]",
-      "TypeError",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "+ は両辺を文字列化して連結 (toString)。",
       "[1,2,3].toString() は '1,2,3'。",
@@ -2804,12 +2804,12 @@ export const trackQuestions: Question[] = [
     question:
       "Set と Map と Object の主な使い分けは？",
     choices: [
+      "Object が常に速い",
       "Set: ユニーク値の集合、Map: 任意型キー、Object: 文字列キー + 設定値",
       "全て同じ",
       "Set は廃止",
-      "Object が常に速い",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Set: 重複なしコレクション。",
       "Map: キーが文字列以外 (オブジェクトとか) もOK + 順序保証 + size プロパティ。",
@@ -2860,12 +2860,12 @@ export const trackQuestions: Question[] = [
     question:
       "次のうち、純粋関数 (Pure Function) の定義として正しいのは？",
     choices: [
-      "同じ入力には常に同じ出力 + 副作用なし (外部状態を変更しない)",
       "関数の前に 'pure' キーワードを書く",
       "純粋関数は遅い",
       "Object を引数に取らない",
+      "同じ入力には常に同じ出力 + 副作用なし (外部状態を変更しない)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "関数型プログラミングの基本概念。",
       "テスト容易性・予測可能性が大きく向上。",
@@ -2943,8 +2943,8 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力は？",
     code: "function once(fn) {\n  let called = false\n  let result\n  return function(...args) {\n    if (!called) {\n      result = fn(...args)\n      called = true\n    }\n    return result\n  }\n}\n\nconst doOnce = once(() => Math.random())\nconsole.log(doOnce() === doOnce())",
-    choices: ["true", "false", "undefined", "TypeError"],
-    answerIndex: 0,
+    choices: ["undefined", "TypeError", "true", "false"],
+    answerIndex: 2,
     hints: [
       "once は『1 回だけ実行 + 結果をキャッシュ』する高階関数。",
       "called フラグで 2 回目以降スキップ。",
@@ -2966,8 +2966,8 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力は？",
     code: "function* range(start, end) {\n  for (let i = start; i < end; i++) yield i\n}\n\nconst r = range(1, 4)\nconsole.log(r.next().value, r.next().value, r.next().value, r.next().done)",
-    choices: ["1 2 3 true", "1 2 3 false", "1 2 3 undefined", "TypeError"],
-    answerIndex: 0,
+    choices: ["TypeError", "1 2 3 true", "1 2 3 false", "1 2 3 undefined"],
+    answerIndex: 1,
     hints: [
       "function* はジェネレータ関数。",
       "yield で値を返しつつ実行を停止、next() で再開。",
@@ -3018,12 +3018,12 @@ export const trackQuestions: Question[] = [
     question:
       "Promise を直列実行 (1 つずつ順に) するイディオムは？",
     choices: [
+      "forEach + await",
       "for...of + await",
       "Promise.all",
       "items.map(await ...)",
-      "forEach + await",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Promise.all は『並列』。",
       "直列は for...of + await が定石。",
@@ -3046,12 +3046,12 @@ export const trackQuestions: Question[] = [
     question:
       "AbortController の主な用途は？",
     choices: [
+      "Promise を resolve する",
       "fetch やタイマー等の非同期処理を中断 (キャンセル) する標準 API",
       "プログラム全体を停止する",
       "エラーを発生させる",
-      "Promise を resolve する",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "AbortController + signal で非同期処理に『中断指示』を渡せる。",
       "React のクリーンアップで未完了 fetch をキャンセルする等。",
@@ -3073,8 +3073,8 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "次のコードの出力順は？",
     code: "async function test() {\n  console.log('1')\n  await Promise.resolve()\n  console.log('2')\n}\ntest()\nconsole.log('3')",
-    choices: ["1 → 3 → 2", "1 → 2 → 3", "3 → 1 → 2", "2 → 1 → 3"],
-    answerIndex: 0,
+    choices: ["3 → 1 → 2", "2 → 1 → 3", "1 → 3 → 2", "1 → 2 → 3"],
+    answerIndex: 2,
     hints: [
       "async 関数は同期で実行開始。",
       "最初の await で『マイクロタスクキュー』に登録 + 関数の制御を返す。",
@@ -3097,12 +3097,12 @@ export const trackQuestions: Question[] = [
     question:
       "非同期処理にタイムアウトを設ける現代的な書き方は？",
     choices: [
-      "AbortSignal.timeout(ms) を fetch に渡す / Promise.race で timeout Promise と競争",
-      "while ループで時間チェック",
       "setTimeout で一括キャンセル",
       "JS にはタイムアウト機能なし",
+      "AbortSignal.timeout(ms) を fetch に渡す / Promise.race で timeout Promise と競争",
+      "while ループで時間チェック",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "AbortSignal.timeout (modern) または Promise.race パターン。",
       "fetch には signal オプション。",
@@ -3129,12 +3129,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの型エラー箇所は？",
     code: "type Color = 'red' | 'green' | 'blue'\nlet c: Color = 'red'    // (1)\nc = 'yellow'             // (2)\nc = 'green'              // (3)\nlet d: Color = 'red'.toUpperCase()  // (4)",
     choices: [
-      "(2) と (4)",
-      "(1) のみ",
       "(3) のみ",
       "全部 OK",
+      "(2) と (4)",
+      "(1) のみ",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Color は 3 つのリテラルのみ許容。",
       "'yellow' は Color に含まれない。",
@@ -3185,12 +3185,12 @@ export const trackQuestions: Question[] = [
     question:
       "TypeScript の `unknown` と `any` の違いは？",
     choices: [
-      "unknown は使う前に型確認必須 (安全)、any は何でも可 (型チェック無効)",
-      "unknown は遅い",
       "any は廃止された",
       "両者は同じ",
+      "unknown は使う前に型確認必須 (安全)、any は何でも可 (型チェック無効)",
+      "unknown は遅い",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "unknown は any の安全版。",
       "unknown は narrowing しないと操作不可。",
@@ -3235,12 +3235,12 @@ export const trackQuestions: Question[] = [
     question: "次のジェネリクスの結果は？",
     code: "function first<T>(arr: T[]): T | undefined {\n  return arr[0]\n}\n\nconst a = first([1, 2, 3])\nconst b = first(['a', 'b'])\nconst c = first([])",
     choices: [
+      "TypeScript エラー",
       "a: number | undefined / b: string | undefined / c: undefined",
       "全部 any",
       "全部 unknown",
-      "TypeScript エラー",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "T は呼び出し毎に推論される。",
       "[1, 2, 3] → T = number、['a', 'b'] → T = string。",
@@ -3263,12 +3263,12 @@ export const trackQuestions: Question[] = [
     question:
       "TypeScript の strict モードで有効化される主な厳しさは？",
     choices: [
-      "strictNullChecks / noImplicitAny / strictFunctionTypes / strictBindCallApply 等",
       "全コードを再フォーマット",
       "ES5 にトランスパイル",
       "JS 機能を制限",
+      "strictNullChecks / noImplicitAny / strictFunctionTypes / strictBindCallApply 等",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "strict: true で複数の厳格チェックを一括有効化。",
       "strictNullChecks: null/undefined を型として明示必須。",
@@ -3290,8 +3290,8 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question:
       "TypeScript で関数の戻り値が『絶対 return しない (例外を投げる / 無限ループ)』ことを表す型は？",
-    choices: ["never", "void", "undefined", "null"],
-    answerIndex: 0,
+    choices: ["null", "never", "void", "undefined"],
+    answerIndex: 1,
     hints: [
       "never は『絶対に値を返さない』を意味する型。",
       "void は『値を返さない (return 文なし)』。",
@@ -3313,12 +3313,12 @@ export const trackQuestions: Question[] = [
     type: "choice",
     question: "次のうち、enum の代替として推奨されるのは？",
     choices: [
-      "as const オブジェクト + typeof",
       "interface のみ",
       "class",
       "namespace",
+      "as const オブジェクト + typeof",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "enum はランタイムにコード生成され、tree-shaking しにくい。",
       "as const で literal object → typeof でユニオン型化。",
@@ -3341,12 +3341,12 @@ export const trackQuestions: Question[] = [
     question:
       "TypeScript で『型を取得する』方法として正しいのは？",
     choices: [
-      "typeof / keyof / ReturnType / Parameters / インデックス型アクセス T[K]",
       "typeof のみ",
       "型は実行時にしか取得できない",
       "type ofは廃止",
+      "typeof / keyof / ReturnType / Parameters / インデックス型アクセス T[K]",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "typeof は値から型を抽出。",
       "keyof でオブジェクトのキーをユニオン型化。",
@@ -3397,12 +3397,12 @@ export const trackQuestions: Question[] = [
     question:
       "Conditional Type の構文として正しいのは？",
     choices: [
+      "match T { U => X, _ => Y }",
       "T extends U ? X : Y",
       "T == U ? X : Y",
       "if T = U then X else Y",
-      "match T { U => X, _ => Y }",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "三項演算子に似た構文。",
       "T が U に assignable なら X、そうでなければ Y。",
@@ -3425,12 +3425,12 @@ export const trackQuestions: Question[] = [
     question:
       "次のうち、Template Literal Type の例として正しいのは？",
     choices: [
-      "type Greet = `Hello, ${Name}`",
       "type Greet = template Hello",
       "type Greet = String('Hello')",
       "Template Literal Type は存在しない",
+      "type Greet = `Hello, ${Name}`",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "TS 4.1+ で導入。",
       "JS のテンプレートリテラルと同じ構文を型レベルで。",
@@ -3453,12 +3453,12 @@ export const trackQuestions: Question[] = [
     question:
       "次のうち、TypeScript の型レベル『if 文』として機能するのは？",
     choices: [
-      "Conditional Types (T extends U ? X : Y)",
       "if ... else ...",
       "switch ...",
       "match ...",
+      "Conditional Types (T extends U ? X : Y)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "型レベルには runtime の制御構文は無い。",
       "Conditional Type が唯一の分岐機構。",
@@ -3481,12 +3481,12 @@ export const trackQuestions: Question[] = [
     question:
       "外部 JSON 入力を実行時に型検証 + TS の型推論にも反映できる人気ライブラリは？",
     choices: [
+      "上記すべて (zod が現代の第一候補)",
       "zod (TypeScript-first スキーマ検証)",
       "joi (JS 用、TS 型推論は限定的)",
       "yup",
-      "上記すべて (zod が現代の第一候補)",
     ],
-    answerIndex: 3,
+    answerIndex: 0,
     hints: [
       "実行時検証 + コンパイル時型推論 の両立。",
       "外部 API のレスポンス検証で必須。",
@@ -3541,12 +3541,12 @@ export const trackQuestions: Question[] = [
     question:
       "React コンポーネントが再レンダリングされる主なトリガーは？",
     choices: [
+      "手動で呼ばないと",
       "useState の setState 呼び出し / props の変化 / Context 値の変化 / 親の再レンダリング",
       "1 秒ごとに自動",
       "ブラウザのリサイズのみ",
-      "手動で呼ばないと",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "state / props / context が変わると再レンダリング。",
       "親が再レンダリングされると子も (memo で抑制可)。",
@@ -3569,12 +3569,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの問題は？",
     code: "function Counter() {\n  const [n, setN] = useState(0)\n  return <button onClick={() => {\n    setN(n + 1)\n    setN(n + 1)\n  }}>{n}</button>\n}",
     choices: [
-      "2 回 setN(n + 1) しても合計 +1 にしかならない (古い n を見ている)",
       "TypeError",
       "+2 されるので正しい",
       "無限ループ",
+      "2 回 setN(n + 1) しても合計 +1 にしかならない (古い n を見ている)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "setN(n + 1) はクロージャでキャプチャした n を使う。",
       "1 回目も 2 回目も n = 0 を見て setN(1) しているので合計 1 になる。",
@@ -3597,12 +3597,12 @@ export const trackQuestions: Question[] = [
     question:
       "React の Context API の主な用途は？",
     choices: [
-      "コンポーネントツリー深くまで props を渡さずに値を共有 (テーマ / 認証ユーザー / ロケール等)",
       "Redux の代替で全状態管理",
       "DB 接続",
       "ルーティング",
+      "コンポーネントツリー深くまで props を渡さずに値を共有 (テーマ / 認証ユーザー / ロケール等)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Prop drilling (バケツリレー) を回避する API。",
       "頻繁に変わる state には不向き (再レンダリングが広範囲)。",
@@ -3625,12 +3625,12 @@ export const trackQuestions: Question[] = [
     question:
       "React で『フォーム入力を state と双方向同期』する制御コンポーネントの書き方は？",
     choices: [
-      "value + onChange で state を更新 (Controlled Component)",
-      "ref で DOM 直接操作",
       "form タグだけで自動",
       "v-model のような専用 syntax",
+      "value + onChange で state を更新 (Controlled Component)",
+      "ref で DOM 直接操作",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "value 属性で state を反映、onChange で更新。",
       "Vue の v-model はこれの糖衣構文。",
@@ -3653,12 +3653,12 @@ export const trackQuestions: Question[] = [
     question:
       "useEffect の cleanup 関数 (return する関数) が呼ばれるタイミングは？",
     choices: [
-      "コンポーネントがアンマウントされる時 + 依存配列が変わって再実行される直前",
       "アンマウント時のみ",
       "毎レンダリング後",
       "呼ばれない",
+      "コンポーネントがアンマウントされる時 + 依存配列が変わって再実行される直前",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "useEffect の return は次の実行前 + アンマウント時に呼ばれる。",
       "subscribe / unsubscribe のペアで使う。",
@@ -3681,12 +3681,12 @@ export const trackQuestions: Question[] = [
     question:
       "次のうち、複雑な state ロジックを扱う Hook は？",
     choices: [
+      "useId",
       "useReducer (Redux 風の reducer + dispatch)",
       "useEffect",
       "useRef",
-      "useId",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "useState の上位互換的存在。",
       "(state, action) => newState の reducer 関数。",
@@ -3709,12 +3709,12 @@ export const trackQuestions: Question[] = [
     question:
       "React のグローバル状態管理ライブラリとして広く使われているのは？",
     choices: [
-      "Zustand / Jotai / Redux Toolkit / Recoil (Meta) / TanStack Query (server state)",
       "全部廃止",
       "useState のみで十分",
       "Context API のみ",
+      "Zustand / Jotai / Redux Toolkit / Recoil (Meta) / TanStack Query (server state)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "クライアント state: Zustand / Jotai / Redux / Recoil。",
       "Server state (API キャッシュ): TanStack Query / SWR。",
@@ -3737,12 +3737,12 @@ export const trackQuestions: Question[] = [
     question:
       "React で『子コンポーネントの DOM ノードや関数』にアクセスする Hook は？",
     choices: [
-      "useRef (+ forwardRef で子の ref を親が受け取る)",
-      "useState",
       "useEffect",
       "useContext",
+      "useRef (+ forwardRef で子の ref を親が受け取る)",
+      "useState",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "useRef で ref オブジェクトを作成。",
       "ref={ref} で子の DOM 要素にバインド。",
@@ -3765,12 +3765,12 @@ export const trackQuestions: Question[] = [
     question: "次のコードの問題は？",
     code: "function List({ items }) {\n  const filtered = items.filter(i => i.active)\n  const sorted = filtered.sort((a, b) => a.name.localeCompare(b.name))\n  return <ul>{sorted.map(i => <li key={i.id}>{i.name}</li>)}</ul>\n}",
     choices: [
+      "問題なし",
       "filter().sort() の sort が破壊的で filtered を mutate、props.items にも影響する可能性",
       "filter は廃止",
       "sort は同期処理だから OK",
-      "問題なし",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "Array.sort() は破壊的メソッド。",
       "filter は新配列を返すが、sort はその配列を直接ソート (元の配列の構造による)。",
@@ -3821,12 +3821,12 @@ export const trackQuestions: Question[] = [
     question:
       "Error Boundary の主な用途は？",
     choices: [
-      "子ツリーで発生した例外を捕捉してフォールバック UI を表示",
       "Promise の reject 捕捉",
       "全グローバルエラー",
       "ネットワークエラー",
+      "子ツリーで発生した例外を捕捉してフォールバック UI を表示",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "クラスコンポーネントで componentDidCatch / static getDerivedStateFromError を実装。",
       "ライブラリ react-error-boundary を使うのが現代の主流。",
@@ -3849,12 +3849,12 @@ export const trackQuestions: Question[] = [
     question:
       "React Hook のルール (Rules of Hooks) として正しいのは？",
     choices: [
-      "最上位でのみ呼ぶ (条件分岐・ループ内 NG) + 関数コンポーネント or 他の Hook 内でのみ呼ぶ",
-      "条件分岐内でも自由に呼べる",
       "クラスコンポーネントでも呼べる",
       "ルールなし",
+      "最上位でのみ呼ぶ (条件分岐・ループ内 NG) + 関数コンポーネント or 他の Hook 内でのみ呼ぶ",
+      "条件分岐内でも自由に呼べる",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "if / for / while の中で呼ぶと React が状態を見失う。",
       "Hook 名は use で始まる規約 (ESLint が認識)。",
@@ -3877,12 +3877,12 @@ export const trackQuestions: Question[] = [
     question:
       "React 19 の新機能として正しいのは？",
     choices: [
+      "JSX の廃止",
       "use() Hook で Promise を await 風に / Server Actions / React Compiler / form actions",
       "Class Component の復活",
       "redux 内蔵",
-      "JSX の廃止",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "React 19 (2024 末リリース) の目玉機能。",
       "use() で Promise や Context を関数として消費。",
@@ -3905,12 +3905,12 @@ export const trackQuestions: Question[] = [
     question:
       "React のレンダリングパフォーマンス調査で最初に使うべきは？",
     choices: [
-      "React DevTools Profiler (タイムライン記録 + コンポーネント別レンダリング時間)",
-      "console.log を大量に",
       "全部 useMemo を付ける",
       "ライブラリを Redux に変える",
+      "React DevTools Profiler (タイムライン記録 + コンポーネント別レンダリング時間)",
+      "console.log を大量に",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "React DevTools 拡張機能の Profiler タブ。",
       "コンポーネントの再レンダリング理由を特定可能。",
@@ -3965,12 +3965,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js App Router のレイアウト (layout.tsx) の特徴は？",
     choices: [
+      "1 ファイルしか書けない",
       "ネスト構造で、再レンダリングをまたいで状態を保持 (URL 遷移時)",
       "ページごとに毎回再生成",
       "コンポーネントから使えない",
-      "1 ファイルしか書けない",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "layout.tsx は配置されたディレクトリ以下のすべてのページを包む。",
       "URL 遷移で同じ layout の場合、layout は再レンダリングされない (State 保持)。",
@@ -3993,12 +3993,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js App Router で動的セグメント (例: /users/123) の正しい配置は？",
     choices: [
-      "app/users/[id]/page.tsx で params.id として取得",
-      "app/users/dynamic.tsx",
       "app/users/$id.tsx",
       "app/users/_id_/page.tsx",
+      "app/users/[id]/page.tsx で params.id として取得",
+      "app/users/dynamic.tsx",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "[id] でブラケット記法。",
       "page.tsx で params.id でアクセス。",
@@ -4021,12 +4021,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js でクライアント遷移を行うコンポーネントは？",
     choices: [
-      "<Link href='/path'> (next/link)",
       "<a href='/path'>",
       "router.push('/path') のみ",
       "<NavLink>",
+      "<Link href='/path'> (next/link)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "next/link の <Link> でクライアント遷移 (フルリロードしない)。",
       "<a> は通常の HTML リンク (フルリロード)。",
@@ -4049,12 +4049,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js でデフォルトのレンダリング方式は？",
     choices: [
-      "Server Component (サーバー側で実行 + HTML 配信、JS バンドル無し)",
-      "Client Component",
       "Pure SSG",
       "CSR のみ",
+      "Server Component (サーバー側で実行 + HTML 配信、JS バンドル無し)",
+      "Client Component",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "App Router のデフォルトは Server Component。",
       "JS バンドルがクライアントに送られないので軽い。",
@@ -4105,12 +4105,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js でリクエストをアプリ全体で前処理する middleware の配置は？",
     choices: [
-      "ルート直下の middleware.ts (Edge Runtime)",
-      "app/middleware.ts",
       "config/middleware.ts",
       "middleware/",
+      "ルート直下の middleware.ts (Edge Runtime)",
+      "app/middleware.ts",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "プロジェクトルート (next.config.js と同階層) に 1 ファイル。",
       "Edge Runtime で動作 (Node.js ではない)。",
@@ -4133,12 +4133,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js でローディング UI を宣言的に表示するファイル名は？",
     choices: [
+      "loader.tsx",
       "loading.tsx (Suspense 自動ラップ)",
       "spinner.tsx",
       "wait.tsx",
-      "loader.tsx",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "App Router の規約ファイル。",
       "page.tsx と同階層に置くと自動で Suspense fallback に。",
@@ -4216,12 +4216,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js Server Action と Client Form の正しい統合パターンは？",
     choices: [
+      "Server Action は廃止",
       "Server Action を form の action prop に渡す + useFormStatus / useFormState (useActionState) で状態管理",
       "API Route 必須",
       "useEffect で POST",
-      "Server Action は廃止",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "form の action 属性に Server Action 関数を渡す。",
       "Client では useFormStatus でローディング状態、useActionState で結果。",
@@ -4244,12 +4244,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js でストリーミング SSR を実現する仕組みは？",
     choices: [
-      "<Suspense> でラップしたコンポーネントが非同期解決され、HTML を順次配信",
       "WebSocket 必須",
       "クライアント側で組み立て",
       "Next.js 15+ で廃止",
+      "<Suspense> でラップしたコンポーネントが非同期解決され、HTML を順次配信",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "Suspense と Server Component の組合せ。",
       "サーバーから HTML をチャンクで配信。",
@@ -4272,12 +4272,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js で SEO 用メタデータを設定する標準 API は？",
     choices: [
+      "<MetaTag>",
       "export const metadata / export function generateMetadata (動的)",
       "useMeta() Hook",
       "<Helmet />",
-      "<MetaTag>",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "App Router の規約 export。",
       "page.tsx / layout.tsx で metadata を export。",
@@ -4300,12 +4300,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js でデータの即時 UI 反映 (UI を先に更新 + あとで実 API 反映) を実現する Hook は？",
     choices: [
-      "useOptimistic (React 19+)",
       "useImmediate",
       "useFutureState",
       "useFast",
+      "useOptimistic (React 19+)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     hints: [
       "React 19+ で導入された Hook。",
       "Optimistic UI (楽観的更新) を簡単に。",
@@ -4328,12 +4328,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js で『ヘッダーやリンクから 1 回限り表示するモーダル』を URL ベースで作る機能は？",
     choices: [
+      "そのような機能はない",
       "Intercepting Routes (@modal + (.) ファイル名)",
       "Modal Component のみ",
       "Dialog API",
-      "そのような機能はない",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     hints: [
       "URL を変えながらモーダルを開く仕組み。",
       "リンク経由は『モーダル』、URL 直接は『フルページ』。",
@@ -4356,12 +4356,12 @@ export const trackQuestions: Question[] = [
     question:
       "Next.js アプリの本番デプロイ先として推奨されるのは？",
     choices: [
-      "Vercel (公式、最適化フル活用) / Netlify / Cloudflare Pages / 自前 Node",
-      "Vercel のみ可能",
       "本番では使えない",
       "AWS Lambda 必須",
+      "Vercel (公式、最適化フル活用) / Netlify / Cloudflare Pages / 自前 Node",
+      "Vercel のみ可能",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     hints: [
       "Vercel は Next.js の開発元なので最も最適化。",
       "他のプラットフォームでも動くが、機能差あり (ISR, Edge Functions 等)。",

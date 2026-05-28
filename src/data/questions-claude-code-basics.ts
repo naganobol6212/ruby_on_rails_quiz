@@ -19,17 +19,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "Claude Code の『エージェントハーネス』が 1 ターンで回す 3 フェーズのループとして正しいのは？",
     choices: [
+      "プロンプト → 補完 → 表示",
       "コンテキスト収集 → アクション実行 → 結果の検証",
       "プラン → コード生成 → デプロイ",
       "Lint → テスト → コミット",
-      "プロンプト → 補完 → 表示",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "純粋な LLM 補完 (オートコンプリート) の動きで、ツールを伴うエージェント動作とは異なる。",
       "正解。公式ドキュメントが明記する『gather context → take action → verify results』の 3 フェーズ。",
       "プロダクト開発のフローに似ているが、ハーネスが回すループとは別物。",
       "CI のフローであって、ハーネスのフェーズ定義ではない。",
-      "純粋な LLM 補完 (オートコンプリート) の動きで、ツールを伴うエージェント動作とは異なる。",
     ],
     hints: [
       "ハーネスは『ツール・コンテキスト・実行環境』を Claude にラップする層。",
@@ -57,17 +57,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "Claude Code が提供する 3 つの実行環境 (execution environment) の組み合わせとして正しいのは？",
     choices: [
-      "Local (デフォルト) / Cloud (Anthropic 管理 VM) / Remote Control (ブラウザから手元のマシンを操作)",
-      "Local / Docker / Kubernetes",
       "CLI / Web / Mobile",
       "Development / Staging / Production",
+      "Local (デフォルト) / Cloud (Anthropic 管理 VM) / Remote Control (ブラウザから手元のマシンを操作)",
+      "Local / Docker / Kubernetes",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。docs に記載される 3 種類の実行環境。",
-      "Docker や Kubernetes は実行環境の選択肢として公式に列挙されていない。",
       "クライアント形態の話で、ハーネスの実行環境分類ではない。",
       "デプロイ環境の話で、Claude Code の実行環境とは別。",
+      "正解。docs に記載される 3 種類の実行環境。",
+      "Docker や Kubernetes は実行環境の選択肢として公式に列挙されていない。",
     ],
     hints: [
       "デフォルトは手元のマシン (Local)。",
@@ -137,17 +137,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "Claude が長いツール (例: 大きな grep) を実行中に、停止せずに方針だけ修正したい。正しい操作は？",
     choices: [
-      "実行中にメッセージを入力して Enter を押す (ステアリングメッセージ。停止せず注入される)",
       "Esc を 1 回押す",
       "Ctrl+C を押す",
       "新しいセッションを `/clear` で立ち上げ直す",
+      "実行中にメッセージを入力して Enter を押す (ステアリングメッセージ。停止せず注入される)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。実行中の入力は停止せず方針だけを差し込む『ステアリング』。",
       "Esc 1 回は実行中ツールを停止する。方針修正ではなく中断になる。",
       "Ctrl+C はセッションごと落としてしまう。",
       "セッションをリセットしてしまい状態が失われる。",
+      "正解。実行中の入力は停止せず方針だけを差し込む『ステアリング』。",
     ],
     hints: [
       "停止と方針修正は別操作。",
@@ -179,17 +179,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "CLAUDE.md (Memory) の 4 つのスコープを、ロード順 (広い → 狭い) で正しく並べたものは？",
     choices: [
+      "User → Project → Local → Managed",
       "Managed policy → User (~/.claude/CLAUDE.md) → Project (./CLAUDE.md) → Local (./CLAUDE.local.md)",
       "Local → Project → User → Managed policy",
       "Project → User → Managed → Local",
-      "User → Project → Local → Managed",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "User は 2 番目で、Project の前。",
       "正解。広い (組織方針) から狭い (個人の作業メモ) の順にロードされ、内容は連結 (concatenate) される。",
       "順序が逆。",
       "順序が不正確。Managed が最初。",
-      "User は 2 番目で、Project の前。",
     ],
     hints: [
       "Managed policy は組織が配る固定ポリシー。",
@@ -217,17 +217,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "CLAUDE.md の『インポート構文 (@path/to/file)』に関する正しい記述は？",
     choices: [
-      "@ で他ファイルを取り込める。インポートのチェーンは最大 5 hops まで",
       "@ は無制限に再帰できる",
       "@ は同ディレクトリのファイルのみ参照可能",
       "@ は廃止された構文で現在は使えない",
+      "@ で他ファイルを取り込める。インポートのチェーンは最大 5 hops まで",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。最大深さ 5 hops の制約は公式 docs 明記。",
       "無制限ではない。循環や肥大化を防ぐため上限がある。",
       "相対・絶対パスを問わず参照できる。",
       "現役の構文。`@AGENTS.md` 等で活用されている。",
+      "正解。最大深さ 5 hops の制約は公式 docs 明記。",
     ],
     hints: [
       "`@AGENTS.md` のように他フォーマットを取り込むのが典型用途。",
@@ -255,17 +255,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "CLAUDE.md の推奨される最大行数として、公式が目安に挙げているのは？",
     choices: [
+      "10000 行未満",
       "200 行未満 (長くなるほど Claude の遵守率が下がる)",
       "50 行未満",
       "1000 行未満",
-      "10000 行未満",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "事実上の無制限で、目安として機能しない。",
       "正解。docs に『under 200 lines』とあり、超えると追従が落ちる。",
       "厳しすぎる。",
       "公式が推奨する目安より大幅に多い。",
-      "事実上の無制限で、目安として機能しない。",
     ],
     hints: [
       "短く絞ったほうが指示の遵守率が高い。",
@@ -330,11 +330,11 @@ export const claudeCodeBasicsQuestions: Question[] = [
     type: "choice",
     question:
       "新規プロジェクトで CLAUDE.md の雛形を生成するための公式コマンドは？",
-    choices: ["/init", "/setup", "/new", "/bootstrap"],
-    answerIndex: 0,
+    choices: ["/bootstrap", "/init", "/setup", "/new"],
+    answerIndex: 1,
     choiceExplanations: [
-      "正解。`/init` が CLAUDE.md のスターターを生成する。",
       "存在しないコマンド。",
+      "正解。`/init` が CLAUDE.md のスターターを生成する。",
       "存在しないコマンド。",
       "存在しないコマンド。",
     ],
@@ -368,17 +368,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "ツール実行直前にチェックを挟みたい。最も適切な hook イベントは？",
     choices: [
-      "PreToolUse (ツール呼び出し直前。block 可能)",
       "PostToolUse (ツール実行後。block 不可)",
       "SessionStart (セッション開始時)",
       "UserPromptSubmit (ユーザー入力直後)",
+      "PreToolUse (ツール呼び出し直前。block 可能)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。PreToolUse は実行前に走り、exit 2 で実行をブロックできる。",
       "PostToolUse は『すでに実行済み』なので block できない。",
       "ツール単位ではなくセッション単位のイベント。",
       "ツール実行ではなくユーザー入力のタイミング。",
+      "正解。PreToolUse は実行前に走り、exit 2 で実行をブロックできる。",
     ],
     hints: [
       "イベント名に Pre/Post が付いている。",
@@ -406,17 +406,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "hook の exit code とその意味の組み合わせとして正しいのは？",
     choices: [
-      "0 = 成功 (stdout は JSON として解釈) / 2 = ブロッキングエラー (stderr が Claude に返される) / その他 non-zero = ノンブロッキングエラー",
-      "0 = 成功 / 1 = ブロッキング / 2 = 警告",
       "0 = 成功 / 全ての non-zero = セッション中断",
       "1 = 成功 / 0 = エラー",
+      "0 = 成功 (stdout は JSON として解釈) / 2 = ブロッキングエラー (stderr が Claude に返される) / その他 non-zero = ノンブロッキングエラー",
+      "0 = 成功 / 1 = ブロッキング / 2 = 警告",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。docs の exit code 仕様。`2` だけが特別な『ブロック』扱い。",
-      "1 はブロックではなくノンブロッキングエラー。",
       "non-zero でも 2 以外はノンブロッキング。",
       "Unix の慣例と逆で誤り。",
+      "正解。docs の exit code 仕様。`2` だけが特別な『ブロック』扱い。",
+      "1 はブロックではなくノンブロッキングエラー。",
     ],
     hints: [
       "ブロックする値は 1 つだけ。",
@@ -444,17 +444,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "`command` 型 (シェル) と `http` 型 hook のデフォルトタイムアウトとして正しいのは？",
     choices: [
+      "全 hook 一律 10 秒",
       "command / http / mcp_tool はいずれも 600 秒。prompt 型と UserPromptSubmit は 30 秒。agent 型は 60 秒",
       "全 hook 一律 30 秒",
       "command は 60 秒、http は 600 秒",
-      "全 hook 一律 10 秒",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "短すぎて lint 等が間に合わない。",
       "正解。docs に記載のデフォルトタイムアウト値。",
       "種類ごとに異なるため一律ではない。",
       "command も http も同じ 600 秒。",
-      "短すぎて lint 等が間に合わない。",
     ],
     hints: [
       "重い command/http は長めの 600 秒。",
@@ -568,17 +568,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "Skills の基本構造として正しいのは？",
     choices: [
-      "1 スキル = 1 ディレクトリで、必須ファイルは `SKILL.md` (frontmatter + 本文)。他に補助スクリプトやリソースを同梱できる",
-      "1 スキル = 1 JSON ファイル",
       "1 スキル = 1 シェルスクリプトのみ",
       "スキルは Anthropic 提供のものしか使えない",
+      "1 スキル = 1 ディレクトリで、必須ファイルは `SKILL.md` (frontmatter + 本文)。他に補助スクリプトやリソースを同梱できる",
+      "1 スキル = 1 JSON ファイル",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。Agent Skills 標準に従い、ディレクトリ + SKILL.md が最小単位。",
-      "JSON ではなく Markdown (frontmatter 付き)。",
       "シェルスクリプトはあくまで補助。SKILL.md が本体。",
       "ユーザー・プロジェクト・プラグインからも追加できる。",
+      "正解。Agent Skills 標準に従い、ディレクトリ + SKILL.md が最小単位。",
+      "JSON ではなく Markdown (frontmatter 付き)。",
     ],
     hints: [
       "Agent Skills 標準 (agentskills.io) に準拠。",
@@ -648,17 +648,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "SKILL.md の本文内に書く `` !`pnpm test` `` (バッククォート + `!`) の意味は？",
     choices: [
-      "Claude が SKILL.md を読む前にシェルでコマンドを実行し、その出力を本文に埋め込む (動的コンテキスト)",
-      "Claude にコマンド名を文字列として見せるだけ",
       "Markdown のコードブロックとしてレンダリングされる",
       "セキュリティ上のためエラーになる",
+      "Claude が SKILL.md を読む前にシェルでコマンドを実行し、その出力を本文に埋め込む (動的コンテキスト)",
+      "Claude にコマンド名を文字列として見せるだけ",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。`` !`cmd` `` インラインまたは ```` ```! ```` フェンスで事前実行され、出力が本文に注入される。",
-      "プレーン表示ではなく、実行される。",
       "通常のコードブロックではなく特殊構文。",
       "正規の機能なのでエラーにはならない。",
+      "正解。`` !`cmd` `` インラインまたは ```` ```! ```` フェンスで事前実行され、出力が本文に注入される。",
+      "プレーン表示ではなく、実行される。",
     ],
     hints: [
       "skill 呼び出し時にプリプロセスされる。",
@@ -692,17 +692,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "『モデルが勝手にスキルを呼ばないようにしたい』ときに正しい設定は？",
     choices: [
-      "frontmatter で `disable-model-invocation: true` を設定する (`user-invocable: false` ではプログラム呼び出しが止まらないので不十分)",
       "`user-invocable: false` だけで十分",
       "SKILL.md を消す",
       "`allowed-tools: []` を空にする",
+      "frontmatter で `disable-model-invocation: true` を設定する (`user-invocable: false` ではプログラム呼び出しが止まらないので不十分)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。モデル自動起動を止めるのは `disable-model-invocation`。",
       "公式 docs に明記された gotcha: ユーザー呼び出しは禁止できてもプログラム的・モデル的呼び出しは止まらない。",
       "スキル自体を消すのは別解で『勝手に呼ばせない』設定の話ではない。",
       "ツール権限の話で、起動制御とは別。",
+      "正解。モデル自動起動を止めるのは `disable-model-invocation`。",
     ],
     hints: [
       "公式 docs に『gotcha』として明示されている。",
@@ -734,17 +734,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "サブエージェント (subagent) を使う最大のメリットは？",
     choices: [
+      "ファイルへの書き込み速度が上がる",
       "親とは独立したコンテキストウィンドウ・ツール・権限で動かせるため、長い探索をしてもメインのコンテキストを汚さない",
       "並列で無制限にネストして再帰呼び出しできる",
       "親エージェントより必ず賢いモデルが使われる",
-      "ファイルへの書き込み速度が上がる",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "I/O 性能とは無関係。",
       "正解。独立コンテキストが核心的メリット。",
       "サブエージェントは『他のサブエージェントを呼べない』(no nesting)。",
       "デフォルトでは Haiku 等の軽量モデルが選ばれることもある (Explore は Haiku)。",
-      "I/O 性能とは無関係。",
     ],
     hints: [
       "公式 docs にネスト不可と明記。",
@@ -810,17 +810,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "サブエージェント定義 (frontmatter) で『一時的な git worktree を切ってその中で作業させる』指定は？",
     choices: [
+      "branch: temp",
       "isolation: worktree (デフォルトブランチから一時 worktree を切る。変更がなければ自動クリーンアップ)",
       "isolation: docker",
       "sandbox: true",
-      "branch: temp",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "branch フィールドはない。",
       "正解。docs に記載される `isolation: worktree` 機能。",
       "Docker は提供されていない。",
       "そのようなフィールドはない。",
-      "branch フィールドはない。",
     ],
     hints: [
       "ファイル操作をメインの作業ツリーから分離したい時に使う。",
@@ -848,17 +848,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "サブエージェントのスコープ precedence (上書き順、強い → 弱い) として正しいのは？",
     choices: [
-      "Managed → --agents CLI フラグ → Project (.claude/agents/) → User (~/.claude/agents/) → Plugin",
-      "User → Project → Plugin → Managed",
       "Plugin → User → Project → Managed",
       "Project → Managed → User → Plugin",
+      "Managed → --agents CLI フラグ → Project (.claude/agents/) → User (~/.claude/agents/) → Plugin",
+      "User → Project → Plugin → Managed",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。docs の precedence 順。",
-      "Managed が最強で User が中位、順序が違う。",
       "Managed が最後になっていて誤り。",
       "Managed の位置が間違い。",
+      "正解。docs の precedence 順。",
+      "Managed が最強で User が中位、順序が違う。",
     ],
     hints: [
       "組織管理 (Managed) が最強。",
@@ -890,17 +890,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "MCP (Model Context Protocol) の transport として現在『推奨』されるのは？",
     choices: [
-      "http (streamable-http のエイリアス)",
       "sse (deprecated)",
       "stdio (廃止)",
       "websocket",
+      "http (streamable-http のエイリアス)",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。docs で `http` (streamable-http のエイリアス) が推奨と明記。",
       "sse は deprecated。",
       "stdio はローカル用途で現役だが新規推奨は http。",
       "websocket は MCP の transport 一覧にない。",
+      "正解。docs で `http` (streamable-http のエイリアス) が推奨と明記。",
     ],
     hints: [
       "MCP の transport は 3 種類: http / sse / stdio。",
@@ -966,17 +966,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "MCP の『Tool Search』機能について正しい記述は？",
     choices: [
+      "Tool Search は廃止された機能",
       "デフォルトで MCP ツールは ToolSearch 経由の deferred (遅延ロード) になる。常時ロードしたいサーバは設定で `alwaysLoad: true` にする",
       "全 MCP ツールが常にコンテキストに乗る",
       "Tool Search は Plugin でしか使えない",
-      "Tool Search は廃止された機能",
     ],
-    answerIndex: 0,
+    answerIndex: 1,
     choiceExplanations: [
+      "現役機能。",
       "正解。MCP ツールはデフォルト deferred で、ToolSearch クエリで都度ロードされる。",
       "Tool Search 導入で常時ロードはオプトインに変わった。",
       "Plugin 専用ではない。",
-      "現役機能。",
     ],
     hints: [
       "ツール数が増えすぎるとコンテキストを食う問題への対策。",
@@ -1004,17 +1004,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "MCP の出力サイズを制御する環境変数のデフォルト値として正しいのは？",
     choices: [
-      "MAX_MCP_OUTPUT_TOKENS = 25,000",
-      "MAX_MCP_OUTPUT_TOKENS = 1,000",
       "MAX_MCP_OUTPUT_TOKENS = 100,000",
       "MAX_MCP_OUTPUT_TOKENS = 設定不要 (無制限)",
+      "MAX_MCP_OUTPUT_TOKENS = 25,000",
+      "MAX_MCP_OUTPUT_TOKENS = 1,000",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。docs に記載のデフォルト値。",
-      "小さすぎて多くのツール結果が切れる。",
       "実際の上限はこれより小さい。",
       "デフォルト値が設定されている。",
+      "正解。docs に記載のデフォルト値。",
+      "小さすぎて多くのツール結果が切れる。",
     ],
     hints: [
       "5 桁の値。",
@@ -1046,17 +1046,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "Claude Code プラグインに必須なファイルと、その置き場所として正しいのは？",
     choices: [
-      "`<plugin-root>/.claude-plugin/plugin.json` (`name` フィールドが必須)。`.claude-plugin/` 内に置けるのは plugin.json のみで、その他 (skills/agents/hooks 等) はプラグインルート直下",
       "`<plugin-root>/plugin.yaml` が必須",
       "`<plugin-root>/.claude/plugin.json` が必須",
       "`<plugin-root>/manifest.json` が必須",
+      "`<plugin-root>/.claude-plugin/plugin.json` (`name` フィールドが必須)。`.claude-plugin/` 内に置けるのは plugin.json のみで、その他 (skills/agents/hooks 等) はプラグインルート直下",
     ],
-    answerIndex: 0,
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。docs に明示されたマニフェストの場所と命名。",
       "YAML ではなく JSON。",
       "`.claude/` ではなく `.claude-plugin/`。",
       "ファイル名は plugin.json。",
+      "正解。docs に明示されたマニフェストの場所と命名。",
     ],
     hints: [
       "ディレクトリ名は `.claude-plugin/` (ハイフン)。",
@@ -1083,13 +1083,13 @@ export const claudeCodeBasicsQuestions: Question[] = [
     type: "choice",
     question:
       "プラグインのファイルを編集した後、変更を反映する公式コマンドは？",
-    choices: ["/reload-plugins", "/restart", "/refresh", "/sync"],
-    answerIndex: 0,
+    choices: ["/restart", "/refresh", "/sync", "/reload-plugins"],
+    answerIndex: 3,
     choiceExplanations: [
-      "正解。docs で言及されるコマンド。",
       "セッション再起動は不要。",
       "そのようなコマンドはない。",
       "そのようなコマンドはない。",
+      "正解。docs で言及されるコマンド。",
     ],
     hints: [
       "セッションを落とさずに済む。",
@@ -1163,17 +1163,17 @@ export const claudeCodeBasicsQuestions: Question[] = [
     question:
       "Claude Code の permission mode に関する正しい記述は？",
     choices: [
-      "Shift+Tab で default → acceptEdits → plan を循環。`auto` モードは v2.1.83+ かつ Sonnet 4.6 / Opus 4.6 / Opus 4.7 + Anthropic API 限定で、分類器はツール結果を見ない (間接プロンプトインジェクション対策)",
-      "`bypassPermissions` でも `rm -rf /` は常に自動許可される",
       "`plan` モードでも編集系ツールが使える",
       "`auto` モードは Bedrock / Vertex でも使える",
+      "Shift+Tab で default → acceptEdits → plan を循環。`auto` モードは v2.1.83+ かつ Sonnet 4.6 / Opus 4.6 / Opus 4.7 + Anthropic API 限定で、分類器はツール結果を見ない (間接プロンプトインジェクション対策)",
+      "`bypassPermissions` でも `rm -rf /` は常に自動許可される",
     ],
-    answerIndex: 0,
+    answerIndex: 2,
     choiceExplanations: [
-      "正解。Shift+Tab の循環順序と auto モードの条件 (バージョン・モデル・プロバイダー) は docs 通り。",
-      "`bypassPermissions` でも `rm -rf /` や `rm -rf ~` は依然プロンプトされる安全ガードがある。",
       "`plan` は読み取り専用で編集は不可。",
       "auto モードは Anthropic API のみ。Bedrock / Vertex 非対応。",
+      "正解。Shift+Tab の循環順序と auto モードの条件 (バージョン・モデル・プロバイダー) は docs 通り。",
+      "`bypassPermissions` でも `rm -rf /` や `rm -rf ~` は依然プロンプトされる安全ガードがある。",
     ],
     hints: [
       "permission mode は 6 種 (default / acceptEdits / plan / auto / dontAsk / bypassPermissions)。",
