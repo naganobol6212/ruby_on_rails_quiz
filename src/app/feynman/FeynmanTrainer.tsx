@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import {
+  feynmanTopics,
+  findFeynmanTopic,
+  type FeynmanAudienceKey,
+} from "@/data/feynman-topics";
 
 /**
  * ファインマン・テクニック演習。
@@ -9,7 +14,7 @@ import Link from "next/link";
  * 入力は LocalStorage に自動保存 (rrq_feynman_v1)。
  */
 
-type AudienceKey = "engineer" | "beginner" | "teen" | "grandma";
+type AudienceKey = FeynmanAudienceKey;
 
 type Audience = {
   key: AudienceKey;
@@ -58,11 +63,14 @@ const STORAGE_KEY = "rrq_feynman_v1";
 
 type Draft = {
   topic: string;
+  /** 厳選トピックを選んだ場合の ID (自由入力なら null) — 模範回答の表示判定に使う */
+  topicId: string | null;
   texts: Record<AudienceKey, string>;
 };
 
 const emptyDraft = (): Draft => ({
   topic: "",
+  topicId: null,
   texts: { engineer: "", beginner: "", teen: "", grandma: "" },
 });
 
@@ -74,6 +82,7 @@ function loadDraft(): Draft {
     const parsed = JSON.parse(raw) as Partial<Draft>;
     return {
       topic: parsed.topic ?? "",
+      topicId: parsed.topicId ?? null,
       texts: { ...emptyDraft().texts, ...(parsed.texts ?? {}) },
     };
   } catch {
@@ -84,6 +93,13 @@ function loadDraft(): Draft {
 export function FeynmanTrainer() {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  /** 模範回答を開いている相手 */
+  const [revealed, setRevealed] = useState<Record<AudienceKey, boolean>>({
+    engineer: false,
+    beginner: false,
+    teen: false,
+    grandma: false,
+  });
 
   // 初期ロード
   useEffect(() => {
@@ -111,15 +127,36 @@ export function FeynmanTrainer() {
     (a) => draft.texts[a.key].trim().length > 0,
   ).length;
 
+  // 自由入力時は topicId を解除 (模範回答は厳選トピックを選んだときだけ出す)
   const setTopic = (topic: string) =>
-    setDraft((d) => (d ? { ...d, topic } : d));
+    setDraft((d) => (d ? { ...d, topic, topicId: null } : d));
   const setText = (key: AudienceKey, value: string) =>
     setDraft((d) => (d ? { ...d, texts: { ...d.texts, [key]: value } } : d));
+
+  const pickTopic = (id: string) => {
+    const t = findFeynmanTopic(id);
+    if (!t) return;
+    setDraft((d) => (d ? { ...d, topic: t.title, topicId: id } : d));
+    setRevealed({
+      engineer: false,
+      beginner: false,
+      teen: false,
+      grandma: false,
+    });
+  };
+
+  const activeTopic = draft.topicId ? findFeynmanTopic(draft.topicId) : undefined;
 
   const onReset = () => {
     if (!window.confirm("入力内容をクリアして新しいトピックを始めますか？"))
       return;
     setDraft(emptyDraft());
+    setRevealed({
+      engineer: false,
+      beginner: false,
+      teen: false,
+      grandma: false,
+    });
   };
 
   return (
@@ -169,10 +206,43 @@ export function FeynmanTrainer() {
         </ol>
       </details>
 
-      {/* トピック */}
+      {/* 厳選トピック (選ぶと模範回答つき) */}
+      <div className="mb-5">
+        <p className="mb-2 text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+          お題から選ぶ{" "}
+          <span className="font-normal text-[11px] text-zinc-500 dark:text-zinc-400">
+            (模範回答つき)
+          </span>
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {feynmanTopics.map((t) => {
+            const active = draft.topicId === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => pickTopic(t.id)}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition ${
+                  active
+                    ? "border-sky-400 bg-sky-50 text-sky-700 dark:border-sky-500/50 dark:bg-sky-500/10 dark:text-sky-300"
+                    : "border-zinc-200 bg-white text-zinc-600 hover:border-sky-300 hover:text-sky-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-400 dark:hover:text-sky-300"
+                }`}
+              >
+                <span>{t.emoji}</span>
+                <span>{t.title}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* トピック (自由入力も可) */}
       <div className="mb-6">
         <label className="mb-1 block text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-          今日のトピック
+          今日のトピック{" "}
+          <span className="font-normal text-[11px] text-zinc-500 dark:text-zinc-400">
+            (自由入力も OK)
+          </span>
         </label>
         <input
           value={draft.topic}
@@ -180,6 +250,15 @@ export function FeynmanTrainer() {
           placeholder="例: クロージャ / DB の正規化 / Promise と async-await"
           className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 dark:border-white/10 dark:bg-white/5 dark:text-zinc-100 dark:placeholder:text-zinc-500"
         />
+        {activeTopic ? (
+          <p className="mt-1.5 text-[11px] text-sky-700 dark:text-sky-300">
+            ✨ このお題には模範回答があります。自分で書いてから各欄の下で開いて見比べましょう。
+          </p>
+        ) : (
+          <p className="mt-1.5 text-[11px] text-zinc-500 dark:text-zinc-400">
+            自由入力のお題には模範回答はありません。上の「お題から選ぶ」を使うと模範が付きます。
+          </p>
+        )}
       </div>
 
       {/* 進捗 + 保存状態 */}
@@ -222,6 +301,29 @@ export function FeynmanTrainer() {
                 placeholder={a.placeholder}
                 className="block w-full resize-y bg-transparent px-4 py-3 text-sm leading-relaxed text-zinc-900 placeholder:text-zinc-400 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-600"
               />
+              {activeTopic && (
+                <div className="border-t border-zinc-100 px-4 py-3 dark:border-white/5">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setRevealed((r) => ({ ...r, [a.key]: !r[a.key] }))
+                    }
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 transition hover:text-sky-600 dark:text-sky-300"
+                  >
+                    {revealed[a.key] ? "▼ 模範回答を閉じる" : "▶ 模範回答を見る"}
+                  </button>
+                  {revealed[a.key] && (
+                    <div className="mt-2 rounded-lg border border-sky-200 bg-sky-50/60 px-3 py-2 dark:border-sky-500/30 dark:bg-sky-500/[0.06]">
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300">
+                        模範回答 ({a.label}向け)
+                      </p>
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-700 dark:text-zinc-200">
+                        {activeTopic.models[a.key]}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </section>
           );
         })}
