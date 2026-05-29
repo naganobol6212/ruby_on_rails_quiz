@@ -370,15 +370,22 @@ async function pushFlashcards(
 }
 
 // ===========================================================================
-// Public: ログイン直後の初回マージ同期
+// Public: マージ同期 (pull → merge → 必要なら push)
 // ===========================================================================
 
-export async function syncOnLogin(
+let pullInFlight = false;
+
+/**
+ * Supabase から pull して LocalStorage とマージし、書き戻す。
+ * push=true のときはマージ結果を Supabase にも upsert (ログイン直後に
+ * ログイン前のローカルデータをアップロードするため)。
+ * 変化が無いときは write しない (不要な再描画イベントを避ける)。
+ */
+async function pullMergeWrite(
   sb: SupabaseClient,
   userId: string,
+  opts: { push: boolean },
 ): Promise<void> {
-  setCurrentUserId(userId);
-
   // 1) Pull
   const [remoteAttempts, remoteJournal, remoteFlashcards] = await Promise.all([
     pullAttempts(sb, userId),
@@ -389,35 +396,104 @@ export async function syncOnLogin(
   // 2) Merge with local
   const localProgress = readProgress();
   const mergedAttempts = mergeAttempts(localProgress.attempts, remoteAttempts);
-  const mergedSolved = Object.values(mergedAttempts).filter(
-    (a) => a.solved,
-  ).length;
-  const mergedAttemptsCount = Object.values(mergedAttempts).reduce(
-    (sum, a) => sum + a.attempts,
-    0,
-  );
+  const attemptValues = Object.values(mergedAttempts);
   const mergedProgress: Progress = {
     attempts: mergedAttempts,
-    totalSolved: mergedSolved,
-    totalAttempts: Math.max(localProgress.totalAttempts, mergedAttemptsCount),
+    totalSolved: attemptValues.filter((a) => a.solved).length,
+    // totalAttempts は端末ごとの独立カウンタだと食い違うため、
+    // マージ後の attempts から決定論的に再計算する。
+    totalAttempts: attemptValues.reduce((sum, a) => sum + a.attempts, 0),
     bestStreak: localProgress.bestStreak, // streak はローカルを尊重 (DB に持たない)
   };
-  writeProgress(mergedProgress);
+  if (JSON.stringify(mergedProgress) !== JSON.stringify(localProgress)) {
+    writeProgress(mergedProgress);
+  }
 
   const localJournal = readJournal();
   const mergedJournal = mergeById(localJournal, remoteJournal);
-  writeJournal(mergedJournal);
+  if (JSON.stringify(mergedJournal) !== JSON.stringify(localJournal)) {
+    writeJournal(mergedJournal);
+  }
 
   const localFlashcards = readFlashcards();
   const mergedFlashcards = mergeById(localFlashcards, remoteFlashcards);
-  writeFlashcards(mergedFlashcards);
+  if (JSON.stringify(mergedFlashcards) !== JSON.stringify(localFlashcards)) {
+    writeFlashcards(mergedFlashcards);
+  }
 
-  // 3) Push merged result back so Supabase も最新になる
-  await Promise.all([
-    pushAttempts(sb, userId, Object.values(mergedAttempts)),
-    pushJournalEntries(sb, userId, mergedJournal),
-    pushFlashcards(sb, userId, mergedFlashcards),
-  ]);
+  // 3) Push merged result back so Supabase も最新になる (初回のみ)
+  if (opts.push) {
+    await Promise.all([
+      pushAttempts(sb, userId, attemptValues),
+      pushJournalEntries(sb, userId, mergedJournal),
+      pushFlashcards(sb, userId, mergedFlashcards),
+    ]);
+  }
+}
+
+/** ログイン / セッション復元時の初回同期 (マージ結果を push もする)。 */
+export async function syncOnLogin(
+  sb: SupabaseClient,
+  userId: string,
+): Promise<void> {
+  setCurrentUserId(userId);
+  await pullMergeWrite(sb, userId, { push: true });
+}
+
+/**
+ * 背景での再取得 (フォーカス復帰 / 一定間隔 / Realtime から呼ぶ)。
+ * push はしない (ローカル→リモートは書き込み時の fire-and-forget push が担う)。
+ * 多重実行は in-flight ガードで 1 本に潰す。
+ */
+export async function syncPull(): Promise<void> {
+  const userId = getCurrentUserId();
+  if (!userId) return;
+  const sb = getSupabase();
+  if (!sb) return;
+  if (pullInFlight) return;
+  pullInFlight = true;
+  try {
+    await pullMergeWrite(sb, userId, { push: false });
+  } finally {
+    pullInFlight = false;
+  }
+}
+
+/**
+ * 自分の行 (attempts / journal_entries / flashcards) の変更を Realtime で購読し、
+ * 変化があれば onChange を呼ぶ (別端末の更新をライブ反映するため)。
+ * 返り値は購読解除関数。
+ *
+ * NOTE: Supabase 側で該当テーブルを supabase_realtime publication に追加して
+ * いない場合は何も流れない (supabase/migrations/0002_realtime.sql 参照)。
+ * その場合でも フォーカス復帰 / 一定間隔 / ログイン時の pull-merge が保険になる。
+ */
+export function subscribeRealtime(onChange: () => void): () => void {
+  const userId = getCurrentUserId();
+  const sb = getSupabase();
+  if (!userId || !sb) return () => {};
+  const filter = `user_id=eq.${userId}`;
+  const channel = sb
+    .channel(`sync:${userId}`)
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "attempts", filter },
+      onChange,
+    )
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "journal_entries", filter },
+      onChange,
+    )
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "flashcards", filter },
+      onChange,
+    )
+    .subscribe();
+  return () => {
+    void sb.removeChannel(channel);
+  };
 }
 
 // ===========================================================================

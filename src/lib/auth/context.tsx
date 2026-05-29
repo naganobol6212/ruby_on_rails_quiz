@@ -19,7 +19,12 @@ import {
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { getSupabase, isAuthEnabled } from "@/lib/supabase/client";
-import { setCurrentUserId, syncOnLogin } from "@/lib/sync";
+import {
+  setCurrentUserId,
+  syncOnLogin,
+  syncPull,
+  subscribeRealtime,
+} from "@/lib/sync";
 
 type AuthState = {
   /** auth 機能 (Supabase) が有効か */
@@ -66,8 +71,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setCurrentUserId(u?.id ?? null);
         setReady(true);
 
-        // SIGNED_IN イベントで一度だけマージ同期
-        if (event === "SIGNED_IN" && session?.user) {
+        // SIGNED_IN (対話的ログイン) と INITIAL_SESSION (リロード/再訪での
+        // セッション復元) の両方で pull-merge する。これが無いと既ログイン端末は
+        // 再起動時に他端末の更新を取り込めず、進捗が端末ごとにズレる。
+        if (
+          (event === "SIGNED_IN" || event === "INITIAL_SESSION") &&
+          session?.user
+        ) {
           setSyncing(true);
           try {
             await syncOnLogin(sb, session.user.id);
@@ -83,6 +93,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.subscription.unsubscribe();
     };
   }, [enabled]);
+
+  // ログイン中は フォーカス復帰 / 一定間隔 / Realtime で継続的に pull-merge し、
+  // 複数端末の進捗を収束させる (初回マージは上の onAuthStateChange が担当)。
+  const userId = user?.id ?? null;
+  useEffect(() => {
+    if (!enabled || !userId || typeof window === "undefined") return;
+
+    let debounce: ReturnType<typeof setTimeout> | null = null;
+    const pullSoon = () => {
+      if (debounce) clearTimeout(debounce);
+      debounce = setTimeout(() => void syncPull(), 800);
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void syncPull();
+    };
+
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    const interval = setInterval(() => void syncPull(), 60_000);
+    const unsubscribe = subscribeRealtime(pullSoon);
+
+    return () => {
+      if (debounce) clearTimeout(debounce);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+      clearInterval(interval);
+      unsubscribe();
+    };
+  }, [enabled, userId]);
 
   const signInWithGitHub = useCallback(async () => {
     const sb = getSupabase();
