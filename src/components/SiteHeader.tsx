@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ThemeToggle } from "./ThemeToggle";
 import { ChangelogBadge } from "./ChangelogBadge";
 import { AuthButton } from "./AuthButton";
+import { useAuth } from "@/lib/auth/context";
 
 type NavLink = { href: string; label: string; icon: string };
 
@@ -22,6 +23,9 @@ const links: NavLink[] = [
   { href: "/about", label: "使い方", icon: "📖" },
 ];
 
+// ログイン同期 (Supabase) が有効なときだけ出すナビ
+const authLinks: NavLink[] = [{ href: "/groups", label: "仲間", icon: "👥" }];
+
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
   if (href.startsWith("/#")) return false; // ハッシュ系はアクティブ判定対象外
@@ -32,6 +36,8 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const { enabled } = useAuth();
+  const navLinks = enabled ? [...links, ...authLinks] : links;
 
   // スクロールでヘッダーの装飾を強める
   useEffect(() => {
@@ -86,7 +92,7 @@ export function SiteHeader() {
 
         {/* デスクトップナビ */}
         <nav className="hidden items-center gap-1 sm:flex">
-          {links.map((l) => {
+          {navLinks.map((l) => {
             const active = isActive(pathname, l.href);
             return (
               <Link
@@ -148,7 +154,7 @@ export function SiteHeader() {
             className="overflow-hidden border-t border-zinc-200/70 bg-white/95 backdrop-blur dark:border-white/10 dark:bg-zinc-950/95 sm:hidden"
           >
             <nav className="mx-auto flex max-w-5xl flex-col px-2 py-2">
-              {links.map((l, i) => {
+              {navLinks.map((l, i) => {
                 const active = isActive(pathname, l.href);
                 return (
                   <motion.div
