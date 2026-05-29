@@ -2277,10 +2277,270 @@ const securityExpand: Question[] = [
   },
 ];
 
+// ===========================================================================
+// React (react-fundamentals) — react-031〜040 / 参考書 react-intro を補完
+// ===========================================================================
+const reactExpand: Question[] = [
+  {
+    id: "react-031",
+    categoryId: "react-fundamentals",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "リストレンダリングで key に配列の index を使うのが問題になりやすいのはどんな場合?",
+    choices: [
+      "リストが並び替え・挿入・削除される場合 (状態や DOM が取り違えられる)",
+      "リストが静的で順序も件数も不変の場合",
+      "key を付けるとパフォーマンスが必ず落ちる",
+      "React では key 自体が不要",
+    ],
+    answerIndex: 0,
+    hints: [
+      "key は要素の同一性を React に伝える。",
+      "index は順序が変わると別要素を指す。",
+      "安定した一意 ID を使うのが原則。",
+    ],
+    explanation: {
+      summary:
+        "並び替え・挿入・削除があるリストで index を key にすると、React が要素を取り違え、入力中の state や DOM がズレる。安定した一意 ID を使う。",
+      reason:
+        "順序・件数が完全に固定なら index でも実害は少ない。key は差分計算で『同じ要素か』を判断する identity なので、データ由来の安定 ID が理想。",
+    },
+  },
+  {
+    id: "react-032",
+    categoryId: "react-fundamentals",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "前の状態に基づいて state を更新するとき推奨される書き方は?",
+    choices: [
+      "setCount(count + 1) を複数回呼ぶ",
+      "setCount(c => c + 1) の関数型更新を使う",
+      "count++ で直接書き換える",
+      "useRef に入れて更新する",
+    ],
+    answerIndex: 1,
+    hints: [
+      "同一イベント内の複数更新はバッチされる。",
+      "古い値を参照すると更新が取りこぼされる。",
+      "関数型更新なら常に最新を受け取れる。",
+    ],
+    explanation: {
+      summary:
+        "setCount(c => c + 1) の関数型更新は、バッチされた更新でも常に最新の state を受け取るため安全。setCount(count+1) を連続で呼ぶと古い count を参照して取りこぼす。",
+      reason:
+        "React は同一イベント内の setState をまとめて処理する。直接 count++ は state を破壊し再レンダリングもされない。",
+    },
+  },
+  {
+    id: "react-033",
+    categoryId: "react-fundamentals",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "state をイミュータブルに更新すべき理由は?",
+    choices: [
+      "メモリ節約のため",
+      "TypeScript の制約だから",
+      "React は参照の変化で再レンダリングを判断するため、直接書き換えると検知されない",
+      "イミュータブルにする必要はない",
+    ],
+    answerIndex: 2,
+    hints: [
+      "オブジェクト/配列を直接 push/代入しない。",
+      "新しい参照を作って渡す ([...arr], {...obj})。",
+      "比較は基本的に参照 (Object.is) ベース。",
+    ],
+    explanation: {
+      summary:
+        "React は state の参照が変わったかで再レンダリングや memo の判定を行う。配列/オブジェクトを直接書き換えると参照が同じため変化が検知されない。新しい参照を作って更新する。",
+      reason:
+        "arr.push(x) ではなく setArr([...arr, x])、obj.k=v ではなく setObj({...obj, k:v})。Immer を使うと書き味を保ちつつイミュータブル更新できる。",
+    },
+  },
+  {
+    id: "react-034",
+    categoryId: "react-fundamentals",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "useEffect の依存配列を空 [] にした effect 内で state を参照すると古い値になることがある。これを何と呼ぶ?",
+    choices: [
+      "メモリリーク",
+      "古いクロージャ (stale closure)",
+      "ハイドレーションエラー",
+      "無限ループ",
+    ],
+    answerIndex: 1,
+    hints: [
+      "effect は定義時の値を閉じ込める。",
+      "依存に入れるか、ref で最新を読む。",
+      "setInterval 内で state を読むときの定番の罠。",
+    ],
+    explanation: {
+      summary:
+        "依存配列に入れていない値を effect 内で参照すると、最初のレンダリング時点の値を掴み続ける『stale closure』になる。",
+      reason:
+        "対策は (1) 依存配列に入れる (2) 関数型更新 setX(x=>...) を使う (3) 最新値を useRef に同期して読む。setInterval のコールバックで count を読むケースが典型。",
+    },
+  },
+  {
+    id: "react-035",
+    categoryId: "react-fundamentals",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "useMemo と useCallback の違いとして正しいのは?",
+    choices: [
+      "useMemo は『計算結果の値』を、useCallback は『関数そのもの』をメモ化する",
+      "両者は完全に同じ",
+      "useCallback は値を、useMemo は関数をメモ化する",
+      "どちらも再レンダリングを止める",
+    ],
+    answerIndex: 0,
+    hints: [
+      "useCallback(fn, deps) ≒ useMemo(() => fn, deps)。",
+      "依存が変わらない限り同じものを返す。",
+      "再レンダリング自体は止めない (memo と併用)。",
+    ],
+    explanation: {
+      summary:
+        "useMemo は計算結果の値を、useCallback は関数の参照をメモ化する (useCallback(fn,deps) は useMemo(()=>fn,deps) と等価)。",
+      reason:
+        "目的は参照の安定化で、React.memo した子に安定した props を渡す・effect の依存を安定させる等に使う。これ自体は再レンダリングを止めない。過剰使用はかえって複雑化。",
+    },
+  },
+  {
+    id: "react-036",
+    categoryId: "react-fundamentals",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "React.memo が再レンダリングを防げるのはどんなとき?",
+    choices: [
+      "常にすべての再レンダリングを防ぐ",
+      "props が前回と (浅い比較で) 変わっていないとき",
+      "state を持たないときだけ",
+      "key を付けたときだけ",
+    ],
+    answerIndex: 1,
+    hints: [
+      "親の再レンダリングで子も再描画される既定動作を抑える。",
+      "props の浅い比較で同じならスキップ。",
+      "毎回新しいオブジェクト/関数を渡すと効かない。",
+    ],
+    explanation: {
+      summary:
+        "React.memo は props が浅い比較で前回と同じなら再レンダリングをスキップする。親が再描画されても props 不変なら子を描画し直さない。",
+      reason:
+        "props にインラインの {} や () => {} を渡すと毎回新参照になり memo が効かない (useMemo/useCallback で安定化が必要)。自前比較関数を第2引数で渡すことも可能。",
+    },
+  },
+  {
+    id: "react-037",
+    categoryId: "react-fundamentals",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "いわゆる『prop drilling』を解消する手段として適切なのは?",
+    choices: [
+      "すべてグローバル変数にする",
+      "Context API や状態管理ライブラリで必要な階層に直接届ける",
+      "props を増やし続ける",
+      "コンポーネントを 1 つに統合する",
+    ],
+    answerIndex: 1,
+    hints: [
+      "深い階層へ props を中継し続ける問題。",
+      "Context は『多くの階層が参照する値』に向く。",
+      "ただし Context の濫用は再レンダリング増の原因にも。",
+    ],
+    explanation: {
+      summary:
+        "prop drilling (props を多段中継する問題) は Context API や状態管理ライブラリ (Zustand/Jotai/Redux 等) で必要な場所へ直接渡して解消する。",
+      reason:
+        "Context はテーマ・認証ユーザー・ロケールなど『広く参照される値』向け。頻繁に変わる値を 1 つの大きな Context に入れると広範な再レンダリングを招くため分割や外部ストアを検討する。",
+    },
+  },
+  {
+    id: "react-038",
+    categoryId: "react-fundamentals",
+    difficulty: "advanced",
+    type: "choice",
+    question: "カスタムフック (useXxx) の主な目的は?",
+    choices: [
+      "CSS を共有するため",
+      "状態を持つロジックを再利用可能な形に切り出すため",
+      "コンポーネントを高速化する専用機能",
+      "クラスコンポーネントを作るため",
+    ],
+    answerIndex: 1,
+    hints: [
+      "use で始まる関数で、内部で他のフックを呼べる。",
+      "UI ではなくロジックの再利用。",
+      "呼び出し側ごとに state は独立する。",
+    ],
+    explanation: {
+      summary:
+        "カスタムフックは useState/useEffect 等を内部で使う『状態付きロジック』を関数に切り出して再利用する仕組み (useFetch, useLocalStorage 等)。",
+      reason:
+        "命名は use で始める (フックのルール検出のため)。呼び出すコンポーネントごとに状態は独立。UI を共有するのはコンポーネント、ロジックを共有するのはカスタムフック。",
+    },
+  },
+  {
+    id: "react-039",
+    categoryId: "react-fundamentals",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "制御コンポーネント (controlled component) とは?",
+    choices: [
+      "ref で DOM を直接操作する入力",
+      "入力値を React の state で管理し、value と onChange で同期する入力",
+      "defaultValue だけを設定する入力",
+      "サーバーでのみ動く入力",
+    ],
+    answerIndex: 1,
+    hints: [
+      "value を state に束ねる。",
+      "onChange で state を更新して反映。",
+      "対する非制御は ref/defaultValue。",
+    ],
+    explanation: {
+      summary:
+        "制御コンポーネントは入力値を state が単一の真実として持ち、value={state} と onChange でフォームを同期する。バリデーションや整形を一元化しやすい。",
+      reason:
+        "非制御コンポーネントは defaultValue + ref で DOM 側に値を持たせ、必要時に読む。小さなフォームや非 React 連携では非制御も有効。",
+    },
+  },
+  {
+    id: "react-040",
+    categoryId: "react-fundamentals",
+    difficulty: "advanced",
+    type: "choice",
+    question: "React の Error Boundary が捕捉できないものは?",
+    choices: [
+      "子コンポーネントのレンダリング中の例外",
+      "ライフサイクル中の例外",
+      "イベントハンドラ内や非同期処理 (setTimeout/Promise) 内の例外",
+      "コンストラクタ内の例外",
+    ],
+    answerIndex: 2,
+    hints: [
+      "Error Boundary はレンダリングツリーのエラー用。",
+      "イベントハンドラは通常の try/catch。",
+      "非同期の throw はレンダリング外。",
+    ],
+    explanation: {
+      summary:
+        "Error Boundary はレンダリング/ライフサイクル/コンストラクタ中のエラーを捕捉するが、イベントハンドラや setTimeout/Promise などの非同期エラーは捕捉しない (そこは try/catch で処理)。",
+      reason:
+        "Error Boundary はクラスの getDerivedStateFromError / componentDidCatch、または react-error-boundary で実装する。イベント/非同期は通常の例外処理が必要。",
+    },
+  },
+];
+
 export const expandQuestions: Question[] = [
   ...nextjsExpand,
   ...gitExpand,
   ...nuxtExpand,
   ...linuxExpand,
   ...securityExpand,
+  ...reactExpand,
 ];
