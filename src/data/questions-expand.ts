@@ -1817,9 +1817,470 @@ const linuxExpand: Question[] = [
   },
 ];
 
+// ===========================================================================
+// セキュリティ (security) — sec-021〜038 / 参考書 infosec-intro の各章に対応
+// ===========================================================================
+const securityExpand: Question[] = [
+  {
+    id: "sec-021",
+    categoryId: "security",
+    difficulty: "beginner",
+    type: "choice",
+    question: "OWASP Top 10 とは何か?",
+    choices: [
+      "人気の Web フレームワーク 10 選",
+      "暗号化アルゴリズムの規格",
+      "ペネトレーションテスト用ツール",
+      "Web アプリの代表的なセキュリティリスクをまとめたコミュニティ文書",
+    ],
+    answerIndex: 3,
+    hints: [
+      "OWASP は非営利のセキュリティコミュニティ。",
+      "数年ごとに改訂されるリスクのランキング。",
+      "アクセス制御不備・インジェクション等が並ぶ。",
+    ],
+    explanation: {
+      summary:
+        "OWASP Top 10 は Web アプリで頻出・影響大のセキュリティリスクをまとめた定番文書。設計・レビューのチェックリストとして使われる。",
+      reason:
+        "2021 年版では『アクセス制御の不備』が 1 位。LLM 向けの OWASP LLM Top 10 など派生もある。ツールでも規格でもなく『リスクの地図』。",
+    },
+  },
+  {
+    id: "sec-022",
+    categoryId: "security",
+    difficulty: "beginner",
+    type: "choice",
+    question: "セキュア設計の原則『最小権限 (least privilege)』とは?",
+    choices: [
+      "各主体に、業務に必要な最小限の権限だけを与える",
+      "全員に管理者権限を与えて運用を楽にする",
+      "認証を省略して速度を上げる",
+      "ログを一切残さない",
+    ],
+    answerIndex: 0,
+    hints: [
+      "万一侵害されても被害範囲を限定するため。",
+      "DB ユーザーも用途別に権限を分ける。",
+      "『念のため広めに権限』は事故のもと。",
+    ],
+    explanation: {
+      summary:
+        "最小権限は、各ユーザー/プロセス/トークンに必要最小限の権限だけ与える原則。侵害時の被害 (横展開) を抑える。",
+      reason:
+        "DB は読み取り専用ユーザーとマイグレーション用を分ける、API トークンはスコープを絞る、など。多層防御 (defense in depth) と並ぶ基本原則。",
+    },
+  },
+  {
+    id: "sec-023",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "SQL インジェクションの最も確実な対策は?",
+    choices: [
+      "入力を全部 trim する",
+      "DB のエラーメッセージを隠す",
+      "プレースホルダ (パラメータ化クエリ / プリペアドステートメント) を使う",
+      "テーブル名を秘密にする",
+    ],
+    answerIndex: 2,
+    hints: [
+      "SQL 文と値を分離するのが本質。",
+      "文字列連結でクエリを組み立てない。",
+      "エラー隠蔽は緩和にすぎない。",
+    ],
+    explanation: {
+      summary:
+        "値をプレースホルダで渡すパラメータ化クエリにすれば、入力が SQL 構文として解釈されず SQLi を根本的に防げる。",
+      reason:
+        "文字列連結 (\"... WHERE name='\" + input + \"'\") が温床。ORM でも生 SQL/文字列連結を使うと危険。エラー隠蔽・名前の秘匿は補助的でしかない。",
+    },
+  },
+  {
+    id: "sec-024",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "「ORM を使えば SQL インジェクションは絶対に起きない」は正しい?",
+    choices: [
+      "正しい。ORM は完全に安全",
+      "誤り。生 SQL 片や文字列連結 (where(\"name = '#{x}'\") 等) を使えば依然起きる",
+      "ORM はむしろ SQLi を増やす",
+      "ORM は SQL を一切使わない",
+    ],
+    answerIndex: 1,
+    hints: [
+      "ORM の生 SQL / 文字列補間メソッドが抜け道。",
+      "プレースホルダを使う API なら安全。",
+      "『安全な道具を安全に使う』のが要点。",
+    ],
+    explanation: {
+      summary:
+        "ORM は通常パラメータ化してくれるが、生 SQL や文字列補間を使う API (例: 文字列連結の where) を使えば SQLi は起きる。",
+      reason:
+        "ActiveRecord の where(\"name = '#{params[:q]}'\") などが典型的な穴。ORM でもプレースホルダ (?, :key) を使うことが重要。",
+    },
+  },
+  {
+    id: "sec-025",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "XSS (クロスサイトスクリプティング) の基本対策は?",
+    choices: [
+      "通信を HTTPS にする",
+      "パスワードを長くする",
+      "CSRF トークンを付ける",
+      "出力時にコンテキストに応じたエスケープ + 入力検証 + CSP",
+    ],
+    answerIndex: 3,
+    hints: [
+      "ユーザー入力を HTML/JS として実行させない。",
+      "出力する場所 (HTML本文/属性/JS/URL) で必要なエスケープが違う。",
+      "CSP は被害を緩和する多層防御。",
+    ],
+    explanation: {
+      summary:
+        "XSS は出力時のエスケープが中心対策。HTML 本文・属性・JS・URL の各コンテキストで適切にエスケープし、CSP で被害を緩和する。",
+      reason:
+        "多くのテンプレートエンジン (React/JSX 含む) は既定でエスケープする。HTTPS や CSRF トークンは XSS そのものの対策ではない (別の脅威向け)。",
+    },
+  },
+  {
+    id: "sec-026",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "React で dangerouslySetInnerHTML を使うときの注意は?",
+    choices: [
+      "信頼できない HTML を渡すと XSS になる。サニタイズ (DOMPurify 等) が必須",
+      "React が自動でサニタイズするので安全",
+      "SSR では無効化されるので問題ない",
+      "XSS とは無関係",
+    ],
+    answerIndex: 0,
+    hints: [
+      "名前のとおり『危険』。",
+      "React の自動エスケープを迂回する。",
+      "外部由来の HTML はサニタイズしてから。",
+    ],
+    explanation: {
+      summary:
+        "dangerouslySetInnerHTML は React の自動エスケープを迂回するため、信頼できない HTML を入れると XSS になる。DOMPurify 等でサニタイズしてから渡す。",
+      reason:
+        "通常の {value} 埋め込みは自動エスケープされ安全。生 HTML を入れたい場面 (リッチテキスト等) はサニタイズ必須で、可能なら使用自体を避ける。",
+    },
+  },
+  {
+    id: "sec-027",
+    categoryId: "security",
+    difficulty: "advanced",
+    type: "choice",
+    question: "Content-Security-Policy (CSP) の主な役割は?",
+    choices: [
+      "通信を暗号化する",
+      "パスワードをハッシュ化する",
+      "読み込み可能なスクリプト等の出所を制限し、XSS の被害を緩和する",
+      "SQL を検証する",
+    ],
+    answerIndex: 2,
+    hints: [
+      "ヘッダーで許可するリソースの出所を宣言。",
+      "インラインスクリプトの実行を制限できる。",
+      "XSS を『防ぐ』より『被害を抑える』多層防御。",
+    ],
+    explanation: {
+      summary:
+        "CSP は許可するスクリプト/スタイル/画像などの出所をヘッダーで制限し、XSS が混入しても任意スクリプト実行や外部送信を抑える緩和策。",
+      reason:
+        "script-src 'self' などで自サイト由来のみ許可、インライン実行は nonce/hash で制御。あくまで多層防御の一枚で、出力エスケープと併用する。",
+    },
+  },
+  {
+    id: "sec-028",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "CSRF (クロスサイトリクエストフォージェリ) 攻撃とは?",
+    choices: [
+      "DB に不正な SQL を注入する",
+      "ログイン中ユーザーのブラウザから、本人の意図しないリクエストを正規サイトへ送らせる",
+      "パスワードを総当たりする",
+      "XSS の別名",
+    ],
+    answerIndex: 1,
+    hints: [
+      "被害者の Cookie (認証情報) が自動送信されることを悪用。",
+      "罠サイトのフォームや img から正規サイトへ送らせる。",
+      "『本人の権限で勝手に操作』される。",
+    ],
+    explanation: {
+      summary:
+        "CSRF は、ログイン中ユーザーのブラウザに自動付与される Cookie を悪用し、本人が意図しない操作 (送金・設定変更等) を正規サイトに実行させる攻撃。",
+      reason:
+        "ブラウザがクロスサイトでも Cookie を送る性質が前提。SQLi/XSS とは別の脅威。対策は CSRF トークンや SameSite Cookie。",
+    },
+  },
+  {
+    id: "sec-029",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "CSRF の代表的な対策の組み合わせは?",
+    choices: [
+      "出力エスケープを徹底する",
+      "HTTPS にするだけ",
+      "パスワードを暗号化する",
+      "CSRF トークン (同期トークン) + Cookie の SameSite 属性",
+    ],
+    answerIndex: 3,
+    hints: [
+      "フォームに予測不能なトークンを埋め込む。",
+      "SameSite=Lax/Strict でクロスサイト送信を抑制。",
+      "出力エスケープは XSS 対策で別物。",
+    ],
+    explanation: {
+      summary:
+        "CSRF トークン (フォーム/ヘッダーに予測不能な値を入れ検証) と、Cookie の SameSite=Lax/Strict を併用するのが定番。",
+      reason:
+        "多くのフレームワークが CSRF トークンを標準提供。SameSite はクロスサイトの Cookie 送信を制限し多層防御になる。HTTPS だけでは防げない。",
+    },
+  },
+  {
+    id: "sec-030",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "セッション Cookie に付けるべき属性の組み合わせは?",
+    choices: [
+      "属性は何も付けない",
+      "Secure だけ付ければ十分",
+      "HttpOnly + Secure + SameSite",
+      "Path 属性だけ",
+    ],
+    answerIndex: 2,
+    hints: [
+      "JS から読めなくする属性は?",
+      "HTTPS でのみ送る属性は?",
+      "クロスサイト送信を抑える属性は?",
+    ],
+    explanation: {
+      summary:
+        "HttpOnly (JS から参照不可=XSS でのトークン窃取を防ぐ) + Secure (HTTPS のみ送信) + SameSite (CSRF 緩和) を付ける。",
+      reason:
+        "HttpOnly により document.cookie で盗めなくなる。Secure で平文送信を防ぐ。SameSite=Lax が多くの場合の既定的に妥当。",
+    },
+  },
+  {
+    id: "sec-031",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "パスワードの安全な保存方法は?",
+    choices: [
+      "bcrypt / argon2 / scrypt などソルト付きの専用ハッシュで保存",
+      "平文で保存する",
+      "MD5 / SHA-1 でハッシュして保存",
+      "可逆暗号で保存していつでも復号できるようにする",
+    ],
+    answerIndex: 0,
+    hints: [
+      "高速ハッシュ (MD5/SHA) は総当たりに弱い。",
+      "ソルトでレインボーテーブルを無効化。",
+      "意図的に遅い (計算コストの高い) ハッシュが良い。",
+    ],
+    explanation: {
+      summary:
+        "パスワードは bcrypt / argon2 / scrypt などの『意図的に遅い・ソルト付き』専用ハッシュで保存する。",
+      reason:
+        "MD5/SHA-1/SHA-256 は高速ゆえ総当たりに弱い。平文・可逆暗号は漏洩時に致命的。argon2 は現代の推奨。コストパラメータで強度を調整する。",
+    },
+  },
+  {
+    id: "sec-032",
+    categoryId: "security",
+    difficulty: "beginner",
+    type: "choice",
+    question: "認証 (Authentication) と認可 (Authorization) の違いは?",
+    choices: [
+      "まったく同じ意味",
+      "認証=権限の付与、認可=本人確認",
+      "認可が必ず認証より先に行われる",
+      "認証=誰であるかを確認、認可=その人に何を許すかを判断",
+    ],
+    answerIndex: 3,
+    hints: [
+      "AuthN = 本人確認、AuthZ = 権限判定。",
+      "ログインが認証、アクセス可否が認可。",
+      "順序は認証 → 認可。",
+    ],
+    explanation: {
+      summary:
+        "認証 (AuthN) は『誰か』を確認すること、認可 (AuthZ) は『その人に何を許すか』を判断すること。順序は認証 → 認可。",
+      reason:
+        "ログインは認証、管理者ページにアクセスできるかの判定は認可。両者を混同すると、ログインだけ見て権限チェックを忘れる (アクセス制御不備) 事故につながる。",
+    },
+  },
+  {
+    id: "sec-033",
+    categoryId: "security",
+    difficulty: "advanced",
+    type: "choice",
+    question: "JWT をセッション代わりに使うときの注意として正しいのは?",
+    choices: [
+      "署名されているので payload に秘密情報を入れてよい",
+      "署名検証が必須・失効 (無効化) が難しい・payload に秘密情報を入れない",
+      "改ざんし放題なので使うべきでない",
+      "有効期限は設定不要",
+    ],
+    answerIndex: 1,
+    hints: [
+      "JWT の payload は base64 で誰でも読める (暗号化ではない)。",
+      "サーバー側で即時失効しにくい。",
+      "alg=none や鍵取り違えに注意。",
+    ],
+    explanation: {
+      summary:
+        "JWT は署名で改ざん検知するが payload は誰でも読める (暗号化ではない)。署名検証必須、秘密情報は入れない、失効は短い有効期限 + リフレッシュやブラックリストで補う。",
+      reason:
+        "ステートレスゆえサーバー側で即時 revoke しにくいのが弱点。alg=none 受け入れや署名鍵の取り違えは典型的な脆弱性。短命アクセストークン + リフレッシュトークンが定番。",
+    },
+  },
+  {
+    id: "sec-034",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "アクセス制御不備の典型『IDOR』(安全でない直接オブジェクト参照) とは?",
+    choices: [
+      "パスワードが短いこと",
+      "HTTPS を使っていないこと",
+      "URL/パラメータの id を他人の値に変えると、他人のリソースが見えたり操作できてしまう",
+      "Cookie が暗号化されていないこと",
+    ],
+    answerIndex: 2,
+    hints: [
+      "/orders/123 を /orders/124 に変えたら他人の注文が見える、など。",
+      "『所有者チェック』の欠落が原因。",
+      "推測されにくい ID だけでは対策にならない。",
+    ],
+    explanation: {
+      summary:
+        "IDOR は、リクエスト中の id 等を改変すると本来アクセスできない他人のリソースに到達できてしまう不備。サーバー側で『そのユーザーが対象を操作してよいか』の認可チェックが抜けているのが原因。",
+      reason:
+        "UUID 化 (推測困難化) は緩和にすぎず、根本対策は所有権/権限の検証。OWASP の『アクセス制御の不備』の代表例。",
+    },
+  },
+  {
+    id: "sec-035",
+    categoryId: "security",
+    difficulty: "beginner",
+    type: "choice",
+    question: "API キーや DB パスワードなど秘密情報の管理として適切なのは?",
+    choices: [
+      "ソースコードにハードコードする",
+      "フロントエンドの JS に埋め込む",
+      "Git リポジトリにコミットして共有する",
+      "環境変数 / シークレットマネージャで管理し、リポジトリには入れない",
+    ],
+    answerIndex: 3,
+    hints: [
+      "クライアントに出る場所には絶対に置かない。",
+      "リポジトリ履歴に残ると回収が難しい。",
+      ".env はコミットせず .gitignore。",
+    ],
+    explanation: {
+      summary:
+        "秘密情報は環境変数やシークレットマネージャ (Vault / クラウドの Secrets) で管理し、リポジトリやクライアントバンドルに含めない。",
+      reason:
+        "一度コミットすると履歴から完全削除は困難で、漏洩時はキーのローテーションが必要。フロントの JS は誰でも読めるので秘密は置けない。",
+    },
+  },
+  {
+    id: "sec-036",
+    categoryId: "security",
+    difficulty: "beginner",
+    type: "choice",
+    question: "通信の暗号化 (TLS / HTTPS) が主に守るものは?",
+    choices: [
+      "盗聴・改ざん・なりすまし (中間者攻撃) からの保護",
+      "SQL インジェクション",
+      "XSS",
+      "CSRF",
+    ],
+    answerIndex: 0,
+    hints: [
+      "通信経路上の脅威に対する対策。",
+      "暗号化 + 完全性 + サーバー認証。",
+      "アプリ内部の脆弱性 (SQLi/XSS) は別問題。",
+    ],
+    explanation: {
+      summary:
+        "TLS/HTTPS は通信を暗号化し、盗聴・改ざん・なりすまし (中間者攻撃) を防ぐ。サーバー証明書で接続先の正当性も検証する。",
+      reason:
+        "経路の保護であって、アプリ内部の SQLi/XSS/CSRF は別途対策が必要。HSTS で常時 HTTPS を強制するのも定石。",
+    },
+  },
+  {
+    id: "sec-037",
+    categoryId: "security",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "ログインエンドポイントへの総当たり (ブルートフォース) 攻撃を緩和するのは?",
+    choices: [
+      "パスワードを平文で保存する",
+      "CSRF トークンを付ける",
+      "レート制限 + アカウントロック + CAPTCHA / 多要素認証 (MFA)",
+      "HTTPS にするだけ",
+    ],
+    answerIndex: 2,
+    hints: [
+      "試行回数そのものを抑える。",
+      "一定回数失敗でロック/遅延。",
+      "MFA は突破難度を大きく上げる。",
+    ],
+    explanation: {
+      summary:
+        "レート制限・連続失敗でのロックや遅延・CAPTCHA・MFA を組み合わせて総当たりを緩和する。",
+      reason:
+        "クレデンシャルスタッフィング (漏洩パスワードの使い回し攻撃) には MFA が特に有効。CSRF トークンや HTTPS は総当たり自体は止めない。",
+    },
+  },
+  {
+    id: "sec-038",
+    categoryId: "security",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "npm などの依存ライブラリのサプライチェーンリスク対策として適切なのは?",
+    choices: [
+      "何も対策しない",
+      "常に最新版を無条件で自動導入する",
+      "ロックファイルを削除して毎回最新解決にする",
+      "ロックファイルで固定 + 脆弱性監査 (npm audit 等) + 出所/メンテ状況の確認",
+    ],
+    answerIndex: 3,
+    hints: [
+      "lockfile で再現性のある依存を固定。",
+      "既知脆弱性は監査ツールで検出。",
+      "怪しい/放置されたパッケージは避ける。",
+    ],
+    explanation: {
+      summary:
+        "lockfile (package-lock.json 等) で依存を固定し、npm audit / Dependabot で脆弱性を監視、導入前に出所・メンテ状況・人気度を確認する。",
+      reason:
+        "無条件の最新追従は悪意ある更新 (依存の乗っ取り) を取り込むリスク。タイポスクワッティングや slopsquatting にも注意。lockfile 削除は再現性を失い危険。",
+    },
+  },
+];
+
 export const expandQuestions: Question[] = [
   ...nextjsExpand,
   ...gitExpand,
   ...nuxtExpand,
   ...linuxExpand,
+  ...securityExpand,
 ];
