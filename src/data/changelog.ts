@@ -17,6 +17,28 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-29-j",
+    date: "2026-05-29",
+    title: "⚡ グループ画面の表示を高速化 (RLS の最適化)",
+    badge: "fix",
+    highlights: [
+      "🐢 投稿・スタンプ・コメントが増えるとグループ画面が重くなる問題を改善",
+      "🔧 行レベルセキュリティ (RLS) の判定が行ごとに繰り返し評価されていたのを 1 回に畳み込み、関連テーブルに索引を追加 (N+1 的な遅延を解消)",
+      "📦 反映には Supabase で supabase/migrations/0005_groups_perf.sql の実行が必要",
+    ],
+  },
+  {
+    version: "2026-05-29-i",
+    date: "2026-05-29",
+    title: "🗣️ ファインマン演習ページ + 模範回答を追加",
+    badge: "feat",
+    highlights: [
+      "🆕 学んだ内容を 4 人の相手 (エンジニア / 初学者 / 中学生 / おばあちゃん) に説明し直す専用ページ /feynman を新設 (ロードマップの言語化フェーズから遷移)",
+      "✨ 厳選お題 (クロージャ / Promise・async / 正規化 / インデックス / merge・rebase / any・unknown) には相手別の模範回答を用意。自分で書いてから『模範回答を見る』で見比べられる",
+      "💾 トピックと各説明はこの端末に自動保存",
+    ],
+  },
+  {
     version: "2026-05-29-h",
     date: "2026-05-29",
     title: "🗣️ 全トラックに『学びを言語化する』フェーズを追加 (ファインマン式)",
