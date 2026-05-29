@@ -323,6 +323,7 @@ function CardListItem({
   card: Flashcard;
   onStudyOne: () => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const due = daysUntilDue(card);
   const bucket = bucketOf(card);
   const dueLabel =
@@ -373,12 +374,30 @@ function CardListItem({
               </span>
             )}
           </div>
-          <p className="line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-            {card.front}
-          </p>
-          <p className="mt-0.5 line-clamp-1 text-[11px] text-zinc-500 dark:text-zinc-400">
-            → {card.back}
-          </p>
+          <button
+            type="button"
+            onClick={() => setExpanded((e) => !e)}
+            aria-expanded={expanded}
+            className="block w-full text-left"
+          >
+            <p
+              className={`text-sm font-medium text-zinc-900 dark:text-zinc-100 ${
+                expanded ? "whitespace-pre-wrap" : "line-clamp-2"
+              }`}
+            >
+              {card.front}
+            </p>
+            <p
+              className={`mt-0.5 text-[11px] text-zinc-500 dark:text-zinc-400 ${
+                expanded ? "whitespace-pre-wrap" : "line-clamp-1"
+              }`}
+            >
+              → {card.back}
+            </p>
+            <span className="mt-1 inline-block text-[10px] font-medium text-rose-600 dark:text-rose-300">
+              {expanded ? "閉じる ▲" : "全文を見る ▼"}
+            </span>
+          </button>
         </div>
         <div className="flex shrink-0 flex-col gap-1">
           <button
