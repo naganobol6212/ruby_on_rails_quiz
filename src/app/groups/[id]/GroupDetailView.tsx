@@ -12,6 +12,7 @@ import {
   type Group,
   type GroupMember,
 } from "@/lib/groups";
+import { GroupFeed } from "./GroupFeed";
 
 export function GroupDetailView({ groupId }: { groupId: string }) {
   const { enabled, ready, user } = useAuth();
@@ -178,16 +179,13 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
         </ul>
       </section>
 
-      {/* フィード (次の増分) */}
-      <section className="rounded-2xl border border-dashed border-zinc-300 bg-white/40 p-6 text-center dark:border-zinc-700 dark:bg-zinc-900/30">
-        <p className="text-2xl">📣</p>
-        <p className="mt-2 text-sm font-medium text-zinc-700 dark:text-zinc-200">
-          フィード (投稿・スタンプ・コメント) は次のアップデートで追加予定
-        </p>
-        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-          自由投稿と、ジャーナル / 自己説明の共有に対応します。
-        </p>
-      </section>
+      {/* フィード */}
+      <GroupFeed
+        groupId={group.id}
+        currentUserId={user.id}
+        isOwner={isOwner}
+        members={members}
+      />
 
       {/* アクション */}
       <section className="flex flex-wrap gap-3 border-t border-zinc-200 pt-4 dark:border-white/10">

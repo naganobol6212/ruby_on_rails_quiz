@@ -15,6 +15,7 @@ import {
 import { JournalEditor } from "./JournalEditor";
 import { JournalMarkdown } from "./JournalMarkdown";
 import { Modal } from "./Modal";
+import { ShareToGroupButton } from "./ShareToGroupButton";
 
 type Props = {
   id: string;
@@ -291,6 +292,11 @@ export function JournalEntryView({ id }: Props) {
         >
           ジャーナル一覧へ
         </Link>
+        <ShareToGroupButton
+          title={entry.title}
+          body={entryToText(entry)}
+          source={{ journalId: entry.id }}
+        />
       </section>
 
       {/* 振り返りのコツモーダル */}

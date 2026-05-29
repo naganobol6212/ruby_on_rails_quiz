@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { setSelfExplanation, getAttempt } from "@/lib/storage";
 import type { ModelSelfExplanation } from "@/lib/types";
+import { ShareToGroupButton } from "./ShareToGroupButton";
 
 type Props = {
   questionId: string;
@@ -201,6 +202,11 @@ export function SelfExplanationBox({
               まず自分で書いてから見比べると効果的
             </span>
           )}
+          <ShareToGroupButton
+            title="自己説明の共有"
+            body={text}
+            source={{ questionId }}
+          />
         </div>
 
         <AnimatePresence>
