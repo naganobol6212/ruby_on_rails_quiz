@@ -2536,6 +2536,528 @@ const reactExpand: Question[] = [
   },
 ];
 
+// ===========================================================================
+// Python (python-basics) — py-031〜040 / 参考書 python-intro を補完
+// ===========================================================================
+const pythonExpand: Question[] = [
+  {
+    id: "py-031",
+    categoryId: "python-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "def f(x, items=[]): items.append(x); return items を f(1) → f(2) と呼ぶと?",
+    choices: [
+      "[1] の次に [1, 2] になる (デフォルト引数のリストが共有される罠)",
+      "[1] の次に [2] になる",
+      "毎回 [] から始まり [1] と [2]",
+      "TypeError になる",
+    ],
+    answerIndex: 0,
+    hints: [
+      "デフォルト値は関数定義時に 1 度だけ評価される。",
+      "可変オブジェクトをデフォルトにすると共有される。",
+      "対策は None を既定にして関数内で生成。",
+    ],
+    explanation: {
+      summary:
+        "デフォルト引数は定義時に一度だけ生成され、可変オブジェクト (list/dict) だと呼び出し間で共有される。f(1)→[1]、f(2)→[1,2] になる。",
+      reason:
+        "対策は def f(x, items=None): if items is None: items = []。Python の有名な落とし穴。",
+    },
+  },
+  {
+    id: "py-032",
+    categoryId: "python-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "Python の is と == の違いは?",
+    choices: [
+      "まったく同じ",
+      "is は値の比較、== は型の比較",
+      "== は予約語ではない",
+      "== は値の等価性、is は同一オブジェクト (id) かの比較",
+    ],
+    answerIndex: 3,
+    hints: [
+      "None の判定は is None が定石。",
+      "== は __eq__ を呼ぶ。",
+      "小さな int の is は実装依存でハマる。",
+    ],
+    explanation: {
+      summary:
+        "== は値の等価性 (__eq__)、is は同一オブジェクトか (id が同じか) を比較する。None / True / False の判定は is を使う。",
+      reason:
+        "a == b は中身が等しいか、a is b は同じ実体か。小さな整数や短い文字列はインターン (キャッシュ) され is が True になることがあり、値比較に is を使うとハマる。",
+    },
+  },
+  {
+    id: "py-033",
+    categoryId: "python-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "0〜9 のうち偶数だけ 2 乗したリストを作る、最も Python らしい書き方は?",
+    choices: [
+      "for ループで append する",
+      "map と filter を必ず使う",
+      "[n**2 for n in range(10) if n % 2 == 0] (リスト内包表記)",
+      "while で添字を回す",
+    ],
+    answerIndex: 2,
+    hints: [
+      "[式 for x in 反復 if 条件]。",
+      "読みやすく高速。",
+      "巨大データはジェネレータ式 (...) も検討。",
+    ],
+    explanation: {
+      summary:
+        "リスト内包表記 [n**2 for n in range(10) if n % 2 == 0] が簡潔で速い。条件は if、変換は先頭の式。",
+      reason:
+        "メモリを抑えたい大規模データはジェネレータ式 (n**2 for ...) や辞書/集合内包表記も使える。多重ネストや複雑な内包は可読性が落ちるので通常ループに戻す判断も大事。",
+    },
+  },
+  {
+    id: "py-034",
+    categoryId: "python-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "def f(*args, **kwargs) の *args と **kwargs は何を受け取る?",
+    choices: [
+      "args はポインタ、kwargs は参照",
+      "args は可変長の位置引数 (tuple)、kwargs は可変長のキーワード引数 (dict)",
+      "両方とも list",
+      "args が辞書、kwargs がタプル",
+    ],
+    answerIndex: 1,
+    hints: [
+      "* は位置引数をまとめる。",
+      "** はキーワード引数をまとめる。",
+      "呼び出し側で f(*list, **dict) と展開もできる。",
+    ],
+    explanation: {
+      summary:
+        "*args は余った位置引数をタプルで、**kwargs は余ったキーワード引数を辞書で受け取る。呼び出し側では f(*seq, **mapping) で展開できる。",
+      reason:
+        "ラッパー関数やデコレータで引数をそのまま委譲するのに多用する。順序は (位置, *args, キーワード専用, **kwargs)。",
+    },
+  },
+  {
+    id: "py-035",
+    categoryId: "python-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "ファイルを開いて確実に閉じる Python らしい書き方は?",
+    choices: [
+      "f = open(path); ... ; f.close() を必ず手で書く",
+      "open しっぱなしで GC に任せる",
+      "try/finally でしか書けない",
+      "with open(path) as f: のコンテキストマネージャを使う",
+    ],
+    answerIndex: 3,
+    hints: [
+      "ブロックを抜けると自動で close。",
+      "例外が起きてもクリーンアップされる。",
+      "__enter__ / __exit__ を実装したオブジェクトで自作も可。",
+    ],
+    explanation: {
+      summary:
+        "with open(path) as f: はブロック終了時 (例外時も) に自動で close する。リソース管理の定石。",
+      reason:
+        "コンテキストマネージャは __enter__/__exit__ を持つオブジェクト。contextlib.contextmanager で関数からも作れる。複数同時に with a, b: と書ける。",
+    },
+  },
+  {
+    id: "py-036",
+    categoryId: "python-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question: "yield を使ったジェネレータがリストと異なる主な利点は?",
+    choices: [
+      "必ず高速になる",
+      "値を一度に全部メモリに展開せず、必要な分だけ遅延生成する",
+      "並列実行される",
+      "型チェックが効く",
+    ],
+    answerIndex: 1,
+    hints: [
+      "巨大/無限のシーケンスを扱える。",
+      "一度に 1 要素ずつ生成。",
+      "再走査はできない (使い切り)。",
+    ],
+    explanation: {
+      summary:
+        "ジェネレータは要素を遅延 (lazy) に 1 つずつ生成するため、巨大・無限のデータでもメモリを抑えられる。",
+      reason:
+        "list は全要素を即メモリに保持。ジェネレータは next() のたびに yield まで進む。ただし一度きりで再利用不可、len() も取れない点に注意。",
+    },
+  },
+  {
+    id: "py-037",
+    categoryId: "python-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question: "@decorator (デコレータ) の本質的な仕組みは?",
+    choices: [
+      "関数名を変更する構文",
+      "コメントの一種",
+      "型注釈の別名",
+      "関数を受け取り、ラップした新しい関数を返す高階関数を、@ で適用する糖衣構文",
+    ],
+    answerIndex: 3,
+    hints: [
+      "@deco は func = deco(func) と等価。",
+      "前後処理 (ログ/計測/キャッシュ) を差し込める。",
+      "functools.wraps でメタ情報を保つ。",
+    ],
+    explanation: {
+      summary:
+        "@deco は func = deco(func) の糖衣。デコレータは関数を受け取り、処理を包んだ関数を返す高階関数。",
+      reason:
+        "ログ・計測・キャッシュ (functools.lru_cache)・認可などの横断的関心を差し込める。元関数の名前/docstring を保つため内側に @functools.wraps(func) を付けるのが定石。",
+    },
+  },
+  {
+    id: "py-038",
+    categoryId: "python-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "CPython の GIL の影響として正しいのは?",
+    choices: [
+      "GIL があると Python は一切並行処理できない",
+      "CPU バウンドな処理はスレッドでは並列化しにくく、multiprocessing 等が有効",
+      "I/O バウンドも並行化できない",
+      "GIL は全実装に必須の言語仕様",
+    ],
+    answerIndex: 1,
+    hints: [
+      "GIL は同時に 1 スレッドしか Python バイトコードを実行させない。",
+      "I/O 待ちでは解放されるのでスレッドも有効。",
+      "CPU バウンドはプロセス分割が定石。",
+    ],
+    explanation: {
+      summary:
+        "GIL により CPU バウンドな処理はマルチスレッドで並列化しにくい。プロセスを分ける multiprocessing や C 拡張、(3.13+ の) free-threaded ビルドで回避する。I/O バウンドはスレッドや asyncio が有効。",
+      reason:
+        "GIL は CPython の実装上の仕組み (言語仕様ではない)。I/O 待ちや多くの C 拡張は GIL を解放するため、スレッドでも効果が出る。",
+    },
+  },
+  {
+    id: "py-039",
+    categoryId: "python-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "@dataclass を使う主な利点は?",
+    choices: [
+      "__init__ / __repr__ / __eq__ などを自動生成し、データ保持クラスを簡潔に書ける",
+      "実行速度が必ず上がる",
+      "型チェックを実行時に強制する",
+      "継承を禁止する",
+    ],
+    answerIndex: 0,
+    hints: [
+      "フィールドを型注釈付きで宣言するだけ。",
+      "ボイラープレートが大幅に減る。",
+      "frozen=True で不変にもできる。",
+    ],
+    explanation: {
+      summary:
+        "@dataclass はフィールド宣言から __init__/__repr__/__eq__ などを自動生成し、データ中心のクラスを簡潔にする。frozen=True で不変、order=True で比較も付く。",
+      reason:
+        "型注釈は実行時に強制されない (静的チェックは mypy 等)。より厳密な検証が要るなら pydantic を使う選択肢もある。",
+    },
+  },
+  {
+    id: "py-040",
+    categoryId: "python-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "ネストしたリスト a = [[1,2],[3]] を b = a[:] (浅いコピー) し、b[0].append(9) するとどうなる?",
+    choices: [
+      "b だけ変わり a は不変",
+      "TypeError",
+      "a も b も別物で何も影響しない",
+      "a も変わる ([[1,2,9],[3]]) — 浅いコピーは内側のリストを共有するため",
+    ],
+    answerIndex: 3,
+    hints: [
+      "a[:] は最上位だけ新しいリスト。",
+      "内側の要素は同じ参照を共有。",
+      "完全に独立させるには copy.deepcopy。",
+    ],
+    explanation: {
+      summary:
+        "a[:] や list(a) は浅いコピーで、内側のオブジェクト (内部リスト) は共有される。b[0] は a[0] と同じ実体なので a も [[1,2,9],[3]] になる。",
+      reason:
+        "完全に独立させたいときは copy.deepcopy(a)。トップレベルだけ別物にしたい場合は浅いコピーで十分、というように使い分ける。",
+    },
+  },
+];
+
+// ===========================================================================
+// TypeScript (ts-basics) — ts-031〜040 / 参考書 typescript-intro を補完
+// ===========================================================================
+const typescriptExpand: Question[] = [
+  {
+    id: "ts-031",
+    categoryId: "ts-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "any と unknown の違いとして正しいのは?",
+    choices: [
+      "まったく同じ",
+      "unknown の方が危険",
+      "unknown は使う前に絞り込み (型ガード) が必要で安全、any は何でも素通しで型チェックを無効化する",
+      "any は新しい、unknown は廃止予定",
+    ],
+    answerIndex: 2,
+    hints: [
+      "any は型チェックを切る『逃げ』。",
+      "unknown はまず正体を確かめないと使えない。",
+      "外部入力の受け口は unknown が安全。",
+    ],
+    explanation: {
+      summary:
+        "unknown は『型不明だが、使う前に narrowing (typeof/in/型ガード) が必須』で安全。any は型チェックを無効化し、以後何でも通すため危険。",
+      reason:
+        "外部 JSON や catch(e) の受け口は unknown にして検証してから使うのが安全。any は伝播してコードベース全体の型安全性を蝕む。",
+    },
+  },
+  {
+    id: "ts-032",
+    categoryId: "ts-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "interface と type の違いとして正しいのは?",
+    choices: [
+      "interface は宣言マージ (同名再宣言で合成) ができ、type はできない代わりに union/交差/条件型など何でも表せる",
+      "type は廃止予定",
+      "interface は関数型を表せない",
+      "両者は完全に同一で違いはない",
+    ],
+    answerIndex: 0,
+    hints: [
+      "同名 interface を 2 回書くと合成される。",
+      "type は union/intersection/mapped/conditional に強い。",
+      "実務では用途で使い分けるか統一する。",
+    ],
+    explanation: {
+      summary:
+        "interface は宣言マージができ拡張に向く。type は union・交差・mapped/conditional types など広い表現ができる (再宣言は不可)。",
+      reason:
+        "ライブラリの公開型は拡張余地のため interface が好まれることも。union や utility 型は type が必須。プロジェクトでスタイルを統一すると良い。",
+    },
+  },
+  {
+    id: "ts-033",
+    categoryId: "ts-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "type Shape = {kind:'circle';r:number} | {kind:'rect';w:number;h:number} を switch(s.kind) で分岐できるのは何のおかげ?",
+    choices: [
+      "any を使っているから",
+      "TS では union は分岐できない",
+      "型アサーションが必須だから",
+      "判別可能ユニオン (discriminated union) — 共通のリテラル型タグ kind で絞り込めるから",
+    ],
+    answerIndex: 3,
+    hints: [
+      "共通のリテラルプロパティ (タグ) がある。",
+      "kind の値ごとに型が確定する。",
+      "default で never チェックすると網羅性も保証。",
+    ],
+    explanation: {
+      summary:
+        "各メンバーが共通のリテラル型タグ (kind) を持つ判別可能ユニオンなら、switch(s.kind) で各ケースの型が自動的に絞り込まれる。",
+      reason:
+        "default 分岐で const _exhaustive: never = s とすると、ケース追加時の漏れをコンパイルエラーで検出できる (網羅性チェック)。",
+    },
+  },
+  {
+    id: "ts-034",
+    categoryId: "ts-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "ジェネリクスで『T は id プロパティを持つ』ことを要求する書き方は?",
+    choices: [
+      "function f(x: T)",
+      "function f<T extends { id: number }>(x: T)",
+      "function f<T: {id:number}>(x: T)",
+      "function f<T is {id:number}>(x: T)",
+    ],
+    answerIndex: 1,
+    hints: [
+      "制約は extends で表す。",
+      "T が満たすべき形を書く。",
+      "これで x.id に安全にアクセスできる。",
+    ],
+    explanation: {
+      summary:
+        "<T extends { id: number }> で型変数 T に制約を付ける。これにより関数内で x.id に型安全にアクセスできる。",
+      reason:
+        "extends は『〜に代入可能』の制約。keyof と組み合わせた <T, K extends keyof T> でプロパティ取得関数なども書ける。",
+    },
+  },
+  {
+    id: "ts-035",
+    categoryId: "ts-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "既存の型 User から『一部のプロパティだけ』を持つ型を作る Utility Type は?",
+    choices: [
+      "Partial<User> (全部オプショナル)",
+      "Required<User>",
+      "Pick<User, 'id' | 'name'>",
+      "Readonly<User>",
+    ],
+    answerIndex: 2,
+    hints: [
+      "キーを選んで抜き出す。",
+      "逆に除外するのは Omit。",
+      "全部任意化は Partial。",
+    ],
+    explanation: {
+      summary:
+        "Pick<User, 'id' | 'name'> で指定キーだけの型を作る。逆に Omit<User, 'password'> は除外。Partial は全オプショナル化、Required はその逆。",
+      reason:
+        "他に Record<K,V>・Readonly<T>・ReturnType<F>・Parameters<F> などがある。Utility Types は既存型から派生型を安全に作る道具。",
+    },
+  },
+  {
+    id: "ts-036",
+    categoryId: "ts-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "const obj = { mode: 'dark' } の mode の型を 'dark' リテラルに固定し、全体を readonly にするには?",
+    choices: [
+      "as const を付ける ({ mode: 'dark' } as const)",
+      "as string を付ける",
+      ": any を付ける",
+      "何もしなくてもリテラル型になる",
+    ],
+    answerIndex: 0,
+    hints: [
+      "通常は mode が string に広がる (widening)。",
+      "as const でリテラル + readonly に固定。",
+      "設定オブジェクトや tuple 化に便利。",
+    ],
+    explanation: {
+      summary:
+        "as const を付けると値がリテラル型に固定され (mode: 'dark')、オブジェクト/配列は深く readonly になる。",
+      reason:
+        "通常 const obj = {mode:'dark'} でも obj.mode は string に広がる。as const で 'dark' に固定でき、配列は readonly tuple になる。union 定義の元にも使える。",
+    },
+  },
+  {
+    id: "ts-037",
+    categoryId: "ts-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "function isString(x: unknown): x is string { return typeof x === 'string' } の x is string は何?",
+    choices: [
+      "ただのコメント",
+      "実行時アサーション",
+      "ユーザー定義型ガード (戻り値 true のとき呼び出し側で x が string に絞り込まれる)",
+      "型エイリアス",
+    ],
+    answerIndex: 3,
+    hints: [
+      "戻り値の型に書く特別な述語。",
+      "true を返すと呼び出し側で型が絞られる。",
+      "複雑な判定を関数に切り出せる。",
+    ],
+    explanation: {
+      summary:
+        "x is string は型述語 (type predicate)。この関数が true を返すと、呼び出し側の if ブロック内で引数が string に絞り込まれる (ユーザー定義型ガード)。",
+      reason:
+        "typeof/instanceof/in で表せない複雑な判定を関数化できる。誤った述語を書くと安全性が崩れるので実装と述語を一致させる責任は開発者にある。",
+    },
+  },
+  {
+    id: "ts-038",
+    categoryId: "ts-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question: "never 型はどんなときに現れる/使うか?",
+    choices: [
+      "あらゆる値を入れられる型",
+      "null と同じ",
+      "省略可能なプロパティの型",
+      "決して値を持たない型 (返らない関数の戻り値、網羅性チェックの『あり得ない』分岐)",
+    ],
+    answerIndex: 3,
+    hints: [
+      "例外を投げ続ける/無限ループの関数の戻り値。",
+      "union を絞り切った後の『残り』。",
+      "switch の網羅性チェックで使う。",
+    ],
+    explanation: {
+      summary:
+        "never は『値を持ち得ない』型。常に throw する関数の戻り値や、判別可能ユニオンを全分岐で扱い切った後の default に現れる。",
+      reason:
+        "default で const _: never = x とすると、ケース追加漏れをコンパイルエラーにできる。any と逆で『どの型にも代入できない』のが never。",
+    },
+  },
+  {
+    id: "ts-039",
+    categoryId: "ts-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "strictNullChecks 有効下で user.profile?.name の ?. (オプショナルチェーン) は何をする?",
+    choices: [
+      "profile が null/undefined なら評価を打ち切り undefined を返す (例外を投げない)",
+      "null を空文字に変換する",
+      "必ず例外を投げる",
+      "型エラーを無視する",
+    ],
+    answerIndex: 0,
+    hints: [
+      "左辺が null/undefined なら短絡。",
+      "?? (null 合体) と組み合わせる。",
+      "strictNullChecks で null 安全が型に現れる。",
+    ],
+    explanation: {
+      summary:
+        "?. は左辺が null/undefined のときに評価を止め undefined を返す (TypeError を防ぐ)。user.profile?.name ?? '匿名' のように ?? で既定値も与えられる。",
+      reason:
+        "strictNullChecks を有効にすると null/undefined が型に明示され、? や ?. を使った安全なアクセスが促される。?? は null/undefined のみを既定値に置換 (|| と違い 0/'' は通す)。",
+    },
+  },
+  {
+    id: "ts-040",
+    categoryId: "ts-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question: "satisfies 演算子 (TS 4.9+) の利点は?",
+    choices: [
+      "型を完全に無視する",
+      "実行時に型チェックする",
+      "any にキャストする",
+      "値が指定の型に適合するか検査しつつ、値そのものの具体的な (より狭い) 型推論を保てる",
+    ],
+    answerIndex: 3,
+    hints: [
+      "型注釈 (: T) だと推論が T まで広がる。",
+      "as T は検査が甘い。",
+      "satisfies は検査 + 推論維持の両取り。",
+    ],
+    explanation: {
+      summary:
+        "const config = {...} satisfies Config は、Config への適合を検査しつつ、各プロパティの具体的なリテラル型などの推論を維持する。",
+      reason:
+        ": Config だと値の型が Config に広がり個別キーのリテラル情報が失われる。as Config は適合検査が甘い。satisfies は『検査するが型は広げない』の両取り。",
+    },
+  },
+];
+
 export const expandQuestions: Question[] = [
   ...nextjsExpand,
   ...gitExpand,
@@ -2543,4 +3065,6 @@ export const expandQuestions: Question[] = [
   ...linuxExpand,
   ...securityExpand,
   ...reactExpand,
+  ...pythonExpand,
+  ...typescriptExpand,
 ];
