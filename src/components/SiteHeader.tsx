@@ -24,7 +24,7 @@ const links: NavLink[] = [
 ];
 
 // ログイン同期 (Supabase) が有効なときだけ出すナビ
-const authLinks: NavLink[] = [{ href: "/groups", label: "仲間", icon: "👥" }];
+const authLinks: NavLink[] = [{ href: "/groups", label: "グループ", icon: "👥" }];
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";

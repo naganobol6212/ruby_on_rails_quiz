@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "@/lib/auth/context";
+import { getMyProfile, PROFILE_UPDATED_EVENT } from "@/lib/profile";
 
 /**
  * ヘッダー右側に置くサインインボタン / アバタードロップダウン。
@@ -15,6 +17,10 @@ export function AuthButton() {
   const { enabled, ready, user, syncing, signInWithGitHub, signOut } =
     useAuth();
   const [open, setOpen] = useState(false);
+  const [profile, setProfile] = useState<{
+    name: string;
+    avatar: string | null;
+  } | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,6 +33,28 @@ export function AuthButton() {
     window.addEventListener("mousedown", onClick);
     return () => window.removeEventListener("mousedown", onClick);
   }, [open]);
+
+  // 自分で設定したプロフィール (表示名 / アイコン) をヘッダーにも反映
+  useEffect(() => {
+    if (!enabled || !user) return;
+    let cancelled = false;
+    const load = async () => {
+      const info = await getMyProfile();
+      if (!cancelled && info) {
+        setProfile({
+          name: info.profile.displayName,
+          avatar: info.profile.avatarUrl,
+        });
+      }
+    };
+    void load();
+    const onUpdated = () => void load();
+    window.addEventListener(PROFILE_UPDATED_EVENT, onUpdated);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(PROFILE_UPDATED_EVENT, onUpdated);
+    };
+  }, [enabled, user]);
 
   if (!enabled || !ready) return null;
 
@@ -53,13 +81,15 @@ export function AuthButton() {
     );
   }
 
-  const avatarUrl = (user.user_metadata?.avatar_url as string | undefined) ??
-    null;
-  const handle =
+  const githubAvatar =
+    (user.user_metadata?.avatar_url as string | undefined) ?? null;
+  const githubHandle =
     (user.user_metadata?.user_name as string | undefined) ??
     (user.user_metadata?.preferred_username as string | undefined) ??
     user.email ??
     "user";
+  const avatarUrl = profile?.avatar ?? githubAvatar;
+  const handle = profile?.name ?? githubHandle;
 
   return (
     <div ref={ref} className="relative">
@@ -112,6 +142,13 @@ export function AuthButton() {
                 ? "🔄 同期中..."
                 : "☁️ デバイス間で進捗が同期されています"}
             </div>
+            <Link
+              href="/profile"
+              onClick={() => setOpen(false)}
+              className="block w-full rounded-lg px-3 py-2 text-left text-xs font-medium text-zinc-700 hover:bg-rose-50 hover:text-rose-700 dark:text-zinc-200 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
+            >
+              プロフィール設定
+            </Link>
             <button
               type="button"
               onClick={() => {
