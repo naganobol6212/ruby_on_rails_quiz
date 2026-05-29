@@ -921,4 +921,462 @@ const gitExpand: Question[] = [
   },
 ];
 
-export const expandQuestions: Question[] = [...nextjsExpand, ...gitExpand];
+// ===========================================================================
+// Nuxt (nuxt-basics) — nuxt-021〜038 / 参考書 nuxt-intro の各章に対応
+// ===========================================================================
+const nuxtExpand: Question[] = [
+  {
+    id: "nuxt-021",
+    categoryId: "nuxt-basics",
+    difficulty: "beginner",
+    type: "choice",
+    question:
+      "Nuxt 3 で components/ や composables/ に置いた要素の import は?",
+    choices: [
+      "使うたびに毎回 import が必要",
+      "nuxt.config で 1 つずつ登録が必要",
+      "自動インポートされ import 不要",
+      "app.vue でのみ使える",
+    ],
+    answerIndex: 2,
+    hints: [
+      "Nuxt の規約ディレクトリは特別扱い。",
+      "components / composables / utils などが対象。",
+      "コード量が減る代わりに、どこ由来か分かりにくい面も。",
+    ],
+    explanation: {
+      summary:
+        "Nuxt は components / composables / utils などの規約ディレクトリを自動インポートする。明示 import なしで使える。",
+      reason:
+        "ボイラープレートが減る一方、出所が分かりにくくなるため、必要なら #imports から明示 import もできる。Vue の ref / computed なども自動インポート対象。",
+    },
+  },
+  {
+    id: "nuxt-022",
+    categoryId: "nuxt-basics",
+    difficulty: "beginner",
+    type: "choice",
+    question: "ファイルベースルーティングのためにページを置くディレクトリは?",
+    choices: ["pages/", "routes/", "views/", "app/pages/ のみ"],
+    answerIndex: 0,
+    hints: [
+      "ファイル名がそのまま URL になる。",
+      "このディレクトリがあると app.vue に <NuxtPage/> が要る。",
+      "[id].vue で動的ルート。",
+    ],
+    explanation: {
+      summary:
+        "pages/ にファイルを置くとファイル名がルートになる (pages/about.vue → /about)。pages/ を使うときは app.vue に <NuxtPage /> が必要。",
+      reason:
+        "ネストや動的セグメント ([id].vue)、index.vue などの規約がある。pages/ が無い場合は app.vue が単一ページとして動く。",
+    },
+  },
+  {
+    id: "nuxt-023",
+    categoryId: "nuxt-basics",
+    difficulty: "beginner",
+    type: "choice",
+    question:
+      "Nuxt の設定 (モジュール / ランタイム設定 / SSR 切替など) を書くファイルは?",
+    choices: [
+      "vite.config.ts",
+      "package.json の nuxt キー",
+      ".nuxtrc のみ",
+      "nuxt.config.ts",
+    ],
+    answerIndex: 3,
+    hints: [
+      "defineNuxtConfig({ ... }) を export する。",
+      "modules / runtimeConfig / routeRules などを書く。",
+      "Vite 設定もこの中の vite キーで拡張できる。",
+    ],
+    explanation: {
+      summary:
+        "nuxt.config.ts に defineNuxtConfig({...}) で設定を書く。modules・runtimeConfig・routeRules・ssr などを集約する。",
+      reason:
+        "Vite 設定は nuxt.config の vite キーで拡張する。秘密値は runtimeConfig (サーバー)、公開値は runtimeConfig.public に置く。",
+    },
+  },
+  {
+    id: "nuxt-024",
+    categoryId: "nuxt-basics",
+    difficulty: "beginner",
+    type: "choice",
+    question: "Vue の ref と reactive の違いとして正しいのは?",
+    choices: [
+      "まったく同じもの",
+      "ref はあらゆる値を包み .value でアクセス、reactive はオブジェクト/配列向けでプロパティに直接アクセス",
+      "reactive はプリミティブ専用",
+      "ref は SSR で使えない",
+    ],
+    answerIndex: 1,
+    hints: [
+      "プリミティブも入れたいなら ref。",
+      "ref は script では .value、テンプレートでは自動アンラップ。",
+      "reactive はオブジェクトをそのままリアクティブに。",
+    ],
+    explanation: {
+      summary:
+        "ref(x) は任意の値を包み script では .value で読み書き (テンプレートでは自動アンラップ)。reactive({...}) はオブジェクト/配列をリアクティブにし、プロパティへ直接アクセスする。",
+      reason:
+        "プリミティブ単体は ref、複数フィールドのまとまりは reactive、が目安。reactive は分割代入するとリアクティブ性が切れる点に注意 (toRefs で回避)。",
+    },
+  },
+  {
+    id: "nuxt-025",
+    categoryId: "nuxt-basics",
+    difficulty: "beginner",
+    type: "choice",
+    question:
+      "既存の状態から派生する値を、依存が変わったときだけ再計算してキャッシュするには?",
+    choices: [
+      "computed(() => ...) を使う",
+      "watch で手動更新する",
+      "methods に書く",
+      "ref を毎回手で書き換える",
+    ],
+    answerIndex: 0,
+    hints: [
+      "派生値はキャッシュされ、依存変化時のみ再計算。",
+      "テンプレートで関数呼び出しするより効率的。",
+      "副作用が要るなら watch。",
+    ],
+    explanation: {
+      summary:
+        "computed は依存するリアクティブ値が変わったときだけ再計算し、結果をキャッシュする。派生値の定番。",
+      reason:
+        "watch は『変化に反応して副作用を起こす』もので役割が違う。テンプレートでメソッド呼び出しすると毎レンダリング実行されるが、computed はキャッシュが効く。",
+    },
+  },
+  {
+    id: "nuxt-026",
+    categoryId: "nuxt-basics",
+    difficulty: "beginner",
+    type: "choice",
+    question: "Vue の <script setup> の特徴は?",
+    choices: [
+      "Options API 専用の構文",
+      "export default { ... } が必須",
+      "トップレベルで宣言した変数・関数がそのままテンプレートで使え、定型コードが減る",
+      "this 経由でしかデータにアクセスできない",
+    ],
+    answerIndex: 2,
+    hints: [
+      "Composition API の糖衣構文。",
+      "return 文が要らない。",
+      "defineProps / defineEmits をコンパイラマクロで使える。",
+    ],
+    explanation: {
+      summary:
+        "<script setup> はトップレベルの変数・関数・import がそのままテンプレートに公開され、return が不要。Composition API を簡潔に書ける。",
+      reason:
+        "defineProps / defineEmits / defineExpose などのコンパイラマクロが使える。Options API の this ベースとは異なるスタイル。",
+    },
+  },
+  {
+    id: "nuxt-027",
+    categoryId: "nuxt-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "動的ルート pages/users/[id].vue でパラメータ id を取得するには?",
+    choices: [
+      "this.$route.params.id",
+      "props.id (自動で渡る)",
+      "useParams().id",
+      "const route = useRoute(); route.params.id",
+    ],
+    answerIndex: 3,
+    hints: [
+      "Composition API では useRoute() を使う。",
+      "this は <script setup> では使わない。",
+      "params にセグメント名で入っている。",
+    ],
+    explanation: {
+      summary:
+        "useRoute() で現在のルート情報を取得し、route.params.id でセグメントを読む。",
+      reason:
+        "definePageMeta({ validate }) でパラメータ検証もできる。useParams という Composable は Nuxt には無い (Next.js と混同しやすい)。",
+    },
+  },
+  {
+    id: "nuxt-028",
+    categoryId: "nuxt-basics",
+    difficulty: "beginner",
+    type: "choice",
+    question: "Nuxt でクライアントサイドの画面遷移を行うコンポーネントは?",
+    choices: [
+      "<RouterView>",
+      "<NuxtLink to=\"/about\">",
+      "<NuxtPage>",
+      "<a href> しか使えない",
+    ],
+    answerIndex: 1,
+    hints: [
+      "プリフェッチやアクティブ判定も付く。",
+      "<NuxtPage> はページの描画先 (別物)。",
+      "外部リンクは通常の <a>。",
+    ],
+    explanation: {
+      summary:
+        "<NuxtLink to=\"...\"> でクライアントサイド遷移 (SPA ナビゲーション)。表示領域のリンクは自動プリフェッチされる。",
+      reason:
+        "<NuxtPage> はマッチしたページをレンダリングする場所で役割が違う。外部 URL には素の <a> を使う (NuxtLink も外部判定はする)。",
+    },
+  },
+  {
+    id: "nuxt-029",
+    categoryId: "nuxt-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "特定ページに使うレイアウト (layouts/custom.vue) を指定するには?",
+    choices: [
+      "definePageMeta({ layout: 'custom' })",
+      "nuxt.config で全ページ固定するしかない",
+      "app.vue に直接書く",
+      "ページ単位の指定はできない",
+    ],
+    answerIndex: 0,
+    hints: [
+      "ページの <script setup> 内で宣言する。",
+      "layouts/ 配下のファイル名を指定。",
+      "layout: false でレイアウト無しにもできる。",
+    ],
+    explanation: {
+      summary:
+        "definePageMeta({ layout: 'custom' }) でそのページのレイアウトを指定する (layouts/custom.vue)。layouts/default.vue が既定。",
+      reason:
+        "definePageMeta ではほかに middleware / pageTransition / validate なども設定できる。動的に切り替えるなら setPageLayout() を使う。",
+    },
+  },
+  {
+    id: "nuxt-030",
+    categoryId: "nuxt-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "SSR でサーバー/クライアントの二重取得を避けつつ、setup でデータ取得する Composable は?",
+    choices: [
+      "onMounted で毎回 fetch する",
+      "axios をトップレベルで直接呼ぶ",
+      "useFetch / useAsyncData",
+      "fetch をそのまま await する",
+    ],
+    answerIndex: 2,
+    hints: [
+      "サーバーで取得した結果をハイドレーションで受け渡す。",
+      "キーで重複取得を排除する。",
+      "pending / error / data を返す。",
+    ],
+    explanation: {
+      summary:
+        "useFetch / useAsyncData は SSR でサーバー側取得した結果をペイロードでクライアントへ渡し、二重取得を防ぐ。data / pending / error / refresh を返す。",
+      reason:
+        "素の fetch をトップレベルで使うとサーバーとクライアントの両方で走り得る。onMounted の fetch はクライアントのみで SSR の利点を失う。useFetch は $fetch + useAsyncData の薄いラッパ。",
+    },
+  },
+  {
+    id: "nuxt-031",
+    categoryId: "nuxt-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question:
+      "ボタン押下などイベント内で『その場で 1 回だけ』API を叩くのに適すのは?",
+    choices: [
+      "useFetch を呼ぶ",
+      "useAsyncData を呼ぶ",
+      "useState を使う",
+      "$fetch(url) を直接呼ぶ",
+    ],
+    answerIndex: 3,
+    hints: [
+      "useFetch / useAsyncData は setup での取得向け。",
+      "命令的な呼び出しには軽量な API。",
+      "ofetch ベースで JSON 自動パースなど便利。",
+    ],
+    explanation: {
+      summary:
+        "イベントハンドラ等の命令的な呼び出しには $fetch(url) を使う。useFetch / useAsyncData は setup 内のデータ取得 (SSR 連携) 向け。",
+      reason:
+        "イベント内で useFetch を呼ぶと SSR 連携やライフサイクルの前提が崩れる。$fetch は ofetch ベースでベース URL やヘッダーも扱いやすい。",
+    },
+  },
+  {
+    id: "nuxt-032",
+    categoryId: "nuxt-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question: "useFetch で同じデータの重複取得を防ぐ仕組みは?",
+    choices: [
+      "重複排除の仕組みは無い",
+      "key (URL などから自動生成、明示も可) でキャッシュ・重複排除する",
+      "localStorage に必ず保存する",
+      "watch で監視するだけ",
+    ],
+    answerIndex: 1,
+    hints: [
+      "同じキーの取得結果は共有される。",
+      "ペイロードに格納してハイドレーション時に再利用。",
+      "明示的に key を渡して衝突を制御できる。",
+    ],
+    explanation: {
+      summary:
+        "useFetch / useAsyncData は key (URL 等から自動生成、または明示) で結果をキャッシュし、同一キーの重複取得を防ぐ。",
+      reason:
+        "SSR で取得した data はペイロードに載りクライアントで再利用される。動的引数を含む取得は key を明示してキャッシュ衝突を避けるとよい。",
+    },
+  },
+  {
+    id: "nuxt-033",
+    categoryId: "nuxt-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "SSR セーフにコンポーネント間で状態を共有する Nuxt 組み込み Composable は?",
+    choices: [
+      "useState('key', () => initial)",
+      "モジュールスコープに置いた素の ref",
+      "window.__state に入れる",
+      "provide / inject だけが唯一の手段",
+    ],
+    answerIndex: 0,
+    hints: [
+      "サーバーではリクエストごとに状態を分離する必要がある。",
+      "モジュールの ref はリクエスト間で漏れる危険。",
+      "キー付きで初期化する。",
+    ],
+    explanation: {
+      summary:
+        "useState('key', () => initial) は SSR でリクエストごとに分離され、かつペイロードでクライアントへ引き継がれる共有状態を提供する。",
+      reason:
+        "サーバーでモジュールスコープの ref を共有状態に使うと、複数リクエスト間で状態が漏れる (クロスリクエスト汚染)。大規模なら Pinia を使う。",
+    },
+  },
+  {
+    id: "nuxt-034",
+    categoryId: "nuxt-basics",
+    difficulty: "beginner",
+    type: "choice",
+    question: "Vue / Nuxt で現在推奨される状態管理ライブラリは?",
+    choices: ["Vuex 4 が唯一の選択肢", "Redux", "Pinia", "状態管理ライブラリは使えない"],
+    answerIndex: 2,
+    hints: [
+      "Vuex の後継として公式が推奨。",
+      "Composition API 親和・型推論が良い。",
+      "Nuxt では自動インポート連携もある。",
+    ],
+    explanation: {
+      summary:
+        "Pinia が Vue 公式推奨の状態管理ライブラリ (Vuex の事実上の後継)。型推論とDevTools が良く、Nuxt とも統合される。",
+      reason:
+        "小規模なら useState で十分。Redux は React 圏のライブラリ。Vuex は今もメンテされるが新規は Pinia が推奨。",
+    },
+  },
+  {
+    id: "nuxt-035",
+    categoryId: "nuxt-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "Nuxt 3 でルートごとに SSR / 静的化 / キャッシュ / リダイレクト等を宣言的に指定する設定は?",
+    choices: [
+      "指定はできない",
+      "middleware でのみ可能",
+      "vite.config で指定する",
+      "nuxt.config の routeRules",
+    ],
+    answerIndex: 3,
+    hints: [
+      "Nitro のハイブリッドレンダリング機能。",
+      "パターンごとに prerender / ssr / swr / redirect を指定。",
+      "1 アプリ内で静的と動的を混在できる。",
+    ],
+    explanation: {
+      summary:
+        "nuxt.config の routeRules でパスパターンごとに prerender / ssr:false (SPA) / swr / cache / redirect / headers を宣言できる (ハイブリッドレンダリング)。",
+      reason:
+        "例: '/blog/**': { swr: 3600 }、'/admin/**': { ssr: false }。ページ単位でレンダリング戦略を最適化できるのが Nuxt 3 (Nitro) の強み。",
+    },
+  },
+  {
+    id: "nuxt-036",
+    categoryId: "nuxt-basics",
+    difficulty: "intermediate",
+    type: "choice",
+    question: "ビルド時に静的 HTML を生成 (プリレンダリング) する方法は?",
+    choices: [
+      "SSR を切ればよい",
+      "routeRules の prerender: true (または nuxi generate)",
+      "プリレンダリングは不可",
+      "useFetch を消す",
+    ],
+    answerIndex: 1,
+    hints: [
+      "静的ホスティング向け。",
+      "全体生成は nuxi generate。",
+      "一部だけなら routeRules で指定。",
+    ],
+    explanation: {
+      summary:
+        "routeRules: { '/path': { prerender: true } } で該当ルートをビルド時に静的生成。サイト全体は nuxi generate (ssr:false の純 SPA とは別)。",
+      reason:
+        "Nitro が静的 HTML を出力し CDN 配信できる。動的部分は SSR/CSR と混在可能 (ハイブリッド)。SSR を切る (ssr:false) のは SPA 化であり静的生成とは意味が異なる。",
+    },
+  },
+  {
+    id: "nuxt-037",
+    categoryId: "nuxt-basics",
+    difficulty: "beginner",
+    type: "choice",
+    question: "ページのタイトルや meta タグ (OGP 等) を設定する Composable は?",
+    choices: [
+      "useHead / useSeoMeta",
+      "document.title を直接書き換える",
+      "<head> に手書きするしかない",
+      "useMeta は廃止され代替が無い",
+    ],
+    answerIndex: 0,
+    hints: [
+      "SSR でも正しく <head> に反映される。",
+      "SEO 向けには専用の Composable がある。",
+      "title / meta / link などを宣言的に。",
+    ],
+    explanation: {
+      summary:
+        "useHead({ title, meta, link, ... }) や、SEO 向けに型が整理された useSeoMeta({ title, ogTitle, description, ... }) で head を設定する。",
+      reason:
+        "SSR でサーバー描画時に <head> へ反映されるため SEO/OGP に有効。document.title 直書きは SSR で効かない。Nuxt 2 の head オプションの後継。",
+    },
+  },
+  {
+    id: "nuxt-038",
+    categoryId: "nuxt-basics",
+    difficulty: "advanced",
+    type: "choice",
+    question:
+      "Nuxt で致命的エラーを発生させ、エラーページ (error.vue) を表示するには?",
+    choices: [
+      "console.error する",
+      "useState('error') にセットする",
+      "throw new Error だけで必ず error.vue が出る",
+      "createError({ statusCode, statusMessage }) を throw する (error.vue で表示)",
+    ],
+    answerIndex: 3,
+    hints: [
+      "ステータスコード付きのエラーを投げる。",
+      "fatal: true でフルページのエラー画面に。",
+      "プロジェクト直下の error.vue が描画される。",
+    ],
+    explanation: {
+      summary:
+        "createError({ statusCode, statusMessage, fatal: true }) を throw すると、ルートの error.vue がフルページのエラー画面として表示される (showError でも可)。",
+      reason:
+        "素の throw new Error は SSR でハンドリングされるが、ステータスコードや表示制御を持たせるなら createError を使う。error.vue は error プロップでエラー内容を受け取る。",
+    },
+  },
+];
+
+export const expandQuestions: Question[] = [
+  ...nextjsExpand,
+  ...gitExpand,
+  ...nuxtExpand,
+];
