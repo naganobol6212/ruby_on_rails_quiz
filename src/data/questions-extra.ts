@@ -5585,7 +5585,7 @@ export const extraQuestions: Question[] = [
       "Controller で flash メッセージを表示する書き方として正しいのは？",
     choices: [
       "flash[:notice] = '保存しました' (render と組合せ可)",
-      "1 と 3 の両方",
+      "`flash[:notice] = ...` と `redirect_to ..., notice:` の両方が正しい",
       "redirect_to @post, notice: '保存しました'",
       "render :show, notice: '保存しました'",
     ],
@@ -6001,7 +6001,7 @@ export const extraQuestions: Question[] = [
       "ActiveRecord で『複数の属性値を `:draft, :published` の文字列セットに制限』する宣言は？",
     choices: [
       "validates :status, inclusion: { in: [:draft, :published] }",
-      "1 と 2 の両方",
+      "`validates ... inclusion` と `enum` の両方が使える",
       "Rails 標準では不可",
       "enum status: { draft: 0, published: 1 }",
     ],

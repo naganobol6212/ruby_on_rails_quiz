@@ -3481,7 +3481,7 @@ export const trackQuestions: Question[] = [
     question:
       "外部 JSON 入力を実行時に型検証 + TS の型推論にも反映できる人気ライブラリは？",
     choices: [
-      "上記すべて (zod が現代の第一候補)",
+      "zod / joi / yup のいずれも (zod が現代の第一候補)",
       "zod (TypeScript-first スキーマ検証)",
       "joi (JS 用、TS 型推論は限定的)",
       "yup",

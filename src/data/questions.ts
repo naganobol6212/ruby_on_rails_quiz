@@ -230,7 +230,7 @@ export const questions: Question[] = [
     question: "次のうち、Ruby のメソッド命名規則として正しいものは？",
     choices: [
       "プライベートメソッドは末尾に `_` を付ける慣習がある",
-      "1 と 2 の両方",
+      "`!` (破壊的・要注意) と `?` (真偽値を返す) の両方が命名慣習として実在する",
       "破壊的メソッドは末尾に `!` を付ける慣習がある",
       "真偽値を返すメソッドは末尾に `?` を付ける慣習がある",
     ],
@@ -706,7 +706,7 @@ export const questions: Question[] = [
       "頭文字を小文字にする (例: my_const)",
       "頭文字を大文字にする (例: MyConst)",
       "全文字を大文字にする (例: MY_CONST)",
-      "2 と 3 の両方が定数として解釈される",
+      "頭文字大文字 (MyConst) と 全文字大文字 (MY_CONST) の両方が定数として解釈される",
     ],
     answerIndex: 3,
     choiceExplanations: [
@@ -4053,7 +4053,7 @@ export const questions: Question[] = [
       "Rails で routes ファイルから URL Helper を使うコードとして適切なのは？",
     choices: [
       "post_path(post)",
-      "上記すべて使える",
+      "`post_path` / `posts_url` / `url_for` のいずれも有効",
       "posts_url",
       "url_for(controller: 'posts')",
     ],
@@ -4553,7 +4553,7 @@ export const questions: Question[] = [
     type: "choice",
     question:
       "N+1 問題を回避するためのメソッドは？",
-    choices: ["eager_load", "上記すべて", "preload", "includes"],
+    choices: ["eager_load", "preload / eager_load / includes のいずれも", "preload", "includes"],
     answerIndex: 1,
     choiceExplanations: [
       "正しいが不完全。eager_load は LEFT JOIN で 1 クエリにまとめる方法。条件 (WHERE) で子テーブル参照したいときに使う。",
@@ -5316,7 +5316,7 @@ export const questions: Question[] = [
       "既存テーブルに add_column (default 値あり、大きなテーブル)",
       "既存テーブルから remove_column",
       "rename_column (本番で稼働中)",
-      "上記すべて要注意",
+      "add_column / remove_column / rename_column のいずれも要注意",
     ],
     answerIndex: 3,
     choiceExplanations: [

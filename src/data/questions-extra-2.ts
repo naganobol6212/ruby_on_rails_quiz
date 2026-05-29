@@ -1014,7 +1014,7 @@ export const extraQuestions2: Question[] = [
       "T | None (PEP 604、3.10+)",
       "Optional[T] (typing から、3.5+)",
       "Union[T, None]",
-      "両方 (上の 3 つすべて等価)",
+      "T | None / Optional[T] / Union[T, None] はすべて等価",
     ],
     answerIndex: 3,
     hints: [
