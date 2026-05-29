@@ -79,18 +79,6 @@ export default function ChangelogPage() {
                     </li>
                   ))}
                 </ul>
-                {entry.prUrl && (
-                  <p className="mt-3 text-[11px]">
-                    <a
-                      href={entry.prUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-rose-600 hover:underline dark:text-rose-300"
-                    >
-                      詳しい差分を GitHub で見る →
-                    </a>
-                  </p>
-                )}
               </article>
             </li>
           );
