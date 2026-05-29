@@ -17,6 +17,17 @@ export type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2026-05-29-e",
+    date: "2026-05-29",
+    title: "🗺️ Rails 以外の 10 トラックに学習ロードマップを追加",
+    badge: "feat",
+    highlights: [
+      "🆕 Python / SQL / React / Next.js / Nuxt / Git / Linux / セキュリティ / DB 設計 / AI・Claude のロードマップを公開 (これまで『準備中』だったトラック)",
+      "📚 各ステップは『参考書の章を読む → クイズで定着 (完了判定つき)』のペア構成で、 順に進めれば前提知識が積み上がる",
+      "🗺️ /roadmap で全トラックが『学習可能』として並ぶように (準備中は試験リファレンスのみ)",
+    ],
+  },
+  {
     version: "2026-05-29-d",
     date: "2026-05-29",
     title: "👥 学習グループ機能を追加 (フィード・スタンプ・コメント)",
