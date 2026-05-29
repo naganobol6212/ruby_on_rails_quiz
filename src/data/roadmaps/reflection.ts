@@ -31,9 +31,9 @@ export function makeReflectionPhase(
         items: [
           {
             kind: "guide-chapter",
-            href: "/explanations",
-            label: "🗂️ 自己説明を書く / 一覧で振り返る",
-            hint: "結論 → 理由 → 具体例 → 落とし穴 の構造で",
+            href: "/feynman",
+            label: "🗣️ ファインマン演習をはじめる",
+            hint: "4 人の相手に説明し直す (エンジニア / 初学者 / 中学生 / おばあちゃん)",
           },
         ],
       },
