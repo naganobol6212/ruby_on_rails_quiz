@@ -518,45 +518,4 @@ export const rubyRoadmap: RoadmapPhase[] = [
       },
     ],
   },
-  {
-    id: "reflection",
-    title: "Phase 8 · 学びを言語化する",
-    description:
-      "解いた問題を自分の言葉で説明できるか確認。ジャーナルに記録して振り返ると定着率が劇的に上がる。",
-    color: "emerald",
-    steps: [
-      {
-        id: "17-self-explanation",
-        number: 18,
-        title: "自己説明トレーニング",
-        emoji: "🗣️",
-        goal: "解いた問題の中から 10 問選び、『結論 → 理由 → 具体例 → 落とし穴』の構造で自分の言葉で書き直す。",
-        estimateMinutes: 60,
-        items: [
-          {
-            kind: "guide-chapter",
-            href: "/explanations",
-            label: "🗂️ 自己説明 一覧で振り返る",
-            hint: "保存した自己説明を見直す",
-          },
-        ],
-      },
-      {
-        id: "18-journal",
-        number: 19,
-        title: "週次振り返り (KPT / PREP)",
-        emoji: "📝",
-        goal: "学習ジャーナルで KPT (Keep/Problem/Try) または PREP (Point/Reason/Example/Point) で週次振り返り。",
-        estimateMinutes: 30,
-        items: [
-          {
-            kind: "guide-chapter",
-            href: "/journal",
-            label: "📝 学習ジャーナル",
-            hint: "KPT / STAR / PREP / 5W1H など",
-          },
-        ],
-      },
-    ],
-  },
 ];
