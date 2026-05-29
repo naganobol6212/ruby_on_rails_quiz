@@ -21,6 +21,7 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -32,14 +33,35 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
         return;
       }
       setLoading(true);
-      const [g, m] = await Promise.all([
-        getGroup(groupId),
-        listMembers(groupId),
-      ]);
-      if (!cancelled) {
-        setGroup(g);
-        setMembers(m);
-        setLoading(false);
+      setLoadError(null);
+      // 取得が固まっても「ずっと読み込み中」にならないよう保険のタイムアウト
+      const timeout = new Promise<"timeout">((resolve) =>
+        setTimeout(() => resolve("timeout"), 15000),
+      );
+      try {
+        const result = await Promise.race([
+          Promise.all([getGroup(groupId), listMembers(groupId)]),
+          timeout,
+        ]);
+        if (cancelled) return;
+        if (result === "timeout") {
+          setLoadError(
+            "読み込みがタイムアウトしました。通信状況を確認して、ページを再読み込みしてください。",
+          );
+        } else {
+          const [g, m] = result;
+          setGroup(g);
+          setMembers(m);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setLoadError(
+            "グループの読み込みでエラーが発生しました。時間をおいて再度お試しください。",
+          );
+          console.error("[groups] detail load failed", e);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     };
     void run();
@@ -90,6 +112,16 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
         <Breadcrumb name={null} />
         <p className="rounded-xl border border-dashed border-zinc-300 bg-white/40 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/30 dark:text-zinc-400">
           グループを表示するにはログインが必要です。
+        </p>
+      </div>
+    );
+  }
+  if (loadError) {
+    return (
+      <div className="space-y-4">
+        <Breadcrumb name={null} />
+        <p className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
+          {loadError}
         </p>
       </div>
     );

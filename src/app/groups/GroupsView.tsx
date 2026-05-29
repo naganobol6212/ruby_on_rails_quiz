@@ -31,10 +31,27 @@ export function GroupsView() {
         return;
       }
       setLoading(true);
-      const gs = await listMyGroups();
-      if (!cancelled) {
-        setGroups(gs);
-        setLoading(false);
+      setError(null);
+      const timeout = new Promise<"timeout">((resolve) =>
+        setTimeout(() => resolve("timeout"), 15000),
+      );
+      try {
+        const gs = await Promise.race([listMyGroups(), timeout]);
+        if (cancelled) return;
+        if (gs === "timeout") {
+          setError(
+            "読み込みがタイムアウトしました。通信状況を確認して、ページを再読み込みしてください。",
+          );
+        } else {
+          setGroups(gs);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError("グループ一覧の読み込みでエラーが発生しました。");
+          console.error("[groups] list load failed", e);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     };
     void run();
