@@ -156,8 +156,9 @@ async function currentIdentity(): Promise<{
 } | null> {
   const sb = getSupabase();
   if (!sb) return null;
-  const { data } = await sb.auth.getUser();
-  const u = data.user;
+  // getSession はローカル参照 (getUser はネットワーク往復するため使わない)
+  const { data } = await sb.auth.getSession();
+  const u = data.session?.user;
   if (!u) return null;
   const m = (u.user_metadata ?? {}) as Record<string, string | undefined>;
   return {

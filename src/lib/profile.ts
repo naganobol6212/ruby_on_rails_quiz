@@ -25,9 +25,11 @@ export const PROFILE_UPDATED_EVENT = "rrq:profile-updated";
 export async function getMyProfile(): Promise<ProfileInfo | null> {
   const sb = getSupabase();
   if (!sb) return null;
+  // getSession はローカル参照 (getUser はネットワーク往復するため使わない)
   const {
-    data: { user },
-  } = await sb.auth.getUser();
+    data: { session },
+  } = await sb.auth.getSession();
+  const user = session?.user;
   if (!user) return null;
 
   const meta = (user.user_metadata ?? {}) as Record<string, string | undefined>;

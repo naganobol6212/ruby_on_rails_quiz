@@ -71,19 +71,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setCurrentUserId(u?.id ?? null);
         setReady(true);
 
-        // SIGNED_IN (対話的ログイン) と INITIAL_SESSION (リロード/再訪での
-        // セッション復元) の両方で pull-merge する。これが無いと既ログイン端末は
-        // 再起動時に他端末の更新を取り込めず、進捗が端末ごとにズレる。
-        if (
-          (event === "SIGNED_IN" || event === "INITIAL_SESSION") &&
-          session?.user
-        ) {
+        // SIGNED_IN (対話的ログイン): ログイン前のローカルデータも push する完全同期。
+        // INITIAL_SESSION (リロード/再訪): pull のみ。全件 push は重く、毎回の
+        //   読み込みで回線を圧迫するため避ける (ローカル→リモートは書き込み時の
+        //   fire-and-forget push が担うので、復元時は他端末の更新を取り込むだけでよい)。
+        if (event === "SIGNED_IN" && session?.user) {
           setSyncing(true);
           try {
             await syncOnLogin(sb, session.user.id);
           } finally {
             if (!cancelled) setSyncing(false);
           }
+        } else if (event === "INITIAL_SESSION" && session?.user) {
+          void syncPull();
         }
       },
     );
