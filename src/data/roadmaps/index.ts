@@ -14,6 +14,16 @@ import type { TrackId } from "@/lib/types";
 import { rubyRoadmap } from "./ruby";
 import { javascriptRoadmap } from "./javascript";
 import { typescriptRoadmap } from "./typescript";
+import { pythonRoadmap } from "./python";
+import { sqlRoadmap } from "./sql";
+import { reactRoadmap } from "./react";
+import { nextjsRoadmap } from "./nextjs";
+import { nuxtRoadmap } from "./nuxt";
+import { gitRoadmap } from "./git";
+import { linuxRoadmap } from "./linux";
+import { infosecRoadmap } from "./infosec";
+import { dbDesignRoadmap } from "./db-design";
+import { aiClaudeRoadmap } from "./ai-claude";
 
 export type TrackRoadmap = {
   trackId: TrackId;
@@ -52,6 +62,66 @@ export const trackRoadmaps: Partial<Record<TrackId, TrackRoadmap>> = {
     phases: typescriptRoadmap,
     summary: "型の基礎・ユニオン・ジェネリクスを 30 問で。 JS 経験ありが前提。",
     headline: "型システムで安全に書く",
+  },
+  python: {
+    trackId: "python",
+    phases: pythonRoadmap,
+    summary: "値・コレクションから関数・クラス・モダン開発まで 30 問 + 参考書 7 章。",
+    headline: "Python の基礎からモダンな書き方まで",
+  },
+  sql: {
+    trackId: "sql",
+    phases: sqlRoadmap,
+    summary: "SELECT の基礎から JOIN・ウィンドウ関数・性能まで、参考書 7 章 + 3 カテゴリのクイズ。",
+    headline: "データを自在に問い合わせる",
+  },
+  react: {
+    trackId: "react",
+    phases: reactRoadmap,
+    summary: "JSX・state から Hooks・最適化・RSC まで 30 問 + 参考書 7 章。",
+    headline: "コンポーネントと Hooks を使いこなす",
+  },
+  nextjs: {
+    trackId: "nextjs",
+    phases: nextjsRoadmap,
+    summary: "App Router の規約からデータ取得・Server Actions・本番まで 20 問 + 参考書 7 章。",
+    headline: "App Router で作る Next.js",
+  },
+  nuxt: {
+    trackId: "nuxt",
+    phases: nuxtRoadmap,
+    summary: "Nuxt の規約と Vue Composition からレンダリング・本番まで 20 問 + 参考書 7 章。",
+    headline: "Nuxt 3 と Vue 3 で作る",
+  },
+  git: {
+    trackId: "git",
+    phases: gitRoadmap,
+    summary: "3 つのエリアの基本から復旧・PR・Actions まで 20 問 + 参考書 7 章。",
+    headline: "Git を理解して安全に使う",
+  },
+  linux: {
+    trackId: "linux",
+    phases: linuxRoadmap,
+    summary: "ファイル操作・テキスト処理から運用・シェル自動化まで 20 問 + 参考書 7 章。",
+    headline: "CLI を手足のように使う",
+  },
+  infosec: {
+    trackId: "infosec",
+    phases: infosecRoadmap,
+    summary: "OWASP の主要脅威から認証認可・守りの運用まで 20 問 + 参考書 7 章。",
+    headline: "攻撃を知り、守りを設計する",
+  },
+  "db-design": {
+    trackId: "db-design",
+    phases: dbDesignRoadmap,
+    summary: "ER / 正規化からインデックス・運用・アンチパターンまで 18 問 + 参考書 7 章。",
+    headline: "壊れにくいスキーマを設計する",
+  },
+  "ai-claude": {
+    trackId: "ai-claude",
+    phases: aiClaudeRoadmap,
+    summary: "LLM の基礎からエージェント設計・Claude Code・AI セキュリティ・運用まで 120 問 + 参考書 8 章。",
+    headline: "LLM アプリ開発を体系で学ぶ",
   },
 };
 
