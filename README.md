@@ -108,6 +108,7 @@
 
 1. **Supabase プロジェクトを作成** ([app.supabase.com](https://app.supabase.com/))
 2. **SQL マイグレーション実行**: `supabase/migrations/0001_init.sql` を SQL Editor に貼って実行
+   - (任意) 端末間のライブ同期を使うなら `supabase/migrations/0002_realtime.sql` も実行。未実行でもログイン時 / フォーカス復帰 / 一定間隔の同期で進捗は揃う
 3. **GitHub OAuth を有効化**:
    - GitHub 側で [OAuth App を作成](https://github.com/settings/developers) (Callback URL は Supabase の `https://<project>.supabase.co/auth/v1/callback`)
    - Supabase 側で Authentication → Providers → GitHub に Client ID / Secret を登録
