@@ -1,6 +1,17 @@
 // CodeDojo Service Worker — オフライン読了 + アセットキャッシュ
-const CACHE_VERSION = "codedojo-v1";
+//
+// 重要: バージョン文字列を更新すると、新 SW の activate 時に旧キャッシュを掃除する。
+// デプロイ後に古い JS が居座って画面が壊れる事故を防ぐため、ビルド成果物の挙動を
+// 変えるような変更を入れたら必ず CACHE_VERSION を上げること。
+const CACHE_VERSION = "codedojo-v2";
 const APP_SHELL = ["/", "/offline", "/guide", "/roadmap", "/crud"];
+
+// クライアントから即時切替を促されたら新 SW をすぐ activate する
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -24,7 +35,18 @@ self.addEventListener("activate", (event) => {
             .map((k) => caches.delete(k)),
         ),
       )
-      .then(() => self.clients.claim()),
+      .then(() => self.clients.claim())
+      // 旧 SW で動いていたタブを新コードで読み直す
+      .then(() => self.clients.matchAll({ type: "window" }))
+      .then((clients) => {
+        for (const c of clients) {
+          try {
+            c.navigate(c.url);
+          } catch {
+            /* ナビゲーション拒否は無視 */
+          }
+        }
+      }),
   );
 });
 
@@ -45,10 +67,21 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 静的アセット (JS/CSS/画像/フォント): cache-first
+  // JS / CSS / Next 静的アセット: network-first
+  //   ハッシュ付きファイル名 (Vercel のデプロイで毎回変わる) を cache-first にすると
+  //   古いハッシュのまま新 HTML を読みに行って整合性が崩れるため、network-first にする。
   if (
-    ["style", "script", "image", "font"].includes(request.destination) ||
-    url.pathname.startsWith("/_next/static/") ||
+    request.destination === "script" ||
+    request.destination === "style" ||
+    url.pathname.startsWith("/_next/static/")
+  ) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  // 画像 / フォント: cache-first (内容が安定しているため高速化)
+  if (
+    ["image", "font"].includes(request.destination) ||
     /\.(svg|png|jpg|jpeg|gif|webp|ico|woff2?)$/.test(url.pathname)
   ) {
     event.respondWith(cacheFirst(request));
